@@ -16,6 +16,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { useToast } from "@/hooks/use-toast";
 import type { AlertRule } from "@/types";
 import { PlusCircle, Edit3, Trash2, ListFilter } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const ruleSchema = z.object({
   name: z.string().min(1, "Rule name is required"),
