@@ -1,4 +1,6 @@
 
+export type CatalystType = 'fire' | 'news';
+
 export interface Stock {
   id: string;
   symbol: string;
@@ -8,6 +10,8 @@ export interface Stock {
   volume: number; // in millions
   newsSnippet?: string;
   lastUpdated: string;
+  catalystType?: CatalystType;
+  historicalPrices?: number[]; // For sparkline
 }
 
 export interface AlertRule {
@@ -35,4 +39,19 @@ export interface TradeLogEntry {
   pnl: number;
   notes?: string;
   tradeDate: string;
+}
+
+export type OrderActionType = 'Buy' | 'Short';
+export type OrderSystemType = 'Market' | 'Limit';
+
+export interface TradeRequest {
+  symbol: string;
+  quantity: number;
+  action: OrderActionType;
+  orderType: OrderSystemType;
+  limitPrice?: number;
+  // Firestore specific fields (optional for now)
+  // id?: string;
+  // status?: 'pending' | 'filled' | 'rejected';
+  // timestamp?: any; // Firestore Timestamp
 }

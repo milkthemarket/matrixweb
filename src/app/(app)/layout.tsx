@@ -1,6 +1,7 @@
 
 import { SidebarNav } from "@/components/SidebarNav";
 import { SidebarInset } from "@/components/ui/sidebar";
+import { AlertProvider } from "@/contexts/AlertContext";
 
 export default function AppLayout({
   children,
@@ -8,11 +9,13 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen w-full">
-      <SidebarNav />
-      <SidebarInset className="flex flex-col flex-1 overflow-hidden">
-        {children}
-      </SidebarInset>
-    </div>
+    <AlertProvider>
+      <div className="flex min-h-screen w-full">
+        <SidebarNav />
+        <SidebarInset className="flex flex-col flex-1 overflow-hidden">
+          {children}
+        </SidebarInset>
+      </div>
+    </AlertProvider>
   );
 }
