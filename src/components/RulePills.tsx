@@ -37,7 +37,7 @@ export function RulePills({ minChangePercent, maxFloat, minVolume }: RulePillsPr
   }
 
   if (pills.length === 0) {
-    return <p className="text-sm text-muted-foreground">No active filters.</p>;
+    return <p className="text-sm text-muted-foreground mb-4">No active filters.</p>;
   }
 
   return (

@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { TradeRequest, OrderActionType, OrderSystemType } from '@/types';
-import { DollarSign, BarChartBig, PackageOpen } from 'lucide-react';
+import { DollarSign, BarChartBig, PackageOpen, TrendingUp, TrendingDown } from 'lucide-react'; // Added TrendingUp/Down
 
 interface TradeModalProps {
   isOpen: boolean;
@@ -64,13 +64,15 @@ export function TradeModal({ isOpen, onClose, stockSymbol, actionType, onSubmit 
     onSubmit(tradeDetails);
     onClose();
   };
+  
+  const ActionIcon = actionType === 'Buy' ? TrendingUp : TrendingDown;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px] bg-card border-border">
         <DialogHeader>
           <DialogTitle className="text-primary flex items-center">
-            {actionType === 'Buy' ? <BarChartBig className="mr-2 h-5 w-5" /> : <BarChartBig className="mr-2 h-5 w-5 transform rotate-180" />}
+            <ActionIcon className={`mr-2 h-5 w-5 ${actionType === 'Buy' ? 'text-green-500' : 'text-red-500'}`} />
             {actionType} Order for {stockSymbol}
           </DialogTitle>
           <DialogDescription>
@@ -86,7 +88,7 @@ export function TradeModal({ isOpen, onClose, stockSymbol, actionType, onSubmit 
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="quantity" className="text-right text-muted-foreground">
-              Quantity
+             <PackageOpen className="inline-block mr-1 h-4 w-4" /> Quantity
             </Label>
             <Input
               id="quantity"
@@ -114,7 +116,7 @@ export function TradeModal({ isOpen, onClose, stockSymbol, actionType, onSubmit 
           {orderType === 'Limit' && (
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="limitPrice" className="text-right text-muted-foreground">
-                Limit Price
+                <DollarSign className="inline-block mr-1 h-4 w-4" /> Limit Price
               </Label>
               <Input
                 id="limitPrice"
@@ -132,7 +134,11 @@ export function TradeModal({ isOpen, onClose, stockSymbol, actionType, onSubmit 
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button type="button" onClick={handleSubmit} className="bg-primary text-primary-foreground hover:bg-primary/90">
+          <Button 
+            type="button" 
+            onClick={handleSubmit} 
+            className={actionType === 'Buy' ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-red-600 hover:bg-red-700 text-white'}
+          >
             <PackageOpen className="mr-2 h-4 w-4" />
             Submit {actionType} Order
           </Button>

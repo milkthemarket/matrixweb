@@ -21,6 +21,8 @@ import { RulePills } from '@/components/RulePills';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
 import { useAlertContext, type RefreshInterval } from '@/contexts/AlertContext';
+import { useToast } from "@/hooks/use-toast";
+
 
 const initialMockStocks: Stock[] = [
   { id: '1', symbol: 'AAPL', price: 170.34, changePercent: 2.5, float: 15000, volume: 90.5, newsSnippet: 'New iPhone announced.', lastUpdated: new Date().toISOString(), catalystType: 'news', historicalPrices: [168, 169, 170, 171, 170.5, 172, 170.34] },
@@ -29,12 +31,14 @@ const initialMockStocks: Stock[] = [
   { id: '4', symbol: 'NVDA', price: 900.50, changePercent: 0.5, float: 2500, volume: 75.3, newsSnippet: 'New GPU architecture unveiled.', lastUpdated: new Date().toISOString(), historicalPrices: [890, 895, 900, 905, 902, 903, 900.50] },
   { id: '5', symbol: 'GOOGL', price: 140.22, changePercent: 1.1, float: 6000, volume: 40.8, newsSnippet: 'Search algorithm update.', lastUpdated: new Date().toISOString(), catalystType: 'news', historicalPrices: [138, 139, 140, 139.5, 141, 140.5, 140.22] },
   { id: '6', symbol: 'AMC', price: 4.50, changePercent: -8.2, float: 50, volume: 150.0, newsSnippet: 'Short squeeze chatter online.', lastUpdated: new Date().toISOString(), catalystType: 'fire', historicalPrices: [5.0, 4.8, 4.6, 4.3, 4.7, 4.4, 4.50] },
+  { id: '7', symbol: 'SPY', price: 510.20, changePercent: 10.5, float: 1000, volume: 80.0, newsSnippet: 'Market rally continues.', lastUpdated: new Date().toISOString(), historicalPrices: [500, 502, 505, 503, 508, 511, 510.20] },
+  { id: '8', symbol: 'QQQ', price: 450.80, changePercent: -9.1, float: 800, volume: 70.0, newsSnippet: 'Tech sell-off.', lastUpdated: new Date().toISOString(), historicalPrices: [460, 458, 455, 452, 453, 450, 450.80] },
 ];
 
 export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [minChangePercent, setMinChangePercent] = useState(0);
-  const [maxFloat, setMaxFloat] = useState(20000);
+  const [maxFloat, setMaxFloat] = useState(20000); // Default high value, effectively no filter
   const [minVolume, setMinVolume] = useState(0);
   const [stocks, setStocks] = useState<Stock[]>(initialMockStocks);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
@@ -44,13 +48,15 @@ export default function DashboardPage() {
   const [currentActionType, setCurrentActionType] = useState<OrderActionType | null>(null);
 
   const { autoRefreshEnabled, setAutoRefreshEnabled, refreshInterval, setRefreshInterval } = useAlertContext();
+  const { toast } = useToast();
 
   const handleRefreshData = useCallback(() => {
+    console.log('Refreshing data...');
     const refreshedStocks = stocks.map(stock => ({
       ...stock,
-      price: parseFloat((stock.price * (1 + (Math.random() - 0.5) * 0.03)).toFixed(2)),
-      changePercent: parseFloat(((Math.random() - 0.5) * 10).toFixed(1)),
-      volume: parseFloat((stock.volume * (1 + (Math.random() - 0.2) * 0.1)).toFixed(1)),
+      price: parseFloat((stock.price * (1 + (Math.random() - 0.5) * 0.03)).toFixed(2)), // Fluctuate price by +/- 3%
+      changePercent: parseFloat(((Math.random() - 0.5) * 10).toFixed(1)), // Random change between -5% and +5%
+      volume: parseFloat((stock.volume * (1 + (Math.random() - 0.2) * 0.1)).toFixed(1)), // Fluctuate volume
       lastUpdated: new Date().toISOString(),
       historicalPrices: Array.from({length: 7}, () => parseFloat((stock.price * (1 + (Math.random() - 0.5) * 0.05)).toFixed(2)))
     }));
@@ -59,7 +65,7 @@ export default function DashboardPage() {
   }, [stocks]);
 
   useEffect(() => {
-    setLastRefreshed(new Date());
+    setLastRefreshed(new Date()); // Set initial last refreshed time
   }, []);
 
   useEffect(() => {
@@ -76,9 +82,9 @@ export default function DashboardPage() {
   const filteredStocks = useMemo(() => {
     return stocks.filter(stock =>
       stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      stock.changePercent >= minChangePercent &&
-      stock.float <= maxFloat &&
-      stock.volume >= minVolume
+      (minChangePercent === 0 ? true : stock.changePercent >= minChangePercent) && // Adjust for default no filter
+      (maxFloat === 20000 ? true : stock.float <= maxFloat) && // Adjust for default no filter
+      (minVolume === 0 ? true : stock.volume >= minVolume) // Adjust for default no filter
     );
   }, [stocks, searchTerm, minChangePercent, maxFloat, minVolume]);
 
@@ -92,17 +98,32 @@ export default function DashboardPage() {
     console.log("Trade Submitted:", tradeDetails);
     // Here you would typically call an API or Firestore service
     // For example: await addDoc(collection(db, "tradeRequests"), tradeDetails);
-    alert(`Trade for ${tradeDetails.symbol} (${tradeDetails.action}, ${tradeDetails.quantity} shares, ${tradeDetails.orderType}) submitted for processing.`);
+    toast({
+      title: "Trade Processing",
+      description: `Trade for ${tradeDetails.symbol} (${tradeDetails.action}, ${tradeDetails.quantity} shares, ${tradeDetails.orderType}) submitted.`,
+    });
   };
 
   const handleExport = () => {
+    if (filteredStocks.length === 0) {
+      toast({
+        title: "Export Failed",
+        description: "No data to export. Adjust your filters or refresh.",
+        variant: "destructive",
+      });
+      return;
+    }
     exportToCSV('stock_screener_data.csv', filteredStocks);
+    toast({
+      title: "Export Successful",
+      description: "Stock screener data has been exported to CSV.",
+    });
   };
   
   const getRowHighlightClass = (stock: Stock): string => {
-    if (stock.changePercent > 10) return 'border-l-4 border-green-400'; // Strong gainer
-    if (stock.changePercent < -8) return 'border-l-4 border-red-400'; // Strong loser
-    if (stock.float < 500 && stock.volume > 50) return 'border-l-4 border-blue-400'; // Low float, high volume relative
+    if (stock.changePercent >= 10) return 'border-l-4 border-green-400 bg-green-500/5'; 
+    if (stock.changePercent <= -8) return 'border-l-4 border-red-400 bg-red-500/5';
+    if (stock.float <= 500 && stock.volume >= 50) return 'border-l-4 border-blue-400 bg-blue-500/5';
     return '';
   };
 
@@ -174,28 +195,31 @@ export default function DashboardPage() {
                   min={-10}
                   max={20}
                   step={0.5}
+                  defaultValue={[0]}
                   value={[minChangePercent]}
                   onValueChange={(value) => setMinChangePercent(value[0])}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="max-float">Max. Float ({maxFloat}M)</Label>
+                <Label htmlFor="max-float">Max. Float ({maxFloat === 20000 ? 'Any': `${maxFloat}M`})</Label>
                 <Slider
                   id="max-float"
                   min={1}
-                  max={20000}
+                  max={20000} 
                   step={100}
+                  defaultValue={[20000]}
                   value={[maxFloat]}
                   onValueChange={(value) => setMaxFloat(value[0])}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="min-volume">Min. Volume ({minVolume}M)</Label>
+                <Label htmlFor="min-volume">Min. Volume ({minVolume === 0 ? 'Any': `${minVolume}M`})</Label>
                 <Slider
                   id="min-volume"
                   min={0}
                   max={200}
                   step={1}
+                  defaultValue={[0]}
                   value={[minVolume]}
                   onValueChange={(value) => setMinVolume(value[0])}
                 />
@@ -204,7 +228,7 @@ export default function DashboardPage() {
 
             <RulePills minChangePercent={minChangePercent} maxFloat={maxFloat} minVolume={minVolume} />
             
-            <div className="rounded-md border">
+            <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -221,34 +245,44 @@ export default function DashboardPage() {
                 <TableBody>
                   {filteredStocks.length > 0 ? (
                     filteredStocks.map((stock) => (
-                      <TableRow key={stock.id} className={cn(getRowHighlightClass(stock))}>
+                      <TableRow key={stock.id} className={cn(getRowHighlightClass(stock), "hover:bg-muted/20")}>
                         <TableCell className="font-medium">
                           <Popover>
                             <PopoverTrigger asChild>
                               <span className="cursor-pointer hover:text-primary flex items-center">
                                 {stock.symbol}
-                                {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-orange-400" />}
-                                {stock.catalystType === 'news' && <Megaphone className="ml-1 h-4 w-4 text-blue-400" />}
+                                {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-orange-400" title="Hot Catalyst" />}
+                                {stock.catalystType === 'news' && <Megaphone className="ml-1 h-4 w-4 text-blue-400" title="News Catalyst"/>}
                               </span>
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 border-none shadow-none" side="right" align="start">
+                            <PopoverContent className="w-auto p-0 border-popover shadow-xl" side="right" align="start">
                               <ChartPreview stock={stock} />
                             </PopoverContent>
                           </Popover>
                         </TableCell>
                         <TableCell className="text-right">${stock.price.toFixed(2)}</TableCell>
                         <TableCell className={cn("text-right", stock.changePercent >= 0 ? "text-green-400" : "text-red-400")}>
-                          {stock.changePercent.toFixed(1)}%
+                          {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(1)}%
                         </TableCell>
                         <TableCell className="text-right">{stock.float.toLocaleString()}</TableCell>
                         <TableCell className="text-right">{stock.volume.toLocaleString()}</TableCell>
-                        <TableCell className="max-w-xs truncate">{stock.newsSnippet || 'N/A'}</TableCell>
+                        <TableCell className="max-w-xs truncate" title={stock.newsSnippet || 'N/A'}>{stock.newsSnippet || 'N/A'}</TableCell>
                         <TableCell className="text-right text-xs text-muted-foreground">{format(new Date(stock.lastUpdated), "HH:mm:ss")}</TableCell>
                         <TableCell className="text-center space-x-1">
-                          <Button variant="outline" size="sm" className="h-8 px-2 border-green-500 text-green-500 hover:bg-green-500/10 hover:text-green-400" onClick={() => handleTradeAction(stock.symbol, 'Buy')}>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 px-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white" 
+                            onClick={() => handleTradeAction(stock.symbol, 'Buy')}
+                          >
                             <TrendingUp className="mr-1 h-4 w-4" /> Buy
                           </Button>
-                          <Button variant="outline" size="sm" className="h-8 px-2 border-red-500 text-red-500 hover:bg-red-500/10 hover:text-red-400" onClick={() => handleTradeAction(stock.symbol, 'Short')}>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 px-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white" 
+                            onClick={() => handleTradeAction(stock.symbol, 'Short')}
+                          >
                             <TrendingDown className="mr-1 h-4 w-4" /> Short
                           </Button>
                         </TableCell>
@@ -256,8 +290,8 @@ export default function DashboardPage() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center">
-                        No stocks match your criteria.
+                      <TableCell colSpan={8} className="text-center h-24">
+                        No stocks match your criteria. Try adjusting the filters.
                       </TableCell>
                     </TableRow>
                   )}
@@ -277,3 +311,4 @@ export default function DashboardPage() {
     </main>
   );
 }
+
