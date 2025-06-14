@@ -294,9 +294,10 @@ export default function DashboardPage() {
 
               <RulePills minChangePercent={minChangePercent} maxFloat={maxFloat} minVolume={minVolume} />
 
-              <div className="rounded-md border border-border/[.1] overflow-auto flex-1"> {/* Subtle border */}
+              <div className="rounded-xl border border-white/10 overflow-auto flex-1"> {/* Adjusted for Quantum Black card style */}
                 <Table>
-                  <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10"> {/* Frosted header */}
+                  <TableHeader className="sticky top-0 bg-black/80 backdrop-blur-md z-10"> {/* Adjusted for pure black background with blur for header */}
+                    {/* Frosted header */}
                     <TableRow>
                       <TableHead>Symbol</TableHead>
                       <TableHead className="text-right">Price</TableHead>
@@ -315,7 +316,7 @@ export default function DashboardPage() {
                             key={stock.id}
                             className={cn(
                                 getRowHighlightClass(stock),
-                                "hover:bg-muted/5", // Subtle hover
+                                "hover:bg-white/5", // Quantum Black subtle hover
                                 selectedStockForOrderCard?.id === stock.id && "bg-primary/10" // Cyber Cyan tint
                             )}
                         >
@@ -331,7 +332,7 @@ export default function DashboardPage() {
                                   {stock.catalystType === 'news' && <Megaphone className="ml-1 h-4 w-4 text-primary" title="News Catalyst"/>} {/* Primary is Cyber Cyan */}
                                 </span>
                               </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0 border-popover/[.1] shadow-md" side="right" align="start"> {/* Quantum Black for Popover */}
+                              <PopoverContent className="w-auto p-0 border-white/10 shadow-md" side="right" align="start"> {/* Quantum Black Popover */}
                                 <ChartPreview stock={stock} />
                               </PopoverContent>
                             </Popover>
@@ -397,3 +398,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+    
