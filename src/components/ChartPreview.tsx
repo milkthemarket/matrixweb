@@ -31,7 +31,7 @@ export function ChartPreview({ stock }: ChartPreviewProps) {
   const strokeColor = stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))"; // Uses Cyber Cyan (chart-2) for up, Red (chart-5) for down
 
   return (
-    <Card className="w-64 shadow-md bg-popover/[.05] border-border/[.1] backdrop-blur-md"> {/* Quantum Black Styling */}
+    <Card className="w-64 shadow-md bg-popover/[.05] backdrop-blur-md rounded-xl"> {/* Quantum Black Styling, removed border */}
       <CardHeader className="p-3">
         <CardTitle className="text-base font-semibold text-popover-foreground">{stock.symbol} - Price Trend</CardTitle>
         <CardDescription className="text-xs text-muted-foreground">Last 10 periods (mock data)</CardDescription>
@@ -43,13 +43,13 @@ export function ChartPreview({ stock }: ChartPreviewProps) {
             <YAxis domain={['dataMin - 1', 'dataMax + 1']} hide/>
             <Tooltip
               contentStyle={{ 
-                backgroundColor: 'hsla(var(--background), 0.8)', // Semi-transparent dark background for tooltip
-                borderColor: 'hsla(var(--border), 0.1)', // Subtle border, white at 10% opacity
+                backgroundColor: 'hsla(var(--background), 0.8)', 
+                borderColor: 'hsla(var(--border), 0.05)', // Very subtle border for tooltip
                 borderRadius: 'var(--radius)',
-                backdropFilter: 'blur(4px)', // Light blur for tooltip itself
+                backdropFilter: 'blur(4px)', 
                 WebkitBackdropFilter: 'blur(4px)',
               }}
-              labelStyle={{ color: 'hsl(var(--foreground))' }} // White label
+              labelStyle={{ color: 'hsl(var(--foreground))' }} 
               itemStyle={{ color: strokeColor }}
               formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
             />

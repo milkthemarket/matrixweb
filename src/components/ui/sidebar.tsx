@@ -174,7 +174,7 @@ const Sidebar = React.forwardRef<
       return (
         <div
           className={cn(
-            "flex h-full w-[--sidebar-width] flex-col bg-sidebar/[.05] backdrop-blur-md border-r border-sidebar-border/[.1] text-sidebar-foreground shadow-md", // Quantum Black Styling
+            "flex h-full w-[--sidebar-width] flex-col bg-sidebar/[.05] backdrop-blur-md text-sidebar-foreground shadow-md", // Removed border-r border-sidebar-border/[.1]
             className
           )}
           ref={ref}
@@ -191,7 +191,7 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-            className="w-[--sidebar-width] bg-sidebar/[.05] backdrop-blur-md p-0 text-sidebar-foreground [&>button]:hidden border-r border-sidebar-border/[.1] shadow-md" // Quantum Black Styling
+            className="w-[--sidebar-width] bg-sidebar/[.05] backdrop-blur-md p-0 text-sidebar-foreground [&>button]:hidden shadow-md" // Removed border-r border-sidebar-border/[.1]
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -232,8 +232,8 @@ const Sidebar = React.forwardRef<
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
             variant === "floating" || variant === "inset"
               ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
-            "group-data-[side=left]:border-sidebar-border/[.1] group-data-[side=right]:border-sidebar-border/[.1]", 
+              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]", // Removed group-data-[side=left]:border-r group-data-[side=right]:border-l
+            // Removed group-data-[side=left]:border-sidebar-border/[.1] group-data-[side=right]:border-sidebar-border/[.1]
             className
           )}
           {...props}
@@ -241,8 +241,8 @@ const Sidebar = React.forwardRef<
           <div
             data-sidebar="sidebar"
             className={cn(
-              "flex h-full w-full flex-col bg-sidebar/[.05] backdrop-blur-md shadow-md", // Quantum Black Styling
-              variant === "floating" ? "rounded-xl border border-sidebar-border/[.1]" : "" // Apply rounded-xl for floating
+              "flex h-full w-full flex-col bg-sidebar/[.05] backdrop-blur-md shadow-md", 
+              variant === "floating" ? "rounded-xl" : "" // Removed border border-sidebar-border/[.1] for floating
             )}
           >
             {children}
@@ -266,7 +266,7 @@ const SidebarTrigger = React.forwardRef<
       data-sidebar="trigger"
       variant="ghost"
       size="icon"
-      className={cn("h-7 w-7 text-foreground hover:text-primary", className)} // Ensure trigger icon is visible
+      className={cn("h-7 w-7 text-foreground hover:text-primary", className)} 
       onClick={(event) => {
         onClick?.(event)
         toggleSidebar()
@@ -336,7 +336,7 @@ const SidebarInput = React.forwardRef<
       ref={ref}
       data-sidebar="input"
       className={cn(
-        "h-8 w-full bg-background text-foreground border-input/50 shadow-none focus-visible:ring-2 focus-visible:ring-sidebar-ring", // Adjusted border for dark theme
+        "h-8 w-full bg-background text-foreground border-input/50 shadow-none focus-visible:ring-2 focus-visible:ring-sidebar-ring", 
         className
       )}
       {...props}
@@ -683,7 +683,7 @@ const SidebarMenuSub = React.forwardRef<
     ref={ref}
     data-sidebar="menu-sub"
     className={cn(
-      "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border/[.1] px-2.5 py-0.5", // Adjusted border opacity
+      "mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l border-sidebar-border/[.1] px-2.5 py-0.5", 
       "group-data-[collapsible=icon]:hidden",
       className
     )}
