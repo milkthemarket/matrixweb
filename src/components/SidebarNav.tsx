@@ -65,7 +65,7 @@ export function SidebarNav() {
           <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 group-data-[state=collapsed]:justify-center">
             <CowIcon className="h-6 w-6 text-white flex-shrink-0 filter drop-shadow-[0_0_6px_rgba(255,255,255,0.1)] group-hover:fill-white transition-colors duration-150" />
             {open && (
-              <h1 className="text-3xl font-bold tracking-wide text-foreground font-headline truncate">MILK</h1>
+              <h1 className="text-3xl font-bold tracking-wide text-foreground font-headline truncate">M.I.L.K.</h1>
             )}
           </Link>
           {!isMobile && (
@@ -115,10 +115,11 @@ export function SidebarNav() {
 
       {open && (
         <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden">
-          <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} MILK</p>
+          <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} M.I.L.K.</p>
         </SidebarFooter>
       )}
 
     </Sidebar>
   );
 }
+
