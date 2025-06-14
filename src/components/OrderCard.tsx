@@ -187,7 +187,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const getCardTitle = () => {
     if (!selectedStock) return "Trade Panel";
     if (tradeMode === 'ai') return `AI Assist: ${selectedStock.symbol}`;
-    if (tradeMode === 'auto') return `Auto Trade: ${selectedStock.symbol}`;
+    if (tradeMode === 'auto') return `AI Auto: ${selectedStock.symbol}`;
     if (currentAction) return `${currentAction} ${selectedStock.symbol}`;
     return selectedStock.symbol;
   };
@@ -271,7 +271,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             )}
             disabled={!selectedStock}
           >
-            <Cog className="mr-2 h-4 w-4" /> Auto
+            <Cog className="mr-2 h-4 w-4" /> AI Auto
           </button>
         </div>
 
@@ -418,7 +418,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
           <div className="space-y-4">
             <Card className="bg-transparent shadow-none border-none">
               <CardHeader className="p-0 pb-3">
-                <CardTitle className="text-lg font-semibold text-foreground">Auto Mode Active</CardTitle>
+                <CardTitle className="text-lg font-semibold text-foreground">AI Auto Mode Active</CardTitle>
                 <CardDescription>Trades will be placed automatically based on your selected rules for {selectedStock.symbol}.</CardDescription>
               </CardHeader>
               <CardContent className="p-0 space-y-3">
@@ -439,7 +439,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
                     <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-3 shadow-sm bg-black/10">
                         <div className="space-y-0.5">
                             <Label htmlFor="autoTradingSwitch" className="text-base font-medium text-foreground cursor-pointer">
-                            Auto-Trading Enabled
+                            AI Auto-Trading Enabled
                             </Label>
                              <p className="text-xs text-muted-foreground">
                             Allow automated execution for {selectedStock.symbol}.
@@ -464,7 +464,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
          {tradeMode === 'auto' && !selectedStock && (
           <div className="text-center py-10 text-muted-foreground">
             <Cog className="mx-auto h-12 w-12 mb-4 opacity-50" />
-            <p>Select a stock to configure Auto Mode settings.</p>
+            <p>Select a stock to configure AI Auto Mode settings.</p>
           </div>
         )}
 
@@ -491,3 +491,4 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     </Card>
   );
 }
+
