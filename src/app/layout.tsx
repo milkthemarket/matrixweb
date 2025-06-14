@@ -4,8 +4,8 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'TradePilot',
-  description: 'Modern trading dashboard by Firebase Studio',
+  title: 'MILK',
+  description: 'MILK: Market Insight, Liquidity & Knowledge. Modern trading dashboard by Firebase Studio',
 };
 
 export default function RootLayout({

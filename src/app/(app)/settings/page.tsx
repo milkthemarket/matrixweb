@@ -8,13 +8,13 @@ export default function SettingsPage() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Settings" />
       <div className="flex-1 p-4 md:p-6 overflow-auto">
-        <Card className="bg-transparent shadow-none border-none rounded-none backdrop-blur-none">
+        <Card className="bg-transparent shadow-none rounded-none backdrop-blur-none border-none">
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <SettingsIcon className="mr-2 h-6 w-6 text-primary"/>
               Application Settings
             </CardTitle>
-            <CardDescription>Configure your TradePilot preferences and integrations.</CardDescription>
+            <CardDescription>Configure your MILK preferences and integrations. Market Insight. Liquidity. Knowledge.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="p-8 text-center text-muted-foreground">

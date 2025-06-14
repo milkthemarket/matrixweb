@@ -1,6 +1,6 @@
-# TradePilot Trading Dashboard
+# MILK Trading Dashboard
 
-This is a NextJS-based trading dashboard application, "TradePilot", built with Firebase Studio.
+This is a NextJS-based trading dashboard application, "MILK" (Market Insight, Liquidity & Knowledge), built with Firebase Studio.
 
 ## Features
 

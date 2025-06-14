@@ -31,7 +31,7 @@ export function SidebarNav() {
       <SidebarHeader className="p-4">
         <Link href="/dashboard" className="flex items-center gap-2">
           <CandlestickChart className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-semibold text-primary font-headline group-data-[collapsible=icon]:hidden">TradePilot</h1>
+          <h1 className="text-2xl font-semibold text-primary font-headline group-data-[collapsible=icon]:hidden">MILK</h1>
         </Link>
       </SidebarHeader>
       <SidebarContent>
@@ -43,7 +43,7 @@ export function SidebarNav() {
                 <Link href={item.href}>
                   <SidebarMenuButton
                     variant="default"
-                    isActive={isActive} // Pass isActive to SidebarMenuButton
+                    isActive={isActive} 
                     className={cn(
                       // Base classes are handled by sidebarMenuButtonVariants
                       // Hover styles: hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground
@@ -61,7 +61,7 @@ export function SidebarNav() {
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden">
-        <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} TradePilot</p>
+        <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} MILK</p>
       </SidebarFooter>
     </Sidebar>
   );
