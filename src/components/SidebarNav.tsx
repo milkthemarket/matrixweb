@@ -11,11 +11,11 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  useSidebar, 
+  useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, ChevronLeft, ChevronRight } from "lucide-react"; 
+import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button"; 
+import { Button } from "@/components/ui/button";
 
 // Define an inline SVG component for the Cow icon
 const CowIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -52,31 +52,22 @@ const navItems = [
 
 export function SidebarNav() {
   const pathname = usePathname();
-  const { open, toggleSidebar, isMobile } = useSidebar(); 
+  const { open, toggleSidebar, isMobile } = useSidebar();
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon"> {/* This is from @/components/ui/sidebar */}
       <SidebarHeader className="p-4">
-        <div className="flex items-center justify-between w-full">
-          <Link href="/dashboard" className="flex items-center gap-2 min-w-0 drop-shadow-lg"> 
-            <CowIcon className="h-6 w-6 text-primary flex-shrink-0" /> 
+        <div className="flex items-center justify-start w-full"> {/* Changed from justify-between */}
+          <Link href="/dashboard" className="flex items-center gap-2 min-w-0 drop-shadow-lg">
+            <CowIcon className="h-6 w-6 text-primary flex-shrink-0" />
             {open && (
               <h1 className="text-3xl font-bold tracking-wide text-foreground font-headline truncate">MILK</h1>
             )}
           </Link>
-          {!isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className="h-7 w-7 text-muted-foreground hover:text-foreground flex-shrink-0"
-              aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
-            >
-              {open ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
-            </Button>
-          )}
+          {/* Original button position removed from here */}
         </div>
       </SidebarHeader>
+
       <SidebarContent>
         <SidebarMenu>
           {navItems.map((item) => {
@@ -93,7 +84,7 @@ export function SidebarNav() {
                     tooltip={{ children: item.label, className: "text-xs" }}
                   >
                     <item.icon className={cn("h-5 w-5", isActive ? "text-sidebar-primary" : "text-muted-foreground group-hover:text-sidebar-accent-foreground")} />
-                    {open && ( 
+                    {open && (
                       <span className="text-base font-semibold tracking-wide">{item.label}</span>
                     )}
                   </SidebarMenuButton>
@@ -103,12 +94,30 @@ export function SidebarNav() {
           })}
         </SidebarMenu>
       </SidebarContent>
-      {open && ( 
+
+      {open && (
         <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden">
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} MILK</p>
         </SidebarFooter>
       )}
+
+      {/* New position for the toggle button, as a direct child of Sidebar */}
+      {!isMobile && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className={cn(
+            "h-7 w-7 text-muted-foreground hover:text-foreground flex-shrink-0",
+            "absolute z-20", // Ensure it's above other static content in the sidebar.
+            "top-[4.5rem]",   // Position 4.5rem (72px) from the top of the sidebar.
+            "left-[0.75rem]"  // Position 0.75rem (12px) from the left edge of the sidebar.
+          )}
+          aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
+        >
+          {open ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+        </Button>
+      )}
     </Sidebar>
   );
 }
-
