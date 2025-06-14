@@ -23,16 +23,18 @@ import { exportToCSV } from '@/lib/exportCSV';
 import { useAlertContext, type RefreshInterval } from '@/contexts/AlertContext';
 import { useToast } from "@/hooks/use-toast";
 
+// Use a fixed initial timestamp to prevent hydration errors
+const MOCK_INITIAL_TIMESTAMP = new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(); // 2 hours ago
 
 const initialMockStocks: Stock[] = [
-  { id: '1', symbol: 'AAPL', price: 170.34, changePercent: 2.5, float: 15000, volume: 90.5, newsSnippet: 'New iPhone announced.', lastUpdated: new Date().toISOString(), catalystType: 'news', historicalPrices: [168, 169, 170, 171, 170.5, 172, 170.34] },
-  { id: '2', symbol: 'MSFT', price: 420.72, changePercent: -1.2, float: 7000, volume: 60.2, newsSnippet: 'AI partnership expansion.', lastUpdated: new Date().toISOString(), historicalPrices: [425, 422, 423, 420, 421, 419, 420.72] },
-  { id: '3', symbol: 'TSLA', price: 180.01, changePercent: 5.8, float: 800, volume: 120.1, newsSnippet: 'Cybertruck deliveries ramp up.', lastUpdated: new Date().toISOString(), catalystType: 'fire', historicalPrices: [170, 172, 175, 173, 178, 181, 180.01] },
-  { id: '4', symbol: 'NVDA', price: 900.50, changePercent: 0.5, float: 2500, volume: 75.3, newsSnippet: 'New GPU architecture unveiled.', lastUpdated: new Date().toISOString(), historicalPrices: [890, 895, 900, 905, 902, 903, 900.50] },
-  { id: '5', symbol: 'GOOGL', price: 140.22, changePercent: 1.1, float: 6000, volume: 40.8, newsSnippet: 'Search algorithm update.', lastUpdated: new Date().toISOString(), catalystType: 'news', historicalPrices: [138, 139, 140, 139.5, 141, 140.5, 140.22] },
-  { id: '6', symbol: 'AMC', price: 4.50, changePercent: -8.2, float: 50, volume: 150.0, newsSnippet: 'Short squeeze chatter online.', lastUpdated: new Date().toISOString(), catalystType: 'fire', historicalPrices: [5.0, 4.8, 4.6, 4.3, 4.7, 4.4, 4.50] },
-  { id: '7', symbol: 'SPY', price: 510.20, changePercent: 10.5, float: 1000, volume: 80.0, newsSnippet: 'Market rally continues.', lastUpdated: new Date().toISOString(), historicalPrices: [500, 502, 505, 503, 508, 511, 510.20] },
-  { id: '8', symbol: 'QQQ', price: 450.80, changePercent: -9.1, float: 800, volume: 70.0, newsSnippet: 'Tech sell-off.', lastUpdated: new Date().toISOString(), historicalPrices: [460, 458, 455, 452, 453, 450, 450.80] },
+  { id: '1', symbol: 'AAPL', price: 170.34, changePercent: 2.5, float: 15000, volume: 90.5, newsSnippet: 'New iPhone announced.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [168, 169, 170, 171, 170.5, 172, 170.34] },
+  { id: '2', symbol: 'MSFT', price: 420.72, changePercent: -1.2, float: 7000, volume: 60.2, newsSnippet: 'AI partnership expansion.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [425, 422, 423, 420, 421, 419, 420.72] },
+  { id: '3', symbol: 'TSLA', price: 180.01, changePercent: 5.8, float: 800, volume: 120.1, newsSnippet: 'Cybertruck deliveries ramp up.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [170, 172, 175, 173, 178, 181, 180.01] },
+  { id: '4', symbol: 'NVDA', price: 900.50, changePercent: 0.5, float: 2500, volume: 75.3, newsSnippet: 'New GPU architecture unveiled.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [890, 895, 900, 905, 902, 903, 900.50] },
+  { id: '5', symbol: 'GOOGL', price: 140.22, changePercent: 1.1, float: 6000, volume: 40.8, newsSnippet: 'Search algorithm update.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [138, 139, 140, 139.5, 141, 140.5, 140.22] },
+  { id: '6', symbol: 'AMC', price: 4.50, changePercent: -8.2, float: 50, volume: 150.0, newsSnippet: 'Short squeeze chatter online.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [5.0, 4.8, 4.6, 4.3, 4.7, 4.4, 4.50] },
+  { id: '7', symbol: 'SPY', price: 510.20, changePercent: 10.5, float: 1000, volume: 80.0, newsSnippet: 'Market rally continues.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [500, 502, 505, 503, 508, 511, 510.20] },
+  { id: '8', symbol: 'QQQ', price: 450.80, changePercent: -9.1, float: 800, volume: 70.0, newsSnippet: 'Tech sell-off.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [460, 458, 455, 452, 453, 450, 450.80] },
 ];
 
 export default function DashboardPage() {
@@ -52,20 +54,23 @@ export default function DashboardPage() {
 
   const handleRefreshData = useCallback(() => {
     console.log('Refreshing data...');
+    // Note: We are creating new stock objects here. If you have a more complex state or
+    // identity requirements, you might need a more sophisticated update mechanism.
     const refreshedStocks = stocks.map(stock => ({
       ...stock,
       price: parseFloat((stock.price * (1 + (Math.random() - 0.5) * 0.03)).toFixed(2)), // Fluctuate price by +/- 3%
       changePercent: parseFloat(((Math.random() - 0.5) * 10).toFixed(1)), // Random change between -5% and +5%
       volume: parseFloat((stock.volume * (1 + (Math.random() - 0.2) * 0.1)).toFixed(1)), // Fluctuate volume
-      lastUpdated: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(), // Now this is fine as it's a client-side update
       historicalPrices: Array.from({length: 7}, () => parseFloat((stock.price * (1 + (Math.random() - 0.5) * 0.05)).toFixed(2)))
     }));
     setStocks(refreshedStocks);
     setLastRefreshed(new Date());
-  }, [stocks]);
+  }, [stocks]); // Added stocks to dependency array as it's used in map
 
   useEffect(() => {
-    setLastRefreshed(new Date()); // Set initial last refreshed time
+    // Set initial last refreshed time on client mount
+    setLastRefreshed(new Date());
   }, []);
 
   useEffect(() => {
@@ -82,9 +87,9 @@ export default function DashboardPage() {
   const filteredStocks = useMemo(() => {
     return stocks.filter(stock =>
       stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (minChangePercent === 0 ? true : stock.changePercent >= minChangePercent) && // Adjust for default no filter
-      (maxFloat === 20000 ? true : stock.float <= maxFloat) && // Adjust for default no filter
-      (minVolume === 0 ? true : stock.volume >= minVolume) // Adjust for default no filter
+      (minChangePercent === 0 ? true : stock.changePercent >= minChangePercent) &&
+      (maxFloat === 20000 ? true : stock.float <= maxFloat) && 
+      (minVolume === 0 ? true : stock.volume >= minVolume)
     );
   }, [stocks, searchTerm, minChangePercent, maxFloat, minVolume]);
 
@@ -96,8 +101,6 @@ export default function DashboardPage() {
 
   const handleTradeSubmit = (tradeDetails: TradeRequest) => {
     console.log("Trade Submitted:", tradeDetails);
-    // Here you would typically call an API or Firestore service
-    // For example: await addDoc(collection(db, "tradeRequests"), tradeDetails);
     toast({
       title: "Trade Processing",
       description: `Trade for ${tradeDetails.symbol} (${tradeDetails.action}, ${tradeDetails.quantity} shares, ${tradeDetails.orderType}) submitted.`,
@@ -267,7 +270,10 @@ export default function DashboardPage() {
                         <TableCell className="text-right">{stock.float.toLocaleString()}</TableCell>
                         <TableCell className="text-right">{stock.volume.toLocaleString()}</TableCell>
                         <TableCell className="max-w-xs truncate" title={stock.newsSnippet || 'N/A'}>{stock.newsSnippet || 'N/A'}</TableCell>
-                        <TableCell className="text-right text-xs text-muted-foreground">{format(new Date(stock.lastUpdated), "HH:mm:ss")}</TableCell>
+                        <TableCell className="text-right text-xs text-muted-foreground">
+                           {/* Ensure this formatting is consistent or defer to client-only rendering if needed */}
+                          {format(new Date(stock.lastUpdated), "HH:mm:ss")}
+                        </TableCell>
                         <TableCell className="text-center space-x-1">
                           <Button 
                             variant="outline" 
@@ -311,4 +317,3 @@ export default function DashboardPage() {
     </main>
   );
 }
-
