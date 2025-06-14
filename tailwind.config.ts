@@ -14,15 +14,18 @@ export default {
         headline: ['Inter', 'sans-serif'],
         code: ['monospace'],
       },
+      backgroundImage: {
+        'neon-radial': 'radial-gradient(circle at center, #6a0dad 0%, #1e0635 40%, #0e021a 100%)',
+      },
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
-          DEFAULT: 'hsl(var(--card))', // Should be hsl(var(--panel-base))
+          DEFAULT: 'hsl(var(--card))', 
           foreground: 'hsl(var(--card-foreground))',
         },
         popover: {
-          DEFAULT: 'hsl(var(--popover))', // Should be hsl(var(--panel-base))
+          DEFAULT: 'hsl(var(--popover))', 
           foreground: 'hsl(var(--popover-foreground))',
         },
         primary: {
@@ -45,7 +48,7 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
-        border: 'hsl(var(--border))', // Should be hsl(var(--panel-base))
+        border: 'hsl(var(--border))', 
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         chart: {
@@ -56,22 +59,22 @@ export default {
           '5': 'hsl(var(--chart-5))',
         },
         sidebar: {
-          DEFAULT: 'hsl(var(--sidebar-background))', // Should be hsl(var(--panel-base))
+          DEFAULT: 'hsl(var(--sidebar-background))', 
           foreground: 'hsl(var(--sidebar-foreground))',
           primary: 'hsl(var(--sidebar-primary))',
           'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
           accent: 'hsl(var(--sidebar-accent))',
           'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-          border: 'hsl(var(--sidebar-border))', // Should be hsl(var(--panel-base))
+          border: 'hsl(var(--sidebar-border))', 
           ring: 'hsl(var(--sidebar-ring))',
         },
         panel: 'hsl(var(--panel-base))', 
         header: {
-          DEFAULT: 'hsl(var(--header-background))', // Should be hsl(var(--panel-base))
+          DEFAULT: 'hsl(var(--header-background))', 
           foreground: 'hsl(var(--foreground))',
         },
         dialog: {
-          DEFAULT: 'hsl(var(--dialog-background))', // Should be hsl(var(--panel-base))
+          DEFAULT: 'hsl(var(--dialog-background))', 
           foreground: 'hsl(var(--foreground))',
         },
       },
