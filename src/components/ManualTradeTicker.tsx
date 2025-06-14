@@ -4,7 +4,7 @@
 import React, { useMemo } from 'react';
 import { useSettingsContext } from '@/contexts/SettingsContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
-import { Tool } from 'lucide-react';
+import { Wrench } from 'lucide-react'; // Changed from Tool to Wrench
 import { cn } from '@/lib/utils';
 
 export function ManualTradeTicker() {
@@ -31,7 +31,7 @@ export function ManualTradeTicker() {
   return (
     <div className="w-full bg-black/40 text-white px-4 py-1.5 text-xs overflow-hidden whitespace-nowrap border-b border-primary shadow-inner sticky top-0 z-20">
       <div className="animate-ticker flex items-center"> {/* Flex container for icon and text */}
-        <Tool className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />
+        <Wrench className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" /> {/* Changed from Tool to Wrench */}
         <span className="font-medium mr-3 flex-shrink-0">Manual Trades:</span>
         {manualTradesWithPnl.map((trade, idx) => (
           <span 
@@ -52,3 +52,4 @@ export function ManualTradeTicker() {
     </div>
   );
 }
+
