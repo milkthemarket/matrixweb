@@ -4,17 +4,17 @@
 
 @layer base {
   :root {
-    --background: 0 0% 0%; /* #000000 - Pure Black */
-    --foreground: 0 0% 100%; /* White */
+    --background: 0 0% 5%; /* #0D0D0D - Very dark black, near #0e0e0e */
+    --foreground: 0 0% 90%; /* text-white/90 */
 
     /* Base white for panels, to be combined with opacity in components */
     --panel-base: 0 0% 100%; 
 
     --card: var(--panel-base);
-    --card-foreground: 0 0% 100%;
+    --card-foreground: 0 0% 90%; /* text-white/90 */
 
     --popover: var(--panel-base);
-    --popover-foreground: 0 0% 100%;
+    --popover-foreground: 0 0% 90%; /* text-white/90 */
 
     --primary: 188 100% 50%;  /* #00E5FF Cyber Cyan */
     --primary-foreground: 0 0% 6%; /* Dark text for primary buttons */
@@ -23,7 +23,7 @@
     --secondary-foreground: 0 0% 90%; /* Light grey text */
 
     --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%; /* Muted text, soft gray */
+    --muted-foreground: 0 0% 60%; /* text-white/60 Muted text, soft gray */
 
     --accent: 279 47% 47%;   /* #8E44AD Electric Violet */
     --accent-foreground: 0 0% 100%; /* White text for accent elements */
@@ -31,31 +31,33 @@
     --destructive: 0 100% 65%; /* #FF4C4C Error Red */
     --destructive-foreground: 0 0% 100%; /* White text for destructive elements */
     
+    --confirm-green: 158 100% 50%; /* #00FF9C Confirm Green */
+    --confirm-green-foreground: 0 0% 6%; /* Dark text for confirm green buttons */
+
     --border: var(--panel-base); /* White base for borders, opacity applied in components */
     --input: 0 0% 12%; /* Darker grey for input field backgrounds */
-    --ring: 279 47% 47%; /* Electric Violet for rings */
+    --ring: 279 47% 47%; /* Electric Violet for rings (focus rings) */
 
     /* Chart Colors */
-    --chart-1: 188 100% 50%; /* Cyber Cyan (Primary) - Can be used as a default "up" */
-    --chart-2: 188 100% 50%; /* Up: #00E5FF Cyber Cyan (used by ChartPreview) */
-    --chart-3: 279 47% 47%;  /* Electric Violet */
-    --chart-4: 220 70% 60%;  /* A different blue */
-    --chart-5: 0 100% 65%;   /* Down: #FF4C4C Red (used by ChartPreview) */
+    --chart-1: hsl(var(--primary)); /* Cyber Cyan */
+    --chart-2: hsl(var(--confirm-green)); /* Confirm Green (Up candle) */
+    --chart-3: hsl(var(--accent));  /* Electric Violet */
+    --chart-4: 220 70% 60%;  /* A different blue - can be themed if needed */
+    --chart-5: hsl(var(--destructive));   /* Error Red (Down candle) */
 
-    --radius: 0.5rem;
+    --radius: 0.5rem; /* Base radius, rounded-xl will be 0.75rem based on this */
 
     /* Sidebar specific vars */
     --sidebar-background: var(--panel-base);
     --sidebar-foreground: 0 0% 90%; /* text-white/90 equivalent */
-    --sidebar-primary: 188 100% 50%; 
-    --sidebar-primary-foreground: 0 0% 6%; 
-    --sidebar-accent: 0 0% 12%; /* Background for active/hovered items */
-    --sidebar-accent-foreground: 188 100% 50%; /* Text color for active/hovered items (Cyber Cyan) */
+    --sidebar-primary: hsl(var(--primary)); /* Cyber Cyan for active icon */
+    --sidebar-primary-foreground: hsl(var(--primary-foreground)); 
+    --sidebar-accent: 0 0% 100%; /* Base for hover bg: hsl(var(--panel-base)) to be used with /5 opacity */
+    --sidebar-accent-foreground: hsl(var(--primary)); /* Text color for active/hovered items (Cyber Cyan) */
     --sidebar-border: var(--panel-base); 
-    --sidebar-ring: 279 47% 47%; /* Electric Violet for rings */
+    --sidebar-ring: hsl(var(--ring)); 
 
     /* Specific backgrounds for header and dialog for consistency with panel styling */
-    /* PageHeader is now transparent, so --header-background isn't actively used for its background */
     --header-background: var(--panel-base); 
     --dialog-background: var(--panel-base);
   }

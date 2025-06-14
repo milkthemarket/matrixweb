@@ -147,20 +147,20 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   };
 
   // Quantum Black Button Styles
-  const buyButtonBase = "border-[#00FF9C] text-[#00FF9C] hover:bg-[#00FF9C] hover:text-black";
-  const buyButtonSelected = "bg-[#00FF9C] text-black hover:bg-[#00dd8b]";
+  const buyButtonBase = "border-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green))] hover:bg-[hsl(var(--confirm-green))]/.10";
+  const buyButtonSelected = "bg-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green-foreground))] hover:bg-[hsl(var(--confirm-green))]/90";
 
-  const sellButtonBase = "border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"; // Error Red
+  const sellButtonBase = "border-destructive text-destructive hover:bg-destructive/10";
   const sellButtonSelected = "bg-destructive text-destructive-foreground hover:bg-destructive/90";
 
-  const shortButtonBase = "border-accent text-accent hover:bg-accent hover:text-accent-foreground"; // Electric Violet
+  const shortButtonBase = "border-accent text-accent hover:bg-accent/10";
   const shortButtonSelected = "bg-accent text-accent-foreground hover:bg-accent/90";
 
 
   return (
-    <Card className="shadow-md flex flex-col"> {/* Uses global Card styling */}
+    <Card className="shadow-md flex flex-col">
       <CardHeader className="relative">
-        <CardTitle className="text-xl font-headline text-foreground"> {/* Ensure text white */}
+        <CardTitle className="text-xl font-headline text-foreground">
           {getCardTitle()}
         </CardTitle>
         <CardDescription>
@@ -177,7 +177,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             <Button
               onClick={() => handleActionSelect('Buy')}
               variant="outline"
-              className={cn("flex-1", currentAction === 'Buy' ? buyButtonSelected : buyButtonBase)}
+              className={cn("flex-1", currentAction === 'Buy' ? buyButtonSelected : buyButtonBase, currentAction === 'Buy' && 'hover:text-[hsl(var(--confirm-green-foreground))]')}
               disabled={!selectedStock}
             >
               <TrendingUp className="mr-2 h-4 w-4" /> Buy
@@ -185,7 +185,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             <Button
               onClick={() => handleActionSelect('Sell')}
               variant="outline"
-              className={cn("flex-1", currentAction === 'Sell' ? sellButtonSelected : sellButtonBase)}
+              className={cn("flex-1", currentAction === 'Sell' ? sellButtonSelected : sellButtonBase, currentAction === 'Sell' && 'hover:text-destructive-foreground')}
               disabled={!selectedStock}
             >
               <CircleSlash className="mr-2 h-4 w-4" /> Sell
@@ -193,7 +193,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             <Button
               onClick={() => handleActionSelect('Short')}
               variant="outline"
-              className={cn("flex-1", currentAction === 'Short' ? shortButtonSelected : shortButtonBase)}
+              className={cn("flex-1", currentAction === 'Short' ? shortButtonSelected : shortButtonBase, currentAction === 'Short' && 'hover:text-accent-foreground')}
               disabled={!selectedStock}
             >
               <TrendingDown className="mr-2 h-4 w-4" /> Short
@@ -227,7 +227,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
              {quantityMode === 'PercentOfBuyingPower' && <p className="text-xs text-muted-foreground">Using Buying Power: ${buyingPower.toLocaleString()}</p>}
           </div>
         )}
-         {!isValidQuantity && quantityValue && selectedStock && <p className="text-xs text-red-500">Please enter a valid positive quantity.</p>}
+         {!isValidQuantity && quantityValue && selectedStock && <p className="text-xs text-destructive">Please enter a valid positive quantity.</p>}
 
         <div className="space-y-1.5">
           <Label htmlFor="orderType" className="text-sm font-medium text-foreground">Order Type</Label>
@@ -262,7 +262,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
         
         {selectedStock && (
           <>
-            <Separator className="my-6 border-border/[.2]" /> {/* Subtle separator */}
+            <Separator className="my-6 border-border/[.1]" /> 
             <div className="space-y-2 text-sm">
                 <h4 className="font-medium text-muted-foreground">Stock Info</h4>
                 <div className="flex justify-between text-foreground"><span>Float:</span> <span>{selectedStock.float}M</span></div>

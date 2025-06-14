@@ -12,11 +12,11 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground hover:bg-primary/90",
         destructive:
           "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline:
-          "border border-input bg-background hover:bg-accent hover:text-accent-foreground",
+        outline: // Generic outline, specific colors applied at usage site
+          "border bg-transparent hover:bg-opacity-10",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-accent hover:text-accent-foreground",
+        ghost: "hover:bg-accent/[.05] hover:text-accent-foreground", // Use accent with opacity for ghost
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { AlertRule } from "@/types";
 import { PlusCircle, Edit3, Trash2, ListFilter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { cn } from '@/lib/utils';
 
 const ruleSchema = z.object({
   name: z.string().min(1, "Rule name is required"),
@@ -137,7 +138,7 @@ export default function RulesPage() {
                     control={form.control}
                     name="isActive"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-card/[.05] backdrop-blur-md"> {/* Individual form item can have card style if needed */}
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-card/[.05] backdrop-blur-md"> 
                             <div className="space-y-0.5">
                                 <FormLabel>Activate Rule</FormLabel>
                                 <FormDescription>
@@ -178,7 +179,14 @@ export default function RulesPage() {
                 {rules.map((rule) => (
                   <li key={rule.id} className="flex items-center justify-between p-4 rounded-xl shadow-md bg-card/[.05] backdrop-blur-md hover:bg-card/[.1] transition-colors duration-200">
                     <div>
-                      <p className="font-semibold text-foreground">{rule.name} <Badge variant={rule.isActive ? "default" : "secondary"}>{rule.isActive ? 'Active' : 'Inactive'}</Badge></p>
+                      <p className="font-semibold text-foreground">{rule.name} 
+                        <Badge 
+                          variant={rule.isActive ? "default" : "secondary"}
+                          className={cn(rule.isActive && "bg-primary text-primary-foreground")}
+                        >
+                          {rule.isActive ? 'Active' : 'Inactive'}
+                        </Badge>
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         % Change &ge; {rule.changePercentThreshold}%, Float &le; {rule.floatThreshold}M
                       </p>
@@ -189,10 +197,10 @@ export default function RulesPage() {
                           onCheckedChange={() => toggleRuleStatus(rule.id)}
                           aria-label={rule.isActive ? "Deactivate rule" : "Activate rule"}
                         />
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(rule)} className="text-accent hover:text-accent-foreground">
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(rule)} className="text-accent hover:text-accent-foreground hover:bg-accent/10">
                         <Edit3 className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(rule.id)} className="text-destructive hover:text-destructive/80">
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(rule.id)} className="text-destructive hover:text-destructive-foreground hover:bg-destructive/10">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>

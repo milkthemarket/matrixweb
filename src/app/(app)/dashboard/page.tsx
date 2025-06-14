@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
@@ -135,7 +135,7 @@ export default function DashboardPage() {
 
   const handleSelectStockForOrder = (stock: Stock, action: OrderActionType | null) => {
     setSelectedStockForOrderCard(stock);
-    setOrderCardActionType(action); // This will be null when clicking row, but OrderCard handles it
+    setOrderCardActionType(action); 
     setSelectedStockForNews(stock);
   };
 
@@ -209,9 +209,9 @@ export default function DashboardPage() {
   };
 
   const getRowHighlightClass = (stock: Stock): string => {
-    if (stock.changePercent >= 10) return 'border-l-4 border-[hsl(var(--chart-2))] bg-[hsla(var(--chart-2),0.05)]'; 
-    if (stock.changePercent <= -8) return 'border-l-4 border-[hsl(var(--chart-5))] bg-[hsla(var(--chart-5),0.05)]'; 
-    if (stock.float <= 500 && stock.volume >= 50) return 'border-l-4 border-accent bg-accent/5'; 
+    if (stock.changePercent >= 10) return 'border-l-4 border-[hsl(var(--chart-2))] bg-[hsla(var(--chart-2),0.05)]'; // Confirm Green highlight
+    if (stock.changePercent <= -8) return 'border-l-4 border-[hsl(var(--chart-5))] bg-[hsla(var(--chart-5),0.05)]'; // Error Red highlight
+    if (stock.float <= 500 && stock.volume >= 50) return 'border-l-4 border-accent bg-accent/5'; // Electric Violet highlight
     return '';
   };
 
@@ -229,7 +229,7 @@ export default function DashboardPage() {
                 <CardDescription>Filter and find top market movers.</CardDescription>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                {autoRefreshEnabled && <Dot className="h-6 w-6 text-[#00FF9C] animate-pulse" />}
+                {autoRefreshEnabled && <Dot className="h-6 w-6 text-[hsl(var(--confirm-green))] animate-pulse" />}
                 {lastRefreshed && <span className="text-sm text-muted-foreground">Last refreshed: {format(lastRefreshed, "HH:mm:ss")}</span>}
                 <Switch
                   id="auto-refresh-toggle"
@@ -252,11 +252,21 @@ export default function DashboardPage() {
                     <SelectItem value="60000">1m</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" size="sm" onClick={handleRefreshData} className="text-primary hover:text-primary-foreground border-primary hover:bg-primary">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleRefreshData} 
+                  className="border-primary text-foreground hover:bg-primary/10 hover:text-primary"
+                >
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Refresh
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleExport} className="text-accent hover:text-accent-foreground border-accent hover:bg-accent">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleExport} 
+                  className="border-accent text-foreground hover:bg-accent/10 hover:text-accent"
+                >
                   <UploadCloud className="mr-2 h-4 w-4" />
                   Export CSV
                 </Button>
@@ -294,7 +304,7 @@ export default function DashboardPage() {
 
               <RulePills minChangePercent={minChangePercent} maxFloat={maxFloat} minVolume={minVolume} />
 
-              <div className="rounded-xl border-none overflow-auto flex-1">
+              <div className="rounded-xl overflow-auto flex-1">
                 <Table>
                   <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                     <TableRow>
@@ -317,7 +327,7 @@ export default function DashboardPage() {
                                 "hover:bg-white/10 cursor-pointer", 
                                 selectedStockForOrderCard?.id === stock.id && "bg-primary/10" 
                             )}
-                            onClick={() => handleSelectStockForOrder(stock, null)} // Make entire row clickable
+                            onClick={() => handleSelectStockForOrder(stock, null)}
                         >
                           <TableCell className="font-medium text-foreground">
                             <Popover>
@@ -336,7 +346,7 @@ export default function DashboardPage() {
                             </Popover>
                           </TableCell>
                           <TableCell className="text-right text-foreground">${stock.price.toFixed(2)}</TableCell>
-                          <TableCell className={cn("text-right", stock.changePercent >= 0 ? "text-[#00FF9C]" : "text-destructive")}>
+                          <TableCell className={cn("text-right", stock.changePercent >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
                             {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(1)}%
                           </TableCell>
                           <TableCell className="text-right text-foreground">{stock.float.toLocaleString()}</TableCell>
@@ -366,7 +376,7 @@ export default function DashboardPage() {
         <div className="w-full md:w-96 lg:w-[26rem] hidden md:flex flex-col flex-shrink-0 space-y-6 pr-1 overflow-y-auto">
           <OrderCard
             selectedStock={selectedStockForOrderCard}
-            initialActionType={orderCardActionType} // This will be null from row click, OrderCard handles this
+            initialActionType={orderCardActionType} 
             onSubmit={handleTradeSubmit}
             onClear={handleClearOrderCard}
           />

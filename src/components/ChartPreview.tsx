@@ -28,10 +28,11 @@ export function ChartPreview({ stock }: ChartPreviewProps) {
     ? stock.historicalPrices.map((price, index) => ({ name: `P${index}`, price }))
     : generateMockPriceData(stock.price);
   
-  const strokeColor = stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))"; // Uses Cyber Cyan (chart-2) for up, Red (chart-5) for down
+  // Uses --chart-2 (Confirm Green) for up, --chart-5 (Error Red) for down
+  const strokeColor = stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))"; 
 
   return (
-    <Card className="w-64 shadow-md bg-popover/[.05] backdrop-blur-md rounded-xl"> {/* Quantum Black Styling, removed border */}
+    <Card className="w-64 shadow-md bg-popover/[.05] backdrop-blur-md rounded-xl">
       <CardHeader className="p-3">
         <CardTitle className="text-base font-semibold text-popover-foreground">{stock.symbol} - Price Trend</CardTitle>
         <CardDescription className="text-xs text-muted-foreground">Last 10 periods (mock data)</CardDescription>
@@ -43,11 +44,11 @@ export function ChartPreview({ stock }: ChartPreviewProps) {
             <YAxis domain={['dataMin - 1', 'dataMax + 1']} hide/>
             <Tooltip
               contentStyle={{ 
-                backgroundColor: 'hsla(var(--background), 0.8)', 
-                borderColor: 'hsla(var(--border), 0.05)', // Very subtle border for tooltip
+                backgroundColor: 'hsla(var(--background), 0.85)', 
+                borderColor: 'hsla(var(--border), 0.08)',
                 borderRadius: 'var(--radius)',
-                backdropFilter: 'blur(4px)', 
-                WebkitBackdropFilter: 'blur(4px)',
+                backdropFilter: 'blur(8px)', 
+                WebkitBackdropFilter: 'blur(8px)',
               }}
               labelStyle={{ color: 'hsl(var(--foreground))' }} 
               itemStyle={{ color: strokeColor }}

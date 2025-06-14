@@ -36,25 +36,28 @@ export function SidebarNav() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <Link href={item.href}>
-                <SidebarMenuButton
-                  variant="default"
-                  className={cn(
-                    "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard" && item.href !== "/")
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground" 
-                      : ""
-                  )}
-                  tooltip={{ children: item.label, className: "text-xs" }}
-                >
-                  <item.icon className={cn("h-5 w-5", (pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard" && item.href !== "/")) ? "text-primary" : "text-accent")} />
-                  <span className="font-medium tracking-wide group-data-[collapsible=icon]:hidden">{item.label}</span>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          ))}
+          {navItems.map((item) => {
+            const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard" && item.href !== "/");
+            return (
+              <SidebarMenuItem key={item.href}>
+                <Link href={item.href}>
+                  <SidebarMenuButton
+                    variant="default"
+                    isActive={isActive} // Pass isActive to SidebarMenuButton
+                    className={cn(
+                      // Base classes are handled by sidebarMenuButtonVariants
+                      // Hover styles: hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground
+                      // Active styles: data-[active=true]:bg-sidebar-accent/[.05] data-[active=true]:text-sidebar-accent-foreground
+                    )}
+                    tooltip={{ children: item.label, className: "text-xs" }}
+                  >
+                    <item.icon className={cn("h-5 w-5", isActive ? "text-sidebar-primary" : "text-muted-foreground")} />
+                    <span className="font-medium tracking-wide group-data-[collapsible=icon]:hidden">{item.label}</span>
+                  </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden">

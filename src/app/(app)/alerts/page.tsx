@@ -55,7 +55,7 @@ export default function AlertsPage() {
             <CardDescription>Real-time notifications based on your rules and market events.</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden">
-            <ScrollArea className="h-[calc(100vh-15rem)] pr-4"> {/* Adjust height as needed */}
+            <ScrollArea className="h-[calc(100vh-15rem)] pr-4"> 
               {alerts.length > 0 ? (
                 <ul className="space-y-4">
                   {alerts.map((alert) => (

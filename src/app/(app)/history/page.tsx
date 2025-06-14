@@ -16,11 +16,11 @@ import { cn } from '@/lib/utils';
 const getStatusIcon = (status: TradeHistoryEntry['orderStatus']) => {
   switch (status) {
     case 'Filled':
-      return <CheckCircle className="h-4 w-4 text-green-500" />;
+      return <CheckCircle className="h-4 w-4 text-[hsl(var(--confirm-green))]" />;
     case 'Canceled':
-      return <XCircle className="h-4 w-4 text-red-500" />;
+      return <XCircle className="h-4 w-4 text-destructive" />;
     case 'Pending':
-      return <Clock className="h-4 w-4 text-yellow-500" />;
+      return <Clock className="h-4 w-4 text-yellow-500" />; // Yellow for pending is fine
     default:
       return null;
   }
@@ -45,7 +45,7 @@ export default function HistoryPage() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Trade History" />
       <div className="flex-1 p-4 md:p-6 overflow-hidden">
-        <Card className="h-full flex flex-col bg-transparent shadow-none border-none rounded-none backdrop-blur-none">
+        <Card className="h-full flex flex-col bg-transparent shadow-none rounded-none backdrop-blur-none">
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <HistoryIcon className="mr-2 h-6 w-6 text-primary"/>
@@ -55,7 +55,7 @@ export default function HistoryPage() {
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden">
             {tradeHistory.length > 0 ? (
-              <ScrollArea className="h-[calc(100vh-12rem)]"> {/* Adjust height as needed */}
+              <ScrollArea className="h-[calc(100vh-12rem)]">
                 <Table>
                   <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                     <TableRow>
@@ -80,9 +80,8 @@ export default function HistoryPage() {
                         <TableCell className="font-medium text-foreground">{trade.symbol}</TableCell>
                         <TableCell>
                           <Badge 
-                            variant={trade.side === 'Buy' ? 'default' : trade.side === 'Sell' ? 'destructive' : 'secondary'}
                             className={cn(
-                              trade.side === 'Buy' && 'bg-green-600 text-primary-foreground hover:bg-green-700', // Ensure button-like text color
+                              trade.side === 'Buy' && 'bg-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green-foreground))] hover:bg-[hsl(var(--confirm-green))]/90',
                               trade.side === 'Sell' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
                               trade.side === 'Short' && 'bg-accent text-accent-foreground hover:bg-accent/90'
                             )}

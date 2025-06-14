@@ -5,7 +5,7 @@ import React from 'react';
 import type { OpenPosition } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { XSquare, Briefcase } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -46,7 +46,7 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
           <ScrollArea className="h-[250px]">
             <Table>
               <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
-                {/* Frosted header */}
+                
                 <TableRow>
                   <TableHead>Symbol</TableHead>
                   <TableHead className="text-right">Shares</TableHead>
@@ -68,7 +68,7 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
                       <TableCell 
                         className={cn(
                           "text-right font-semibold",
-                          pnl >= 0 ? "text-[#00FF9C]" : "text-[#FF4C4C]"
+                          pnl >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"
                         )}
                       >
                         {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
@@ -77,7 +77,7 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-7 px-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                          className="h-7 px-2 border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive-foreground"
                           onClick={() => handleClose(pos)}
                         >
                           <XSquare className="mr-1 h-3.5 w-3.5" /> Close
