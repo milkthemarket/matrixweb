@@ -14,57 +14,121 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import type { AlertRule } from "@/types";
-import { PlusCircle, Edit3, Trash2, ListFilter } from "lucide-react";
+import type { AlertRule, RuleCriterion } from "@/types";
+import { PlusCircle, Edit3, Trash2, ListFilter, Terminal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from '@/lib/utils';
 
-const ruleSchema = z.object({
+const simpleRuleSchema = z.object({
   name: z.string().min(1, "Rule name is required"),
-  changePercentThreshold: z.coerce.number().min(-100).max(1000, "Must be between -100 and 1000"),
-  floatThreshold: z.coerce.number().min(0, "Must be positive").max(100000, "Max float 100,000M (100B)"),
   isActive: z.boolean().default(true),
+  // Criteria editing is complex and deferred for now
 });
 
-type RuleFormData = z.infer<typeof ruleSchema>;
+type SimpleRuleFormData = z.infer<typeof simpleRuleSchema>;
 
-const mockRules: AlertRule[] = [
-  { id: '1', name: 'High Gainer Low Float', changePercentThreshold: 5, floatThreshold: 10, isActive: true },
-  { id: '2', name: 'Significant Drop', changePercentThreshold: -10, floatThreshold: 50000, isActive: true },
-  { id: '3', name: 'Volume Spike Premarket', changePercentThreshold: 3, floatThreshold: 20, isActive: false },
+export const mockRules: AlertRule[] = [
+  { 
+    id: 'rule1', 
+    name: 'Low Float Breakout', 
+    isActive: true, 
+    criteria: [
+      { metric: 'changePercent', operator: '>=', value: 5 },
+      { metric: 'float', operator: '<=', value: 20 }, // 20M float
+      { metric: 'volume', operator: '>=', value: 1 }, // 1M volume
+      { metric: 'price', operator: '>=', value: 1 },
+      { metric: 'price', operator: '<=', value: 20 },
+    ]
+  },
+  { 
+    id: 'rule2', 
+    name: 'High Volume Movers', 
+    isActive: true, 
+    criteria: [
+      { metric: 'volume', operator: '>=', value: 10 }, // 10M volume
+      { metric: 'avgVolume', operator: '>=', value: 5 }, // 5M avg volume
+      { metric: 'changePercent', operator: '>=', value: 3 },
+    ]
+  },
+  { 
+    id: 'rule3', 
+    name: 'Potential Squeezers', 
+    isActive: false, 
+    criteria: [
+      { metric: 'shortFloat', operator: '>=', value: 20 }, // 20% short float
+      { metric: 'float', operator: '<=', value: 50 }, // 50M float
+      { metric: 'changePercent', operator: '>=', value: 2 },
+    ]
+  },
+   {
+    id: 'rule4',
+    name: 'Pre-Market Gappers',
+    isActive: true,
+    criteria: [
+      { metric: 'premarketChange', operator: '>=', value: 4 },
+      { metric: 'volume', operator: '>=', value: 0.2 }, // 200k premarket volume
+      { metric: 'float', operator: '<=', value: 100 },
+    ],
+  },
+  {
+    id: 'rule5',
+    name: 'RSI Oversold Bounce Play',
+    isActive: true,
+    criteria: [
+      { metric: 'rsi', operator: '<=', value: 30 },
+      { metric: 'changePercent', operator: '<=', value: -2 }, // Stock is down
+      { metric: 'volume', operator: '>=', value: 0.5 },
+    ],
+  },
 ];
+
+const formatCriterion = (criterion: RuleCriterion): string => {
+  const metricLabel = criterion.metric.toString().replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+  let valueDisplay = criterion.value;
+  if (Array.isArray(criterion.value)) {
+    valueDisplay = `${criterion.value[0]} and ${criterion.value[1]}`;
+  }
+  return `${metricLabel} ${criterion.operator} ${valueDisplay}`;
+};
 
 export default function RulesPage() {
   const [rules, setRules] = useState<AlertRule[]>(mockRules);
   const [editingRule, setEditingRule] = useState<AlertRule | null>(null);
   const { toast } = useToast();
 
-  const form = useForm<RuleFormData>({
-    resolver: zodResolver(ruleSchema),
+  const form = useForm<SimpleRuleFormData>({
+    resolver: zodResolver(simpleRuleSchema),
     defaultValues: {
       name: '',
-      changePercentThreshold: 5,
-      floatThreshold: 10,
       isActive: true,
     },
   });
 
-  const onSubmit: SubmitHandler<RuleFormData> = (data) => {
+  const onSubmit: SubmitHandler<SimpleRuleFormData> = (data) => {
     if (editingRule) {
-      setRules(rules.map(r => r.id === editingRule.id ? { ...editingRule, ...data } : r));
+      // For this simplified version, we only update name and isActive
+      // Criteria are not editable via this form.
+      setRules(rules.map(r => r.id === editingRule.id ? { ...r, name: data.name, isActive: data.isActive } : r));
       toast({ title: "Rule Updated", description: `Rule "${data.name}" has been updated.` });
       setEditingRule(null);
     } else {
-      const newRule: AlertRule = { id: String(Date.now()), ...data };
+      // Creating new rules with complex criteria is not supported by this simplified form.
+      // This part could be enhanced to allow selecting a template or adding default criteria.
+      const newRule: AlertRule = { 
+        id: String(Date.now()), 
+        name: data.name, 
+        isActive: data.isActive, 
+        criteria: [] // New rules start with no criteria or predefined template
+      };
       setRules([...rules, newRule]);
-      toast({ title: "Rule Created", description: `New rule "${data.name}" has been added.` });
+      toast({ title: "Rule Created", description: `New rule "${data.name}" has been added (with no criteria).` });
     }
-    form.reset();
+    form.reset({ name: '', isActive: true });
   };
 
   const handleEdit = (rule: AlertRule) => {
     setEditingRule(rule);
-    form.reset(rule);
+    form.reset({ name: rule.name, isActive: rule.isActive });
   };
 
   const handleDelete = (ruleId: string) => {
@@ -74,6 +138,13 @@ export default function RulesPage() {
   
   const toggleRuleStatus = (ruleId: string) => {
     setRules(rules.map(r => r.id === ruleId ? { ...r, isActive: !r.isActive } : r));
+     const rule = rules.find(r => r.id === ruleId);
+    if (rule) {
+      toast({
+        title: `Rule ${!rule.isActive ? "Activated" : "Deactivated"}`,
+        description: `Rule "${rule.name}" is now ${!rule.isActive ? "active" : "inactive"}.`,
+      });
+    }
   };
 
   return (
@@ -84,9 +155,9 @@ export default function RulesPage() {
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <ListFilter className="mr-2 h-6 w-6 text-primary"/>
-              {editingRule ? 'Edit Rule' : 'Create New Alert Rule'}
+              {editingRule ? 'Edit Rule Info' : 'Create New Rule (Basic)'}
             </CardTitle>
-            <CardDescription>Define conditions to trigger custom trade alerts.</CardDescription>
+            <CardDescription>Define rule name and status. Complex criteria are managed via predefined rules for now.</CardDescription>
           </CardHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -104,45 +175,18 @@ export default function RulesPage() {
                     </FormItem>
                   )}
                 />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="changePercentThreshold"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>% Change Threshold</FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="e.g., 5 for +5%" {...field} />
-                        </FormControl>
-                        <FormDescription>Trigger if % change is greater than or equal to this value.</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="floatThreshold"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Float Threshold (Millions)</FormLabel>
-                        <FormControl>
-                          <Input type="number" placeholder="e.g., 10 for <10M float" {...field} />
-                        </FormControl>
-                        <FormDescription>Trigger if float is less than or equal to this value (in millions).</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                {/* Criteria editing UI is deferred */}
+                {/* <p className="text-sm text-muted-foreground">Detailed criteria (e.g., % change > 5, float < 10M) are managed through code for predefined rules in this version. This form handles name and activation status.</p> */}
+                
                  <FormField
                     control={form.control}
                     name="isActive"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-xl border-none p-3 shadow-none bg-transparent backdrop-blur-md"> 
+                        <FormItem className="flex flex-row items-center justify-between rounded-xl p-3 shadow-none bg-transparent backdrop-blur-md"> 
                             <div className="space-y-0.5">
                                 <FormLabel>Activate Rule</FormLabel>
                                 <FormDescription>
-                                    Enable or disable this rule from triggering alerts.
+                                    Enable or disable this rule from triggering alerts and appearing in dashboard.
                                 </FormDescription>
                             </div>
                             <FormControl>
@@ -156,10 +200,10 @@ export default function RulesPage() {
                 />
               </CardContent>
               <CardFooter className="flex justify-end gap-2">
-                {editingRule && <Button type="button" variant="outline" onClick={() => { setEditingRule(null); form.reset(); }}>Cancel Edit</Button>}
+                {editingRule && <Button type="button" variant="outline" onClick={() => { setEditingRule(null); form.reset({name: '', isActive: true }); }}>Cancel Edit</Button>}
                 <Button type="submit" className="text-primary-foreground bg-primary hover:bg-primary/90">
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  {editingRule ? 'Save Changes' : 'Add Rule'}
+                  {editingRule ? 'Save Changes' : 'Add Basic Rule'}
                 </Button>
               </CardFooter>
             </form>
@@ -170,8 +214,8 @@ export default function RulesPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl font-headline">Active Rules</CardTitle>
-            <CardDescription>Manage your existing alert rules.</CardDescription>
+            <CardTitle className="text-xl font-headline">Defined Rules</CardTitle>
+            <CardDescription>Manage your existing alert rules. Dashboard filters based on these.</CardDescription>
           </CardHeader>
           <CardContent>
             {rules.length > 0 ? (
@@ -180,25 +224,38 @@ export default function RulesPage() {
                   <li 
                     key={rule.id} 
                     className={cn(
-                      "flex items-center justify-between p-4 rounded-xl shadow-none",
+                      "flex items-start md:items-center justify-between p-4 rounded-xl shadow-none flex-col md:flex-row",
                       "bg-transparent backdrop-blur-md", 
                       "hover:bg-white/5 transition-colors duration-200"
                     )}
                   >
-                    <div>
-                      <p className="font-semibold text-foreground">{rule.name} 
+                    <div className="flex-1 mb-3 md:mb-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-semibold text-foreground">{rule.name} </p>
                         <Badge 
-                          variant={rule.isActive ? "default" : "secondary"}
-                          className={cn(rule.isActive && "bg-primary text-primary-foreground")}
-                        >
-                          {rule.isActive ? 'Active' : 'Inactive'}
-                        </Badge>
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        % Change &ge; {rule.changePercentThreshold}%, Float &le; {rule.floatThreshold}M
-                      </p>
+                            variant={rule.isActive ? "default" : "secondary"}
+                            className={cn(
+                              "text-xs h-5",
+                              rule.isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                            )}
+                          >
+                            {rule.isActive ? 'Active' : 'Inactive'}
+                          </Badge>
+                      </div>
+                      {rule.criteria.length > 0 ? (
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          {rule.criteria.map((crit, index) => (
+                            <div key={index} className="flex items-center">
+                              <Terminal className="h-3 w-3 mr-1.5 text-accent flex-shrink-0"/> 
+                              <span>{formatCriterion(crit)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground italic">No criteria defined for this rule.</p>
+                      )}
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 flex-shrink-0">
                        <Switch
                           checked={rule.isActive}
                           onCheckedChange={() => toggleRuleStatus(rule.id)}
@@ -215,7 +272,7 @@ export default function RulesPage() {
                 ))}
               </ul>
             ) : (
-              <p className="text-muted-foreground">No rules defined yet. Create one above!</p>
+              <p className="text-muted-foreground">No rules defined yet. Create one above or use the predefined ones.</p>
             )}
           </CardContent>
         </Card>
@@ -223,3 +280,4 @@ export default function RulesPage() {
     </main>
   );
 }
+

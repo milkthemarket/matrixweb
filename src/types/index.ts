@@ -8,33 +8,40 @@ export interface Stock {
   changePercent: number;
   float: number; // in millions
   volume: number; // in millions
-  newsSnippet?: string; // Will be removed from main table display
-  lastUpdated: string; // Will be removed from main table display
+  newsSnippet?: string;
+  lastUpdated: string;
   catalystType?: CatalystType;
-  historicalPrices?: number[]; // For sparkline
+  historicalPrices?: number[];
 
-  // New fields for customizable columns
-  marketCap?: number; // In basic units, e.g., 2.5e12 for 2.5 Trillion
-  avgVolume?: number; // in millions
-  atr?: number; // Average True Range
-  rsi?: number; // Relative Strength Index
-  vwap?: number; // Volume Weighted Average Price
+  marketCap?: number;
+  avgVolume?: number;
+  atr?: number;
+  rsi?: number;
+  vwap?: number;
   beta?: number;
-  high52?: number; // 52-week high
-  low52?: number; // 52-week low
-  gapPercent?: number; // Today's gap %
-  shortFloat?: number; // Short interest as % of float
-  instOwn?: number; // Institutional Ownership %
-  premarketChange?: number; // Premarket % change
+  high52?: number;
+  low52?: number;
+  gapPercent?: number;
+  shortFloat?: number;
+  instOwn?: number;
+  premarketChange?: number;
+}
+
+export type RuleOperator = '>' | '<' | '>=' | '<=' | '==' | '!=' | 'between' | 'contains';
+
+export interface RuleCriterion {
+  metric: keyof Stock | string; // keyof Stock for type safety, string for flexibility
+  operator: RuleOperator;
+  value: number | string | [number, number]; // Single value, string, or tuple for 'between'
 }
 
 export interface AlertRule {
-  id:string;
+  id: string;
   name: string;
-  changePercentThreshold: number;
-  floatThreshold: number; // in millions
   isActive: boolean;
+  criteria: RuleCriterion[];
 }
+
 
 export interface TradeAlert {
   id: string;
@@ -44,7 +51,6 @@ export interface TradeAlert {
   source?: string;
 }
 
-// This type is for the original manual trade log, effectively replaced by TradeHistoryEntry for the /history page
 export interface TradeLogEntry {
   id: string;
   symbol: string;
@@ -63,28 +69,28 @@ export type TradeMode = 'manual' | 'ai';
 
 export interface TradeRequest {
   symbol: string;
-  quantity: number; // Final calculated/entered shares
+  quantity: number;
   action: OrderActionType;
   orderType: OrderSystemType;
   limitPrice?: number;
   stopPrice?: number;
-  trailingOffset?: number; // Could be points or percentage based on broker
+  trailingOffset?: number;
   rawQuantityValue?: string;
   rawQuantityMode?: QuantityInputMode;
-  TIF?: string; // Time-in-Force
+  TIF?: string;
 }
 
 export interface AISuggestion {
   action: OrderActionType;
   symbol: string;
   quantity: number;
-  entryPrice?: number; // For Limit orders, this is the limit price. For Market, it's an estimate.
+  entryPrice?: number;
   takeProfitPrice?: number;
   stopLossPrice?: number;
   rationale: string;
   strategy: string;
-  orderType: OrderSystemType; // AI suggests Market or Limit
-  limitPrice?: number; // Explicit limit price if orderType is Limit or Stop Limit
+  orderType: OrderSystemType;
+  limitPrice?: number;
 }
 
 
@@ -115,11 +121,11 @@ export interface TradeHistoryEntry {
   limitPrice?: number;
   stopPrice?: number;
   trailAmount?: number;
-  TIF: string; // e.g., Day, GTC
-  tradingHours: string; // e.g., Include Extended Hours
-  placedTime: string; // ISOString
-  filledTime: string; // ISOString
-  orderStatus: 'Filled' | 'Pending' | 'Canceled' | 'Partially Filled'; // Extended options
+  TIF: string;
+  tradingHours: string;
+  placedTime: string;
+  filledTime: string;
+  orderStatus: 'Filled' | 'Pending' | 'Canceled' | 'Partially Filled';
   averagePrice: number;
 }
 
@@ -130,5 +136,6 @@ export interface ColumnConfig<T = Stock> {
   isToggleable: boolean;
   align?: 'left' | 'right' | 'center';
   format?: (value: any, stock: T) => string | React.ReactNode;
-  description?: string; // For tooltips in column selector
+  description?: string;
 }
+

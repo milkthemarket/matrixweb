@@ -4,31 +4,29 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Filter, RotateCcw, Search, UploadCloud, Flame, Megaphone, Dot, Columns, Info } from "lucide-react";
-import type { Stock, TradeRequest, OrderActionType, OpenPosition, NewsArticle, TradeHistoryEntry, ColumnConfig } from "@/types";
+import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter } from "lucide-react";
+import type { Stock, TradeRequest, OrderActionType, OpenPosition, NewsArticle, TradeHistoryEntry, ColumnConfig, AlertRule, RuleCriterion } from "@/types";
 import { cn } from '@/lib/utils';
-import { RulePills } from '@/components/RulePills';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
-import { useAlertContext, type RefreshInterval } from '@/contexts/AlertContext';
+import { useAlertContext, type RefreshInterval } from '@/contexts/AlertContext'; // Keep for interval, though UI is removed
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useToast } from "@/hooks/use-toast";
 import { OrderCard } from '@/components/OrderCard';
 import { NewsPanel } from '@/components/NewsPanel';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { mockRules } from '@/app/(app)/rules/page'; // Import mock rules
 
 const MOCK_INITIAL_TIMESTAMP = '2024-07-01T10:00:00.000Z';
+const DASHBOARD_REFRESH_INTERVAL: RefreshInterval = 15000; // Hardcode to 15s for dashboard
 
 const formatMarketCap = (value?: number) => {
   if (value === undefined || value === null) return 'N/A';
@@ -103,12 +101,9 @@ const initialMockNewsArticles: NewsArticle[] = [
 
 
 export default function DashboardPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [minChangePercent, setMinChangePercent] = useState(0);
-  const [maxFloat, setMaxFloat] = useState(20000);
-  const [minVolume, setMinVolume] = useState(0);
   const [stocks, setStocks] = useState<Stock[]>(initialMockStocks);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+  const [selectedRuleId, setSelectedRuleId] = useState<string>('all'); // 'all' or rule.id
 
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
   const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
@@ -117,7 +112,6 @@ export default function DashboardPage() {
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(initialMockNewsArticles);
   const [openPositions, setOpenPositions] = useState<OpenPosition[]>(initialMockOpenPositions);
 
-  const { autoRefreshEnabled, setAutoRefreshEnabled, refreshInterval, setRefreshInterval } = useAlertContext();
   const { addTradeToHistory } = useTradeHistoryContext();
   const { toast } = useToast();
   
@@ -144,7 +138,7 @@ export default function DashboardPage() {
   const handleRefreshData = useCallback(() => {
     setStocks(prevStocks =>
       prevStocks.map(stock => {
-        const priceChangeFactor = 1 + (Math.random() - 0.5) * 0.03; // up to 3% change
+        const priceChangeFactor = 1 + (Math.random() - 0.5) * 0.03; 
         const newPrice = parseFloat((stock.price * priceChangeFactor).toFixed(2));
         const newVolume = parseFloat((stock.volume * (1 + (Math.random() - 0.2) * 0.1)).toFixed(1));
         const newAvgVolume = parseFloat(( (stock.avgVolume || stock.volume) * (1 + (Math.random() - 0.4) * 0.05)).toFixed(1));
@@ -158,7 +152,7 @@ export default function DashboardPage() {
         return {
           ...stock,
           price: newPrice,
-          changePercent: parseFloat(((newPrice / stock.price - 1) * 100).toFixed(1)),
+          changePercent: parseFloat(((newPrice / (stock.price > 0 ? stock.price : newPrice) - 1) * 100).toFixed(1)),
           volume: newVolume,
           marketCap: newPrice * stock.float * 1e6,
           avgVolume: newAvgVolume,
@@ -187,32 +181,52 @@ export default function DashboardPage() {
       })
     );
     setLastRefreshed(new Date());
-  }, [stocks]); // Added stocks to dependency array for currentPrice reference in openPositions
+  }, [stocks]); 
 
 
   useEffect(() => {
     setLastRefreshed(new Date());
-  }, []);
+    const intervalId = setInterval(handleRefreshData, DASHBOARD_REFRESH_INTERVAL);
+    return () => clearInterval(intervalId);
+  }, [handleRefreshData]);
 
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout | null = null;
-    if (autoRefreshEnabled) {
-      handleRefreshData(); // Initial refresh if enabled
-      intervalId = setInterval(handleRefreshData, refreshInterval);
-    }
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [autoRefreshEnabled, refreshInterval, handleRefreshData]);
+  const activeRules = useMemo(() => mockRules.filter(rule => rule.isActive), []);
 
   const filteredStocks = useMemo(() => {
-    return stocks.filter(stock =>
-      stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (minChangePercent === 0 ? true : stock.changePercent >= minChangePercent) &&
-      (maxFloat === 20000 ? true : stock.float <= maxFloat) &&
-      (minVolume === 0 ? true : stock.volume >= minVolume)
-    );
-  }, [stocks, searchTerm, minChangePercent, maxFloat, minVolume]);
+    if (selectedRuleId === 'all') {
+      return stocks;
+    }
+    const rule = activeRules.find(r => r.id === selectedRuleId);
+    if (!rule) {
+      return stocks; // Or an empty array if no rule match means no stocks
+    }
+
+    return stocks.filter(stock => {
+      return rule.criteria.every(criterion => {
+        const stockValue = stock[criterion.metric as keyof Stock] as number | undefined;
+        if (stockValue === undefined || stockValue === null) return false; // Don't include if metric is missing
+
+        const ruleValue = criterion.value;
+
+        switch (criterion.operator) {
+          case '>': return stockValue > (ruleValue as number);
+          case '<': return stockValue < (ruleValue as number);
+          case '>=': return stockValue >= (ruleValue as number);
+          case '<=': return stockValue <= (ruleValue as number);
+          case '==': return stockValue === (ruleValue as number);
+          case '!=': return stockValue !== (ruleValue as number);
+          case 'between':
+            if (Array.isArray(ruleValue) && ruleValue.length === 2) {
+              return stockValue >= ruleValue[0] && stockValue <= ruleValue[1];
+            }
+            return false;
+          // case 'contains': // For string type metrics, not used here
+          //   return typeof stockValue === 'string' && typeof ruleValue === 'string' && stockValue.toLowerCase().includes(ruleValue.toLowerCase());
+          default: return true;
+        }
+      });
+    });
+  }, [stocks, selectedRuleId, activeRules]);
 
   const handleSelectStockForOrder = (stock: Stock, action: OrderActionType | null) => {
     setSelectedStockForOrderCard(stock);
@@ -282,7 +296,6 @@ export default function DashboardPage() {
       });
       return;
     }
-    // Pass all data for export, specific column selection for export can be a future enhancement
     exportToCSV('stock_screener_data.csv', filteredStocks, columnConfiguration);
     toast({
       title: "Export Successful",
@@ -308,32 +321,11 @@ export default function DashboardPage() {
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
               <div>
                 <CardTitle className="text-2xl font-headline">Real-Time Stock Screener</CardTitle>
-                <CardDescription>Filter and find top market movers.</CardDescription>
+                <CardDescription>Filter and find top market movers based on selected rule.</CardDescription>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                {autoRefreshEnabled && <Dot className="h-6 w-6 text-[hsl(var(--confirm-green))] animate-pulse" />}
+                <Dot className="h-6 w-6 text-[hsl(var(--confirm-green))] animate-pulse" />
                 {lastRefreshed && <span className="text-sm text-muted-foreground">Refreshed: {new Date(lastRefreshed).toLocaleTimeString()}</span>}
-                <Switch
-                  id="auto-refresh-toggle"
-                  checked={autoRefreshEnabled}
-                  onCheckedChange={setAutoRefreshEnabled}
-                  aria-label="Toggle auto refresh"
-                />
-                <Label htmlFor="auto-refresh-toggle" className="text-sm text-foreground">Auto</Label>
-                <Select
-                  value={String(refreshInterval)}
-                  onValueChange={(val) => setRefreshInterval(Number(val) as RefreshInterval)}
-                  disabled={!autoRefreshEnabled}
-                >
-                  <SelectTrigger className="w-[80px] h-9 text-xs">
-                    <SelectValue placeholder="Int." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="15000">15s</SelectItem>
-                    <SelectItem value="30000">30s</SelectItem>
-                    <SelectItem value="60000">1m</SelectItem>
-                  </SelectContent>
-                </Select>
                 <Button
                   variant="outline"
                   size="sm"
@@ -400,38 +392,24 @@ export default function DashboardPage() {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col overflow-hidden space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="search-symbol" className="text-sm font-medium text-foreground">Symbol Search</Label>
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="search-symbol"
-                      type="text"
-                      placeholder="Search by symbol (e.g. AAPL)"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-8"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="min-change" className="text-sm font-medium text-foreground">Min. % Change ({minChangePercent}%)</Label>
-                  <Slider id="min-change" min={-10} max={20} step={0.5} defaultValue={[0]} value={[minChangePercent]} onValueChange={(value) => setMinChangePercent(value[0])} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="max-float" className="text-sm font-medium text-foreground">Max. Float ({maxFloat === 20000 ? 'Any': `${maxFloat}M`})</Label>
-                  <Slider id="max-float" min={1} max={20000} step={100} defaultValue={[20000]} value={[maxFloat]} onValueChange={(value) => setMaxFloat(value[0])} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="min-volume" className="text-sm font-medium text-foreground">Min. Volume ({minVolume === 0 ? 'Any': `${minVolume}M`})</Label>
-                  <Slider id="min-volume" min={0} max={200} step={1} defaultValue={[0]} value={[minVolume]} onValueChange={(value) => setMinVolume(value[0])} />
-                </div>
+            <CardContent className="flex-1 flex flex-col overflow-hidden space-y-4">
+              <div className="flex items-center gap-3">
+                  <Label htmlFor="ruleSelect" className="text-foreground text-sm font-medium flex items-center">
+                    <ListFilter className="mr-2 h-4 w-4 text-primary" /> Apply Rule:
+                  </Label>
+                  <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
+                    <SelectTrigger id="ruleSelect" className="w-auto min-w-[200px] max-w-xs">
+                        <SelectValue placeholder="Select a rule..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">Show All Stocks</SelectItem>
+                        {activeRules.map(rule => (
+                            <SelectItem key={rule.id} value={rule.id}>{rule.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
               </div>
-
-              <RulePills minChangePercent={minChangePercent} maxFloat={maxFloat} minVolume={minVolume} />
-
+              
               <div className="rounded-xl overflow-auto flex-1">
                 <Table>
                   <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
@@ -473,7 +451,7 @@ export default function DashboardPage() {
                     ) : (
                       <TableRow>
                         <TableCell colSpan={displayedColumns.length} className="text-center h-24 text-muted-foreground">
-                          No stocks match your criteria. Try adjusting the filters.
+                          No stocks match the selected rule.
                         </TableCell>
                       </TableRow>
                     )}
