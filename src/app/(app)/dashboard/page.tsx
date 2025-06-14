@@ -68,17 +68,23 @@ export default function DashboardPage() {
 
   const handleRefreshData = useCallback(() => {
     console.log('Refreshing data...');
-    const refreshedStocks = stocks.map(stock => ({
-      ...stock,
-      price: parseFloat((stock.price * (1 + (Math.random() - 0.5) * 0.03)).toFixed(2)), 
-      changePercent: parseFloat(((Math.random() - 0.5) * 10).toFixed(1)), 
-      volume: parseFloat((stock.volume * (1 + (Math.random() - 0.2) * 0.1)).toFixed(1)), 
-      lastUpdated: new Date().toISOString(), 
-      historicalPrices: Array.from({length: 7}, () => parseFloat((stock.price * (1 + (Math.random() - 0.5) * 0.05)).toFixed(2)))
-    }));
-    setStocks(refreshedStocks);
+    setStocks(prevStocks =>
+      prevStocks.map(stock => {
+        const currentPrice = stock.price;
+        const currentVolume = stock.volume;
+        const newPrice = parseFloat((currentPrice * (1 + (Math.random() - 0.5) * 0.03)).toFixed(2));
+        return {
+          ...stock,
+          price: newPrice,
+          changePercent: parseFloat(((Math.random() - 0.5) * 10).toFixed(1)),
+          volume: parseFloat((currentVolume * (1 + (Math.random() - 0.2) * 0.1)).toFixed(1)),
+          lastUpdated: new Date().toISOString(),
+          historicalPrices: Array.from({ length: 7 }, () => parseFloat((currentPrice * (1 + (Math.random() - 0.5) * 0.05)).toFixed(2)))
+        };
+      })
+    );
     setLastRefreshed(new Date());
-  }, [stocks]); 
+  }, []); // Removed `stocks` from dependencies, using functional update for setStocks
 
   useEffect(() => {
     setLastRefreshed(new Date());
@@ -87,19 +93,19 @@ export default function DashboardPage() {
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
     if (autoRefreshEnabled) {
-      handleRefreshData(); 
+      handleRefreshData();
       intervalId = setInterval(handleRefreshData, refreshInterval);
     }
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
   }, [autoRefreshEnabled, refreshInterval, handleRefreshData]);
-  
+
   const filteredStocks = useMemo(() => {
     return stocks.filter(stock =>
       stock.symbol.toLowerCase().includes(searchTerm.toLowerCase()) &&
       (minChangePercent === 0 ? true : stock.changePercent >= minChangePercent) &&
-      (maxFloat === 20000 ? true : stock.float <= maxFloat) && 
+      (maxFloat === 20000 ? true : stock.float <= maxFloat) &&
       (minVolume === 0 ? true : stock.volume >= minVolume)
     );
   }, [stocks, searchTerm, minChangePercent, maxFloat, minVolume]);
@@ -133,9 +139,9 @@ export default function DashboardPage() {
       description: "Stock screener data has been exported to CSV.",
     });
   };
-  
+
   const getRowHighlightClass = (stock: Stock): string => {
-    if (stock.changePercent >= 10) return 'border-l-4 border-green-400 bg-green-500/5'; 
+    if (stock.changePercent >= 10) return 'border-l-4 border-green-400 bg-green-500/5';
     if (stock.changePercent <= -8) return 'border-l-4 border-red-400 bg-red-500/5';
     if (stock.float <= 500 && stock.volume >= 50) return 'border-l-4 border-blue-400 bg-blue-500/5';
     return '';
@@ -162,8 +168,8 @@ export default function DashboardPage() {
                 aria-label="Toggle auto refresh"
               />
               <Label htmlFor="auto-refresh-toggle" className="text-sm">Auto-Refresh</Label>
-              <Select 
-                value={String(refreshInterval)} 
+              <Select
+                value={String(refreshInterval)}
                 onValueChange={(val) => setRefreshInterval(Number(val) as RefreshInterval)}
                 disabled={!autoRefreshEnabled}
               >
@@ -219,7 +225,7 @@ export default function DashboardPage() {
                 <Slider
                   id="max-float"
                   min={1}
-                  max={20000} 
+                  max={20000}
                   step={100}
                   defaultValue={[20000]}
                   value={[maxFloat]}
@@ -241,7 +247,7 @@ export default function DashboardPage() {
             </div>
 
             <RulePills minChangePercent={minChangePercent} maxFloat={maxFloat} minVolume={minVolume} />
-            
+
             <div className="rounded-md border overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -285,18 +291,18 @@ export default function DashboardPage() {
                           <ClientRenderedTime isoTimestamp={stock.lastUpdated} />
                         </TableCell>
                         <TableCell className="text-center space-x-1">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="h-8 px-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white" 
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
                             onClick={() => handleTradeAction(stock.symbol, 'Buy')}
                           >
                             <TrendingUp className="mr-1 h-4 w-4" /> Buy
                           </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="h-8 px-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white" 
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
                             onClick={() => handleTradeAction(stock.symbol, 'Short')}
                           >
                             <TrendingDown className="mr-1 h-4 w-4" /> Short
@@ -327,5 +333,3 @@ export default function DashboardPage() {
     </main>
   );
 }
-
-    
