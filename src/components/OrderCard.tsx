@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat } from 'lucide-react';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OrderCardProps {
@@ -29,14 +29,19 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const [stopPrice, setStopPrice] = useState('');
   const [trailingOffset, setTrailingOffset] = useState('');
   const [currentAction, setCurrentAction] = useState<OrderActionType | null>(null);
+  const [timeInForce, setTimeInForce] = useState<string>('Day');
   
   const [buyingPower] = useState<number>(MOCK_BUYING_POWER); 
 
   useEffect(() => {
     if (selectedStock) {
       setCurrentAction(initialActionType);
-      // Reset quantity when stock changes or action type is set initially
       setQuantityValue(''); 
+      setOrderType('Market');
+      setLimitPrice('');
+      setStopPrice('');
+      setTrailingOffset('');
+      setTimeInForce('Day');
     } else {
       setCurrentAction(null);
       setQuantityValue('');
@@ -50,11 +55,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
   const toggleQuantityMode = () => {
     setQuantityMode(prevMode => {
-      if (prevMode === 'Shares') return 'DollarAmount';
-      if (prevMode === 'DollarAmount') return 'PercentOfBuyingPower';
-      return 'Shares'; 
+      const nextMode = prevMode === 'Shares' ? 'DollarAmount' : prevMode === 'DollarAmount' ? 'PercentOfBuyingPower' : 'Shares';
+      return nextMode;
     });
-    setQuantityValue(''); // Clear input when mode changes
+    setQuantityValue(''); 
   };
 
   const getQuantityInputPlaceholder = () => {
@@ -81,7 +85,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
         if (stockPrice > 0) {
           shares = Math.floor(rawValue / stockPrice);
         } else {
-          shares = 0; // Avoid division by zero if stockPrice is 0
+          shares = 0;
         }
         cost = rawValue; 
       } else if (quantityMode === 'PercentOfBuyingPower') {
@@ -90,7 +94,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
           if (stockPrice > 0) {
             shares = Math.floor(dollarAmount / stockPrice);
           } else {
-            shares = 0; // Avoid division by zero
+            shares = 0; 
           }
           cost = dollarAmount; 
         } else {
@@ -116,6 +120,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       quantity: finalSharesToSubmit,
       action: currentAction,
       orderType: orderType,
+      TIF: timeInForce,
       rawQuantityValue: quantityValue,
       rawQuantityMode: quantityMode,
     };
@@ -139,7 +144,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       tradeDetails.trailingOffset = parseFloat(trailingOffset);
     }
     onSubmit(tradeDetails);
-    setQuantityValue(''); // Clear quantity after submission
+    setQuantityValue(''); 
   };
 
   const getCardTitle = () => {
@@ -172,9 +177,9 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
   const sellButtonBase = "border-destructive text-destructive hover:bg-destructive/10";
   const sellButtonSelected = "bg-destructive text-destructive-foreground hover:bg-destructive/90";
-
-  const shortButtonBase = "border-accent text-accent hover:bg-accent/10";
-  const shortButtonSelected = "bg-accent text-accent-foreground hover:bg-accent/90";
+  
+  const shortButtonBase = "border-yellow-500 text-yellow-400 hover:bg-yellow-500/10 hover:text-yellow-300";
+  const shortButtonSelected = "bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90";
 
 
   return (
@@ -213,7 +218,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             <Button
               onClick={() => handleActionSelect('Short')}
               variant="outline"
-              className={cn("flex-1", currentAction === 'Short' ? shortButtonSelected : shortButtonBase, currentAction === 'Short' && 'hover:text-accent-foreground')}
+              className={cn("flex-1", currentAction === 'Short' ? shortButtonSelected : shortButtonBase, currentAction === 'Short' && 'hover:text-yellow-950')}
               disabled={!selectedStock}
             >
               <TrendingDown className="mr-2 h-4 w-4" /> Short
@@ -265,6 +270,20 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
               <SelectItem value="Market">Market</SelectItem><SelectItem value="Limit">Limit</SelectItem>
               <SelectItem value="Stop">Stop</SelectItem><SelectItem value="Stop Limit">Stop Limit</SelectItem>
               <SelectItem value="Trailing Stop">Trailing Stop</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="timeInForce" className="text-sm font-medium text-foreground">
+            <Clock4 className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Time-in-Force
+          </Label>
+          <Select value={timeInForce} onValueChange={(value) => setTimeInForce(value)} disabled={!selectedStock}>
+            <SelectTrigger id="timeInForce"><SelectValue placeholder="Select TIF" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Day">Day</SelectItem>
+              <SelectItem value="GTC">Good-Til-Canceled (GTC)</SelectItem>
+              <SelectItem value="IOC">Immediate or Cancel (IOC)</SelectItem>
             </SelectContent>
           </Select>
         </div>

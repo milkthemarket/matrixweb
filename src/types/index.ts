@@ -57,6 +57,7 @@ export interface TradeRequest {
   trailingOffset?: number; // Could be points or percentage based on broker
   rawQuantityValue?: string;
   rawQuantityMode?: QuantityInputMode;
+  TIF?: string; // Time-in-Force
 }
 
 export interface OpenPosition {
@@ -93,3 +94,4 @@ export interface TradeHistoryEntry {
   orderStatus: 'Filled' | 'Pending' | 'Canceled' | 'Partially Filled'; // Extended options
   averagePrice: number;
 }
+
