@@ -71,19 +71,18 @@
     @apply text-foreground;
     background: radial-gradient(
       circle at center,
-      rgba(124, 58, 237, 0.15) 0%,    /* soft purple core */
-      rgba(20, 0, 50, 0.08) 40%,      /* gentle fade */
-      #000104 80%,                   /* near-black outer rim */
-      #000000 100%                   /* full black edge */
+      #250865 0%,        /* rich center purple */
+      #0a041d 20%,       /* quick fade */
+      #010105 60%,       /* mostly black */
+      #000000 100%       /* edge to pure black */
     );
-    background-color: hsl(var(--background)); /* Fallback */
-    background-attachment: fixed;
+    background-color: #010105; /* fallback base */
     min-height: 100vh;
-    font-family: var(--font-inter); /* Added as per prompt, ensure --font-inter is defined if used, or rely on Tailwind's font-body */
-    /* Retaining these from previous state for completeness if not covered by new block */
-    height: 100%; 
-    overflow-x: hidden;
-    background-repeat: no-repeat;
+    height: 100%;
+    background-attachment: fixed;
+    font-family: var(--font-inter); /* Ensures Inter font is applied globally */
+    overflow-x: hidden; /* Prevents horizontal scroll issues */
+    background-repeat: no-repeat; /* Gradients typically should not repeat */
   }
 
   /* Custom scrollbar styles */
