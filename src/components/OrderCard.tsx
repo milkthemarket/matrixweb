@@ -27,13 +27,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
   useEffect(() => {
     if (selectedStock) {
-      setCurrentAction(initialActionType); // This can be null if selected by clicking symbol
+      setCurrentAction(initialActionType); 
     } else {
-      // Clear everything if no stock is selected
       setCurrentAction(null);
-      setQuantity('');
-      setOrderType('Market');
-      setLimitPrice('');
+      // Quantity, orderType, and limitPrice persist as per previous requirement
     }
   }, [selectedStock, initialActionType]);
 
@@ -44,7 +41,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   
   const handleSubmit = () => {
     if (!selectedStock || !currentAction || !quantity) {
-      // This check should ideally be handled by disabling the button, but as a safeguard:
       alert("Stock, action, and quantity are required.");
       return;
     }
@@ -65,13 +61,12 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       ...(orderType === 'Limit' && { limitPrice: parseFloat(limitPrice) }),
     };
     onSubmit(tradeDetails);
-    // Do not clear quantity/orderType/limitPrice here to maintain persistence
   };
 
   const getCardTitle = () => {
     if (!selectedStock) return "Trade A Stock";
     if (currentAction) return `${currentAction} ${selectedStock.symbol}`;
-    return selectedStock.symbol; // Show symbol if stock selected but no action yet
+    return selectedStock.symbol;
   };
 
   const getCardDescription = () => {
@@ -86,7 +81,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   };
 
   return (
-    <Card className="shadow-xl h-full flex flex-col">
+    <Card className="shadow-xl flex flex-col">
       <CardHeader className="relative">
         <CardTitle className="text-xl font-headline">
           {getCardTitle()}
@@ -100,16 +95,16 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
           </Button>
         )}
       </CardHeader>
-      <CardContent className="space-y-4 flex-1 overflow-y-auto py-4">
+      <CardContent className="space-y-4 overflow-y-auto py-4">
         <div className="grid grid-cols-3 gap-2 mb-4">
             <Button
               onClick={() => handleActionSelect('Buy')}
-              variant="outline"
+              variant={currentAction === 'Buy' ? "default" : "outline"}
               className={cn(
                 "flex-1",
                 currentAction === 'Buy'
-                  ? 'bg-green-600 text-primary-foreground hover:bg-green-600/90 ring-2 ring-green-500 border-green-600' // Selected: Solid Green
-                  : 'border-green-500 text-green-500 hover:bg-green-500 hover:text-primary-foreground' // Default: Green Outline
+                  ? 'bg-green-600 text-primary-foreground hover:bg-green-600/90 ring-2 ring-green-500 border-green-600'
+                  : 'border-green-500 text-green-500 hover:bg-green-500 hover:text-primary-foreground'
               )}
               disabled={!selectedStock}
             >
@@ -117,12 +112,12 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             </Button>
             <Button
               onClick={() => handleActionSelect('Sell')}
-              variant="outline"
+              variant={currentAction === 'Sell' ? "default" : "outline"}
               className={cn(
                 "flex-1",
                 currentAction === 'Sell'
-                  ? 'bg-red-600 text-primary-foreground hover:bg-red-600/90 ring-2 ring-red-500 border-red-600' // Selected: Solid Red
-                  : 'border-red-500 text-red-500 hover:bg-red-500 hover:text-primary-foreground' // Default: Red Outline
+                  ? 'bg-red-600 text-primary-foreground hover:bg-red-600/90 ring-2 ring-red-500 border-red-600'
+                  : 'border-red-500 text-red-500 hover:bg-red-500 hover:text-primary-foreground'
               )}
               disabled={!selectedStock}
             >
@@ -130,12 +125,12 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             </Button>
             <Button
               onClick={() => handleActionSelect('Short')}
-              variant="outline"
+              variant={currentAction === 'Short' ? "default" : "outline"}
               className={cn(
                 "flex-1",
                 currentAction === 'Short'
-                  ? 'bg-purple-600 text-primary-foreground hover:bg-purple-600/90 ring-2 ring-purple-500 border-purple-600' // Selected: Solid Purple
-                  : 'border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-primary-foreground' // Default: Purple Outline
+                  ? 'bg-purple-600 text-primary-foreground hover:bg-purple-600/90 ring-2 ring-purple-500 border-purple-600'
+                  : 'border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-primary-foreground'
               )}
               disabled={!selectedStock}
             >
@@ -211,7 +206,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
           className={cn("w-full",
             currentAction === 'Buy' && selectedStock && 'bg-green-600 hover:bg-green-700 text-primary-foreground',
             currentAction === 'Sell' && selectedStock && 'bg-red-600 hover:bg-red-700 text-primary-foreground',
-            currentAction === 'Short' && selectedStock && 'bg-purple-600 hover:bg-purple-700 text-primary-foreground', // Updated Short to purple
+            currentAction === 'Short' && selectedStock && 'bg-purple-600 hover:bg-purple-700 text-primary-foreground',
             (!selectedStock || !currentAction) && 'bg-primary/70 hover:bg-primary/70 cursor-not-allowed'
           )}
         >
@@ -222,3 +217,5 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     </Card>
   );
 }
+
+    
