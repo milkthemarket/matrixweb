@@ -14,7 +14,7 @@ export default function SettingsPage() {
               <SettingsIcon className="mr-2 h-6 w-6 text-primary"/>
               Application Settings
             </CardTitle>
-            <CardDescription>Configure your TradeFlow preferences and integrations.</CardDescription>
+            <CardDescription>Configure your TradePilot preferences and integrations.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="p-8 text-center text-muted-foreground">

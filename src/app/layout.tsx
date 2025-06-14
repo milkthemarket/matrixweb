@@ -4,7 +4,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'TradeFlow',
+  title: 'TradePilot',
   description: 'Modern trading dashboard by Firebase Studio',
 };
 
