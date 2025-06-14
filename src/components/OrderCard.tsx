@@ -27,9 +27,13 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
   useEffect(() => {
     if (selectedStock) {
-      setCurrentAction(initialActionType);
+      setCurrentAction(initialActionType); // This can be null if selected by clicking symbol
     } else {
+      // Clear everything if no stock is selected
       setCurrentAction(null);
+      setQuantity('');
+      setOrderType('Market');
+      setLimitPrice('');
     }
   }, [selectedStock, initialActionType]);
 
@@ -40,6 +44,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   
   const handleSubmit = () => {
     if (!selectedStock || !currentAction || !quantity) {
+      // This check should ideally be handled by disabling the button, but as a safeguard:
       alert("Stock, action, and quantity are required.");
       return;
     }
@@ -60,12 +65,13 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       ...(orderType === 'Limit' && { limitPrice: parseFloat(limitPrice) }),
     };
     onSubmit(tradeDetails);
+    // Do not clear quantity/orderType/limitPrice here to maintain persistence
   };
 
   const getCardTitle = () => {
     if (!selectedStock) return "Trade A Stock";
     if (currentAction) return `${currentAction} ${selectedStock.symbol}`;
-    return selectedStock.symbol;
+    return selectedStock.symbol; // Show symbol if stock selected but no action yet
   };
 
   const getCardDescription = () => {
@@ -82,7 +88,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   return (
     <Card className="shadow-xl h-full flex flex-col">
       <CardHeader className="relative">
-        <CardTitle className="text-xl font-headline flex items-center">
+        <CardTitle className="text-xl font-headline">
           {getCardTitle()}
         </CardTitle>
         <CardDescription>
@@ -96,40 +102,40 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       </CardHeader>
       <CardContent className="space-y-4 flex-1 overflow-y-auto py-4">
         <div className="grid grid-cols-3 gap-2 mb-4">
-            <Button 
+            <Button
               onClick={() => handleActionSelect('Buy')}
-              variant={currentAction === 'Buy' ? 'default' : 'outline'}
+              variant="outline"
               className={cn(
-                "flex-1", 
-                currentAction === 'Buy' 
-                  ? 'bg-green-600 hover:bg-green-700 text-white ring-2 ring-green-400' 
-                  : 'border-green-500 text-green-500 hover:bg-green-500 hover:text-white'
+                "flex-1",
+                currentAction === 'Buy'
+                  ? 'bg-green-600 text-primary-foreground hover:bg-green-600/90 ring-2 ring-green-500 border-green-600' // Selected: Solid Green
+                  : 'border-green-500 text-green-500 hover:bg-green-500 hover:text-primary-foreground' // Default: Green Outline
               )}
               disabled={!selectedStock}
             >
               <TrendingUp className="mr-2 h-4 w-4" /> Buy
             </Button>
-            <Button 
+            <Button
               onClick={() => handleActionSelect('Sell')}
-              variant={currentAction === 'Sell' ? 'default' : 'secondary'}
+              variant="outline"
               className={cn(
                 "flex-1",
                 currentAction === 'Sell'
-                  ? 'bg-red-600 hover:bg-red-700 text-white ring-2 ring-red-400'
-                  : 'bg-slate-600 hover:bg-slate-500 text-slate-100'
+                  ? 'bg-red-600 text-primary-foreground hover:bg-red-600/90 ring-2 ring-red-500 border-red-600' // Selected: Solid Red
+                  : 'border-red-500 text-red-500 hover:bg-red-500 hover:text-primary-foreground' // Default: Red Outline
               )}
               disabled={!selectedStock}
             >
               <CircleSlash className="mr-2 h-4 w-4" /> Sell
             </Button>
-            <Button 
-              onClick={() => handleActionSelect('Short')} 
-              variant={currentAction === 'Short' ? 'default' : 'outline'}
+            <Button
+              onClick={() => handleActionSelect('Short')}
+              variant="outline"
               className={cn(
                 "flex-1",
                 currentAction === 'Short'
-                  ? 'bg-red-700 hover:bg-red-800 text-white ring-2 ring-red-400'
-                  : 'border-red-500 text-red-500 hover:bg-red-500 hover:text-white'
+                  ? 'bg-purple-600 text-primary-foreground hover:bg-purple-600/90 ring-2 ring-purple-500 border-purple-600' // Selected: Solid Purple
+                  : 'border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-primary-foreground' // Default: Purple Outline
               )}
               disabled={!selectedStock}
             >
@@ -150,8 +156,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="orderType">Order Type</Label>
-          <Select 
-            value={orderType} 
+          <Select
+            value={orderType}
             onValueChange={(value) => setOrderType(value as OrderSystemType)}
             disabled={!selectedStock}
           >
@@ -174,7 +180,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
               value={limitPrice}
               onChange={(e) => setLimitPrice(e.target.value)}
               placeholder="e.g., 150.50"
-              disabled={!selectedStock}
+              disabled={!selectedStock || orderType !== 'Limit'}
             />
           </div>
         )}
@@ -198,14 +204,14 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
       </CardContent>
       <CardFooter>
-        <Button 
-          type="button" 
+        <Button
+          type="button"
           onClick={handleSubmit}
           disabled={!selectedStock || !currentAction || !quantity || parseInt(quantity) <= 0}
-          className={cn("w-full", 
-            currentAction === 'Buy' && selectedStock && 'bg-green-600 hover:bg-green-700 text-white',
-            currentAction === 'Sell' && selectedStock && 'bg-red-600 hover:bg-red-700 text-white',
-            currentAction === 'Short' && selectedStock && 'bg-red-700 hover:bg-red-800 text-white', // Darker red for Short submit
+          className={cn("w-full",
+            currentAction === 'Buy' && selectedStock && 'bg-green-600 hover:bg-green-700 text-primary-foreground',
+            currentAction === 'Sell' && selectedStock && 'bg-red-600 hover:bg-red-700 text-primary-foreground',
+            currentAction === 'Short' && selectedStock && 'bg-purple-600 hover:bg-purple-700 text-primary-foreground', // Updated Short to purple
             (!selectedStock || !currentAction) && 'bg-primary/70 hover:bg-primary/70 cursor-not-allowed'
           )}
         >
