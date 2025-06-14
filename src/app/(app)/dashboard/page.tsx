@@ -326,17 +326,17 @@ export default function DashboardPage() {
                 <Dot className="h-6 w-6 text-[hsl(var(--confirm-green))] animate-pulse" />
                 {lastRefreshed && <span className="text-sm text-muted-foreground">Refreshed: {new Date(lastRefreshed).toLocaleTimeString()}</span>}
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={handleRefreshData}
-                  className="border-primary text-foreground hover:bg-primary/10 hover:text-primary"
+                  className="text-foreground hover:bg-primary/10 hover:text-primary"
                 >
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Refresh
                 </Button>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm" className="border-accent text-foreground hover:bg-accent/10 hover:text-accent">
+                    <Button variant="ghost" size="sm" className="text-foreground hover:bg-accent/10 hover:text-accent">
                       <Columns className="mr-2 h-4 w-4" /> Columns
                     </Button>
                   </PopoverTrigger>
@@ -381,10 +381,10 @@ export default function DashboardPage() {
                   </PopoverContent>
                 </Popover>
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={handleExport}
-                  className="border-accent text-foreground hover:bg-accent/10 hover:text-accent"
+                  className="text-foreground hover:bg-accent/10 hover:text-accent"
                 >
                   <UploadCloud className="mr-2 h-4 w-4" />
                   Export
@@ -477,3 +477,4 @@ export default function DashboardPage() {
     </main>
   );
 }
+
