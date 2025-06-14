@@ -46,6 +46,7 @@ export interface TradeLogEntry {
 export type OrderActionType = 'Buy' | 'Sell' | 'Short';
 export type OrderSystemType = 'Market' | 'Limit' | 'Stop' | 'Stop Limit' | 'Trailing Stop';
 export type QuantityInputMode = 'Shares' | 'DollarAmount' | 'PercentOfBuyingPower';
+export type TradeMode = 'manual' | 'ai';
 
 export interface TradeRequest {
   symbol: string;
@@ -59,6 +60,20 @@ export interface TradeRequest {
   rawQuantityMode?: QuantityInputMode;
   TIF?: string; // Time-in-Force
 }
+
+export interface AISuggestion {
+  action: OrderActionType;
+  symbol: string;
+  quantity: number;
+  entryPrice?: number; // For Limit orders, this is the limit price. For Market, it's an estimate.
+  takeProfitPrice?: number;
+  stopLossPrice?: number;
+  rationale: string;
+  strategy: string;
+  orderType: OrderSystemType; // AI suggests Market or Limit
+  limitPrice?: number; // Explicit limit price if orderType is Limit or Stop Limit
+}
+
 
 export interface OpenPosition {
   id: string;
