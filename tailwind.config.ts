@@ -65,7 +65,6 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
-        // Added for consistent panel styling, referencing CSS vars
         panel: 'hsl(var(--panel-base))', 
         header: {
           DEFAULT: 'hsl(var(--header-background))',

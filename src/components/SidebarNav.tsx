@@ -44,13 +44,13 @@ export function SidebarNav() {
                   className={cn(
                     "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                     pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard" && item.href !== "/")
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                      : "font-normal"
+                      ? "bg-sidebar-accent text-sidebar-accent-foreground" 
+                      : ""
                   )}
                   tooltip={{ children: item.label, className: "text-xs" }}
                 >
                   <item.icon className={cn("h-5 w-5", (pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard" && item.href !== "/")) ? "text-primary" : "text-accent")} />
-                  <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
+                  <span className="font-medium tracking-wide group-data-[collapsible=icon]:hidden">{item.label}</span>
                 </SidebarMenuButton>
               </Link>
             </SidebarMenuItem>
