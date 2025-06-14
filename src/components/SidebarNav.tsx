@@ -62,8 +62,8 @@ export function SidebarNav() {
           "group-data-[state=expanded]:items-center group-data-[state=expanded]:justify-between",
           "group-data-[state=collapsed]:flex-col group-data-[state=collapsed]:items-center group-data-[state=collapsed]:gap-2"
         )}>
-          <Link href="/dashboard" className="flex items-center gap-2 min-w-0 drop-shadow-lg group-data-[state=collapsed]:justify-center">
-            <CowIcon className="h-6 w-6 text-primary flex-shrink-0" />
+          <Link href="/dashboard" className="flex items-center gap-2 min-w-0 group-data-[state=collapsed]:justify-center">
+            <CowIcon className="h-6 w-6 text-white flex-shrink-0 filter drop-shadow-[0_0_6px_rgba(255,255,255,0.1)]" />
             {open && (
               <h1 className="text-3xl font-bold tracking-wide text-foreground font-headline truncate">MILK</h1>
             )}
