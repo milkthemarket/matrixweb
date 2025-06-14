@@ -15,7 +15,7 @@ export interface Stock {
 }
 
 export interface AlertRule {
-  id: string;
+  id:string;
   name: string;
   changePercentThreshold: number;
   floatThreshold: number; // in millions
@@ -53,8 +53,26 @@ export interface TradeRequest {
   limitPrice?: number;
   stopPrice?: number;
   trailingOffset?: number; // Could be points or percentage based on broker
-  // Optional: add rawQuantityValue and quantityMode for logging
   rawQuantityValue?: string;
   rawQuantityMode?: QuantityInputMode;
 }
 
+export interface OpenPosition {
+  id: string;
+  symbol: string;
+  entryPrice: number;
+  shares: number;
+  currentPrice: number; 
+  // P&L will be calculated in the component
+  // Optional: add tradeType: 'long' | 'short' if needed later
+}
+
+export interface NewsArticle {
+  id: string;
+  symbol: string; // To associate news with a specific stock
+  headline: string;
+  timestamp: string; // ISO string
+  source: string;
+  preview: string;
+  link: string; // URL
+}

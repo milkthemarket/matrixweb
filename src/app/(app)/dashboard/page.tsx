@@ -13,8 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Filter, RotateCcw, Search, UploadCloud, Flame, Megaphone, TrendingUp, TrendingDown, Dot, CircleSlash } from "lucide-react";
-import type { Stock, TradeRequest, OrderActionType } from "@/types";
-import { format } from 'date-fns';
+import type { Stock, TradeRequest, OrderActionType, OpenPosition, NewsArticle } from "@/types";
+import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { RulePills } from '@/components/RulePills';
 import { ChartPreview } from '@/components/ChartPreview';
@@ -22,31 +22,39 @@ import { exportToCSV } from '@/lib/exportCSV';
 import { useAlertContext, type RefreshInterval } from '@/contexts/AlertContext';
 import { useToast } from "@/hooks/use-toast";
 import { OrderCard } from '@/components/OrderCard'; 
+import { NewsPanel } from '@/components/NewsPanel';
+import { OpenPositionsCard } from '@/components/OpenPositionsCard';
 
-// Use a truly static, hardcoded ISO string for the initial mock timestamp
 const MOCK_INITIAL_TIMESTAMP = '2024-07-01T10:00:00.000Z';
 
 const initialMockStocks: Stock[] = [
-  { id: '1', symbol: 'AAPL', price: 170.34, changePercent: 2.5, float: 15000, volume: 90.5, newsSnippet: 'New iPhone announced.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [168, 169, 170, 171, 170.5, 172, 170.34] },
-  { id: '2', symbol: 'MSFT', price: 420.72, changePercent: -1.2, float: 7000, volume: 60.2, newsSnippet: 'AI partnership expansion.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [425, 422, 423, 420, 421, 419, 420.72] },
-  { id: '3', symbol: 'TSLA', price: 180.01, changePercent: 5.8, float: 800, volume: 120.1, newsSnippet: 'Cybertruck deliveries ramp up.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [170, 172, 175, 173, 178, 181, 180.01] },
-  { id: '4', symbol: 'NVDA', price: 900.50, changePercent: 0.5, float: 2500, volume: 75.3, newsSnippet: 'New GPU architecture unveiled.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [890, 895, 900, 905, 902, 903, 900.50] },
-  { id: '5', symbol: 'GOOGL', price: 140.22, changePercent: 1.1, float: 6000, volume: 40.8, newsSnippet: 'Search algorithm update.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [138, 139, 140, 139.5, 141, 140.5, 140.22] },
-  { id: '6', symbol: 'AMC', price: 4.50, changePercent: -8.2, float: 50, volume: 150.0, newsSnippet: 'Short squeeze chatter online.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [5.0, 4.8, 4.6, 4.3, 4.7, 4.4, 4.50] },
-  { id: '7', symbol: 'SPY', price: 510.20, changePercent: 10.5, float: 1000, volume: 80.0, newsSnippet: 'Market rally continues.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [500, 502, 505, 503, 508, 511, 510.20] },
-  { id: '8', symbol: 'QQQ', price: 450.80, changePercent: -9.1, float: 800, volume: 70.0, newsSnippet: 'Tech sell-off.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [460, 458, 455, 452, 453, 450, 450.80] },
+  { id: '1', symbol: 'AAPL', price: 170.34, changePercent: 2.5, float: 15000, volume: 90.5, newsSnippet: 'New iPhone announced, driving shares up.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [168, 169, 170, 171, 170.5, 172, 170.34] },
+  { id: '2', symbol: 'MSFT', price: 420.72, changePercent: -1.2, float: 7000, volume: 60.2, newsSnippet: 'AI partnership expansion details emerge.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [425, 422, 423, 420, 421, 419, 420.72] },
+  { id: '3', symbol: 'TSLA', price: 180.01, changePercent: 5.8, float: 800, volume: 120.1, newsSnippet: 'Cybertruck deliveries ramp up significantly.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [170, 172, 175, 173, 178, 181, 180.01] },
+  { id: '4', symbol: 'NVDA', price: 900.50, changePercent: 0.5, float: 2500, volume: 75.3, newsSnippet: 'New GPU architecture "Blackwell" unveiled.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [890, 895, 900, 905, 902, 903, 900.50] },
+  { id: '5', symbol: 'GOOGL', price: 140.22, changePercent: 1.1, float: 6000, volume: 40.8, newsSnippet: 'Search algorithm update to combat spam.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [138, 139, 140, 139.5, 141, 140.5, 140.22] },
 ];
 
-// Helper component to render time client-side to avoid hydration mismatch
+const initialMockOpenPositions: OpenPosition[] = [
+  { id: 'pos1', symbol: 'TSLA', entryPrice: 175.00, shares: 10, currentPrice: 180.01 },
+  { id: 'pos2', symbol: 'AAPL', entryPrice: 168.50, shares: 20, currentPrice: 170.34 },
+];
+
+const initialMockNewsArticles: NewsArticle[] = [
+  { id: 'news1', symbol: 'AAPL', headline: 'Apple Unveils Vision Pro 2 Details', timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), source: 'TechCrunch', preview: 'Apple today shared more details about the upcoming Vision Pro 2, promising enhanced display and lighter design...', link: '#' },
+  { id: 'news2', symbol: 'AAPL', headline: 'AAPL Analysts Raise Price Target on Strong iPhone Sales', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), source: 'Bloomberg', preview: 'Several Wall Street analysts have raised their price targets for Apple Inc. (AAPL) following reports of robust iPhone sales...', link: '#' },
+  { id: 'news3', symbol: 'TSLA', headline: 'Tesla Hits New Production Milestone for Model Y', timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(), source: 'Reuters', preview: 'Tesla Inc. announced it has achieved a new production milestone for its Model Y electric SUV at its Giga Texas factory...', link: '#' },
+  { id: 'news4', symbol: 'NVDA', headline: 'Nvidia Faces New Competition in AI Chip Market', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(), source: 'WSJ', preview: 'Nvidia Corp. is facing increasing competition in the lucrative AI chip market as tech giants and startups alike develop their own processors...', link: '#' },
+];
+
+
 const ClientRenderedTime: React.FC<{ isoTimestamp: string }> = ({ isoTimestamp }) => {
   const [formattedTime, setFormattedTime] = useState<string | null>(null);
-
   useEffect(() => {
     if (isoTimestamp) {
       setFormattedTime(format(new Date(isoTimestamp), "HH:mm:ss"));
     }
   }, [isoTimestamp]);
-
   return <>{formattedTime || '...'}</>; 
 };
 
@@ -61,6 +69,10 @@ export default function DashboardPage() {
 
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
   const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
+  
+  const [selectedStockForNews, setSelectedStockForNews] = useState<Stock | null>(null);
+  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(initialMockNewsArticles);
+  const [openPositions, setOpenPositions] = useState<OpenPosition[]>(initialMockOpenPositions);
 
 
   const { autoRefreshEnabled, setAutoRefreshEnabled, refreshInterval, setRefreshInterval } = useAlertContext();
@@ -82,6 +94,13 @@ export default function DashboardPage() {
         };
       })
     );
+    // Simulate price changes for open positions
+    setOpenPositions(prevPositions => 
+      prevPositions.map(pos => ({
+        ...pos,
+        currentPrice: parseFloat((pos.currentPrice * (1 + (Math.random() - 0.5) * 0.01)).toFixed(2)) // Smaller fluctuation for open positions
+      }))
+    );
     setLastRefreshed(new Date());
   }, []); 
 
@@ -92,7 +111,7 @@ export default function DashboardPage() {
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
     if (autoRefreshEnabled) {
-      handleRefreshData(); // Refresh immediately when auto-refresh is enabled or interval changes
+      handleRefreshData(); 
       intervalId = setInterval(handleRefreshData, refreshInterval);
     }
     return () => {
@@ -109,25 +128,42 @@ export default function DashboardPage() {
     );
   }, [stocks, searchTerm, minChangePercent, maxFloat, minVolume]);
 
-  const handleSelectStockForOrder = (stock: Stock, action: OrderActionType | null) => {
+  const handleSelectStock = (stock: Stock, action: OrderActionType | null) => {
     setSelectedStockForOrderCard(stock);
     setOrderCardActionType(action);
+    setSelectedStockForNews(stock); // Also set for news panel
   };
 
   const handleClearOrderCard = () => {
     setSelectedStockForOrderCard(null);
     setOrderCardActionType(null);
+    // Optionally clear news selection too, or keep it independent
+    // setSelectedStockForNews(null); 
   };
 
   const handleTradeSubmit = (tradeDetails: TradeRequest) => {
     console.log("Trade Submitted via Order Card:", tradeDetails);
     toast({
       title: "Trade Processing",
-      description: `Trade for ${tradeDetails.symbol} (${tradeDetails.action}, ${tradeDetails.quantity} shares, ${tradeDetails.orderType}) submitted.`,
+      description: `${tradeDetails.action} ${tradeDetails.quantity} ${tradeDetails.symbol} (${tradeDetails.orderType}) submitted.`,
     });
-    // Here you would typically write to Firestore or call an API
-    // Example: writeToFirestore('/tradeRequests', tradeDetails);
-    handleClearOrderCard(); // Optionally clear the card after submission
+    // Mock adding to open positions if it's a Buy/Short, and not a Sell
+    if (tradeDetails.action === 'Buy' || tradeDetails.action === 'Short') {
+        const newPosition: OpenPosition = {
+            id: `pos${Date.now()}`,
+            symbol: tradeDetails.symbol,
+            entryPrice: selectedStockForOrderCard?.price || 0, // Use current price as entry for mock
+            shares: tradeDetails.quantity,
+            currentPrice: selectedStockForOrderCard?.price || 0,
+        };
+        setOpenPositions(prev => [newPosition, ...prev]);
+    }
+    handleClearOrderCard();
+  };
+
+  const handleClosePosition = (positionId: string) => {
+    setOpenPositions(prev => prev.filter(p => p.id !== positionId));
+    // In a real app, you'd also update Firestore or your backend
   };
 
   const handleExport = () => {
@@ -158,9 +194,10 @@ export default function DashboardPage() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Dashboard & Screener" />
       <div className="flex flex-1 p-4 md:p-6 space-x-0 md:space-x-6 overflow-hidden">
-        {/* Left Column: Screener */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <Card className="shadow-xl flex-1 flex flex-col overflow-hidden">
+        
+        {/* Left Column: Screener & News Panel */}
+        <div className="flex-1 flex flex-col overflow-hidden space-y-6">
+          <Card className="shadow-xl flex-1 flex flex-col overflow-hidden"> {/* Main Screener Card */}
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
               <div>
                 <CardTitle className="text-2xl font-headline">Real-Time Stock Screener</CardTitle>
@@ -256,7 +293,7 @@ export default function DashboardPage() {
 
               <RulePills minChangePercent={minChangePercent} maxFloat={maxFloat} minVolume={minVolume} />
               
-              <div className="rounded-md border overflow-auto flex-1"> {/* Table container takes remaining space and scrolls */}
+              <div className="rounded-md border overflow-auto flex-1">
                 <Table>
                   <TableHeader className="sticky top-0 bg-card z-10">
                     <TableRow>
@@ -286,7 +323,7 @@ export default function DashboardPage() {
                               <PopoverTrigger asChild>
                                 <span 
                                   className="cursor-pointer hover:text-primary flex items-center"
-                                  onClick={() => handleSelectStockForOrder(stock, null)} // Updated
+                                  onClick={() => handleSelectStock(stock, null)}
                                 >
                                   {stock.symbol}
                                   {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-orange-400" title="Hot Catalyst" />}
@@ -313,15 +350,15 @@ export default function DashboardPage() {
                               variant="outline"
                               size="sm"
                               className="h-8 px-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
-                              onClick={() => handleSelectStockForOrder(stock, 'Buy')}
+                              onClick={() => handleSelectStock(stock, 'Buy')}
                             >
                               <TrendingUp className="mr-1 h-4 w-4" /> Buy
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-8 px-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                              onClick={() => handleSelectStockForOrder(stock, 'Short')}
+                              className="h-8 px-2 border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white" // Updated to purple for Short
+                              onClick={() => handleSelectStock(stock, 'Short')}
                             >
                               <TrendingDown className="mr-1 h-4 w-4" /> Short
                             </Button>
@@ -340,19 +377,22 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
+
+          {/* News Panel - Conditionally Rendered */}
+          <NewsPanel selectedStock={selectedStockForNews} newsArticles={newsArticles} />
         </div>
 
-        {/* Right Column: Order Card */}
-        <div className="w-full md:w-96 lg:w-[26rem] hidden md:block flex-shrink-0"> {/* Adjust width as needed, hidden on small screens */}
+        {/* Right Column: Order Card & Open Positions */}
+        <div className="w-full md:w-96 lg:w-[26rem] hidden md:flex flex-col flex-shrink-0 overflow-y-auto space-y-6 pr-1"> {/* Added pr-1 for scrollbar visibility if needed */}
           <OrderCard
             selectedStock={selectedStockForOrderCard}
             initialActionType={orderCardActionType}
             onSubmit={handleTradeSubmit}
             onClear={handleClearOrderCard}
           />
+          <OpenPositionsCard positions={openPositions} onClosePosition={handleClosePosition} />
         </div>
       </div>
     </main>
   );
 }
-
