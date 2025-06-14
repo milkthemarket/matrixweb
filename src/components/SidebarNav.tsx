@@ -74,7 +74,7 @@ export function SidebarNav() {
                     tooltip={{ children: item.label, className: "text-xs" }}
                   >
                     <item.icon className={cn("h-5 w-5", isActive ? "text-sidebar-primary" : "text-muted-foreground group-hover:text-sidebar-accent-foreground")} />
-                    <span className="font-medium tracking-wide group-data-[collapsible=icon]:hidden">{item.label}</span>
+                    <span className="text-base font-semibold tracking-wide group-data-[collapsible=icon]:hidden">{item.label}</span>
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
