@@ -209,20 +209,20 @@ export default function DashboardPage() {
   };
 
   const getRowHighlightClass = (stock: Stock): string => {
-    if (stock.changePercent >= 10) return 'border-l-4 border-[hsl(var(--chart-2))] bg-[hsla(var(--chart-2),0.05)]'; // Confirm Green highlight
-    if (stock.changePercent <= -8) return 'border-l-4 border-[hsl(var(--chart-5))] bg-[hsla(var(--chart-5),0.05)]'; // Error Red highlight
-    if (stock.float <= 500 && stock.volume >= 50) return 'border-l-4 border-accent bg-accent/5'; // Electric Violet highlight
+    if (stock.changePercent >= 10) return 'border-l-4 border-[hsl(var(--chart-2))] bg-[hsla(var(--chart-2),0.05)]'; 
+    if (stock.changePercent <= -8) return 'border-l-4 border-[hsl(var(--chart-5))] bg-[hsla(var(--chart-5),0.05)]'; 
+    if (stock.float <= 500 && stock.volume >= 50) return 'border-l-4 border-accent bg-accent/5'; 
     return '';
   };
 
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <PageHeader title="Dashboard & Screener" />
+      <PageHeader title="Dashboard" />
       <div className="flex flex-1 p-4 md:p-6 space-x-0 md:space-x-6 overflow-hidden">
 
         <div className="flex-1 flex flex-col overflow-hidden space-y-6">
-          <Card className="shadow-md flex-1 flex flex-col overflow-hidden"> 
+          <Card className="shadow-none flex-1 flex flex-col overflow-hidden"> 
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
               <div>
                 <CardTitle className="text-2xl font-headline">Real-Time Stock Screener</CardTitle>
@@ -324,7 +324,7 @@ export default function DashboardPage() {
                             key={stock.id}
                             className={cn(
                                 getRowHighlightClass(stock),
-                                "hover:bg-white/10 cursor-pointer", 
+                                "hover:bg-white/5 transition-colors duration-200 cursor-pointer", 
                                 selectedStockForOrderCard?.id === stock.id && "bg-primary/10" 
                             )}
                             onClick={() => handleSelectStockForOrder(stock, null)}
@@ -340,7 +340,7 @@ export default function DashboardPage() {
                                   {stock.catalystType === 'news' && <Megaphone className="ml-1 h-4 w-4 text-primary" title="News Catalyst"/>}
                                 </span>
                               </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0 shadow-md" side="right" align="start">
+                              <PopoverContent className="w-auto p-0 shadow-none" side="right" align="start">
                                 <ChartPreview stock={stock} />
                               </PopoverContent>
                             </Popover>
