@@ -32,7 +32,7 @@ export function ChartPreview({ stock }: ChartPreviewProps) {
   const strokeColor = stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))"; 
 
   return (
-    <Card className="w-64 shadow-md bg-popover/[.05] backdrop-blur-md rounded-xl">
+    <Card className="w-64 bg-transparent backdrop-blur-md rounded-xl">
       <CardHeader className="p-3">
         <CardTitle className="text-base font-semibold text-popover-foreground">{stock.symbol} - Price Trend</CardTitle>
         <CardDescription className="text-xs text-muted-foreground">Last 10 periods (mock data)</CardDescription>
@@ -45,7 +45,7 @@ export function ChartPreview({ stock }: ChartPreviewProps) {
             <Tooltip
               contentStyle={{ 
                 backgroundColor: 'hsla(var(--background), 0.85)', 
-                borderColor: 'hsla(var(--border), 0.08)',
+                borderColor: 'hsla(var(--border), 0.08)', // Kept a subtle border for tooltip content
                 borderRadius: 'var(--radius)',
                 backdropFilter: 'blur(8px)', 
                 WebkitBackdropFilter: 'blur(8px)',

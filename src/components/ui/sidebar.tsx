@@ -176,7 +176,7 @@ const Sidebar = React.forwardRef<
         <div
           className={cn(
             "flex h-full w-[--sidebar-width] flex-col bg-transparent backdrop-blur-md text-sidebar-foreground shadow-none",
-            side === "left" ? "border-t border-b border-l border-sidebar-border/[.1]" : "border-t border-b border-r border-sidebar-border/[.1]",
+            // Removed border classes
             className
           )}
           ref={ref}
@@ -244,8 +244,8 @@ const Sidebar = React.forwardRef<
             data-sidebar="sidebar"
             className={cn(
               "flex h-full w-full flex-col bg-transparent backdrop-blur-md shadow-none",
-              variant === "floating" ? "rounded-xl" : "",
-              side === "left" ? "border-t border-b border-l border-sidebar-border/[.1]" : "border-t border-b border-r border-sidebar-border/[.1]"
+              variant === "floating" ? "rounded-xl" : ""
+              // Removed border classes
             )}
           >
             {children}
@@ -321,7 +321,7 @@ const SidebarInset = React.forwardRef<
       ref={ref}
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-transparent",
-        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:border md:peer-data-[variant=inset]:border-border/[.1] md:peer-data-[variant=inset]:backdrop-blur-md md:peer-data-[variant=inset]:shadow-none",
+        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:backdrop-blur-md md:peer-data-[variant=inset]:shadow-none", // Removed border class for inset
         className
       )}
       {...props}

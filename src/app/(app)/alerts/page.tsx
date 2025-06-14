@@ -47,7 +47,7 @@ export default function AlertsPage() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Trade Alerts" />
       <div className="flex-1 p-4 md:p-6 overflow-auto">
-        <Card className="h-full flex flex-col">
+        <Card className="h-full flex flex-col bg-transparent shadow-none rounded-none backdrop-blur-none border-none">
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <BellRing className="mr-2 h-6 w-6 text-primary" />
@@ -64,7 +64,7 @@ export default function AlertsPage() {
                       key={alert.id} 
                       className={cn(
                         "p-4 rounded-xl shadow-none",
-                        "bg-transparent backdrop-blur-md border border-border/[.1]",
+                        "bg-transparent backdrop-blur-md", 
                         "hover:bg-white/5 transition-colors duration-200"
                       )}
                     >
