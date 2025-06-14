@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import type { Stock, AISuggestion, TradeRequest, OrderActionType, OrderSystemType } from '@/types';
+import type { Stock, AISuggestion, TradeRequest, OrderActionType, OrderSystemType, HistoryTradeMode } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -36,7 +36,7 @@ export function AiTradeCard({ selectedStock, onSubmit, buyingPower }: AiTradeCar
         symbol: selectedStock.symbol,
         currentPrice: selectedStock.price,
         volume: selectedStock.volume,
-        floatVal: selectedStock.float, // Renamed to avoid keyword conflict
+        floatVal: selectedStock.float, 
         newsSnippet: selectedStock.newsSnippet || "No specific news.",
         buyingPower: buyingPower,
       };
@@ -69,13 +69,13 @@ export function AiTradeCard({ selectedStock, onSubmit, buyingPower }: AiTradeCar
       action: suggestion.action,
       orderType: suggestion.orderType,
       limitPrice: suggestion.limitPrice,
-      // For AI trades, we'll use DAY TIF by default, can be expanded later
       TIF: "Day",
+      tradeModeOrigin: 'aiAssist', 
     };
     onSubmit(tradeDetails);
   };
 
-  const ActionIcon = suggestion?.action === 'Buy' ? TrendingUp : suggestion?.action === 'Short' ? TrendingDown : TrendingDown; // Default to sell-like for sell
+  const ActionIcon = suggestion?.action === 'Buy' ? TrendingUp : suggestion?.action === 'Short' ? TrendingDown : TrendingDown; 
   const actionColorClass = suggestion?.action === 'Buy' ? 'text-[hsl(var(--confirm-green))]' : suggestion?.action === 'Short' ? 'text-yellow-400' : 'text-destructive';
 
   if (isLoading) {

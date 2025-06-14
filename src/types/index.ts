@@ -66,6 +66,8 @@ export type OrderActionType = 'Buy' | 'Sell' | 'Short';
 export type OrderSystemType = 'Market' | 'Limit' | 'Stop' | 'Stop Limit' | 'Trailing Stop';
 export type QuantityInputMode = 'Shares' | 'DollarAmount' | 'PercentOfBuyingPower';
 export type TradeMode = 'manual' | 'ai' | 'auto';
+export type HistoryTradeMode = 'manual' | 'aiAssist' | 'fullyAI';
+
 
 export interface TradeRequest {
   symbol: string;
@@ -78,6 +80,7 @@ export interface TradeRequest {
   rawQuantityValue?: string;
   rawQuantityMode?: QuantityInputMode;
   TIF?: string;
+  tradeModeOrigin?: HistoryTradeMode; 
 }
 
 export interface AISuggestion {
@@ -100,6 +103,7 @@ export interface OpenPosition {
   entryPrice: number;
   shares: number;
   currentPrice: number;
+  origin?: HistoryTradeMode; 
 }
 
 export interface NewsArticle {
@@ -127,7 +131,7 @@ export interface TradeHistoryEntry {
   filledTime: string;
   orderStatus: 'Filled' | 'Pending' | 'Canceled' | 'Partially Filled';
   averagePrice: number;
-  // tradeModeOrigin?: HistoryTradeMode; // Future field for filtering history table
+  tradeModeOrigin?: HistoryTradeMode; 
 }
 
 export interface ColumnConfig<T = Stock> {
@@ -140,7 +144,6 @@ export interface ColumnConfig<T = Stock> {
   description?: string;
 }
 
-export type HistoryTradeMode = 'manual' | 'aiAssist' | 'fullyAI';
 
 export interface TradeStatsData {
   totalTrades: number;
@@ -159,3 +162,4 @@ export interface MiloTradeIdea {
   action: string;
   timestamp: string; // ISO string date
 }
+

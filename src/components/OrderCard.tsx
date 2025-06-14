@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode } from '@/types';
+import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode, HistoryTradeMode } from '@/types';
 import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, Bot, User, Cog, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AiTradeCard } from '@/components/AiTradeCard';
@@ -151,6 +151,11 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       alert("Stock, action, and a valid positive quantity resulting in at least 1 share are required.");
       return;
     }
+    
+    let origin: HistoryTradeMode = 'manual';
+    if (tradeMode === 'ai') origin = 'aiAssist';
+    else if (tradeMode === 'auto') origin = 'fullyAI';
+
 
     const tradeDetails: TradeRequest = {
       symbol: selectedStock.symbol,
@@ -160,6 +165,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       TIF: timeInForce,
       rawQuantityValue: quantityValue,
       rawQuantityMode: quantityMode,
+      tradeModeOrigin: origin,
     };
 
     if (orderType === 'Limit' || orderType === 'Stop Limit') {
@@ -491,4 +497,3 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     </Card>
   );
 }
-

@@ -1,12 +1,12 @@
 
 "use client";
 
-import React from 'react';
-import type { OpenPosition } from '@/types';
+import React, { useState, useMemo } from 'react';
+import type { OpenPosition, HistoryTradeMode } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button, buttonVariants } from '@/components/ui/button';
-import { XSquare, Briefcase } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { XSquare, Briefcase, User, Bot, Cpu } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -18,6 +18,7 @@ interface OpenPositionsCardProps {
 
 export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsCardProps) {
   const { toast } = useToast();
+  const [selectedOriginFilter, setSelectedOriginFilter] = useState<HistoryTradeMode>('manual');
 
   const handleClose = (position: OpenPosition) => {
     console.log("Closing position:", position);
@@ -32,6 +33,14 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
     return (position.currentPrice - position.entryPrice) * position.shares;
   };
 
+  const filteredPositions = useMemo(() => {
+    return positions.filter(pos => (pos.origin || 'manual') === selectedOriginFilter);
+  }, [positions, selectedOriginFilter]);
+
+  const buttonBaseClass = "flex-1 flex items-center justify-center h-8 py-1.5 px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50";
+  const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
+  const inactiveModeClass = "bg-transparent text-muted-foreground hover:bg-panel/[.05] hover:text-foreground";
+
   return (
     <Card className="shadow-md mt-6">
       <CardHeader>
@@ -39,14 +48,37 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
           <Briefcase className="mr-2 h-5 w-5 text-primary" />
           Open Positions
         </CardTitle>
-        <CardDescription>Your currently active trades.</CardDescription>
+        <CardDescription>Your currently active trades. Filter by origin below.</CardDescription>
+        
+        <div className="grid grid-cols-3 w-full max-w-sm rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05] mt-3">
+          <button
+            onClick={() => setSelectedOriginFilter('manual')}
+            className={cn(buttonBaseClass, selectedOriginFilter === 'manual' ? activeModeClass : inactiveModeClass)}
+            title="Show Manual Trades"
+          >
+            <User className="mr-1.5 h-3.5 w-3.5" /> Manual
+          </button>
+          <button
+            onClick={() => setSelectedOriginFilter('aiAssist')}
+            className={cn(buttonBaseClass, selectedOriginFilter === 'aiAssist' ? activeModeClass : inactiveModeClass)}
+            title="Show AI Assisted Trades"
+          >
+            <Bot className="mr-1.5 h-3.5 w-3.5" /> AI Assist
+          </button>
+          <button
+            onClick={() => setSelectedOriginFilter('fullyAI')}
+            className={cn(buttonBaseClass, selectedOriginFilter === 'fullyAI' ? activeModeClass : inactiveModeClass)}
+            title="Show Fully AI Trades"
+          >
+            <Cpu className="mr-1.5 h-3.5 w-3.5" /> AI Auto
+          </button>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
-        {positions.length > 0 ? (
+        {filteredPositions.length > 0 ? (
           <ScrollArea className="h-[250px]">
             <Table>
               <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
-                
                 <TableRow>
                   <TableHead>Symbol</TableHead>
                   <TableHead className="text-right">Shares</TableHead>
@@ -57,7 +89,7 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {positions.map((pos) => {
+                {filteredPositions.map((pos) => {
                   const pnl = calculatePnl(pos);
                   return (
                     <TableRow key={pos.id} className="hover:bg-muted/5">
@@ -92,11 +124,11 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
         ) : (
           <div className="text-center text-sm text-muted-foreground py-10 px-6">
             <Briefcase className="mx-auto h-10 w-10 mb-2 opacity-50" />
-            No open positions.
+            No open positions matching "{selectedOriginFilter}" filter.
           </div>
         )}
       </CardContent>
-      {positions.length > 0 && (
+      {filteredPositions.length > 0 && (
         <CardFooter className="pt-4">
             <p className="text-xs text-muted-foreground">
                 Current prices are simulated and P&amp;L is indicative.
