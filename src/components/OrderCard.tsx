@@ -37,18 +37,25 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
   useEffect(() => {
     if (selectedStock) {
-      setCurrentAction(initialActionType);
-      setQuantityValue(''); 
-      setOrderType('Market');
-      setLimitPrice('');
-      setStopPrice('');
-      setTrailingOffset('');
-      setTimeInForce('Day');
+      // Keep current tradeMode, but reset manual form fields if stock changes
+      // setCurrentAction(initialActionType); // This might be too aggressive if user is mid-setup
+      if (tradeMode === 'manual') {
+         setCurrentAction(initialActionType);
+         setQuantityValue(''); 
+         setOrderType('Market');
+         setLimitPrice('');
+         setStopPrice('');
+         setTrailingOffset('');
+         setTimeInForce('Day');
+      }
     } else {
+      // Clear everything if no stock is selected
       setCurrentAction(null);
       setQuantityValue('');
+      // tradeMode remains as is, or could reset to 'manual'
+      // setTradeMode('manual'); 
     }
-  }, [selectedStock, initialActionType]);
+  }, [selectedStock, initialActionType, tradeMode]);
 
   useEffect(() => {
     // Reset manual form fields when switching to AI mode or clearing stock
@@ -58,7 +65,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       setLimitPrice('');
       setStopPrice('');
       setTrailingOffset('');
-      setCurrentAction(null);
+      setCurrentAction(null); // AI card handles its own action display
+      setTimeInForce('Day');
     }
   }, [tradeMode, selectedStock]);
 
@@ -196,10 +204,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const shortButtonBase = "border-yellow-500 text-yellow-400 hover:bg-yellow-500/10 hover:text-yellow-300";
   const shortButtonSelected = "bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90";
 
-  const modeButtonBase = "flex-1 border-input text-muted-foreground hover:bg-muted/50 hover:text-foreground";
-  const modeButtonSelected = "bg-primary text-primary-foreground hover:bg-primary/90";
-
-
   return (
     <Card className="shadow-none flex flex-col">
       <CardHeader className="relative">
@@ -216,23 +220,31 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
         )}
       </CardHeader>
       <CardContent className="space-y-4 py-4 overflow-y-auto">
-        <div className="flex space-x-1 rounded-md bg-muted p-1">
-          <Button
+        <div className="flex w-full rounded-md bg-muted p-1 gap-1">
+          <button
             onClick={() => setTradeMode('manual')}
-            variant="ghost"
-            className={cn("h-8", tradeMode === 'manual' ? modeButtonSelected : modeButtonBase)}
+            className={cn(
+              "flex-1 flex items-center justify-center h-8 px-3 rounded-sm text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50",
+              tradeMode === 'manual'
+                ? 'bg-card text-foreground shadow-sm' 
+                : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
+            )}
             disabled={!selectedStock}
           >
             <User className="mr-2 h-4 w-4" /> Manual
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={() => setTradeMode('ai')}
-            variant="ghost"
-            className={cn("h-8", tradeMode === 'ai' ? modeButtonSelected : modeButtonBase)}
+            className={cn(
+              "flex-1 flex items-center justify-center h-8 px-3 rounded-sm text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50",
+              tradeMode === 'ai'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
+            )}
             disabled={!selectedStock}
           >
             <Bot className="mr-2 h-4 w-4" /> AI Assist
-          </Button>
+          </button>
         </div>
 
         {tradeMode === 'manual' && selectedStock && (
@@ -397,3 +409,4 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     </Card>
   );
 }
+
