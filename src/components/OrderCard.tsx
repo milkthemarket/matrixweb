@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info } from 'lucide-react';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OrderCardProps {
@@ -35,8 +35,11 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   useEffect(() => {
     if (selectedStock) {
       setCurrentAction(initialActionType);
+      // Reset quantity when stock changes or action type is set initially
+      setQuantityValue(''); 
     } else {
       setCurrentAction(null);
+      setQuantityValue('');
     }
   }, [selectedStock, initialActionType]);
 
@@ -44,6 +47,23 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const handleActionSelect = (action: OrderActionType) => {
     setCurrentAction(action);
   };
+
+  const toggleQuantityMode = () => {
+    setQuantityMode(prevMode => {
+      if (prevMode === 'Shares') return 'DollarAmount';
+      if (prevMode === 'DollarAmount') return 'PercentOfBuyingPower';
+      return 'Shares'; 
+    });
+    setQuantityValue(''); // Clear input when mode changes
+  };
+
+  const getQuantityInputPlaceholder = () => {
+    if (quantityMode === 'Shares') return "e.g., 100";
+    if (quantityMode === 'DollarAmount') return "e.g., 1000";
+    if (quantityMode === 'PercentOfBuyingPower') return "e.g., 10";
+    return "";
+  };
+
 
   const { finalSharesToSubmit, estimatedCost, isValidQuantity } = useMemo(() => {
     let shares = 0;
@@ -60,6 +80,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       } else if (quantityMode === 'DollarAmount') {
         if (stockPrice > 0) {
           shares = Math.floor(rawValue / stockPrice);
+        } else {
+          shares = 0; // Avoid division by zero if stockPrice is 0
         }
         cost = rawValue; 
       } else if (quantityMode === 'PercentOfBuyingPower') {
@@ -67,20 +89,25 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
           const dollarAmount = (rawValue / 100) * buyingPower;
           if (stockPrice > 0) {
             shares = Math.floor(dollarAmount / stockPrice);
+          } else {
+            shares = 0; // Avoid division by zero
           }
           cost = dollarAmount; 
         } else {
           valid = false; 
         }
       }
-      if (shares <= 0) valid = false; 
+      if (shares <= 0 && quantityMode !== 'DollarAmount' && quantityMode !== 'PercentOfBuyingPower') valid = false;
+      if (shares <= 0 && (quantityMode === 'DollarAmount' || quantityMode === 'PercentOfBuyingPower') && stockPrice > 0 ) valid = false;
+
+
     }
     return { finalSharesToSubmit: shares, estimatedCost: cost, isValidQuantity: valid };
   }, [quantityValue, quantityMode, selectedStock, buyingPower]);
   
   const handleSubmit = () => {
     if (!selectedStock || !currentAction || !isValidQuantity || finalSharesToSubmit <= 0) {
-      alert("Stock, action, and a valid positive quantity are required.");
+      alert("Stock, action, and a valid positive quantity resulting in at least 1 share are required.");
       return;
     }
 
@@ -112,6 +139,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       tradeDetails.trailingOffset = parseFloat(trailingOffset);
     }
     onSubmit(tradeDetails);
+    setQuantityValue(''); // Clear quantity after submission
   };
 
   const getCardTitle = () => {
@@ -131,13 +159,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     return `Submit ${currentAction} Order`;
   };
 
-  const getQuantityInputLabel = () => {
-    if (quantityMode === 'Shares') return "Quantity (Shares)";
-    if (quantityMode === 'DollarAmount') return "Amount ($)";
-    if (quantityMode === 'PercentOfBuyingPower') return `Buying Power (%)`;
-    return "Quantity";
-  };
-
   const isSubmitDisabled = () => {
     if (!selectedStock || !currentAction || !isValidQuantity || finalSharesToSubmit <= 0) return true;
     if ((orderType === 'Limit' || orderType === 'Stop Limit') && (!limitPrice || parseFloat(limitPrice) <= 0)) return true;
@@ -146,7 +167,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     return false;
   };
 
-  // Quantum Black Button Styles
   const buyButtonBase = "border-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green))] hover:bg-[hsl(var(--confirm-green))]/.10";
   const buyButtonSelected = "bg-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green-foreground))] hover:bg-[hsl(var(--confirm-green))]/90";
 
@@ -158,7 +178,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
 
   return (
-    <Card className="shadow-md flex flex-col">
+    <Card className="shadow-none flex flex-col">
       <CardHeader className="relative">
         <CardTitle className="text-xl font-headline text-foreground">
           {getCardTitle()}
@@ -200,30 +220,38 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             </Button>
         </div>
         
-        <div className="grid grid-cols-2 gap-2 items-end">
-            <div className="space-y-1.5">
-                <Label htmlFor="quantityMode" className="text-sm font-medium text-foreground">Quantity Mode</Label>
-                <Select
-                    value={quantityMode}
-                    onValueChange={(value) => setQuantityMode(value as QuantityInputMode)}
-                    disabled={!selectedStock}
-                >
-                    <SelectTrigger id="quantityMode"><SelectValue placeholder="Select mode" /></SelectTrigger>
-                    <SelectContent><SelectItem value="Shares">Shares</SelectItem><SelectItem value="DollarAmount">$ Amount</SelectItem><SelectItem value="PercentOfBuyingPower">% Buying Power</SelectItem></SelectContent>
-                </Select>
-            </div>
-            <div className="space-y-1.5">
-                <Label htmlFor="quantityValue" className="text-sm font-medium text-foreground">
-                    <PackageOpen className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> 
-                    {getQuantityInputLabel()}
-                </Label>
-                <Input id="quantityValue" type="number" value={quantityValue} onChange={(e) => setQuantityValue(e.target.value)} placeholder={quantityMode === 'Shares' ? "e.g., 100" : quantityMode === 'DollarAmount' ? "e.g., 1000" : "e.g., 10"} disabled={!selectedStock} />
-            </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="quantityValue" className="text-sm font-medium text-foreground">
+            <PackageOpen className="inline-block mr-1 h-4 w-4 text-muted-foreground" />
+            Quantity ({quantityMode === 'DollarAmount' ? '$ Amount' : quantityMode === 'PercentOfBuyingPower' ? '% Buying Power' : 'Shares'})
+          </Label>
+          <div className="flex items-center rounded-md border border-input bg-transparent focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-background">
+            <Input
+              id="quantityValue"
+              type="number"
+              value={quantityValue}
+              onChange={(e) => setQuantityValue(e.target.value)}
+              placeholder={getQuantityInputPlaceholder()}
+              disabled={!selectedStock}
+              className="flex-1 h-9 bg-transparent px-3 py-2 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleQuantityMode}
+              disabled={!selectedStock}
+              className="h-8 w-8 mr-1 text-muted-foreground hover:text-primary shrink-0"
+              type="button"
+            >
+              <Repeat className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
+
         {selectedStock && quantityValue && isValidQuantity && (
           <div className="text-xs text-muted-foreground space-y-0.5">
-            {quantityMode !== 'Shares' && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Shares: {finalSharesToSubmit}</p>}
-            <p><Info className="inline-block mr-1 h-3 w-3" />Est. Cost: ${estimatedCost.toFixed(2)}</p>
+            {quantityMode !== 'Shares' && finalSharesToSubmit > 0 && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Shares: {finalSharesToSubmit}</p>}
+            {(quantityMode === 'Shares' || finalSharesToSubmit > 0) && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Cost: ${estimatedCost.toFixed(2)}</p>}
              {quantityMode === 'PercentOfBuyingPower' && <p className="text-xs text-muted-foreground">Using Buying Power: ${buyingPower.toLocaleString()}</p>}
           </div>
         )}
@@ -244,19 +272,19 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
         {(orderType === 'Limit' || orderType === 'Stop Limit') && (
           <div className="space-y-1.5">
             <Label htmlFor="limitPrice" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Limit Price</Label>
-            <Input id="limitPrice" type="number" step="0.01" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} placeholder="e.g., 150.50" disabled={!selectedStock} />
+            <Input id="limitPrice" type="number" step="0.01" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} placeholder="e.g., 150.50" disabled={!selectedStock} className="bg-transparent" />
           </div>
         )}
         {(orderType === 'Stop' || orderType === 'Stop Limit') && (
           <div className="space-y-1.5">
             <Label htmlFor="stopPrice" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Stop Price</Label>
-            <Input id="stopPrice" type="number" step="0.01" value={stopPrice} onChange={(e) => setStopPrice(e.target.value)} placeholder="e.g., 149.00" disabled={!selectedStock} />
+            <Input id="stopPrice" type="number" step="0.01" value={stopPrice} onChange={(e) => setStopPrice(e.target.value)} placeholder="e.g., 149.00" disabled={!selectedStock} className="bg-transparent"/>
           </div>
         )}
         {orderType === 'Trailing Stop' && (
           <div className="space-y-1.5">
             <Label htmlFor="trailingOffset" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Trailing Offset ($ or % points)</Label>
-            <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="e.g., 1.5 (for $1.50 or 1.5%)" disabled={!selectedStock} />
+            <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="e.g., 1.5 (for $1.50 or 1.5%)" disabled={!selectedStock} className="bg-transparent"/>
           </div>
         )}
         
@@ -297,3 +325,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     </Card>
   );
 }
+
+
+    
