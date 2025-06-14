@@ -65,7 +65,7 @@ export interface TradeLogEntry {
 export type OrderActionType = 'Buy' | 'Sell' | 'Short';
 export type OrderSystemType = 'Market' | 'Limit' | 'Stop' | 'Stop Limit' | 'Trailing Stop';
 export type QuantityInputMode = 'Shares' | 'DollarAmount' | 'PercentOfBuyingPower';
-export type TradeMode = 'manual' | 'ai';
+export type TradeMode = 'manual' | 'ai' | 'auto';
 
 export interface TradeRequest {
   symbol: string;

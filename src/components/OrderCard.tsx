@@ -2,14 +2,17 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, Bot, User } from 'lucide-react';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, Bot, User, Cog, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AiTradeCard } from '@/components/AiTradeCard';
 
@@ -22,6 +25,24 @@ interface OrderCardProps {
 
 const MOCK_BUYING_POWER = 10000; 
 
+const dummyAutoRules = [
+  {
+    id: "auto_rule_1",
+    name: "Momentum Short",
+    description: "Short any stock up >15% intraday with float under 10M"
+  },
+  {
+    id: "auto_rule_2",
+    name: "Gap Reversal",
+    description: "Buy dip on stocks with large pre-market gap downs >10%"
+  },
+  {
+    id: "auto_rule_3",
+    name: "Low RSI Buy",
+    description: "Buy stocks with RSI < 25 and high news volume"
+  }
+];
+
 export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear }: OrderCardProps) {
   const [tradeMode, setTradeMode] = useState<TradeMode>('manual');
   const [quantityValue, setQuantityValue] = useState('');
@@ -32,6 +53,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const [trailingOffset, setTrailingOffset] = useState('');
   const [currentAction, setCurrentAction] = useState<OrderActionType | null>(null);
   const [timeInForce, setTimeInForce] = useState<string>('Day');
+  const [isAutoTradingEnabled, setIsAutoTradingEnabled] = useState(true);
   
   const [buyingPower] = useState<number>(MOCK_BUYING_POWER); 
 
@@ -53,7 +75,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   }, [selectedStock, initialActionType, tradeMode]);
 
   useEffect(() => {
-    if (tradeMode === 'ai' || !selectedStock) {
+    if (tradeMode === 'ai' || tradeMode === 'auto' || !selectedStock) {
       setQuantityValue('');
       setOrderType('Market');
       setLimitPrice('');
@@ -166,12 +188,14 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const getCardTitle = () => {
     if (!selectedStock) return "Trade Panel";
     if (tradeMode === 'ai') return `AI Assist: ${selectedStock.symbol}`;
+    if (tradeMode === 'auto') return `Auto Trade: ${selectedStock.symbol}`;
     if (currentAction) return `${currentAction} ${selectedStock.symbol}`;
     return selectedStock.symbol;
   };
 
   const getCardDescription = () => {
     if (!selectedStock) return "Select ticker from screener";
+    if (tradeMode === 'auto') return `Status for ${selectedStock.symbol}`;
     return `Current Price: $${selectedStock.price.toFixed(2)}`;
   };
 
@@ -198,6 +222,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const shortButtonBase = "border-yellow-500 text-yellow-400 hover:bg-yellow-500/10 hover:text-yellow-300";
   const shortButtonSelected = "bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90";
 
+  const buttonBaseClass = "flex-1 flex items-center justify-center h-9 py-2 px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50";
+  const inactiveButtonClass = "bg-transparent text-muted-foreground hover:bg-panel/[.05]";
+
+
   return (
     <Card className="shadow-none flex flex-col">
       <CardHeader className="relative">
@@ -214,14 +242,14 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
         )}
       </CardHeader>
       <CardContent className="space-y-4 py-4 overflow-y-auto">
-        <div className="grid grid-cols-2 w-full rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05]">
+        <div className="grid grid-cols-3 w-full rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05]">
           <button
             onClick={() => setTradeMode('manual')}
             className={cn(
-              "flex items-center justify-center py-2 px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50",
+              buttonBaseClass,
               tradeMode === 'manual'
-                ? 'bg-panel/[.1] text-foreground' 
-                : 'bg-transparent text-muted-foreground hover:bg-panel/[.05]'
+                ? 'bg-panel/[.1] text-foreground shadow-sm' 
+                : inactiveButtonClass
             )}
             disabled={!selectedStock}
           >
@@ -230,14 +258,26 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
           <button
             onClick={() => setTradeMode('ai')}
             className={cn(
-              "flex items-center justify-center py-2 px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50",
+              buttonBaseClass,
               tradeMode === 'ai'
-                ? 'bg-panel/[.1] text-foreground'
-                : 'bg-transparent text-muted-foreground hover:bg-panel/[.05]'
+                ? 'bg-primary text-primary-foreground shadow-sm'
+                : inactiveButtonClass
             )}
             disabled={!selectedStock}
           >
             <Bot className="mr-2 h-4 w-4" /> AI Assist
+          </button>
+          <button
+            onClick={() => setTradeMode('auto')}
+            className={cn(
+              buttonBaseClass,
+              tradeMode === 'auto'
+                ? 'bg-accent text-accent-foreground shadow-sm'
+                : inactiveButtonClass
+            )}
+            disabled={!selectedStock}
+          >
+            <Cog className="mr-2 h-4 w-4" /> Auto
           </button>
         </div>
 
@@ -380,6 +420,59 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
           </div>
         )}
 
+        {tradeMode === 'auto' && selectedStock && (
+          <div className="space-y-4">
+            <Card className="bg-transparent shadow-none border-none">
+              <CardHeader className="p-0 pb-3">
+                <CardTitle className="text-lg font-semibold text-foreground">Auto Mode Active</CardTitle>
+                <CardDescription>Trades will be placed automatically based on your selected rules for {selectedStock.symbol}.</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0 space-y-3">
+                <div>
+                  <h4 className="font-medium text-muted-foreground mb-2 flex items-center">
+                    <ListChecks className="mr-2 h-4 w-4 text-primary" /> Active Strategies (Examples)
+                  </h4>
+                  <ul className="space-y-2 text-sm">
+                    {dummyAutoRules.map(rule => (
+                      <li key={rule.id} className="p-2.5 rounded-md bg-panel/[.05] border border-border/[.08]">
+                        <p className="font-medium text-foreground">{rule.name}</p>
+                        <p className="text-xs text-muted-foreground">{rule.description}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border/[.1] p-3 shadow-sm mt-4 bg-transparent">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base text-foreground">
+                      Auto-Trading Enabled
+                    </FormLabel>
+                    <FormDescription className="text-xs">
+                      Allow automated execution for {selectedStock.symbol}.
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={isAutoTradingEnabled}
+                      onCheckedChange={setIsAutoTradingEnabled}
+                    />
+                  </FormControl>
+                </FormItem>
+              </CardContent>
+            </Card>
+             <Link href="/rules" passHref legacyBehavior>
+                <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent-foreground">
+                    <Cog className="mr-2 h-4 w-4" /> Manage Rules & Strategies
+                </Button>
+            </Link>
+          </div>
+        )}
+         {tradeMode === 'auto' && !selectedStock && (
+          <div className="text-center py-10 text-muted-foreground">
+            <Cog className="mx-auto h-12 w-12 mb-4 opacity-50" />
+            <p>Select a stock to configure Auto Mode settings.</p>
+          </div>
+        )}
+
 
       </CardContent>
       {tradeMode === 'manual' && selectedStock && (
@@ -403,3 +496,4 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     </Card>
   );
 }
+
