@@ -16,12 +16,12 @@ import { Filter, RotateCcw, Search, UploadCloud, Flame, Megaphone, TrendingUp, T
 import type { Stock, TradeRequest, OrderActionType } from "@/types";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { TradeModal } from '@/components/TradeModal';
 import { RulePills } from '@/components/RulePills';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
 import { useAlertContext, type RefreshInterval } from '@/contexts/AlertContext';
 import { useToast } from "@/hooks/use-toast";
+import { OrderCard } from '@/components/OrderCard'; // New Import
 
 // Use a truly static, hardcoded ISO string for the initial mock timestamp
 const MOCK_INITIAL_TIMESTAMP = '2024-07-01T10:00:00.000Z';
@@ -47,21 +47,21 @@ const ClientRenderedTime: React.FC<{ isoTimestamp: string }> = ({ isoTimestamp }
     }
   }, [isoTimestamp]);
 
-  return <>{formattedTime || '...'}</>; // Display placeholder or actual time
+  return <>{formattedTime || '...'}</>; 
 };
 
 
 export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [minChangePercent, setMinChangePercent] = useState(0);
-  const [maxFloat, setMaxFloat] = useState(20000); // Default high value, effectively no filter
+  const [maxFloat, setMaxFloat] = useState(20000); 
   const [minVolume, setMinVolume] = useState(0);
   const [stocks, setStocks] = useState<Stock[]>(initialMockStocks);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
-  const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
-  const [selectedStockSymbolForModal, setSelectedStockSymbolForModal] = useState<string | null>(null);
-  const [currentActionType, setCurrentActionType] = useState<OrderActionType | null>(null);
+  const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
+  const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
+
 
   const { autoRefreshEnabled, setAutoRefreshEnabled, refreshInterval, setRefreshInterval } = useAlertContext();
   const { toast } = useToast();
@@ -84,7 +84,7 @@ export default function DashboardPage() {
       })
     );
     setLastRefreshed(new Date());
-  }, []); // Removed `stocks` from dependencies, using functional update for setStocks
+  }, []); 
 
   useEffect(() => {
     setLastRefreshed(new Date());
@@ -110,18 +110,24 @@ export default function DashboardPage() {
     );
   }, [stocks, searchTerm, minChangePercent, maxFloat, minVolume]);
 
-  const handleTradeAction = (symbol: string, action: OrderActionType) => {
-    setSelectedStockSymbolForModal(symbol);
-    setCurrentActionType(action);
-    setIsTradeModalOpen(true);
+  const handleSelectStockForOrder = (stock: Stock, action: OrderActionType) => {
+    setSelectedStockForOrderCard(stock);
+    setOrderCardActionType(action);
+  };
+
+  const handleClearOrderCard = () => {
+    setSelectedStockForOrderCard(null);
+    setOrderCardActionType(null);
   };
 
   const handleTradeSubmit = (tradeDetails: TradeRequest) => {
-    console.log("Trade Submitted:", tradeDetails);
+    console.log("Trade Submitted via Order Card:", tradeDetails);
     toast({
       title: "Trade Processing",
       description: `Trade for ${tradeDetails.symbol} (${tradeDetails.action}, ${tradeDetails.quantity} shares, ${tradeDetails.orderType}) submitted.`,
     });
+    // Optionally clear selection after successful submission
+    // handleClearOrderCard(); 
   };
 
   const handleExport = () => {
@@ -151,185 +157,191 @@ export default function DashboardPage() {
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Dashboard & Screener" />
-      <div className="flex-1 p-4 md:p-6 space-y-6 overflow-auto">
-        <Card className="shadow-xl">
-          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <div>
-              <CardTitle className="text-2xl font-headline">Real-Time Stock Screener</CardTitle>
-              <CardDescription>Filter and find top market movers.</CardDescription>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              {autoRefreshEnabled && <Dot className="h-6 w-6 text-green-500 animate-pulse" />}
-              {lastRefreshed && <span className="text-sm text-muted-foreground">Last refreshed: {format(lastRefreshed, "HH:mm:ss")}</span>}
-              <Switch
-                id="auto-refresh-toggle"
-                checked={autoRefreshEnabled}
-                onCheckedChange={setAutoRefreshEnabled}
-                aria-label="Toggle auto refresh"
-              />
-              <Label htmlFor="auto-refresh-toggle" className="text-sm">Auto-Refresh</Label>
-              <Select
-                value={String(refreshInterval)}
-                onValueChange={(val) => setRefreshInterval(Number(val) as RefreshInterval)}
-                disabled={!autoRefreshEnabled}
-              >
-                <SelectTrigger className="w-[100px] h-9 text-xs">
-                  <SelectValue placeholder="Interval" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="15000">15s</SelectItem>
-                  <SelectItem value="30000">30s</SelectItem>
-                  <SelectItem value="60000">1m</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size="sm" onClick={handleRefreshData} className="text-accent hover:text-accent-foreground border-accent">
-                <RotateCcw className="mr-2 h-4 w-4" />
-                Refresh
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleExport} className="text-accent hover:text-accent-foreground border-accent">
-                <UploadCloud className="mr-2 h-4 w-4" />
-                Export CSV
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <div className="space-y-2">
-                <Label htmlFor="search-symbol">Symbol Search</Label>
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="search-symbol"
-                    type="text"
-                    placeholder="Search by symbol (e.g. AAPL)"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8"
+      <div className="flex flex-1 p-4 md:p-6 space-x-0 md:space-x-6 overflow-hidden">
+        {/* Left Column: Screener */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Card className="shadow-xl flex-1 flex flex-col overflow-hidden">
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <div>
+                <CardTitle className="text-2xl font-headline">Real-Time Stock Screener</CardTitle>
+                <CardDescription>Filter and find top market movers.</CardDescription>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                {autoRefreshEnabled && <Dot className="h-6 w-6 text-green-500 animate-pulse" />}
+                {lastRefreshed && <span className="text-sm text-muted-foreground">Last refreshed: {format(lastRefreshed, "HH:mm:ss")}</span>}
+                <Switch
+                  id="auto-refresh-toggle"
+                  checked={autoRefreshEnabled}
+                  onCheckedChange={setAutoRefreshEnabled}
+                  aria-label="Toggle auto refresh"
+                />
+                <Label htmlFor="auto-refresh-toggle" className="text-sm">Auto-Refresh</Label>
+                <Select
+                  value={String(refreshInterval)}
+                  onValueChange={(val) => setRefreshInterval(Number(val) as RefreshInterval)}
+                  disabled={!autoRefreshEnabled}
+                >
+                  <SelectTrigger className="w-[100px] h-9 text-xs">
+                    <SelectValue placeholder="Interval" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="15000">15s</SelectItem>
+                    <SelectItem value="30000">30s</SelectItem>
+                    <SelectItem value="60000">1m</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button variant="outline" size="sm" onClick={handleRefreshData} className="text-accent hover:text-accent-foreground border-accent">
+                  <RotateCcw className="mr-2 h-4 w-4" />
+                  Refresh
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleExport} className="text-accent hover:text-accent-foreground border-accent">
+                  <UploadCloud className="mr-2 h-4 w-4" />
+                  Export CSV
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-1 flex flex-col overflow-hidden space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="search-symbol">Symbol Search</Label>
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="search-symbol"
+                      type="text"
+                      placeholder="Search by symbol (e.g. AAPL)"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-8"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="min-change">Min. % Change ({minChangePercent}%)</Label>
+                  <Slider
+                    id="min-change"
+                    min={-10}
+                    max={20}
+                    step={0.5}
+                    defaultValue={[0]}
+                    value={[minChangePercent]}
+                    onValueChange={(value) => setMinChangePercent(value[0])}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="max-float">Max. Float ({maxFloat === 20000 ? 'Any': `${maxFloat}M`})</Label>
+                  <Slider
+                    id="max-float"
+                    min={1}
+                    max={20000}
+                    step={100}
+                    defaultValue={[20000]}
+                    value={[maxFloat]}
+                    onValueChange={(value) => setMaxFloat(value[0])}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="min-volume">Min. Volume ({minVolume === 0 ? 'Any': `${minVolume}M`})</Label>
+                  <Slider
+                    id="min-volume"
+                    min={0}
+                    max={200}
+                    step={1}
+                    defaultValue={[0]}
+                    value={[minVolume]}
+                    onValueChange={(value) => setMinVolume(value[0])}
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="min-change">Min. % Change ({minChangePercent}%)</Label>
-                <Slider
-                  id="min-change"
-                  min={-10}
-                  max={20}
-                  step={0.5}
-                  defaultValue={[0]}
-                  value={[minChangePercent]}
-                  onValueChange={(value) => setMinChangePercent(value[0])}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="max-float">Max. Float ({maxFloat === 20000 ? 'Any': `${maxFloat}M`})</Label>
-                <Slider
-                  id="max-float"
-                  min={1}
-                  max={20000}
-                  step={100}
-                  defaultValue={[20000]}
-                  value={[maxFloat]}
-                  onValueChange={(value) => setMaxFloat(value[0])}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="min-volume">Min. Volume ({minVolume === 0 ? 'Any': `${minVolume}M`})</Label>
-                <Slider
-                  id="min-volume"
-                  min={0}
-                  max={200}
-                  step={1}
-                  defaultValue={[0]}
-                  value={[minVolume]}
-                  onValueChange={(value) => setMinVolume(value[0])}
-                />
-              </div>
-            </div>
 
-            <RulePills minChangePercent={minChangePercent} maxFloat={maxFloat} minVolume={minVolume} />
-
-            <div className="rounded-md border overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Symbol</TableHead>
-                    <TableHead className="text-right">Price</TableHead>
-                    <TableHead className="text-right">% Change</TableHead>
-                    <TableHead className="text-right">Float (M)</TableHead>
-                    <TableHead className="text-right">Volume (M)</TableHead>
-                    <TableHead>Catalyst News</TableHead>
-                    <TableHead className="text-right">Last Updated</TableHead>
-                    <TableHead className="text-center">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredStocks.length > 0 ? (
-                    filteredStocks.map((stock) => (
-                      <TableRow key={stock.id} className={cn(getRowHighlightClass(stock), "hover:bg-muted/20")}>
-                        <TableCell className="font-medium">
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <span className="cursor-pointer hover:text-primary flex items-center">
-                                {stock.symbol}
-                                {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-orange-400" title="Hot Catalyst" />}
-                                {stock.catalystType === 'news' && <Megaphone className="ml-1 h-4 w-4 text-blue-400" title="News Catalyst"/>}
-                              </span>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 border-popover shadow-xl" side="right" align="start">
-                              <ChartPreview stock={stock} />
-                            </PopoverContent>
-                          </Popover>
-                        </TableCell>
-                        <TableCell className="text-right">${stock.price.toFixed(2)}</TableCell>
-                        <TableCell className={cn("text-right", stock.changePercent >= 0 ? "text-green-400" : "text-red-400")}>
-                          {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(1)}%
-                        </TableCell>
-                        <TableCell className="text-right">{stock.float.toLocaleString()}</TableCell>
-                        <TableCell className="text-right">{stock.volume.toLocaleString()}</TableCell>
-                        <TableCell className="max-w-xs truncate" title={stock.newsSnippet || 'N/A'}>{stock.newsSnippet || 'N/A'}</TableCell>
-                        <TableCell className="text-right text-xs text-muted-foreground">
-                          <ClientRenderedTime isoTimestamp={stock.lastUpdated} />
-                        </TableCell>
-                        <TableCell className="text-center space-x-1">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 px-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
-                            onClick={() => handleTradeAction(stock.symbol, 'Buy')}
-                          >
-                            <TrendingUp className="mr-1 h-4 w-4" /> Buy
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 px-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                            onClick={() => handleTradeAction(stock.symbol, 'Short')}
-                          >
-                            <TrendingDown className="mr-1 h-4 w-4" /> Short
-                          </Button>
+              <RulePills minChangePercent={minChangePercent} maxFloat={maxFloat} minVolume={minVolume} />
+              
+              <div className="rounded-md border overflow-auto flex-1"> {/* Table container takes remaining space and scrolls */}
+                <Table>
+                  <TableHeader className="sticky top-0 bg-card z-10">
+                    <TableRow>
+                      <TableHead>Symbol</TableHead>
+                      <TableHead className="text-right">Price</TableHead>
+                      <TableHead className="text-right">% Change</TableHead>
+                      <TableHead className="text-right">Float (M)</TableHead>
+                      <TableHead className="text-right">Volume (M)</TableHead>
+                      <TableHead>Catalyst News</TableHead>
+                      <TableHead className="text-right">Last Updated</TableHead>
+                      <TableHead className="text-center">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredStocks.length > 0 ? (
+                      filteredStocks.map((stock) => (
+                        <TableRow key={stock.id} className={cn(getRowHighlightClass(stock), "hover:bg-muted/20", selectedStockForOrderCard?.id === stock.id && "bg-primary/10")}>
+                          <TableCell className="font-medium">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <span className="cursor-pointer hover:text-primary flex items-center">
+                                  {stock.symbol}
+                                  {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-orange-400" title="Hot Catalyst" />}
+                                  {stock.catalystType === 'news' && <Megaphone className="ml-1 h-4 w-4 text-blue-400" title="News Catalyst"/>}
+                                </span>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0 border-popover shadow-xl" side="right" align="start">
+                                <ChartPreview stock={stock} />
+                              </PopoverContent>
+                            </Popover>
+                          </TableCell>
+                          <TableCell className="text-right">${stock.price.toFixed(2)}</TableCell>
+                          <TableCell className={cn("text-right", stock.changePercent >= 0 ? "text-green-400" : "text-red-400")}>
+                            {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(1)}%
+                          </TableCell>
+                          <TableCell className="text-right">{stock.float.toLocaleString()}</TableCell>
+                          <TableCell className="text-right">{stock.volume.toLocaleString()}</TableCell>
+                          <TableCell className="max-w-xs truncate" title={stock.newsSnippet || 'N/A'}>{stock.newsSnippet || 'N/A'}</TableCell>
+                          <TableCell className="text-right text-xs text-muted-foreground">
+                            <ClientRenderedTime isoTimestamp={stock.lastUpdated} />
+                          </TableCell>
+                          <TableCell className="text-center space-x-1">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 px-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
+                              onClick={() => handleSelectStockForOrder(stock, 'Buy')}
+                            >
+                              <TrendingUp className="mr-1 h-4 w-4" /> Buy
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-8 px-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                              onClick={() => handleSelectStockForOrder(stock, 'Short')}
+                            >
+                              <TrendingDown className="mr-1 h-4 w-4" /> Short
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell colSpan={8} className="text-center h-24">
+                          No stocks match your criteria. Try adjusting the filters.
                         </TableCell>
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={8} className="text-center h-24">
-                        No stocks match your criteria. Try adjusting the filters.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column: Order Card */}
+        <div className="w-full md:w-96 lg:w-[26rem] hidden md:block flex-shrink-0"> {/* Adjust width as needed, hidden on small screens */}
+          <OrderCard
+            selectedStock={selectedStockForOrderCard}
+            initialActionType={orderCardActionType}
+            onSubmit={handleTradeSubmit}
+            onClear={handleClearOrderCard}
+          />
+        </div>
       </div>
-      <TradeModal
-        isOpen={isTradeModalOpen}
-        onClose={() => setIsTradeModalOpen(false)}
-        stockSymbol={selectedStockSymbolForModal}
-        actionType={currentActionType}
-        onSubmit={handleTradeSubmit}
-      />
     </main>
   );
 }

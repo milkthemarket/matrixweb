@@ -50,8 +50,4 @@ export interface TradeRequest {
   action: OrderActionType;
   orderType: OrderSystemType;
   limitPrice?: number;
-  // Firestore specific fields (optional for now)
-  // id?: string;
-  // status?: 'pending' | 'filled' | 'rejected';
-  // timestamp?: any; // Firestore Timestamp
 }
