@@ -64,7 +64,6 @@ export function SidebarNav() {
               <h1 className="text-3xl font-bold tracking-wide text-foreground font-headline truncate">MILK</h1>
             )}
           </Link>
-          {/* Original button position removed from here */}
         </div>
       </SidebarHeader>
 
@@ -101,17 +100,15 @@ export function SidebarNav() {
         </SidebarFooter>
       )}
 
-      {/* New position for the toggle button, as a direct child of Sidebar */}
       {!isMobile && (
         <Button
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
           className={cn(
-            "h-7 w-7 text-muted-foreground hover:text-foreground flex-shrink-0",
-            "absolute z-20", // Ensure it's above other static content in the sidebar.
-            "top-[4.5rem]",   // Position 4.5rem (72px) from the top of the sidebar.
-            "left-[0.75rem]"  // Position 0.75rem (12px) from the left edge of the sidebar.
+            "h-7 w-7 text-muted-foreground hover:text-primary flex-shrink-0", // Updated hover color
+            "absolute z-20",
+            "top-4 right-4" // Updated position to top-right
           )}
           aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
         >
