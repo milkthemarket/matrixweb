@@ -15,8 +15,8 @@ export default {
         code: ['monospace'],
       },
       backgroundImage: {
-        'neon-radial': 'radial-gradient(circle at center, #6a0dad 0%, #1e0635 40%, #0e021a 100%)',
-        'neon-purple-radial': 'radial-gradient(circle at center, #5B21B6 0%, #2C1A47 35%, #0C0C0F 70%, #000104 100%)',
+        'neon-radial': 'radial-gradient(circle at center, #6a0dad, #1e0635, #0e021a)', // Kept original neon-radial in case it's used elsewhere
+        'neon-purple-radial': 'radial-gradient(circle at center, #5B21B6 0%, #2C1A47 35%, #0C0C0F 70%, #000104 100%)', // Kept this as well
       },
       colors: {
         background: 'hsl(var(--background))',
@@ -30,8 +30,8 @@ export default {
           foreground: 'hsl(var(--popover-foreground))',
         },
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: 'hsl(var(--primary))', // Now uses the CSS variable defined in globals.css
+          foreground: 'hsl(var(--primary-foreground))', // Now uses the CSS variable
         },
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',

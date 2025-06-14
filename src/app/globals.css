@@ -16,8 +16,8 @@
     --popover: var(--panel-base);
     --popover-foreground: 0 0% 90%; /* text-white/90 */
 
-    --primary: 188 100% 50%;  /* #00E5FF Cyber Cyan */
-    --primary-foreground: 0 0% 6%; /* Dark text for primary buttons */
+    --primary: 258 84% 61%;  /* Updated to new purple from prompt */
+    --primary-foreground: 0 0% 100%; /* Updated to white from prompt */
 
     --secondary: 0 0% 12%; /* Darker grey for less prominent elements */
     --secondary-foreground: 0 0% 90%; /* Light grey text */
@@ -39,27 +39,27 @@
     --ring: 279 47% 47%; /* Electric Violet for rings (focus rings) */
 
     /* Chart Colors */
-    --chart-1: hsl(var(--primary)); /* Cyber Cyan */
-    --chart-2: hsl(var(--confirm-green)); /* Confirm Green (Up candle) */
-    --chart-3: hsl(var(--accent));  /* Electric Violet */
-    --chart-4: 220 70% 60%;  /* A different blue - can be themed if needed */
-    --chart-5: hsl(var(--destructive));   /* Error Red (Down candle) */
+    --chart-1: hsl(var(--primary)); 
+    --chart-2: hsl(var(--confirm-green)); 
+    --chart-3: hsl(var(--accent));  
+    --chart-4: 220 70% 60%;  
+    --chart-5: hsl(var(--destructive));   
 
-    --radius: 0.5rem; /* Base radius, rounded-xl will be 0.75rem based on this */
+    --radius: 0.5rem; 
 
     /* Sidebar specific vars */
-    --sidebar-background: transparent; /* Ensure sidebar uses the global gradient via transparency */
-    --sidebar-foreground: 0 0% 90%; /* text-white/90 equivalent */
-    --sidebar-primary: hsl(var(--primary)); /* Cyber Cyan for active icon */
+    --sidebar-background: transparent; 
+    --sidebar-foreground: 0 0% 90%; 
+    --sidebar-primary: hsl(var(--primary)); 
     --sidebar-primary-foreground: hsl(var(--primary-foreground)); 
-    --sidebar-accent: 0 0% 100%; /* Base for hover bg: hsl(var(--panel-base)) to be used with /5 opacity */
-    --sidebar-accent-foreground: hsl(var(--primary)); /* Text color for active/hovered items (Cyber Cyan) */
-    --sidebar-border: transparent; /* Sidebar border should be transparent or very subtle */
+    --sidebar-accent: 0 0% 100%; 
+    --sidebar-accent-foreground: hsl(var(--primary)); 
+    --sidebar-border: transparent; 
     --sidebar-ring: hsl(var(--ring)); 
 
     /* Specific backgrounds for header and dialog for consistency with panel styling */
     --header-background: transparent; 
-    --dialog-background: transparent; /* Dialogs will use bg-black/15 directly */
+    --dialog-background: transparent; 
   }
 }
 
@@ -69,21 +69,20 @@
   }
   body {
     @apply text-foreground;
-    /* New background gradient */
+    /* New background gradient from prompt */
     background: radial-gradient(
-      circle at 50% 50%,
-      #25066b 0%,    /* Darker purple center */
-      #0a041d 30%,   /* Very dark purple */
-      #070312 60%,   /* Even darker */
-      hsl(var(--background)) 90% /* Fades to the theme's background color */
+      circle at center,
+      #2c0059 0%,    /* Deep purple center */
+      #1b012f 35%,   /* Softer gradient middle */
+      #0a041d 60%,   /* Dark outer transition */
+      hsl(var(--background)) 90% /* Nearly black edge */
     );
-    background-color: hsl(var(--background)); /* Fallback */
+    background-color: hsl(var(--background)); /* Fallback base */
     background-attachment: fixed;
-    background-repeat: no-repeat;
+    background-repeat: no-repeat; /* Added to ensure gradient isn't repeated */
     min-height: 100vh;
-    height: 100%; /* Ensure it covers full height for gradient */
+    height: 100%; 
     overflow-x: hidden;
-    /* font-family can be set in RootLayout or here if needed, current is Inter via RootLayout */
   }
 
   /* Custom scrollbar styles */
