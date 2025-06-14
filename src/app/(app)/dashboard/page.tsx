@@ -11,8 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter } from "lucide-react";
-import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule } from "@/types";
+import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter, Bot } from "lucide-react";
+import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule, MiloTradeIdea } from "@/types";
 import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
@@ -21,6 +21,7 @@ import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useToast } from "@/hooks/use-toast";
 import { OrderCard } from '@/components/OrderCard';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
+import { MilosTradeIdeasCard } from '@/components/MilosTradeIdeasCard';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { mockRules } from '@/app/(app)/rules/page'; 
 
@@ -123,6 +124,30 @@ const initialMockOpenPositions: OpenPosition[] = [
   { id: 'pos2', symbol: 'AAPL', entryPrice: 168.50, shares: 20, currentPrice: 170.34 },
 ];
 
+const initialMockMiloIdeas: MiloTradeIdea[] = [
+  { 
+    id: 'milo1', 
+    ticker: 'NVDA', 
+    reason: 'RSI is nearing oversold (currently 32) and float is relatively low (2500M). Possible bounce setup if broader market holds.', 
+    action: 'Consider buying if volume spikes above 1.5x average (current avg: 70.1M) and price breaks above $905.',
+    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString() // 5 minutes ago
+  },
+  { 
+    id: 'milo2', 
+    ticker: 'AMD', 
+    reason: 'Recent breakout above $160 resistance, confirmed by strong earnings catalyst and sector strength.', 
+    action: 'Watch for entry on a minor pullback to the $158–$159 support zone. Set stop-loss below $155.',
+    timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString() // 25 minutes ago
+  },
+  { 
+    id: 'milo3', 
+    ticker: 'BCTX', 
+    reason: 'Significant price increase (+15.2%) on high relative volume (22.5M vs 5.0M avg). Positive trial news catalyst.', 
+    action: 'Potential momentum play. Monitor for continuation above $5.25. High risk due to volatility.',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString() // 2 hours ago
+  },
+];
+
 
 export default function DashboardPage() {
   const [stocks, setStocks] = useState<Stock[]>(initialMockStocks);
@@ -133,6 +158,9 @@ export default function DashboardPage() {
   const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
 
   const [openPositions, setOpenPositions] = useState<OpenPosition[]>(initialMockOpenPositions);
+  const [miloIdeas, setMiloIdeas] = useState<MiloTradeIdea[]>(initialMockMiloIdeas);
+  const [isMiloLoading, setIsMiloLoading] = useState(false);
+
 
   const { addTradeToHistory } = useTradeHistoryContext();
   const { toast } = useToast();
@@ -339,6 +367,21 @@ export default function DashboardPage() {
     return '';
   };
 
+  const handleRefreshMiloIdeas = useCallback(() => {
+    setIsMiloLoading(true);
+    // Simulate API call
+    setTimeout(() => {
+      const shuffledIdeas = [...initialMockMiloIdeas].sort(() => Math.random() - 0.5);
+      const updatedIdeas = shuffledIdeas.map(idea => ({
+        ...idea,
+        id: `${idea.id}_${Date.now()}`, // Ensure unique IDs if list can grow
+        timestamp: new Date().toISOString() 
+      }));
+      setMiloIdeas(updatedIdeas.slice(0, 3 + Math.floor(Math.random()*2))); // Show 3-4 ideas
+      setIsMiloLoading(false);
+    }, 1500);
+  }, []);
+
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
@@ -500,9 +543,13 @@ export default function DashboardPage() {
           {openPositions.length > 0 && (
             <OpenPositionsCard positions={openPositions} onClosePosition={handleClosePosition} />
           )}
+          <MilosTradeIdeasCard 
+            ideas={miloIdeas} 
+            onRefresh={handleRefreshMiloIdeas}
+            isLoading={isMiloLoading}
+          />
         </div>
       </div>
     </main>
   );
 }
-

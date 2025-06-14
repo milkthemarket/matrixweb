@@ -152,3 +152,10 @@ export interface TradeStatsData {
   avgHoldTime: string;
 }
 
+export interface MiloTradeIdea {
+  id: string;
+  ticker: string;
+  reason: string;
+  action: string;
+  timestamp: string; // ISO string date
+}
