@@ -240,7 +240,10 @@ const Sidebar = React.forwardRef<
         >
           <div
             data-sidebar="sidebar"
-            className="flex h-full w-full flex-col bg-sidebar/[.05] backdrop-blur-md shadow-md group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border/[.1]" // Quantum Black Styling
+            className={cn(
+              "flex h-full w-full flex-col bg-sidebar/[.05] backdrop-blur-md shadow-md", // Quantum Black Styling
+              variant === "floating" ? "rounded-xl border border-sidebar-border/[.1]" : "" // Apply rounded-xl for floating
+            )}
           >
             {children}
           </div>

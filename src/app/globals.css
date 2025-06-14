@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 6%; /* #0F0F0F - Quantum Black base (very close to #0e0e0e) */
+    --background: 0 0% 0%; /* #000000 - Pure Black */
     --foreground: 0 0% 100%; /* White */
 
     /* Base white for panels, to be combined with opacity in components */
@@ -55,7 +55,8 @@
     --sidebar-ring: 279 47% 47%; /* Electric Violet for rings */
 
     /* Specific backgrounds for header and dialog for consistency with panel styling */
-    --header-background: var(--panel-base);
+    /* PageHeader is now transparent, so --header-background isn't actively used for its background */
+    --header-background: var(--panel-base); 
     --dialog-background: var(--panel-base);
   }
 }
