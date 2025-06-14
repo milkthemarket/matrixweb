@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -6,11 +5,10 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label"; // Changed from FormLabel
+import { Label } from "@/components/ui/label"; 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-// Removed FormItem, FormLabel, FormControl, FormDescription imports that were specific to RHF context
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode } from '@/types';
 import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, Bot, User, Cog, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -223,14 +221,14 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const shortButtonSelected = "bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90";
 
   const buttonBaseClass = "flex-1 flex items-center justify-center h-9 py-2 px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50";
-  const inactiveButtonClass = "bg-transparent text-muted-foreground hover:bg-panel/[.05]";
-  const manualActiveButtonClass = "bg-panel/[.1] text-foreground shadow-sm";
+  const inactiveButtonClass = "bg-transparent text-muted-foreground hover:bg-white/5"; // hover:bg-panel/[.05] to hover:bg-white/5
+  const manualActiveButtonClass = "bg-white/10 text-foreground shadow-sm"; // bg-panel/[.1] to bg-white/10
   const aiActiveButtonClass = "bg-primary text-primary-foreground shadow-sm";
   const autoActiveButtonClass = "bg-accent text-accent-foreground shadow-sm";
 
 
   return (
-    <Card className="shadow-none flex flex-col">
+    <Card className="shadow-none flex flex-col"> {/* Card will inherit new global style */}
       <CardHeader className="relative">
         <CardTitle className="text-xl font-headline text-foreground">
           {getCardTitle()}
@@ -245,7 +243,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
         )}
       </CardHeader>
       <CardContent className="space-y-4 py-4 overflow-y-auto">
-        <div className="grid grid-cols-3 w-full rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05]">
+        <div className="grid grid-cols-3 w-full rounded-md overflow-hidden border border-white/5 bg-black/15"> {/* Updated to new panel style */}
           <button
             onClick={() => setTradeMode('manual')}
             className={cn(
@@ -391,7 +389,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             
             {selectedStock && (
               <>
-                <Separator className="my-6 border-border/[.1]" /> 
+                <Separator className="my-6 border-white/5" /> 
                 <div className="space-y-2 text-sm">
                     <h4 className="font-medium text-muted-foreground">Stock Info</h4>
                     <div className="flex justify-between text-foreground"><span>Float:</span> <span>{selectedStock.float}M</span></div>
@@ -419,7 +417,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
         {tradeMode === 'auto' && selectedStock && (
           <div className="space-y-4">
-            <Card className="bg-transparent shadow-none border-none">
+            <Card className="bg-transparent shadow-none border-none"> {/* Inner card doesn't need the new global style, it's content within the main OrderCard */}
               <CardHeader className="p-0 pb-3">
                 <CardTitle className="text-lg font-semibold text-foreground">Auto Mode Active</CardTitle>
                 <CardDescription>Trades will be placed automatically based on your selected rules for {selectedStock.symbol}.</CardDescription>
@@ -431,27 +429,29 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
                   </h4>
                   <ul className="space-y-2 text-sm">
                     {dummyAutoRules.map(rule => (
-                      <li key={rule.id} className="p-2.5 rounded-md bg-panel/[.05] border border-border/[.08]">
+                      <li key={rule.id} className="p-2.5 rounded-md bg-black/10 border border-white/5"> {/* Slightly darker inner rule item */}
                         <p className="font-medium text-foreground">{rule.name}</p>
                         <p className="text-xs text-muted-foreground">{rule.description}</p>
                       </li>
                     ))}
                   </ul>
                 </div>
-                <div className="flex flex-row items-center justify-between rounded-lg border border-border/[.1] p-3 shadow-sm mt-4 bg-transparent">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="autoTradingSwitch" className="text-base text-foreground">
-                      Auto-Trading Enabled
-                    </Label>
-                    <p className="text-xs text-muted-foreground">
-                      Allow automated execution for {selectedStock.symbol}.
-                    </p>
-                  </div>
-                  <Switch
-                    id="autoTradingSwitch"
-                    checked={isAutoTradingEnabled}
-                    onCheckedChange={setIsAutoTradingEnabled}
-                  />
+                 <div className="space-y-1.5 !mt-4"> {/* Added !mt-4 for spacing */}
+                    <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-3 shadow-sm bg-black/10">
+                        <div className="space-y-0.5">
+                            <Label htmlFor="autoTradingSwitch" className="text-base font-medium text-foreground cursor-pointer">
+                            Auto-Trading Enabled
+                            </Label>
+                            <p className="text-xs text-muted-foreground">
+                            Allow automated execution for {selectedStock.symbol}.
+                            </p>
+                        </div>
+                        <Switch
+                            id="autoTradingSwitch"
+                            checked={isAutoTradingEnabled}
+                            onCheckedChange={setIsAutoTradingEnabled}
+                        />
+                    </div>
                 </div>
               </CardContent>
             </Card>
@@ -492,4 +492,3 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     </Card>
   );
 }
-

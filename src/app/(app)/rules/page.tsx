@@ -9,10 +9,12 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+// Using Label from ui/label directly as FormLabel is tied to react-hook-form context
+import { Label } from "@/components/ui/label"; 
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+// FormField, FormItem etc are removed if not using Form context for basic switch
+// import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import type { AlertRule, RuleCriterion } from "@/types";
 import { PlusCircle, Edit3, Trash2, ListFilter, Terminal } from "lucide-react";
@@ -22,7 +24,6 @@ import { cn } from '@/lib/utils';
 const simpleRuleSchema = z.object({
   name: z.string().min(1, "Rule name is required"),
   isActive: z.boolean().default(true),
-  // Criteria editing is complex and deferred for now
 });
 
 type SimpleRuleFormData = z.infer<typeof simpleRuleSchema>;
@@ -34,8 +35,8 @@ export const mockRules: AlertRule[] = [
     isActive: true, 
     criteria: [
       { metric: 'changePercent', operator: '>=', value: 5 },
-      { metric: 'float', operator: '<=', value: 20 }, // 20M float
-      { metric: 'volume', operator: '>=', value: 1 }, // 1M volume
+      { metric: 'float', operator: '<=', value: 20 }, 
+      { metric: 'volume', operator: '>=', value: 1 }, 
       { metric: 'price', operator: '>=', value: 1 },
       { metric: 'price', operator: '<=', value: 20 },
     ]
@@ -45,8 +46,8 @@ export const mockRules: AlertRule[] = [
     name: 'High Volume Movers', 
     isActive: true, 
     criteria: [
-      { metric: 'volume', operator: '>=', value: 10 }, // 10M volume
-      { metric: 'avgVolume', operator: '>=', value: 5 }, // 5M avg volume
+      { metric: 'volume', operator: '>=', value: 10 }, 
+      { metric: 'avgVolume', operator: '>=', value: 5 }, 
       { metric: 'changePercent', operator: '>=', value: 3 },
     ]
   },
@@ -55,8 +56,8 @@ export const mockRules: AlertRule[] = [
     name: 'Potential Squeezers', 
     isActive: false, 
     criteria: [
-      { metric: 'shortFloat', operator: '>=', value: 20 }, // 20% short float
-      { metric: 'float', operator: '<=', value: 50 }, // 50M float
+      { metric: 'shortFloat', operator: '>=', value: 20 }, 
+      { metric: 'float', operator: '<=', value: 50 }, 
       { metric: 'changePercent', operator: '>=', value: 2 },
     ]
   },
@@ -66,7 +67,7 @@ export const mockRules: AlertRule[] = [
     isActive: true,
     criteria: [
       { metric: 'premarketChange', operator: '>=', value: 4 },
-      { metric: 'volume', operator: '>=', value: 0.2 }, // 200k premarket volume
+      { metric: 'volume', operator: '>=', value: 0.2 }, 
       { metric: 'float', operator: '<=', value: 100 },
     ],
   },
@@ -76,7 +77,7 @@ export const mockRules: AlertRule[] = [
     isActive: true,
     criteria: [
       { metric: 'rsi', operator: '<=', value: 30 },
-      { metric: 'changePercent', operator: '<=', value: -2 }, // Stock is down
+      { metric: 'changePercent', operator: '<=', value: -2 }, 
       { metric: 'volume', operator: '>=', value: 0.5 },
     ],
   },
@@ -96,6 +97,7 @@ export default function RulesPage() {
   const [editingRule, setEditingRule] = useState<AlertRule | null>(null);
   const { toast } = useToast();
 
+  // Using react-hook-form's useForm hook
   const form = useForm<SimpleRuleFormData>({
     resolver: zodResolver(simpleRuleSchema),
     defaultValues: {
@@ -106,19 +108,15 @@ export default function RulesPage() {
 
   const onSubmit: SubmitHandler<SimpleRuleFormData> = (data) => {
     if (editingRule) {
-      // For this simplified version, we only update name and isActive
-      // Criteria are not editable via this form.
       setRules(rules.map(r => r.id === editingRule.id ? { ...r, name: data.name, isActive: data.isActive } : r));
       toast({ title: "Rule Updated", description: `Rule "${data.name}" has been updated.` });
       setEditingRule(null);
     } else {
-      // Creating new rules with complex criteria is not supported by this simplified form.
-      // This part could be enhanced to allow selecting a template or adding default criteria.
       const newRule: AlertRule = { 
         id: String(Date.now()), 
         name: data.name, 
         isActive: data.isActive, 
-        criteria: [] // New rules start with no criteria or predefined template
+        criteria: [] 
       };
       setRules([...rules, newRule]);
       toast({ title: "Rule Created", description: `New rule "${data.name}" has been added (with no criteria).` });
@@ -151,7 +149,7 @@ export default function RulesPage() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Alert Rules Engine" />
       <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
-        <Card> 
+        <Card> {/* This Card will inherit new global style */}
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <ListFilter className="mr-2 h-6 w-6 text-primary"/>
@@ -159,60 +157,47 @@ export default function RulesPage() {
             </CardTitle>
             <CardDescription>Define rule name and status. Complex criteria are managed via predefined rules for now.</CardDescription>
           </CardHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <CardContent className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Rule Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Premarket Spike Low Float" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+          {/* Reverted to basic form handling without react-hook-form Form provider for simplicity here */}
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <CardContent className="space-y-6">
+              <div>
+                <Label htmlFor="ruleName">Rule Name</Label>
+                <Input 
+                  id="ruleName" 
+                  placeholder="e.g., Premarket Spike Low Float" 
+                  {...form.register("name")} 
+                  className="bg-transparent"
                 />
-                {/* Criteria editing UI is deferred */}
-                {/* <p className="text-sm text-muted-foreground">Detailed criteria (e.g., % change > 5, float < 10M) are managed through code for predefined rules in this version. This form handles name and activation status.</p> */}
-                
-                 <FormField
-                    control={form.control}
-                    name="isActive"
-                    render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-xl p-3 shadow-none bg-transparent backdrop-blur-md"> 
-                            <div className="space-y-0.5">
-                                <FormLabel>Activate Rule</FormLabel>
-                                <FormDescription>
-                                    Enable or disable this rule from triggering alerts and appearing in dashboard.
-                                </FormDescription>
-                            </div>
-                            <FormControl>
-                                <Switch
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            </FormControl>
-                        </FormItem>
-                    )}
+                {form.formState.errors.name && <p className="text-xs text-destructive mt-1">{form.formState.errors.name.message}</p>}
+              </div>
+              
+              <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-3 shadow-sm bg-black/10">
+                <div className="space-y-0.5">
+                    <Label htmlFor="isActiveSwitch" className="font-medium text-foreground cursor-pointer">Activate Rule</Label>
+                    <p className="text-xs text-muted-foreground">
+                        Enable or disable this rule from triggering alerts and appearing in dashboard.
+                    </p>
+                </div>
+                <Switch
+                    id="isActiveSwitch"
+                    checked={form.watch("isActive")}
+                    onCheckedChange={(checked) => form.setValue("isActive", checked)}
                 />
-              </CardContent>
-              <CardFooter className="flex justify-end gap-2">
-                {editingRule && <Button type="button" variant="outline" onClick={() => { setEditingRule(null); form.reset({name: '', isActive: true }); }}>Cancel Edit</Button>}
-                <Button type="submit" className="text-primary-foreground bg-primary hover:bg-primary/90">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  {editingRule ? 'Save Changes' : 'Add Basic Rule'}
-                </Button>
-              </CardFooter>
-            </form>
-          </Form>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-end gap-2">
+              {editingRule && <Button type="button" variant="outline" onClick={() => { setEditingRule(null); form.reset({name: '', isActive: true }); }}>Cancel Edit</Button>}
+              <Button type="submit" className="text-primary-foreground bg-primary hover:bg-primary/90">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                {editingRule ? 'Save Changes' : 'Add Basic Rule'}
+              </Button>
+            </CardFooter>
+          </form>
         </Card>
 
-        <Separator />
+        <Separator className="border-white/5"/>
 
-        <Card>
+        <Card> {/* This Card will inherit new global style */}
           <CardHeader>
             <CardTitle className="text-xl font-headline">Defined Rules</CardTitle>
             <CardDescription>Manage your existing alert rules. Dashboard filters based on these.</CardDescription>
@@ -224,9 +209,9 @@ export default function RulesPage() {
                   <li 
                     key={rule.id} 
                     className={cn(
-                      "flex items-start md:items-center justify-between p-4 rounded-xl shadow-none flex-col md:flex-row",
-                      "bg-transparent backdrop-blur-md", 
-                      "hover:bg-white/5 transition-colors duration-200"
+                      "flex items-start md:items-center justify-between p-4 rounded-xl shadow-none flex-col md:flex-row border border-white/5", 
+                      "bg-black/10 backdrop-blur-md", 
+                      "hover:bg-white/10 transition-colors duration-200"
                     )}
                   >
                     <div className="flex-1 mb-3 md:mb-0">
@@ -280,4 +265,3 @@ export default function RulesPage() {
     </main>
   );
 }
-

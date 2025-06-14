@@ -48,26 +48,51 @@
     --radius: 0.5rem; /* Base radius, rounded-xl will be 0.75rem based on this */
 
     /* Sidebar specific vars */
-    --sidebar-background: var(--panel-base);
+    --sidebar-background: transparent; /* Ensure sidebar uses the global gradient via transparency */
     --sidebar-foreground: 0 0% 90%; /* text-white/90 equivalent */
     --sidebar-primary: hsl(var(--primary)); /* Cyber Cyan for active icon */
     --sidebar-primary-foreground: hsl(var(--primary-foreground)); 
     --sidebar-accent: 0 0% 100%; /* Base for hover bg: hsl(var(--panel-base)) to be used with /5 opacity */
     --sidebar-accent-foreground: hsl(var(--primary)); /* Text color for active/hovered items (Cyber Cyan) */
-    --sidebar-border: var(--panel-base); 
+    --sidebar-border: transparent; /* Sidebar border should be transparent or very subtle */
     --sidebar-ring: hsl(var(--ring)); 
 
     /* Specific backgrounds for header and dialog for consistency with panel styling */
-    --header-background: var(--panel-base); 
-    --dialog-background: var(--panel-base);
+    --header-background: transparent; 
+    --dialog-background: transparent; /* Dialogs will use bg-black/15 directly */
   }
 }
 
 @layer base {
   * {
-    @apply border-border;
+    @apply border-border; /* Default border color might need review if --border is white */
   }
   body {
-    @apply bg-background text-foreground;
+    /* bg-background and text-foreground are applied by Tailwind config to body */
+    /* The new gradient is applied via className in RootLayout */
+    /* Ensure these styles from the prompt are applied */
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    overflow-x: hidden;
+    @apply text-foreground; /* Ensure default text color is from our theme */
+  }
+
+  /* Custom scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
   }
 }

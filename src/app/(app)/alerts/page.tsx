@@ -55,7 +55,7 @@ export default function AlertsPage() {
       <PageHeader title="Trade Alerts & Settings" />
       <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
         
-        <Card>
+        <Card> {/* This Card will inherit new global style */}
           <CardHeader>
             <CardTitle className="text-xl font-headline flex items-center">
               <MailOpen className="mr-2 h-5 w-5 text-primary" />
@@ -64,7 +64,7 @@ export default function AlertsPage() {
             <CardDescription>Choose how you want to receive your trade alerts.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="flex items-start space-x-3">
+            <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
               <Checkbox 
                 id="inAppAlerts" 
                 checked={receiveInAppAlerts} 
@@ -80,7 +80,7 @@ export default function AlertsPage() {
               </div>
             </div>
 
-            <div className="flex items-start space-x-3">
+            <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
               <Checkbox 
                 id="smsAlerts" 
                 checked={sendSmsAlerts} 
@@ -96,7 +96,7 @@ export default function AlertsPage() {
               </div>
             </div>
             
-            <div className="flex items-start space-x-3">
+            <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
               <Checkbox 
                 id="emailAlerts" 
                 checked={sendEmailAlerts} 
@@ -120,7 +120,7 @@ export default function AlertsPage() {
           </CardFooter>
         </Card>
 
-        <Card className="flex-1 flex flex-col bg-transparent shadow-none rounded-none backdrop-blur-none border-none min-h-[400px]"> {/* Ensure alerts panel has enough height */}
+        <Card className="flex-1 flex flex-col min-h-[400px]"> {/* This Card will inherit new global style */}
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <BellRing className="mr-2 h-6 w-6 text-primary" />
@@ -129,16 +129,16 @@ export default function AlertsPage() {
             <CardDescription>Real-time notifications based on your rules and market events.</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden">
-            <ScrollArea className="h-[calc(100%-0rem)] pr-4"> {/* Adjusted height to be relative */}
+            <ScrollArea className="h-[calc(100%-0rem)] pr-4"> 
               {alerts.length > 0 ? (
                 <ul className="space-y-4">
                   {alerts.map((alert) => (
                     <li 
                       key={alert.id} 
                       className={cn(
-                        "p-4 rounded-xl shadow-none",
-                        "bg-transparent backdrop-blur-md", 
-                        "hover:bg-white/5 transition-colors duration-200"
+                        "p-4 rounded-xl shadow-none border border-white/5", // Added border
+                        "bg-black/10 backdrop-blur-md", // Slightly darker item bg
+                        "hover:bg-white/10 transition-colors duration-200"
                       )}
                     >
                       <div className="flex items-start justify-between">
@@ -172,4 +172,3 @@ export default function AlertsPage() {
     </main>
   );
 }
-

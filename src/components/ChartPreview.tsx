@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -28,11 +27,10 @@ export function ChartPreview({ stock }: ChartPreviewProps) {
     ? stock.historicalPrices.map((price, index) => ({ name: `P${index}`, price }))
     : generateMockPriceData(stock.price);
   
-  // Uses --chart-2 (Confirm Green) for up, --chart-5 (Error Red) for down
   const strokeColor = stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))"; 
 
   return (
-    <Card className="w-64 bg-transparent backdrop-blur-md rounded-xl">
+    <Card className="w-64"> {/* Card will inherit new global style bg-black/15 border border-white/5 etc. */}
       <CardHeader className="p-3">
         <CardTitle className="text-base font-semibold text-popover-foreground">{stock.symbol} - Price Trend</CardTitle>
         <CardDescription className="text-xs text-muted-foreground">Last 10 periods (mock data)</CardDescription>
@@ -44,8 +42,8 @@ export function ChartPreview({ stock }: ChartPreviewProps) {
             <YAxis domain={['dataMin - 1', 'dataMax + 1']} hide/>
             <Tooltip
               contentStyle={{ 
-                backgroundColor: 'hsla(var(--background), 0.85)', 
-                borderColor: 'hsla(var(--border), 0.08)', // Kept a subtle border for tooltip content
+                backgroundColor: 'hsla(var(--background), 0.85)', // This uses the very dark --background, which is fine
+                borderColor: 'hsla(var(--border), 0.08)', 
                 borderRadius: 'var(--radius)',
                 backdropFilter: 'blur(8px)', 
                 WebkitBackdropFilter: 'blur(8px)',
