@@ -23,8 +23,8 @@ import { exportToCSV } from '@/lib/exportCSV';
 import { useAlertContext, type RefreshInterval } from '@/contexts/AlertContext';
 import { useToast } from "@/hooks/use-toast";
 
-// Use a fixed initial timestamp to prevent hydration errors
-const MOCK_INITIAL_TIMESTAMP = new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(); // 2 hours ago
+// Use a truly static, hardcoded ISO string for the initial mock timestamp
+const MOCK_INITIAL_TIMESTAMP = '2024-07-01T10:00:00.000Z';
 
 const initialMockStocks: Stock[] = [
   { id: '1', symbol: 'AAPL', price: 170.34, changePercent: 2.5, float: 15000, volume: 90.5, newsSnippet: 'New iPhone announced.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [168, 169, 170, 171, 170.5, 172, 170.34] },
@@ -36,6 +36,20 @@ const initialMockStocks: Stock[] = [
   { id: '7', symbol: 'SPY', price: 510.20, changePercent: 10.5, float: 1000, volume: 80.0, newsSnippet: 'Market rally continues.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [500, 502, 505, 503, 508, 511, 510.20] },
   { id: '8', symbol: 'QQQ', price: 450.80, changePercent: -9.1, float: 800, volume: 70.0, newsSnippet: 'Tech sell-off.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [460, 458, 455, 452, 453, 450, 450.80] },
 ];
+
+// Helper component to render time client-side to avoid hydration mismatch
+const ClientRenderedTime: React.FC<{ isoTimestamp: string }> = ({ isoTimestamp }) => {
+  const [formattedTime, setFormattedTime] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isoTimestamp) {
+      setFormattedTime(format(new Date(isoTimestamp), "HH:mm:ss"));
+    }
+  }, [isoTimestamp]);
+
+  return <>{formattedTime || '...'}</>; // Display placeholder or actual time
+};
+
 
 export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,29 +68,26 @@ export default function DashboardPage() {
 
   const handleRefreshData = useCallback(() => {
     console.log('Refreshing data...');
-    // Note: We are creating new stock objects here. If you have a more complex state or
-    // identity requirements, you might need a more sophisticated update mechanism.
     const refreshedStocks = stocks.map(stock => ({
       ...stock,
-      price: parseFloat((stock.price * (1 + (Math.random() - 0.5) * 0.03)).toFixed(2)), // Fluctuate price by +/- 3%
-      changePercent: parseFloat(((Math.random() - 0.5) * 10).toFixed(1)), // Random change between -5% and +5%
-      volume: parseFloat((stock.volume * (1 + (Math.random() - 0.2) * 0.1)).toFixed(1)), // Fluctuate volume
-      lastUpdated: new Date().toISOString(), // Now this is fine as it's a client-side update
+      price: parseFloat((stock.price * (1 + (Math.random() - 0.5) * 0.03)).toFixed(2)), 
+      changePercent: parseFloat(((Math.random() - 0.5) * 10).toFixed(1)), 
+      volume: parseFloat((stock.volume * (1 + (Math.random() - 0.2) * 0.1)).toFixed(1)), 
+      lastUpdated: new Date().toISOString(), 
       historicalPrices: Array.from({length: 7}, () => parseFloat((stock.price * (1 + (Math.random() - 0.5) * 0.05)).toFixed(2)))
     }));
     setStocks(refreshedStocks);
     setLastRefreshed(new Date());
-  }, [stocks]); // Added stocks to dependency array as it's used in map
+  }, [stocks]); 
 
   useEffect(() => {
-    // Set initial last refreshed time on client mount
     setLastRefreshed(new Date());
   }, []);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
     if (autoRefreshEnabled) {
-      handleRefreshData(); // Refresh immediately when enabled
+      handleRefreshData(); 
       intervalId = setInterval(handleRefreshData, refreshInterval);
     }
     return () => {
@@ -271,8 +282,7 @@ export default function DashboardPage() {
                         <TableCell className="text-right">{stock.volume.toLocaleString()}</TableCell>
                         <TableCell className="max-w-xs truncate" title={stock.newsSnippet || 'N/A'}>{stock.newsSnippet || 'N/A'}</TableCell>
                         <TableCell className="text-right text-xs text-muted-foreground">
-                           {/* Ensure this formatting is consistent or defer to client-only rendering if needed */}
-                          {format(new Date(stock.lastUpdated), "HH:mm:ss")}
+                          <ClientRenderedTime isoTimestamp={stock.lastUpdated} />
                         </TableCell>
                         <TableCell className="text-center space-x-1">
                           <Button 
@@ -317,3 +327,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+    
