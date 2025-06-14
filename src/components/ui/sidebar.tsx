@@ -24,7 +24,7 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3rem"
+const SIDEBAR_WIDTH_ICON = "3rem" // This would be the width of the content area for icons. Our buttons are size-12 (3rem)
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
@@ -130,7 +130,7 @@ const SidebarProvider = React.forwardRef<
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH,
-                "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+                "--sidebar-width-icon": SIDEBAR_WIDTH_ICON, // The actual icon buttons are 3rem (size-12)
                 ...style,
               } as React.CSSProperties
             }
@@ -176,7 +176,6 @@ const Sidebar = React.forwardRef<
         <div
           className={cn(
             "flex h-full w-[--sidebar-width] flex-col bg-transparent backdrop-blur-md text-sidebar-foreground shadow-none",
-            // Removed border classes
             className
           )}
           ref={ref}
@@ -207,6 +206,9 @@ const Sidebar = React.forwardRef<
       )
     }
 
+    // Adjust --sidebar-width-icon if items-center is on the sidebar itself for icon mode
+    const iconModeSidebarWidth = "calc(var(--sidebar-width-icon) + 2 * theme(spacing.2))" // If p-2 on sidebar
+
     return (
       <div
         ref={ref}
@@ -218,24 +220,27 @@ const Sidebar = React.forwardRef<
       >
         <div
           className={cn(
-            "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
+            "duration-200 relative h-svh bg-transparent transition-[width] ease-linear",
+            "w-[var(--sidebar-width)]", // Default width
             "group-data-[collapsible=offcanvas]:w-0",
             "group-data-[side=right]:rotate-180",
+            // Collapsed icon mode width needs to accommodate centered content
             variant === "floating" || variant === "inset"
-              ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
+              ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]" // e.g. 3rem + 1rem for p-2 on outer
+              : "group-data-[collapsible=icon]:w-[var(--sidebar-width-icon)]" // e.g. 3rem for content, assuming p-0 on outer
           )}
         />
         <div
           className={cn(
-            "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
+            "duration-200 fixed inset-y-0 z-10 hidden h-svh transition-[left,right,width] ease-linear md:flex",
+            "w-[var(--sidebar-width)]", // Default width
             side === "left"
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
+            // Collapsed icon mode width
             variant === "floating" || variant === "inset"
-              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-              : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]",
-
+              ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]" // if sidebar has p-2
+              : "group-data-[collapsible=icon]:w-[var(--sidebar-width-icon)]", // if sidebar has p-0
             className
           )}
           {...props}
@@ -244,8 +249,9 @@ const Sidebar = React.forwardRef<
             data-sidebar="sidebar"
             className={cn(
               "flex h-full w-full flex-col bg-transparent backdrop-blur-md shadow-none",
-              variant === "floating" ? "rounded-xl" : ""
-              // Removed border classes
+              variant === "floating" ? "rounded-xl" : "",
+              // Padding for collapsed mode should be on this inner div if items-center is used
+              "group-data-[collapsible=icon]:p-2" // Ensure consistent padding around centered items
             )}
           >
             {children}
@@ -321,7 +327,7 @@ const SidebarInset = React.forwardRef<
       ref={ref}
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-transparent",
-        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:backdrop-blur-md md:peer-data-[variant=inset]:shadow-none", // Removed border class for inset
+        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:backdrop-blur-md md:peer-data-[variant=inset]:shadow-none",
         className
       )}
       {...props}
@@ -489,7 +495,7 @@ const SidebarMenu = React.forwardRef<
   <ul
     ref={ref}
     data-sidebar="menu"
-    className={cn("flex w-full min-w-0 flex-col gap-1", className)}
+    className={cn("flex w-full min-w-0 flex-col gap-1 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:gap-y-4", className)}
     {...props}
   />
 ))
@@ -509,7 +515,7 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent/[.05] active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent/[.05] data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent/[.05] data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center justify-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent/[.05] active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent/[.05] data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent/[.05] data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-12 group-data-[collapsible=icon]:!p-4 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -520,7 +526,7 @@ const sidebarMenuButtonVariants = cva(
       size: {
         default: "h-8 text-sm",
         sm: "h-7 text-xs",
-        lg: "h-12 text-sm group-data-[collapsible=icon]:!p-0",
+        lg: "h-12 text-sm group-data-[collapsible=icon]:!p-0", // This p-0 might conflict if not careful
       },
     },
     defaultVariants: {
@@ -607,7 +613,11 @@ const SidebarMenuAction = React.forwardRef<
         "after:absolute after:-inset-2 after:md:hidden",
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",
-        "peer-data-[size=lg]/menu-button:top-2.5",
+        // Adjust for new size-12 button (3rem height, 1rem padding = 0.5rem from edge to icon top + 1rem icon = 1.5rem center)
+        // Top would be (ButtonHeight - IconHeight)/2 = (3rem - 1rem)/2 = 1rem. p-4 makes it 1rem from edge.
+        // Default icon is size-4 (1rem). If button is size-12 (3rem) and p-4 (1rem), icon is centered.
+        // Action button position needs to align with this.
+        "peer-data-[size=lg]/menu-button:top-3.5", // For size-12, top-3.5 might be appropriate (12*0.25rem = 3rem, 3.5*0.25rem = 0.875rem from top)
         "group-data-[collapsible=icon]:hidden",
         showOnHover &&
           "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
@@ -631,7 +641,7 @@ const SidebarMenuBadge = React.forwardRef<
       "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
       "peer-data-[size=sm]/menu-button:top-1",
       "peer-data-[size=default]/menu-button:top-1.5",
-      "peer-data-[size=lg]/menu-button:top-2.5",
+      "peer-data-[size=lg]/menu-button:top-3.5", // Aligned with SidebarMenuAction for size-12
       "group-data-[collapsible=icon]:hidden",
       className
     )}
