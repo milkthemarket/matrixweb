@@ -12,7 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Filter, RotateCcw, Search, UploadCloud, Flame, Megaphone, TrendingUp, TrendingDown, Dot } from "lucide-react";
+import { Filter, RotateCcw, Search, UploadCloud, Flame, Megaphone, TrendingUp, TrendingDown, Dot, CircleSlash } from "lucide-react";
 import type { Stock, TradeRequest, OrderActionType } from "@/types";
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -92,7 +92,7 @@ export default function DashboardPage() {
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
     if (autoRefreshEnabled) {
-      handleRefreshData();
+      handleRefreshData(); // Refresh immediately when auto-refresh is enabled or interval changes
       intervalId = setInterval(handleRefreshData, refreshInterval);
     }
     return () => {
@@ -125,6 +125,9 @@ export default function DashboardPage() {
       title: "Trade Processing",
       description: `Trade for ${tradeDetails.symbol} (${tradeDetails.action}, ${tradeDetails.quantity} shares, ${tradeDetails.orderType}) submitted.`,
     });
+    // Here you would typically write to Firestore or call an API
+    // Example: writeToFirestore('/tradeRequests', tradeDetails);
+    handleClearOrderCard(); // Optionally clear the card after submission
   };
 
   const handleExport = () => {
@@ -270,13 +273,20 @@ export default function DashboardPage() {
                   <TableBody>
                     {filteredStocks.length > 0 ? (
                       filteredStocks.map((stock) => (
-                        <TableRow key={stock.id} className={cn(getRowHighlightClass(stock), "hover:bg-muted/20", selectedStockForOrderCard?.id === stock.id && "bg-primary/10")}>
+                        <TableRow 
+                            key={stock.id} 
+                            className={cn(
+                                getRowHighlightClass(stock), 
+                                "hover:bg-muted/20", 
+                                selectedStockForOrderCard?.id === stock.id && "bg-primary/10"
+                            )}
+                        >
                           <TableCell className="font-medium">
                             <Popover>
                               <PopoverTrigger asChild>
                                 <span 
                                   className="cursor-pointer hover:text-primary flex items-center"
-                                  onClick={() => handleSelectStockForOrder(stock, null)}
+                                  onClick={() => handleSelectStockForOrder(stock, null)} // Updated
                                 >
                                   {stock.symbol}
                                   {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-orange-400" title="Hot Catalyst" />}
@@ -345,3 +355,4 @@ export default function DashboardPage() {
     </main>
   );
 }
+

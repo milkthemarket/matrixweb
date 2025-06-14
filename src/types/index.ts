@@ -41,7 +41,7 @@ export interface TradeLogEntry {
   tradeDate: string;
 }
 
-export type OrderActionType = 'Buy' | 'Short';
+export type OrderActionType = 'Buy' | 'Sell' | 'Short';
 export type OrderSystemType = 'Market' | 'Limit';
 
 export interface TradeRequest {
@@ -51,3 +51,4 @@ export interface TradeRequest {
   orderType: OrderSystemType;
   limitPrice?: number;
 }
+
