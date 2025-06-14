@@ -65,6 +65,16 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
+        // Added for consistent panel styling, referencing CSS vars
+        panel: 'hsl(var(--panel-base))', 
+        header: {
+          DEFAULT: 'hsl(var(--header-background))',
+          foreground: 'hsl(var(--foreground))',
+        },
+        dialog: {
+          DEFAULT: 'hsl(var(--dialog-background))',
+          foreground: 'hsl(var(--foreground))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',

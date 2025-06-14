@@ -7,7 +7,7 @@ type PageHeaderProps = {
 
 export function PageHeader({ title }: PageHeaderProps) {
   return (
-    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border/20 bg-background/20 backdrop-blur-lg px-4 md:px-6">
+    <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border/[.08] bg-header/[.06] backdrop-blur-md px-4 md:px-6"> {/* Updated for Quantum Black */}
       <div>
         <SidebarTrigger />
       </div>

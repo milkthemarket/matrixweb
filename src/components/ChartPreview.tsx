@@ -28,10 +28,11 @@ export function ChartPreview({ stock }: ChartPreviewProps) {
     ? stock.historicalPrices.map((price, index) => ({ name: `P${index}`, price }))
     : generateMockPriceData(stock.price);
   
+  // Updated to use chart-2 for up (Cyber Cyan) and chart-5 for down (Red) as per Quantum Black theme
   const strokeColor = stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))";
 
   return (
-    <Card className="w-64 shadow-lg bg-popover border-border">
+    <Card className="w-64 shadow-lg bg-popover/[.06] border-border/[.08] backdrop-blur-md"> {/* Updated for Quantum Black */}
       <CardHeader className="p-3">
         <CardTitle className="text-base font-semibold text-popover-foreground">{stock.symbol} - Price Trend</CardTitle>
         <CardDescription className="text-xs text-muted-foreground">Last 10 periods (mock data)</CardDescription>
@@ -44,7 +45,7 @@ export function ChartPreview({ stock }: ChartPreviewProps) {
             <Tooltip
               contentStyle={{ 
                 backgroundColor: 'hsl(var(--background))', 
-                borderColor: 'hsl(var(--border))',
+                borderColor: 'hsl(var(--border))', // Uses the base border color, consider opacity if needed
                 borderRadius: 'var(--radius)',
               }}
               labelStyle={{ color: 'hsl(var(--foreground))' }}
