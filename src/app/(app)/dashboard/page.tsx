@@ -12,21 +12,20 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter } from "lucide-react";
-import type { Stock, TradeRequest, OrderActionType, OpenPosition, NewsArticle, TradeHistoryEntry, ColumnConfig, AlertRule, RuleCriterion } from "@/types";
+import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule } from "@/types";
 import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
-import type { RefreshInterval } from '@/contexts/AlertContext'; // Keep for interval, though UI is removed
+import type { RefreshInterval } from '@/contexts/AlertContext'; 
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useToast } from "@/hooks/use-toast";
 import { OrderCard } from '@/components/OrderCard';
-import { NewsPanel } from '@/components/NewsPanel';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { mockRules } from '@/app/(app)/rules/page'; // Import mock rules
+import { mockRules } from '@/app/(app)/rules/page'; 
 
 const MOCK_INITIAL_TIMESTAMP = '2024-07-01T10:00:00.000Z';
-const DASHBOARD_REFRESH_INTERVAL: RefreshInterval = 15000; // Hardcode to 15s for dashboard
+const DASHBOARD_REFRESH_INTERVAL: RefreshInterval = 15000; 
 
 const formatMarketCap = (value?: number) => {
   if (value === undefined || value === null) return 'N/A';
@@ -94,22 +93,15 @@ const initialMockOpenPositions: OpenPosition[] = [
   { id: 'pos2', symbol: 'AAPL', entryPrice: 168.50, shares: 20, currentPrice: 170.34 },
 ];
 
-const initialMockNewsArticles: NewsArticle[] = [
-  { id: 'news1', symbol: 'AAPL', headline: 'Apple Unveils Vision Pro 2 Details', timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), source: 'TechCrunch', preview: 'Apple today shared more details about the upcoming Vision Pro 2, promising enhanced display and lighter design...', link: '#' },
-  { id: 'news2', symbol: 'TSLA', headline: 'Tesla Hits New Production Milestone for Model Y', timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(), source: 'Reuters', preview: 'Tesla Inc. announced it has achieved a new production milestone for its Model Y electric SUV at its Giga Texas factory...', link: '#' },
-];
-
 
 export default function DashboardPage() {
   const [stocks, setStocks] = useState<Stock[]>(initialMockStocks);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
-  const [selectedRuleId, setSelectedRuleId] = useState<string>('all'); // 'all' or rule.id
+  const [selectedRuleId, setSelectedRuleId] = useState<string>('all'); 
 
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
   const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
 
-  const [selectedStockForNews, setSelectedStockForNews] = useState<Stock | null>(null);
-  const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(initialMockNewsArticles);
   const [openPositions, setOpenPositions] = useState<OpenPosition[]>(initialMockOpenPositions);
 
   const { addTradeToHistory } = useTradeHistoryContext();
@@ -166,7 +158,7 @@ export default function DashboardPage() {
           low52: newLow52,
           gapPercent: parseFloat(((Math.random() - 0.5) * 5).toFixed(1)),
           shortFloat: parseFloat(Math.max(0, (stock.shortFloat || 5) + (Math.random() - 0.5) * 2).toFixed(1)),
-          instOwn: parseFloat(Math.min(100, Math.max(0, (stock.instOwn || 60) + (Math.random() - 0.5) * 5)).toFixed(1)),
+          instOwn: parseFloat(Math.min(100, Math.max(0, (stock.instOwn || 60) + (Math.random() - 0.5) * 5).toFixed(1))),
           premarketChange: parseFloat(((Math.random() - 0.5) * 3).toFixed(1)),
           lastUpdated: new Date().toISOString(),
           historicalPrices: Array.from({ length: 7 }, (_, i) => parseFloat((newPrice * (1 + (Math.random() - 0.5) * (0.01 * (7-i)))).toFixed(2)))
@@ -195,10 +187,10 @@ export default function DashboardPage() {
 
 
   useEffect(() => {
-    setLastRefreshed(new Date()); // Initial set
+    setLastRefreshed(new Date()); 
     const intervalId = setInterval(handleRefreshData, DASHBOARD_REFRESH_INTERVAL);
     return () => clearInterval(intervalId);
-  }, [handleRefreshData]); // handleRefreshData is now stable
+  }, [handleRefreshData]); 
 
   const activeRules = useMemo(() => mockRules.filter(rule => rule.isActive), []);
 
@@ -239,7 +231,6 @@ export default function DashboardPage() {
   const handleSelectStockForOrder = (stock: Stock, action: OrderActionType | null) => {
     setSelectedStockForOrderCard(stock);
     setOrderCardActionType(action);
-    setSelectedStockForNews(stock);
   };
 
   const handleClearOrderCard = () => {
@@ -469,7 +460,6 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <NewsPanel selectedStock={selectedStockForNews} newsArticles={newsArticles} />
         </div>
 
         <div className="w-full md:w-96 lg:w-[26rem] hidden md:flex flex-col flex-shrink-0 space-y-6 pr-1 overflow-y-auto">
@@ -487,5 +477,3 @@ export default function DashboardPage() {
     </main>
   );
 }
-
-      
