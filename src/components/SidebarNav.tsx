@@ -59,7 +59,7 @@ export function SidebarNav() {
       <SidebarHeader className="p-4">
         <div className={cn(
           "flex w-full",
-          "group-data-[state=expanded]:items-center group-data-[state=expanded]:justify-between",
+          "group-data-[state=expanded]:flex-row group-data-[state=expanded]:items-center group-data-[state=expanded]:justify-between",
           "group-data-[state=collapsed]:flex-col group-data-[state=collapsed]:items-center group-data-[state=collapsed]:gap-2"
         )}>
           <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 group-data-[state=collapsed]:justify-center">
@@ -99,7 +99,7 @@ export function SidebarNav() {
                     className={cn(
                       // Active/hover styles are handled by sidebarMenuButtonVariants in conjunction with theme variables
                     )}
-                    tooltip={{ children: item.label, className: "text-xs" }}
+                    tooltip={{ children: item.label }}
                   >
                     <item.icon className={cn("h-5 w-5", isActive ? "text-sidebar-primary" : "text-muted-foreground group-hover:text-sidebar-accent-foreground")} />
                     {open && (
@@ -122,4 +122,3 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
-
