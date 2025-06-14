@@ -9,24 +9,19 @@ import { Button } from '@/components/ui/button';
 import { XSquare, Briefcase, User, Bot, Cpu } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
+import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext'; // Import context
 
 interface OpenPositionsCardProps {
-  positions: OpenPosition[];
-  onClosePosition: (positionId: string) => void;
+  // Positions and onClosePosition are now handled by context
 }
 
-export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsCardProps) {
-  const { toast } = useToast();
+export function OpenPositionsCard({}: OpenPositionsCardProps) {
+  const { openPositions, removeOpenPosition } = useOpenPositionsContext(); // Use context
   const [selectedOriginFilter, setSelectedOriginFilter] = useState<HistoryTradeMode>('manual');
 
   const handleClose = (position: OpenPosition) => {
     console.log("Closing position:", position);
-    toast({
-      title: "Position Close Requested",
-      description: `Closing ${position.shares} shares of ${position.symbol}.`,
-    });
-    onClosePosition(position.id);
+    removeOpenPosition(position.id); // Use context action
   };
   
   const calculatePnl = (position: OpenPosition) => {
@@ -34,8 +29,8 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
   };
 
   const filteredPositions = useMemo(() => {
-    return positions.filter(pos => (pos.origin || 'manual') === selectedOriginFilter);
-  }, [positions, selectedOriginFilter]);
+    return openPositions.filter(pos => (pos.origin || 'manual') === selectedOriginFilter);
+  }, [openPositions, selectedOriginFilter]);
 
   const buttonBaseClass = "flex-1 flex items-center justify-center h-8 py-1.5 px-2.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50";
   const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
@@ -68,7 +63,7 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
           <button
             onClick={() => setSelectedOriginFilter('fullyAI')}
             className={cn(buttonBaseClass, selectedOriginFilter === 'fullyAI' ? activeModeClass : inactiveModeClass)}
-            title="Show Fully AI Trades"
+            title="Show AI Auto Trades"
           >
             <Cpu className="mr-1.5 h-3.5 w-3.5" /> AI Auto
           </button>

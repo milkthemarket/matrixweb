@@ -11,13 +11,14 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter, Bot } from "lucide-react";
+import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter, Bot, Cog } from "lucide-react";
 import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule, MiloTradeIdea, HistoryTradeMode } from "@/types";
 import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
 import type { RefreshInterval } from '@/contexts/AlertContext'; 
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
+import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 import { useToast } from "@/hooks/use-toast";
 import { OrderCard } from '@/components/OrderCard';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
@@ -116,15 +117,23 @@ const initialMockStocks: Stock[] = [
   { id: '33', symbol: 'NFLX', price: 640.00, changePercent: -0.3, float: 430, volume: 2.5, newsSnippet: 'Password sharing crackdown impact unclear.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [642.0, 641.0, 638.0, 640.5, 639.0, 640.2, 640.00], marketCap: 640.00 * 430 * 1e6, avgVolume: 3.0, atr: 12.0, rsi: 49.0, vwap: 639.80, beta: 1.1, high52: 700.00, low52: 300.00, gapPercent: -0.1, shortFloat: 0.7, instOwn: 80.0, premarketChange: -0.05 },
   { id: '34', symbol: 'WMT', price: 66.50, changePercent: 0.4, float: 2200, volume: 15.0, newsSnippet: 'Retail giant reports steady sales.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [66.0, 66.2, 66.6, 66.4, 66.8, 66.45, 66.50], marketCap: 66.50 * 2200 * 1e6, avgVolume: 18.0, atr: 1.0, rsi: 55.0, vwap: 66.48, beta: 0.7, high52: 70.00, low52: 50.00, gapPercent: 0.1, shortFloat: 0.4, instOwn: 40.0, premarketChange: 0.03 },
   { id: '35', symbol: 'COST', price: 840.20, changePercent: 0.9, float: 440, volume: 1.0, newsSnippet: 'Membership renewal rates remain high.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [830.0, 835.0, 838.0, 842.0, 839.5, 841.0, 840.20], marketCap: 840.20 * 440 * 1e6, avgVolume: 1.2, atr: 10.0, rsi: 68.0, vwap: 840.00, beta: 0.9, high52: 850.00, low52: 500.00, gapPercent: 0.2, shortFloat: 0.6, instOwn: 70.0, premarketChange: 0.1 },
+  { id: '36', symbol: 'GE', price: 165.20, changePercent: -0.5, float: 1080, volume: 4.1, newsSnippet: 'Aerospace division shows strong growth.', lastUpdated: MOCK_INITIAL_TIMESTAMP, marketCap: 178.42 * 10^9, avgVolume: 5.2, atr: 3.153, rsi: 55.3, vwap: 165.10, beta: 1.02, high52: 180.50, low52: 130.75, gapPercent: -0.1, shortFloat: 1.2, instOwn: 78.5, premarketChange: -0.05 },
+  { id: '37', symbol: 'BAC', price: 39.80, changePercent: 1.2, float: 8100, volume: 35.5, newsSnippet: 'Bank earnings exceed expectations.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', marketCap: 314.42 * 10^9, avgVolume: 40.1, atr: 0.752, rsi: 62.1, vwap: 39.75, beta: 1.15, high52: 42.10, low52: 30.50, gapPercent: 0.3, shortFloat: 0.8, instOwn: 70.2, premarketChange: 0.15 },
+  { id: '38', symbol: 'XLE', price: 92.75, changePercent: 0.3, float: 0, volume: 12.3, newsSnippet: 'Energy sector ETF tracking oil prices.', lastUpdated: MOCK_INITIAL_TIMESTAMP, marketCap: 40.00 * 10^9, avgVolume: 15.0, atr: 1.205, rsi: 58.0, vwap: 92.70, beta: 1.0, high52: 95.80, low52: 75.20, gapPercent: 0.05, shortFloat: 2.5, instOwn: 60.0, premarketChange: 0.02 },
+  { id: '39', symbol: 'FSR', price: 0.152, changePercent: -5.2, float: 350, volume: 80.1, newsSnippet: 'EV company faces bankruptcy concerns.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', marketCap: 53.2 * 10^6, avgVolume: 65.0, atr: 0.025, rsi: 25.5, vwap: 0.155, beta: 2.5, high52: 2.50, low52: 0.10, gapPercent: -1.5, shortFloat: 35.0, instOwn: 20.5, premarketChange: -0.8 },
+  { id: '40', symbol: 'PLTR', price: 25.80, changePercent: 2.8, float: 1800, volume: 45.6, newsSnippet: 'New government contracts secured.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', marketCap: 55.73 * 10^9, avgVolume: 50.2, atr: 0.95, rsi: 68.2, vwap: 25.75, beta: 1.8, high52: 28.10, low52: 15.50, gapPercent: 0.7, shortFloat: 5.1, instOwn: 35.0, premarketChange: 0.4 },
+  { id: '41', symbol: 'SOFI', price: 6.95, changePercent: -1.1, float: 900, volume: 22.3, newsSnippet: 'Fintech company reports mixed earnings.', lastUpdated: MOCK_INITIAL_TIMESTAMP, marketCap: 6.5 * 10^9, avgVolume: 25.0, atr: 0.353, rsi: 40.7, vwap: 6.98, beta: 1.9, high52: 10.50, low52: 5.80, gapPercent: -0.2, shortFloat: 12.3, instOwn: 40.1, premarketChange: -0.1 },
+  { id: '42', symbol: 'RIOT', price: 10.25, changePercent: 4.3, float: 220, volume: 18.9, newsSnippet: 'Bitcoin mining stock follows crypto rally.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', marketCap: 2.26 * 10^9, avgVolume: 20.5, atr: 0.851, rsi: 70.1, vwap: 10.20, beta: 3.1, high52: 15.50, low52: 5.10, gapPercent: 1.1, shortFloat: 22.8, instOwn: 30.7, premarketChange: 0.6 },
+  { id: '43', symbol: 'MCD', price: 255.80, changePercent: 0.15, float: 720, volume: 2.1, newsSnippet: 'McDonalds plans new menu items.', lastUpdated: MOCK_INITIAL_TIMESTAMP, marketCap: 186.73 * 10^9, avgVolume: 2.5, atr: 3.506, rsi: 52.3, vwap: 255.75, beta: 0.6, high52: 290.10, low52: 240.50, gapPercent: 0.0, shortFloat: 0.7, instOwn: 80.1, premarketChange: 0.03 },
+  { id: '44', symbol: 'PG', price: 168.30, changePercent: -0.2, float: 2300, volume: 5.3, newsSnippet: 'Procter & Gamble faces commodity cost pressures.', lastUpdated: MOCK_INITIAL_TIMESTAMP, marketCap: 399.5 * 10^9, avgVolume: 6.0, atr: 2.152, rsi: 48.8, vwap: 168.35, beta: 0.4, high52: 175.20, low52: 140.80, gapPercent: -0.05, shortFloat: 0.5, instOwn: 65.7, premarketChange: 0.0 },
+  { id: '45', symbol: 'LLY', price: 880.50, changePercent: 1.5, float: 940, volume: 1.8, newsSnippet: 'Eli Lilly drug trial shows positive results.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', marketCap: 834.47 * 10^9, avgVolume: 2.2, atr: 15.208, rsi: 75.6, vwap: 879.80, beta: 0.3, high52: 900.00, low52: 450.20, gapPercent: 0.4, shortFloat: 0.4, instOwn: 82.3, premarketChange: 0.25 },
+  { id: '46', symbol: 'JNJ', price: 148.90, changePercent: 0.05, float: 2400, volume: 7.2, newsSnippet: 'Johnson & Johnson consumer health spinoff complete.', lastUpdated: MOCK_INITIAL_TIMESTAMP, marketCap: 349.41 * 10^9, avgVolume: 8.0, atr: 1.857, rsi: 50.1, vwap: 148.85, beta: 0.5, high52: 160.30, low52: 135.70, gapPercent: 0.01, shortFloat: 0.6, instOwn: 70.9, premarketChange: 0.0 },
+  { id: '47', symbol: 'TGT', price: 145.60, changePercent: -1.8, float: 460, volume: 3.1, newsSnippet: 'Target warns of slowing consumer demand.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', marketCap: 67.7 * 10^9, avgVolume: 3.5, atr: 2.904, rsi: 38.5, vwap: 145.70, beta: 1.1, high52: 170.20, low52: 120.50, gapPercent: -0.5, shortFloat: 3.1, instOwn: 75.8, premarketChange: -0.3 },
+  { id: '48', symbol: 'SMCI', price: 810.20, changePercent: 3.3, float: 50, volume: 6.5, newsSnippet: 'Super Micro Computer benefits from AI server demand.', lastUpdated: MOCK_INITIAL_TIMESTAMP, marketCap: 47.8 * 10^9, avgVolume: 5.8, atr: 40.501, rsi: 60.2, vwap: 808.00, beta: 2.9, high52: 1200.00, low52: 200.50, gapPercent: 0.9, shortFloat: 15.2, instOwn: 55.1, premarketChange: 0.7 },
+  { id: '49', symbol: 'DJT', price: 35.70, changePercent: -4.1, float: 70, volume: 5.2, newsSnippet: 'Trump Media stock experiences volatility.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', marketCap: 4.92 * 10^9, avgVolume: 6.0, atr: 3.108, rsi: 33.7, vwap: 35.80, beta: 3.5, high52: 70.00, low52: 20.10, gapPercent: -1.2, shortFloat: 18.9, instOwn: 10.3, premarketChange: -0.9 },
+  { id: '50', symbol: 'SPY', price: 547.80, changePercent: 0.22, float: 0, volume: 45.1, newsSnippet: 'S&P 500 ETF tracks broad market movement.', lastUpdated: MOCK_INITIAL_TIMESTAMP, marketCap: 503.01 * 10^9, avgVolume: 50.0, atr: 4.205, rsi: 65.3, vwap: 547.70, beta: 1.0, high52: 550.10, low52: 400.50, gapPercent: 0.05, shortFloat: 1.0, instOwn: 50.0, premarketChange: 0.03 },
 ];
 
-
-const initialMockOpenPositions: OpenPosition[] = [
-  { id: 'pos1', symbol: 'TSLA', entryPrice: 175.00, shares: 10, currentPrice: 180.01, origin: 'manual' },
-  { id: 'pos2', symbol: 'AAPL', entryPrice: 168.50, shares: 20, currentPrice: 170.34, origin: 'aiAssist' },
-  { id: 'pos3', symbol: 'NVDA', entryPrice: 890.00, shares: 5, currentPrice: 900.50, origin: 'fullyAI' },
-  { id: 'pos4', symbol: 'MSFT', entryPrice: 425.00, shares: 15, currentPrice: 420.72, origin: 'manual' },
-];
 
 const initialMockMiloIdeas: MiloTradeIdea[] = [
   { 
@@ -159,7 +168,7 @@ export default function DashboardPage() {
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
   const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
 
-  const [openPositions, setOpenPositions] = useState<OpenPosition[]>(initialMockOpenPositions);
+  const { openPositions, addOpenPosition, removeOpenPosition, updateAllPositionsPrices } = useOpenPositionsContext();
   const [miloIdeas, setMiloIdeas] = useState<MiloTradeIdea[]>(initialMockMiloIdeas);
   const [isMiloLoading, setIsMiloLoading] = useState(false);
 
@@ -188,7 +197,7 @@ export default function DashboardPage() {
 
 
   const handleRefreshData = useCallback(() => {
-    let latestGeneratedStockData: Stock[] | null = null;
+    let latestGeneratedStockData: Stock[] = [];
 
     setStocks(prevStocks => {
       const updatedStocks = prevStocks.map(stock => {
@@ -227,23 +236,10 @@ export default function DashboardPage() {
       latestGeneratedStockData = updatedStocks;
       return updatedStocks;
     });
-
-    setOpenPositions(prevPositions =>
-      prevPositions.map(pos => {
-        const stockForPosition = latestGeneratedStockData 
-            ? latestGeneratedStockData.find(s => s.symbol === pos.symbol) 
-            : null;
-        
-        return {
-          ...pos,
-          currentPrice: stockForPosition 
-            ? stockForPosition.price 
-            : parseFloat((pos.currentPrice * (1 + (Math.random() - 0.5) * 0.01)).toFixed(2))
-        };
-      })
-    );
+    
+    updateAllPositionsPrices(latestGeneratedStockData);
     setLastRefreshed(new Date());
-  }, []); 
+  }, [updateAllPositionsPrices]); 
 
 
   useEffect(() => {
@@ -335,17 +331,8 @@ export default function DashboardPage() {
             currentPrice: selectedStockForOrderCard?.price || 0,
             origin: tradeDetails.tradeModeOrigin || 'manual',
         };
-        setOpenPositions(prev => [newPosition, ...prev]);
+        addOpenPosition(newPosition);
     }
-  };
-
-  const handleClosePosition = (positionId: string) => {
-    setOpenPositions(prev => prev.filter(p => p.id !== positionId));
-    toast({
-      title: "Position Closed",
-      description: `Position ${positionId} has been removed.`,
-      variant: "destructive"
-    });
   };
 
   const handleExport = () => {
@@ -545,7 +532,7 @@ export default function DashboardPage() {
             onClear={handleClearOrderCard}
           />
           
-            <OpenPositionsCard positions={openPositions} onClosePosition={handleClosePosition} />
+            <OpenPositionsCard /> {/* Now uses context, no props needed here */}
           
           <MilosTradeIdeasCard 
             ideas={miloIdeas} 
