@@ -12,7 +12,7 @@ import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Filter, RotateCcw, Search, UploadCloud, Flame, Megaphone, TrendingUp, TrendingDown, Dot, CircleSlash } from "lucide-react";
+import { Filter, RotateCcw, Search, UploadCloud, Flame, Megaphone, Dot } from "lucide-react";
 import type { Stock, TradeRequest, OrderActionType, OpenPosition, NewsArticle, TradeHistoryEntry } from "@/types";
 import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -135,7 +135,7 @@ export default function DashboardPage() {
 
   const handleSelectStockForOrder = (stock: Stock, action: OrderActionType | null) => {
     setSelectedStockForOrderCard(stock);
-    setOrderCardActionType(action);
+    setOrderCardActionType(action); // This will be null when clicking row, but OrderCard handles it
     setSelectedStockForNews(stock);
   };
 
@@ -209,9 +209,9 @@ export default function DashboardPage() {
   };
 
   const getRowHighlightClass = (stock: Stock): string => {
-    if (stock.changePercent >= 10) return 'border-l-4 border-[hsl(var(--chart-2))] bg-[hsla(var(--chart-2),0.05)]'; // Cyber Cyan
-    if (stock.changePercent <= -8) return 'border-l-4 border-[hsl(var(--chart-5))] bg-[hsla(var(--chart-5),0.05)]'; // Error Red
-    if (stock.float <= 500 && stock.volume >= 50) return 'border-l-4 border-accent bg-accent/5'; // Electric Violet
+    if (stock.changePercent >= 10) return 'border-l-4 border-[hsl(var(--chart-2))] bg-[hsla(var(--chart-2),0.05)]'; 
+    if (stock.changePercent <= -8) return 'border-l-4 border-[hsl(var(--chart-5))] bg-[hsla(var(--chart-5),0.05)]'; 
+    if (stock.float <= 500 && stock.volume >= 50) return 'border-l-4 border-accent bg-accent/5'; 
     return '';
   };
 
@@ -229,7 +229,7 @@ export default function DashboardPage() {
                 <CardDescription>Filter and find top market movers.</CardDescription>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                {autoRefreshEnabled && <Dot className="h-6 w-6 text-[#00FF9C] animate-pulse" />} {/* Confirm Green */}
+                {autoRefreshEnabled && <Dot className="h-6 w-6 text-[#00FF9C] animate-pulse" />}
                 {lastRefreshed && <span className="text-sm text-muted-foreground">Last refreshed: {format(lastRefreshed, "HH:mm:ss")}</span>}
                 <Switch
                   id="auto-refresh-toggle"
@@ -252,11 +252,11 @@ export default function DashboardPage() {
                     <SelectItem value="60000">1m</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" size="sm" onClick={handleRefreshData} className="text-primary hover:text-primary-foreground border-primary hover:bg-primary"> {/* Primary is Cyber Cyan */}
+                <Button variant="outline" size="sm" onClick={handleRefreshData} className="text-primary hover:text-primary-foreground border-primary hover:bg-primary">
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Refresh
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleExport} className="text-accent hover:text-accent-foreground border-accent hover:bg-accent"> {/* Accent is Electric Violet */}
+                <Button variant="outline" size="sm" onClick={handleExport} className="text-accent hover:text-accent-foreground border-accent hover:bg-accent">
                   <UploadCloud className="mr-2 h-4 w-4" />
                   Export CSV
                 </Button>
@@ -294,10 +294,9 @@ export default function DashboardPage() {
 
               <RulePills minChangePercent={minChangePercent} maxFloat={maxFloat} minVolume={minVolume} />
 
-              <div className="rounded-xl border border-white/10 overflow-auto flex-1"> {/* Adjusted for Quantum Black card style */}
+              <div className="rounded-xl border-none overflow-auto flex-1">
                 <Table>
-                  <TableHeader className="sticky top-0 bg-black/80 backdrop-blur-md z-10"> {/* Adjusted for pure black background with blur for header */}
-                    {/* Frosted header */}
+                  <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                     <TableRow>
                       <TableHead>Symbol</TableHead>
                       <TableHead className="text-right">Price</TableHead>
@@ -306,7 +305,6 @@ export default function DashboardPage() {
                       <TableHead className="text-right">Volume (M)</TableHead>
                       <TableHead>Catalyst News</TableHead>
                       <TableHead className="text-right">Last Updated</TableHead>
-                      <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -316,29 +314,29 @@ export default function DashboardPage() {
                             key={stock.id}
                             className={cn(
                                 getRowHighlightClass(stock),
-                                "hover:bg-white/5", // Quantum Black subtle hover
-                                selectedStockForOrderCard?.id === stock.id && "bg-primary/10" // Cyber Cyan tint
+                                "hover:bg-white/10 cursor-pointer", 
+                                selectedStockForOrderCard?.id === stock.id && "bg-primary/10" 
                             )}
+                            onClick={() => handleSelectStockForOrder(stock, null)} // Make entire row clickable
                         >
                           <TableCell className="font-medium text-foreground">
                             <Popover>
                               <PopoverTrigger asChild>
                                 <span
-                                  className="cursor-pointer hover:text-primary flex items-center" // Primary is Cyber Cyan
-                                  onClick={() => handleSelectStockForOrder(stock, null)}
+                                  className="hover:text-primary flex items-center"
                                 >
                                   {stock.symbol}
-                                  {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-destructive" title="Hot Catalyst" />} {/* Destructive is Neon Orange */}
-                                  {stock.catalystType === 'news' && <Megaphone className="ml-1 h-4 w-4 text-primary" title="News Catalyst"/>} {/* Primary is Cyber Cyan */}
+                                  {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-destructive" title="Hot Catalyst" />}
+                                  {stock.catalystType === 'news' && <Megaphone className="ml-1 h-4 w-4 text-primary" title="News Catalyst"/>}
                                 </span>
                               </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0 border-white/10 shadow-md" side="right" align="start"> {/* Quantum Black Popover */}
+                              <PopoverContent className="w-auto p-0 shadow-md" side="right" align="start">
                                 <ChartPreview stock={stock} />
                               </PopoverContent>
                             </Popover>
                           </TableCell>
                           <TableCell className="text-right text-foreground">${stock.price.toFixed(2)}</TableCell>
-                          <TableCell className={cn("text-right", stock.changePercent >= 0 ? "text-[#00FF9C]" : "text-destructive")}> {/* Confirm Green or Error Red */}
+                          <TableCell className={cn("text-right", stock.changePercent >= 0 ? "text-[#00FF9C]" : "text-destructive")}>
                             {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(1)}%
                           </TableCell>
                           <TableCell className="text-right text-foreground">{stock.float.toLocaleString()}</TableCell>
@@ -347,29 +345,11 @@ export default function DashboardPage() {
                           <TableCell className="text-right text-xs text-muted-foreground">
                             <ClientRenderedTime isoTimestamp={stock.lastUpdated} />
                           </TableCell>
-                          <TableCell className="text-center space-x-1">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 px-2 border-[#00FF9C] text-[#00FF9C] hover:bg-[#00FF9C] hover:text-black" // Confirm Green
-                              onClick={() => handleSelectStockForOrder(stock, 'Buy')}
-                            >
-                              <TrendingUp className="mr-1 h-4 w-4" /> Buy
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 px-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground" // Accent is Electric Violet
-                              onClick={() => handleSelectStockForOrder(stock, 'Short')}
-                            >
-                              <TrendingDown className="mr-1 h-4 w-4" /> Short
-                            </Button>
-                          </TableCell>
                         </TableRow>
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center h-24 text-muted-foreground">
+                        <TableCell colSpan={7} className="text-center h-24 text-muted-foreground">
                           No stocks match your criteria. Try adjusting the filters.
                         </TableCell>
                       </TableRow>
@@ -386,7 +366,7 @@ export default function DashboardPage() {
         <div className="w-full md:w-96 lg:w-[26rem] hidden md:flex flex-col flex-shrink-0 space-y-6 pr-1 overflow-y-auto">
           <OrderCard
             selectedStock={selectedStockForOrderCard}
-            initialActionType={orderCardActionType}
+            initialActionType={orderCardActionType} // This will be null from row click, OrderCard handles this
             onSubmit={handleTradeSubmit}
             onClear={handleClearOrderCard}
           />
@@ -398,5 +378,6 @@ export default function DashboardPage() {
     </main>
   );
 }
+    
 
     
