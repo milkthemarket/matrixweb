@@ -13,6 +13,7 @@ import type { TradeAlert } from "@/types";
 import { formatDistanceToNow } from 'date-fns';
 import { BellRing, Info, MailOpen, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AlertMethodsModal } from '@/components/AlertMethodsModal';
 
 const mockAlerts: TradeAlert[] = [
   { id: '1', symbol: 'TSLA', message: 'TSLA broke above $185.00 resistance.', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), source: 'Rule Engine' },
@@ -28,6 +29,7 @@ export default function AlertsPage() {
   const [receiveInAppAlerts, setReceiveInAppAlerts] = useState(true);
   const [sendSmsAlerts, setSendSmsAlerts] = useState(false);
   const [sendEmailAlerts, setSendEmailAlerts] = useState(false);
+  const [isAlertMethodsModalOpen, setIsAlertMethodsModalOpen] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000); // Update time every minute for relative timestamps
@@ -51,124 +53,134 @@ export default function AlertsPage() {
 
 
   return (
-    <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <PageHeader title="Trade Alerts & Settings" />
-      <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
-        
-        <Card> {/* This Card will inherit new global style */}
-          <CardHeader>
-            <CardTitle className="text-xl font-headline flex items-center">
-              <MailOpen className="mr-2 h-5 w-5 text-primary" />
-              Alert Delivery Settings
-            </CardTitle>
-            <CardDescription>Choose how you want to receive your trade alerts.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
-              <Checkbox 
-                id="inAppAlerts" 
-                checked={receiveInAppAlerts} 
-                onCheckedChange={(checked) => setReceiveInAppAlerts(Boolean(checked))} 
-              />
-              <div className="grid gap-1.5 leading-none">
-                <Label htmlFor="inAppAlerts" className="font-medium text-foreground cursor-pointer">
-                  Receive alerts within MILK
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Notifications will appear in the Alerts Panel below.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
-              <Checkbox 
-                id="smsAlerts" 
-                checked={sendSmsAlerts} 
-                onCheckedChange={(checked) => setSendSmsAlerts(Boolean(checked))} 
-              />
-              <div className="grid gap-1.5 leading-none">
-                <Label htmlFor="smsAlerts" className="font-medium text-foreground cursor-pointer">
-                  Send alerts via text message
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Requires a verified phone number. Standard messaging rates may apply.
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
-              <Checkbox 
-                id="emailAlerts" 
-                checked={sendEmailAlerts} 
-                onCheckedChange={(checked) => setSendEmailAlerts(Boolean(checked))} 
-              />
-              <div className="grid gap-1.5 leading-none">
-                <Label htmlFor="emailAlerts" className="font-medium text-foreground cursor-pointer">
-                  Send alerts via email
-                </Label>
-                <p className="text-xs text-muted-foreground">
-                  Requires a verified email address. Alerts sent to your primary email.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button variant="outline" className="text-accent border-accent hover:bg-accent/10 hover:text-accent">
-              <Settings className="mr-2 h-4 w-4" />
-              Manage Alert Methods
-            </Button>
-          </CardFooter>
-        </Card>
-
-        <Card className="flex-1 flex flex-col min-h-[400px]"> {/* This Card will inherit new global style */}
-          <CardHeader>
-            <CardTitle className="text-2xl font-headline flex items-center">
-              <BellRing className="mr-2 h-6 w-6 text-primary" />
-              Alerts Panel
-            </CardTitle>
-            <CardDescription>Real-time notifications based on your rules and market events.</CardDescription>
-          </CardHeader>
-          <CardContent className="flex-1 overflow-hidden">
-            <ScrollArea className="h-[calc(100%-0rem)] pr-4"> 
-              {alerts.length > 0 ? (
-                <ul className="space-y-4">
-                  {alerts.map((alert) => (
-                    <li 
-                      key={alert.id} 
-                      className={cn(
-                        "p-4 rounded-xl shadow-none border border-white/5", // Added border
-                        "bg-black/10 backdrop-blur-md", // Slightly darker item bg
-                        "hover:bg-white/10 transition-colors duration-200"
-                      )}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-3">
-                           <Info className="h-5 w-5 text-accent" />
-                           <div>
-                            <p className="font-semibold text-base text-foreground">
-                              {alert.symbol}: <span className="font-normal">{alert.message}</span>
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(new Date(alert.timestamp), { addSuffix: true })}
-                            </p>
-                           </div>
-                        </div>
-                        {alert.source && <Badge variant="outline" className="text-xs border-accent text-accent">{alert.source}</Badge>}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                  <BellRing className="h-12 w-12 mb-4" />
-                  <p className="text-lg">No alerts yet.</p>
-                  <p>Alerts will appear here when triggered.</p>
+    <>
+      <main className="flex flex-col flex-1 h-full overflow-hidden">
+        <PageHeader title="Trade Alerts & Settings" />
+        <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
+          
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl font-headline flex items-center">
+                <MailOpen className="mr-2 h-5 w-5 text-primary" />
+                Alert Delivery Settings
+              </CardTitle>
+              <CardDescription>Choose how you want to receive your trade alerts.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
+                <Checkbox 
+                  id="inAppAlerts" 
+                  checked={receiveInAppAlerts} 
+                  onCheckedChange={(checked) => setReceiveInAppAlerts(Boolean(checked))} 
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <Label htmlFor="inAppAlerts" className="font-medium text-foreground cursor-pointer">
+                    Receive alerts within MILK
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Notifications will appear in the Alerts Panel below.
+                  </p>
                 </div>
-              )}
-            </ScrollArea>
-          </CardContent>
-        </Card>
-      </div>
-    </main>
+              </div>
+
+              <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
+                <Checkbox 
+                  id="smsAlerts" 
+                  checked={sendSmsAlerts} 
+                  onCheckedChange={(checked) => setSendSmsAlerts(Boolean(checked))} 
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <Label htmlFor="smsAlerts" className="font-medium text-foreground cursor-pointer">
+                    Send alerts via text message
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Requires a verified phone number. Standard messaging rates may apply.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
+                <Checkbox 
+                  id="emailAlerts" 
+                  checked={sendEmailAlerts} 
+                  onCheckedChange={(checked) => setSendEmailAlerts(Boolean(checked))} 
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <Label htmlFor="emailAlerts" className="font-medium text-foreground cursor-pointer">
+                    Send alerts via email
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Requires a verified email address. Alerts sent to your primary email.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                variant="outline" 
+                className="text-accent border-accent hover:bg-accent/10 hover:text-accent"
+                onClick={() => setIsAlertMethodsModalOpen(true)}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                Manage Alert Methods
+              </Button>
+            </CardFooter>
+          </Card>
+
+          <Card className="flex-1 flex flex-col min-h-[400px]">
+            <CardHeader>
+              <CardTitle className="text-2xl font-headline flex items-center">
+                <BellRing className="mr-2 h-6 w-6 text-primary" />
+                Alerts Panel
+              </CardTitle>
+              <CardDescription>Real-time notifications based on your rules and market events.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-hidden">
+              <ScrollArea className="h-[calc(100%-0rem)] pr-4"> 
+                {alerts.length > 0 ? (
+                  <ul className="space-y-4">
+                    {alerts.map((alert) => (
+                      <li 
+                        key={alert.id} 
+                        className={cn(
+                          "p-4 rounded-xl shadow-none border border-white/5", 
+                          "bg-black/10 backdrop-blur-md", 
+                          "hover:bg-white/10 transition-colors duration-200"
+                        )}
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center space-x-3">
+                             <Info className="h-5 w-5 text-accent" />
+                             <div>
+                              <p className="font-semibold text-base text-foreground">
+                                {alert.symbol}: <span className="font-normal">{alert.message}</span>
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatDistanceToNow(new Date(alert.timestamp), { addSuffix: true })}
+                              </p>
+                             </div>
+                          </div>
+                          {alert.source && <Badge variant="outline" className="text-xs border-accent text-accent">{alert.source}</Badge>}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                    <BellRing className="h-12 w-12 mb-4" />
+                    <p className="text-lg">No alerts yet.</p>
+                    <p>Alerts will appear here when triggered.</p>
+                  </div>
+                )}
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+      <AlertMethodsModal 
+        isOpen={isAlertMethodsModalOpen} 
+        onClose={() => setIsAlertMethodsModalOpen(false)} 
+      />
+    </>
   );
 }
