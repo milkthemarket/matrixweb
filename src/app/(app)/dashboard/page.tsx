@@ -13,13 +13,14 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Filter, RotateCcw, Search, UploadCloud, Flame, Megaphone, TrendingUp, TrendingDown, Dot, CircleSlash } from "lucide-react";
-import type { Stock, TradeRequest, OrderActionType, OpenPosition, NewsArticle } from "@/types";
+import type { Stock, TradeRequest, OrderActionType, OpenPosition, NewsArticle, TradeHistoryEntry } from "@/types";
 import { format, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { RulePills } from '@/components/RulePills';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
 import { useAlertContext, type RefreshInterval } from '@/contexts/AlertContext';
+import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useToast } from "@/hooks/use-toast";
 import { OrderCard } from '@/components/OrderCard';
 import { NewsPanel } from '@/components/NewsPanel';
@@ -39,7 +40,6 @@ const initialMockOpenPositions: OpenPosition[] = [
   { id: 'pos1', symbol: 'TSLA', entryPrice: 175.00, shares: 10, currentPrice: 180.01 },
   { id: 'pos2', symbol: 'AAPL', entryPrice: 168.50, shares: 20, currentPrice: 170.34 },
 ];
-// const initialMockOpenPositions: OpenPosition[] = []; // Test with no open positions
 
 const initialMockNewsArticles: NewsArticle[] = [
   { id: 'news1', symbol: 'AAPL', headline: 'Apple Unveils Vision Pro 2 Details', timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), source: 'TechCrunch', preview: 'Apple today shared more details about the upcoming Vision Pro 2, promising enhanced display and lighter design...', link: '#' },
@@ -53,7 +53,11 @@ const ClientRenderedTime: React.FC<{ isoTimestamp: string }> = ({ isoTimestamp }
   const [formattedTime, setFormattedTime] = useState<string | null>(null);
   useEffect(() => {
     if (isoTimestamp) {
-      setFormattedTime(format(new Date(isoTimestamp), "HH:mm:ss"));
+      try {
+        setFormattedTime(format(parseISO(isoTimestamp), "HH:mm:ss"));
+      } catch (e) {
+        setFormattedTime("Invalid Date");
+      }
     }
   }, [isoTimestamp]);
   return <>{formattedTime || '...'}</>;
@@ -77,6 +81,7 @@ export default function DashboardPage() {
 
 
   const { autoRefreshEnabled, setAutoRefreshEnabled, refreshInterval, setRefreshInterval } = useAlertContext();
+  const { addTradeToHistory } = useTradeHistoryContext();
   const { toast } = useToast();
 
   const handleRefreshData = useCallback(() => {
@@ -137,7 +142,7 @@ export default function DashboardPage() {
   const handleClearOrderCard = () => {
     setSelectedStockForOrderCard(null);
     setOrderCardActionType(null);
-    // setSelectedStockForNews(null); // Optionally clear news if it should only show when an order is being composed
+    // setSelectedStockForNews(null); // Optionally clear news
   };
 
   const handleTradeSubmit = (tradeDetails: TradeRequest) => {
@@ -146,6 +151,27 @@ export default function DashboardPage() {
       title: "Trade Processing",
       description: `${tradeDetails.action} ${tradeDetails.quantity} ${tradeDetails.symbol} (${tradeDetails.orderType}) submitted.`,
     });
+
+    if (selectedStockForOrderCard) {
+      const newHistoryEntry: TradeHistoryEntry = {
+        id: String(Date.now()),
+        symbol: tradeDetails.symbol,
+        side: tradeDetails.action,
+        totalQty: tradeDetails.quantity,
+        orderType: tradeDetails.orderType,
+        limitPrice: tradeDetails.limitPrice,
+        stopPrice: tradeDetails.stopPrice,
+        trailAmount: tradeDetails.trailingOffset,
+        TIF: "Day", // Mocked
+        tradingHours: "Include Extended Hours", // Mocked
+        placedTime: new Date().toISOString(),
+        filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(), // Mocked: 1-6 seconds later
+        orderStatus: "Filled", // Mocked
+        averagePrice: (tradeDetails.orderType === "Limit" && tradeDetails.limitPrice) ? tradeDetails.limitPrice : selectedStockForOrderCard.price, // Simplified mock
+      };
+      addTradeToHistory(newHistoryEntry);
+    }
+
     if (tradeDetails.action === 'Buy' || tradeDetails.action === 'Short') {
         const newPosition: OpenPosition = {
             id: `pos${Date.now()}`,
@@ -156,7 +182,10 @@ export default function DashboardPage() {
         };
         setOpenPositions(prev => [newPosition, ...prev]);
     }
-    handleClearOrderCard();
+    // Do not clear the order card fully, only the action related parts if necessary,
+    // Or let the OrderCard handle its internal state persistence as per previous update.
+    // For now, we'll rely on the OrderCard's persistence.
+    // handleClearOrderCard(); // Re-evaluate if this is needed based on desired UX after trade
   };
 
   const handleClosePosition = (positionId: string) => {
@@ -197,9 +226,8 @@ export default function DashboardPage() {
       <PageHeader title="Dashboard & Screener" />
       <div className="flex flex-1 p-4 md:p-6 space-x-0 md:space-x-6 overflow-hidden">
 
-        {/* Left Column: Screener & News Panel */}
         <div className="flex-1 flex flex-col overflow-hidden space-y-6">
-          <Card className="shadow-xl flex-1 flex flex-col overflow-hidden"> {/* Main Screener Card */}
+          <Card className="shadow-xl flex-1 flex flex-col overflow-hidden"> 
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
               <div>
                 <CardTitle className="text-2xl font-headline">Real-Time Stock Screener</CardTitle>
@@ -383,8 +411,7 @@ export default function DashboardPage() {
           <NewsPanel selectedStock={selectedStockForNews} newsArticles={newsArticles} />
         </div>
 
-        {/* Right Column: Order Card & Open Positions */}
-        <div className="w-full md:w-96 lg:w-[26rem] hidden md:flex flex-col flex-shrink-0 overflow-y-auto space-y-6 pr-1">
+        <div className="w-full md:w-96 lg:w-[26rem] hidden md:flex flex-col flex-shrink-0 space-y-6 pr-1 overflow-y-auto">
           <OrderCard
             selectedStock={selectedStockForOrderCard}
             initialActionType={orderCardActionType}
@@ -399,5 +426,3 @@ export default function DashboardPage() {
     </main>
   );
 }
-
-    

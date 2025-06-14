@@ -1,4 +1,5 @@
 
+
 export type CatalystType = 'fire' | 'news';
 
 export interface Stock {
@@ -30,6 +31,7 @@ export interface TradeAlert {
   source?: string;
 }
 
+// This type is for the original manual trade log, effectively replaced by TradeHistoryEntry for the /history page
 export interface TradeLogEntry {
   id: string;
   symbol: string;
@@ -63,16 +65,31 @@ export interface OpenPosition {
   entryPrice: number;
   shares: number;
   currentPrice: number; 
-  // P&L will be calculated in the component
-  // Optional: add tradeType: 'long' | 'short' if needed later
 }
 
 export interface NewsArticle {
   id: string;
-  symbol: string; // To associate news with a specific stock
+  symbol: string; 
   headline: string;
-  timestamp: string; // ISO string
+  timestamp: string; 
   source: string;
   preview: string;
-  link: string; // URL
+  link: string; 
+}
+
+export interface TradeHistoryEntry {
+  id: string;
+  symbol: string;
+  side: OrderActionType;
+  totalQty: number;
+  orderType: OrderSystemType;
+  limitPrice?: number;
+  stopPrice?: number;
+  trailAmount?: number; 
+  TIF: string; // e.g., Day, GTC
+  tradingHours: string; // e.g., Include Extended Hours
+  placedTime: string; // ISOString
+  filledTime: string; // ISOString
+  orderStatus: 'Filled' | 'Pending' | 'Canceled' | 'Partially Filled'; // Extended options
+  averagePrice: number;
 }

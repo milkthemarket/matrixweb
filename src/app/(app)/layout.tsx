@@ -1,7 +1,9 @@
 
+
 import { SidebarNav } from "@/components/SidebarNav";
 import { SidebarInset } from "@/components/ui/sidebar";
 import { AlertProvider } from "@/contexts/AlertContext";
+import { TradeHistoryProvider } from "@/contexts/TradeHistoryContext";
 
 export default function AppLayout({
   children,
@@ -10,12 +12,14 @@ export default function AppLayout({
 }) {
   return (
     <AlertProvider>
-      <div className="flex min-h-screen w-full">
-        <SidebarNav />
-        <SidebarInset className="flex flex-col flex-1 overflow-hidden">
-          {children}
-        </SidebarInset>
-      </div>
+      <TradeHistoryProvider>
+        <div className="flex min-h-screen w-full">
+          <SidebarNav />
+          <SidebarInset className="flex flex-col flex-1 overflow-hidden">
+            {children}
+          </SidebarInset>
+        </div>
+      </TradeHistoryProvider>
     </AlertProvider>
   );
 }
