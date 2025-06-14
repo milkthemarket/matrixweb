@@ -13,7 +13,6 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon } from "lucide-react";
-// Removed: import { Cow } from "phosphor-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
@@ -33,10 +32,10 @@ const CowIcon = (props: React.SVGProps<SVGSVGElement>) => (
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="1.5" // Adjusted strokeWidth for potentially cleaner look
+    strokeWidth="1.5"
     strokeLinecap="round"
     strokeLinejoin="round"
-    {...props} // Spread props to allow className, etc.
+    {...props}
   >
     <path d="M14.838 3.408c.303 -.09.619 -.158 .942 -.192m3.642 .816a13.022 13.022 0 0 1 .578 4.028" />
     <path d="M12.003 21.004c-2.489 0 -4.717 -.94 -6.365 -2.504c-1.71 -1.622 -2.638 -3.87 -2.638 -6.308c0 -2.294 .867 -4.49 2.468 -6.142c1.59 -1.64 3.742 -2.55 6.053 -2.55c2.31 0 4.47 .91 6.052 2.55c1.591 1.642 2.483 3.856 2.483 6.152c0 .482 -.027 .96 -.08 1.426" />
@@ -55,7 +54,7 @@ export function SidebarNav() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <CowIcon className="h-8 w-8 text-primary" /> {/* Used inline SVG component */}
+          <CowIcon className="h-7 w-7 text-primary" />
           <h1 className="text-3xl font-bold tracking-wide text-primary font-headline group-data-[collapsible=icon]:hidden">MILK</h1>
         </Link>
       </SidebarHeader>
@@ -89,3 +88,4 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
+
