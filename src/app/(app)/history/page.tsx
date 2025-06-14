@@ -45,7 +45,7 @@ export default function HistoryPage() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Trade History" />
       <div className="flex-1 p-4 md:p-6 overflow-hidden">
-        <Card className="shadow-xl h-full flex flex-col">
+        <Card className="h-full flex flex-col bg-transparent shadow-none border-none rounded-none backdrop-blur-none">
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <HistoryIcon className="mr-2 h-6 w-6 text-primary"/>
@@ -57,7 +57,7 @@ export default function HistoryPage() {
             {tradeHistory.length > 0 ? (
               <ScrollArea className="h-[calc(100vh-12rem)]"> {/* Adjust height as needed */}
                 <Table>
-                  <TableHeader className="sticky top-0 bg-card z-10">
+                  <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                     <TableRow>
                       <TableHead>Symbol</TableHead>
                       <TableHead>Side</TableHead>
@@ -77,30 +77,30 @@ export default function HistoryPage() {
                   <TableBody>
                     {tradeHistory.map((trade) => (
                       <TableRow key={trade.id}>
-                        <TableCell className="font-medium">{trade.symbol}</TableCell>
+                        <TableCell className="font-medium text-foreground">{trade.symbol}</TableCell>
                         <TableCell>
                           <Badge 
                             variant={trade.side === 'Buy' ? 'default' : trade.side === 'Sell' ? 'destructive' : 'secondary'}
                             className={cn(
-                              trade.side === 'Buy' && 'bg-green-600 text-white hover:bg-green-700',
-                              trade.side === 'Sell' && 'bg-red-600 text-white hover:bg-red-700',
-                              trade.side === 'Short' && 'bg-purple-600 text-white hover:bg-purple-700'
+                              trade.side === 'Buy' && 'bg-green-600 text-primary-foreground hover:bg-green-700', // Ensure button-like text color
+                              trade.side === 'Sell' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+                              trade.side === 'Short' && 'bg-accent text-accent-foreground hover:bg-accent/90'
                             )}
                           >
                             {trade.side}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right">{trade.totalQty}</TableCell>
-                        <TableCell className="text-right">${trade.averagePrice.toFixed(2)}</TableCell>
-                        <TableCell>{trade.orderType}</TableCell>
-                        <TableCell className="text-right">{formatOptionalPrice(trade.limitPrice)}</TableCell>
-                        <TableCell className="text-right">{formatOptionalPrice(trade.stopPrice)}</TableCell>
-                        <TableCell className="text-right">{formatOptionalNumber(trade.trailAmount)}</TableCell>
-                        <TableCell>{trade.TIF}</TableCell>
-                        <TableCell>{trade.tradingHours}</TableCell>
-                        <TableCell>{formatDateTime(trade.placedTime)}</TableCell>
-                        <TableCell>{formatDateTime(trade.filledTime)}</TableCell>
-                        <TableCell className="flex items-center space-x-1">
+                        <TableCell className="text-right text-foreground">{trade.totalQty}</TableCell>
+                        <TableCell className="text-right text-foreground">${trade.averagePrice.toFixed(2)}</TableCell>
+                        <TableCell className="text-foreground">{trade.orderType}</TableCell>
+                        <TableCell className="text-right text-foreground">{formatOptionalPrice(trade.limitPrice)}</TableCell>
+                        <TableCell className="text-right text-foreground">{formatOptionalPrice(trade.stopPrice)}</TableCell>
+                        <TableCell className="text-right text-foreground">{formatOptionalNumber(trade.trailAmount)}</TableCell>
+                        <TableCell className="text-foreground">{trade.TIF}</TableCell>
+                        <TableCell className="text-foreground">{trade.tradingHours}</TableCell>
+                        <TableCell className="text-foreground">{formatDateTime(trade.placedTime)}</TableCell>
+                        <TableCell className="text-foreground">{formatDateTime(trade.filledTime)}</TableCell>
+                        <TableCell className="flex items-center space-x-1 text-foreground">
                           {getStatusIcon(trade.orderStatus)} 
                           <span>{trade.orderStatus}</span>
                         </TableCell>
