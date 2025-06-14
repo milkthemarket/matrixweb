@@ -42,13 +42,19 @@ export interface TradeLogEntry {
 }
 
 export type OrderActionType = 'Buy' | 'Sell' | 'Short';
-export type OrderSystemType = 'Market' | 'Limit';
+export type OrderSystemType = 'Market' | 'Limit' | 'Stop' | 'Stop Limit' | 'Trailing Stop';
+export type QuantityInputMode = 'Shares' | 'DollarAmount' | 'PercentOfBuyingPower';
 
 export interface TradeRequest {
   symbol: string;
-  quantity: number;
+  quantity: number; // Final calculated/entered shares
   action: OrderActionType;
   orderType: OrderSystemType;
   limitPrice?: number;
+  stopPrice?: number;
+  trailingOffset?: number; // Could be points or percentage based on broker
+  // Optional: add rawQuantityValue and quantityMode for logging
+  rawQuantityValue?: string;
+  rawQuantityMode?: QuantityInputMode;
 }
 
