@@ -79,11 +79,12 @@ export default function HistoryPage() {
                       <TableRow key={trade.id}>
                         <TableCell className="font-medium text-foreground">{trade.symbol}</TableCell>
                         <TableCell>
-                          <Badge 
+                          <Badge
                             className={cn(
+                              "border-transparent", // Ensure badges don't have outline variant's border
                               trade.side === 'Buy' && 'bg-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green-foreground))] hover:bg-[hsl(var(--confirm-green))]/90',
                               trade.side === 'Sell' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
-                              trade.side === 'Short' && 'bg-accent text-accent-foreground hover:bg-accent/90'
+                              trade.side === 'Short' && 'bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90'
                             )}
                           >
                             {trade.side}
@@ -100,7 +101,7 @@ export default function HistoryPage() {
                         <TableCell className="text-foreground">{formatDateTime(trade.placedTime)}</TableCell>
                         <TableCell className="text-foreground">{formatDateTime(trade.filledTime)}</TableCell>
                         <TableCell className="flex items-center space-x-1 text-foreground">
-                          {getStatusIcon(trade.orderStatus)} 
+                          {getStatusIcon(trade.orderStatus)}
                           <span>{trade.orderStatus}</span>
                         </TableCell>
                       </TableRow>
