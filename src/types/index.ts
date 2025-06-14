@@ -127,6 +127,7 @@ export interface TradeHistoryEntry {
   filledTime: string;
   orderStatus: 'Filled' | 'Pending' | 'Canceled' | 'Partially Filled';
   averagePrice: number;
+  // tradeModeOrigin?: HistoryTradeMode; // Future field for filtering history table
 }
 
 export interface ColumnConfig<T = Stock> {
@@ -137,5 +138,17 @@ export interface ColumnConfig<T = Stock> {
   align?: 'left' | 'right' | 'center';
   format?: (value: any, stock: T) => string | React.ReactNode;
   description?: string;
+}
+
+export type HistoryTradeMode = 'manual' | 'aiAssist' | 'fullyAI';
+
+export interface TradeStatsData {
+  totalTrades: number;
+  winRate: number;
+  totalPnL: number;
+  avgReturn: number;
+  largestWin: number;
+  largestLoss: number;
+  avgHoldTime: string;
 }
 
