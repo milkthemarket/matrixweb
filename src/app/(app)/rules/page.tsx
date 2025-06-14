@@ -236,7 +236,7 @@ export default function RulesPage() {
                             variant={rule.isActive ? "default" : "secondary"}
                             className={cn(
                               "text-xs h-5",
-                              rule.isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                              rule.isActive ? "bg-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green-foreground))]" : "bg-muted text-muted-foreground"
                             )}
                           >
                             {rule.isActive ? 'Active' : 'Inactive'}
