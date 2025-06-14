@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // Added useState, useEffect
 import type { MiloTradeIdea } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Bot, RefreshCw, Lightbulb, MessageSquare, AlertTriangle } from 'lucide-
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Skeleton } from '@/components/ui/skeleton'; // Added Skeleton import
 
 interface MilosTradeIdeasCardProps {
   ideas: MiloTradeIdea[];
@@ -19,6 +20,25 @@ interface MilosTradeIdeasCardProps {
 
 export function MilosTradeIdeasCard({ ideas, onRefresh, isLoading = false }: MilosTradeIdeasCardProps) {
   const { toast } = useToast();
+  const [clientTimestamps, setClientTimestamps] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    // This effect runs only on the client, after hydration
+    const newTimestamps: Record<string, string> = {};
+    if (ideas && Array.isArray(ideas)) {
+      ideas.forEach(idea => {
+        if (idea && idea.id && idea.timestamp) {
+          try {
+            newTimestamps[idea.id] = formatDistanceToNow(new Date(idea.timestamp), { addSuffix: true });
+          } catch (e) {
+            console.error(`Failed to parse timestamp for idea ${idea.id}:`, idea.timestamp, e);
+            newTimestamps[idea.id] = 'Error'; // Fallback for bad timestamps
+          }
+        }
+      });
+    }
+    setClientTimestamps(newTimestamps);
+  }, [ideas]); // Dependency array ensures this runs when ideas change
 
   const handleRefreshClick = () => {
     onRefresh();
@@ -65,7 +85,7 @@ export function MilosTradeIdeasCard({ ideas, onRefresh, isLoading = false }: Mil
                   <div className="flex items-center justify-between mb-1.5">
                     <h4 className="text-base font-semibold text-primary">{idea.ticker}</h4>
                     <p className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(idea.timestamp), { addSuffix: true })}
+                      {clientTimestamps[idea.id] || <Skeleton className="h-3 w-20 inline-block" />}
                     </p>
                   </div>
                   <div className="mb-2 flex items-start">
@@ -82,7 +102,7 @@ export function MilosTradeIdeasCard({ ideas, onRefresh, isLoading = false }: Mil
           </ScrollArea>
         )}
       </CardContent>
-      {ideas.length > 0 && (
+      {ideas.length > 0 && !isLoading && (
          <CardFooter className="pt-3 pb-4">
             <p className="text-xs text-muted-foreground italic text-center w-full">
                 MILO's suggestions are AI-generated and for informational purposes only. Not financial advice.
