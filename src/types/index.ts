@@ -1,5 +1,4 @@
 
-
 export type CatalystType = 'fire' | 'news';
 
 export interface Stock {
@@ -9,10 +8,24 @@ export interface Stock {
   changePercent: number;
   float: number; // in millions
   volume: number; // in millions
-  newsSnippet?: string;
-  lastUpdated: string;
+  newsSnippet?: string; // Will be removed from main table display
+  lastUpdated: string; // Will be removed from main table display
   catalystType?: CatalystType;
   historicalPrices?: number[]; // For sparkline
+
+  // New fields for customizable columns
+  marketCap?: number; // In basic units, e.g., 2.5e12 for 2.5 Trillion
+  avgVolume?: number; // in millions
+  atr?: number; // Average True Range
+  rsi?: number; // Relative Strength Index
+  vwap?: number; // Volume Weighted Average Price
+  beta?: number;
+  high52?: number; // 52-week high
+  low52?: number; // 52-week low
+  gapPercent?: number; // Today's gap %
+  shortFloat?: number; // Short interest as % of float
+  instOwn?: number; // Institutional Ownership %
+  premarketChange?: number; // Premarket % change
 }
 
 export interface AlertRule {
@@ -80,17 +93,17 @@ export interface OpenPosition {
   symbol: string;
   entryPrice: number;
   shares: number;
-  currentPrice: number; 
+  currentPrice: number;
 }
 
 export interface NewsArticle {
   id: string;
-  symbol: string; 
+  symbol: string;
   headline: string;
-  timestamp: string; 
+  timestamp: string;
   source: string;
   preview: string;
-  link: string; 
+  link: string;
 }
 
 export interface TradeHistoryEntry {
@@ -101,7 +114,7 @@ export interface TradeHistoryEntry {
   orderType: OrderSystemType;
   limitPrice?: number;
   stopPrice?: number;
-  trailAmount?: number; 
+  trailAmount?: number;
   TIF: string; // e.g., Day, GTC
   tradingHours: string; // e.g., Include Extended Hours
   placedTime: string; // ISOString
@@ -110,3 +123,12 @@ export interface TradeHistoryEntry {
   averagePrice: number;
 }
 
+export interface ColumnConfig<T = Stock> {
+  key: keyof T;
+  label: string;
+  defaultVisible: boolean;
+  isToggleable: boolean;
+  align?: 'left' | 'right' | 'center';
+  format?: (value: any, stock: T) => string | React.ReactNode;
+  description?: string; // For tooltips in column selector
+}
