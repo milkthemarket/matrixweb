@@ -65,17 +65,25 @@
 
 @layer base {
   * {
-    @apply border-border; /* Default border color might need review if --border is white */
+    @apply border-border; 
   }
   body {
-    /* bg-background and text-foreground are applied by Tailwind config to body */
-    /* The new gradient is applied via className in RootLayout */
-    /* Ensure these styles from the prompt are applied */
+    @apply text-foreground;
+    /* New background gradient */
+    background: radial-gradient(
+      circle at 50% 50%,
+      #25066b 0%,    /* Darker purple center */
+      #0a041d 30%,   /* Very dark purple */
+      #070312 60%,   /* Even darker */
+      hsl(var(--background)) 90% /* Fades to the theme's background color */
+    );
+    background-color: hsl(var(--background)); /* Fallback */
     background-attachment: fixed;
     background-repeat: no-repeat;
     min-height: 100vh;
+    height: 100%; /* Ensure it covers full height for gradient */
     overflow-x: hidden;
-    @apply text-foreground; /* Ensure default text color is from our theme */
+    /* font-family can be set in RootLayout or here if needed, current is Inter via RootLayout */
   }
 
   /* Custom scrollbar styles */
