@@ -55,15 +55,34 @@ export function SidebarNav() {
   const { open, toggleSidebar, isMobile } = useSidebar();
 
   return (
-    <Sidebar collapsible="icon"> {/* This is from @/components/ui/sidebar */}
+    <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
-        <div className="flex items-center justify-start w-full"> {/* Changed from justify-between */}
-          <Link href="/dashboard" className="flex items-center gap-2 min-w-0 drop-shadow-lg">
+        <div className={cn(
+          "flex w-full",
+          "group-data-[state=expanded]:items-center group-data-[state=expanded]:justify-between",
+          "group-data-[state=collapsed]:flex-col group-data-[state=collapsed]:items-center group-data-[state=collapsed]:gap-2"
+        )}>
+          <Link href="/dashboard" className="flex items-center gap-2 min-w-0 drop-shadow-lg group-data-[state=collapsed]:justify-center">
             <CowIcon className="h-6 w-6 text-primary flex-shrink-0" />
             {open && (
               <h1 className="text-3xl font-bold tracking-wide text-foreground font-headline truncate">MILK</h1>
             )}
           </Link>
+          {!isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className={cn(
+                "h-7 w-7 text-muted-foreground hover:text-primary shrink-0",
+                "hover:shadow-[0_0_4px_hsla(var(--primary),0.5)] focus-visible:shadow-[0_0_4px_hsla(var(--primary),0.5)] focus-visible:outline-none transition-shadow duration-150"
+              )}
+              aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
+              tabIndex={0}
+            >
+              {open ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+            </Button>
+          )}
         </div>
       </SidebarHeader>
 
@@ -100,21 +119,6 @@ export function SidebarNav() {
         </SidebarFooter>
       )}
 
-      {!isMobile && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleSidebar}
-          className={cn(
-            "h-7 w-7 text-muted-foreground hover:text-primary flex-shrink-0", // Updated hover color
-            "absolute z-20",
-            "top-4 right-4" // Updated position to top-right
-          )}
-          aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
-        >
-          {open ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
-        </Button>
-      )}
     </Sidebar>
   );
 }
