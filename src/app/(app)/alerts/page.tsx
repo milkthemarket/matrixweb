@@ -3,12 +3,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import type { TradeAlert } from "@/types";
 import { formatDistanceToNow } from 'date-fns';
-import { BellRing, Info } from 'lucide-react';
+import { BellRing, Info, MailOpen, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const mockAlerts: TradeAlert[] = [
@@ -21,6 +24,10 @@ const mockAlerts: TradeAlert[] = [
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<TradeAlert[]>(mockAlerts);
   const [currentTime, setCurrentTime] = useState(new Date());
+
+  const [receiveInAppAlerts, setReceiveInAppAlerts] = useState(true);
+  const [sendSmsAlerts, setSendSmsAlerts] = useState(false);
+  const [sendEmailAlerts, setSendEmailAlerts] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000); // Update time every minute for relative timestamps
@@ -45,9 +52,75 @@ export default function AlertsPage() {
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <PageHeader title="Trade Alerts" />
-      <div className="flex-1 p-4 md:p-6 overflow-auto">
-        <Card className="h-full flex flex-col bg-transparent shadow-none rounded-none backdrop-blur-none border-none">
+      <PageHeader title="Trade Alerts & Settings" />
+      <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
+        
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-headline flex items-center">
+              <MailOpen className="mr-2 h-5 w-5 text-primary" />
+              Alert Delivery Settings
+            </CardTitle>
+            <CardDescription>Choose how you want to receive your trade alerts.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-start space-x-3">
+              <Checkbox 
+                id="inAppAlerts" 
+                checked={receiveInAppAlerts} 
+                onCheckedChange={(checked) => setReceiveInAppAlerts(Boolean(checked))} 
+              />
+              <div className="grid gap-1.5 leading-none">
+                <Label htmlFor="inAppAlerts" className="font-medium text-foreground cursor-pointer">
+                  Receive alerts within MILK
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Notifications will appear in the Alerts Panel below.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <Checkbox 
+                id="smsAlerts" 
+                checked={sendSmsAlerts} 
+                onCheckedChange={(checked) => setSendSmsAlerts(Boolean(checked))} 
+              />
+              <div className="grid gap-1.5 leading-none">
+                <Label htmlFor="smsAlerts" className="font-medium text-foreground cursor-pointer">
+                  Send alerts via text message
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Requires a verified phone number. Standard messaging rates may apply.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-start space-x-3">
+              <Checkbox 
+                id="emailAlerts" 
+                checked={sendEmailAlerts} 
+                onCheckedChange={(checked) => setSendEmailAlerts(Boolean(checked))} 
+              />
+              <div className="grid gap-1.5 leading-none">
+                <Label htmlFor="emailAlerts" className="font-medium text-foreground cursor-pointer">
+                  Send alerts via email
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Requires a verified email address. Alerts sent to your primary email.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button variant="outline" className="text-accent border-accent hover:bg-accent/10 hover:text-accent">
+              <Settings className="mr-2 h-4 w-4" />
+              Manage Alert Methods
+            </Button>
+          </CardFooter>
+        </Card>
+
+        <Card className="flex-1 flex flex-col bg-transparent shadow-none rounded-none backdrop-blur-none border-none min-h-[400px]"> {/* Ensure alerts panel has enough height */}
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <BellRing className="mr-2 h-6 w-6 text-primary" />
@@ -56,7 +129,7 @@ export default function AlertsPage() {
             <CardDescription>Real-time notifications based on your rules and market events.</CardDescription>
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden">
-            <ScrollArea className="h-[calc(100vh-15rem)] pr-4"> 
+            <ScrollArea className="h-[calc(100%-0rem)] pr-4"> {/* Adjusted height to be relative */}
               {alerts.length > 0 ? (
                 <ul className="space-y-4">
                   {alerts.map((alert) => (
@@ -99,3 +172,4 @@ export default function AlertsPage() {
     </main>
   );
 }
+
