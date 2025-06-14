@@ -227,7 +227,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
 
   return (
-    <Card className="shadow-none flex flex-col"> {/* Card will inherit new global style */}
+    <Card className="shadow-none flex flex-col">
       <CardHeader className="relative">
         <CardTitle className="text-xl font-headline text-foreground">
           {getCardTitle()}
@@ -242,7 +242,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
         )}
       </CardHeader>
       <CardContent className="space-y-4 py-4 overflow-y-auto">
-        <div className="grid grid-cols-3 w-full rounded-md overflow-hidden border border-white/5 bg-black/15"> {/* Updated to new panel style */}
+        <div className="grid grid-cols-3 w-full rounded-md overflow-hidden border border-white/5 bg-black/15">
           <button
             onClick={() => setTradeMode('manual')}
             className={cn(
@@ -416,7 +416,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
         {tradeMode === 'auto' && selectedStock && (
           <div className="space-y-4">
-            <Card className="bg-transparent shadow-none border-none"> {/* Inner card doesn't need the new global style, it's content within the main OrderCard */}
+            <Card className="bg-transparent shadow-none border-none">
               <CardHeader className="p-0 pb-3">
                 <CardTitle className="text-lg font-semibold text-foreground">Auto Mode Active</CardTitle>
                 <CardDescription>Trades will be placed automatically based on your selected rules for {selectedStock.symbol}.</CardDescription>
@@ -428,20 +428,20 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
                   </h4>
                   <ul className="space-y-2 text-sm">
                     {dummyAutoRules.map(rule => (
-                      <li key={rule.id} className="p-2.5 rounded-md bg-black/10 border border-white/5"> {/* Slightly darker inner rule item */}
+                      <li key={rule.id} className="p-2.5 rounded-md bg-black/10 border border-white/5">
                         <p className="font-medium text-foreground">{rule.name}</p>
                         <p className="text-xs text-muted-foreground">{rule.description}</p>
                       </li>
                     ))}
                   </ul>
                 </div>
-                 <div className="space-y-1.5 !mt-4"> {/* Added !mt-4 for spacing */}
+                 <div className="space-y-1.5 !mt-4">
                     <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-3 shadow-sm bg-black/10">
                         <div className="space-y-0.5">
                             <Label htmlFor="autoTradingSwitch" className="text-base font-medium text-foreground cursor-pointer">
                             Auto-Trading Enabled
                             </Label>
-                            <p className="text-xs text-muted-foreground">
+                             <p className="text-xs text-muted-foreground">
                             Allow automated execution for {selectedStock.symbol}.
                             </p>
                         </div>
@@ -454,7 +454,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
                 </div>
               </CardContent>
             </Card>
-             <Link href="/rules" passHref legacyBehavior>
+             <Link href="/rules">
                 <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent-foreground">
                     <Cog className="mr-2 h-4 w-4" /> Manage Rules & Strategies
                 </Button>
@@ -491,4 +491,3 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     </Card>
   );
 }
-
