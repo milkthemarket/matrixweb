@@ -21,7 +21,7 @@ import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
 import { useAlertContext, type RefreshInterval } from '@/contexts/AlertContext';
 import { useToast } from "@/hooks/use-toast";
-import { OrderCard } from '@/components/OrderCard'; // New Import
+import { OrderCard } from '@/components/OrderCard'; 
 
 // Use a truly static, hardcoded ISO string for the initial mock timestamp
 const MOCK_INITIAL_TIMESTAMP = '2024-07-01T10:00:00.000Z';
@@ -67,7 +67,6 @@ export default function DashboardPage() {
   const { toast } = useToast();
 
   const handleRefreshData = useCallback(() => {
-    console.log('Refreshing data...');
     setStocks(prevStocks =>
       prevStocks.map(stock => {
         const currentPrice = stock.price;
@@ -110,7 +109,7 @@ export default function DashboardPage() {
     );
   }, [stocks, searchTerm, minChangePercent, maxFloat, minVolume]);
 
-  const handleSelectStockForOrder = (stock: Stock, action: OrderActionType) => {
+  const handleSelectStockForOrder = (stock: Stock, action: OrderActionType | null) => {
     setSelectedStockForOrderCard(stock);
     setOrderCardActionType(action);
   };
@@ -126,8 +125,6 @@ export default function DashboardPage() {
       title: "Trade Processing",
       description: `Trade for ${tradeDetails.symbol} (${tradeDetails.action}, ${tradeDetails.quantity} shares, ${tradeDetails.orderType}) submitted.`,
     });
-    // Optionally clear selection after successful submission
-    // handleClearOrderCard(); 
   };
 
   const handleExport = () => {
@@ -277,7 +274,10 @@ export default function DashboardPage() {
                           <TableCell className="font-medium">
                             <Popover>
                               <PopoverTrigger asChild>
-                                <span className="cursor-pointer hover:text-primary flex items-center">
+                                <span 
+                                  className="cursor-pointer hover:text-primary flex items-center"
+                                  onClick={() => handleSelectStockForOrder(stock, null)}
+                                >
                                   {stock.symbol}
                                   {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-orange-400" title="Hot Catalyst" />}
                                   {stock.catalystType === 'news' && <Megaphone className="ml-1 h-4 w-4 text-blue-400" title="News Catalyst"/>}

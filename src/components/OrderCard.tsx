@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, XCircle, Info } from 'lucide-react';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface OrderCardProps {
@@ -23,19 +23,15 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const [quantity, setQuantity] = useState('');
   const [orderType, setOrderType] = useState<OrderSystemType>('Market');
   const [limitPrice, setLimitPrice] = useState('');
-  const [currentAction, setCurrentAction] = useState<OrderActionType | null>(initialActionType);
+  const [currentAction, setCurrentAction] = useState<OrderActionType | null>(null);
 
   useEffect(() => {
+    // Set the action type based on the initial prop when a stock is selected or changes.
+    // Don't reset other form fields (quantity, orderType, limitPrice) to allow persistence.
     if (selectedStock) {
-      setQuantity('');
-      setOrderType('Market');
-      setLimitPrice('');
       setCurrentAction(initialActionType);
     } else {
-      // Reset form when no stock is selected or selection is cleared
-      setQuantity('');
-      setOrderType('Market');
-      setLimitPrice('');
+      // When no stock is selected (cleared), also clear the current action.
       setCurrentAction(null);
     }
   }, [selectedStock, initialActionType]);
@@ -46,11 +42,12 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   };
   
   const handleSubmit = () => {
-    if (!selectedStock || !currentAction) {
-      alert("No stock selected or action defined.");
+    if (!selectedStock || !currentAction || !quantity) {
+      // This check is mostly for button's disabled state, but good to have
+      alert("Stock, action, and quantity are required.");
       return;
     }
-    if (!quantity || isNaN(parseInt(quantity)) || parseInt(quantity) <= 0) {
+    if (isNaN(parseInt(quantity)) || parseInt(quantity) <= 0) {
       alert("Please enter a valid quantity.");
       return;
     }
@@ -67,42 +64,34 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       ...(orderType === 'Limit' && { limitPrice: parseFloat(limitPrice) }),
     };
     onSubmit(tradeDetails);
-    // Optionally clear selection after submit, or let parent handle it
-    // onClear(); 
   };
-
-  if (!selectedStock) {
-    return (
-      <Card className="shadow-xl h-full flex flex-col">
-        <CardHeader>
-          <CardTitle className="text-xl font-headline">Trade Execution</CardTitle>
-          <CardDescription>Select a stock from the screener to place an order.</CardDescription>
-        </CardHeader>
-        <CardContent className="flex-1 flex items-center justify-center">
-          <div className="text-center text-muted-foreground">
-            <Info className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>No stock selected</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   const ActionIcon = currentAction === 'Buy' ? TrendingUp : TrendingDown;
 
   return (
     <Card className="shadow-xl h-full flex flex-col">
       <CardHeader className="relative">
-        <CardTitle className="text-xl font-headline flex items-center">
-          {currentAction && <ActionIcon className={cn("mr-2 h-5 w-5", currentAction === 'Buy' ? 'text-green-500' : 'text-red-500')} />}
-          {currentAction ? `${currentAction} ${selectedStock.symbol}` : selectedStock.symbol}
-        </CardTitle>
-        <CardDescription>
-          Current Price: ${selectedStock.price.toFixed(2)}
+        {selectedStock ? (
+          <>
+            <CardTitle className="text-xl font-headline flex items-center">
+              {currentAction && <ActionIcon className={cn("mr-2 h-5 w-5", currentAction === 'Buy' ? 'text-green-500' : 'text-red-500')} />}
+              {currentAction ? `${currentAction} ${selectedStock.symbol}` : selectedStock.symbol}
+            </CardTitle>
+            <CardDescription>
+              Current Price: ${selectedStock.price.toFixed(2)}
+            </CardDescription>
+          </>
+        ) : (
+          <>
+            <CardTitle className="text-xl font-headline">Trade A Stock</CardTitle>
+            <CardDescription>Select a ticker from the screener table to begin</CardDescription>
+          </>
+        )}
+        {selectedStock && (
           <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={onClear} title="Clear Selection">
             <XCircle className="h-5 w-5 text-muted-foreground hover:text-foreground" />
           </Button>
-        </CardDescription>
+        )}
       </CardHeader>
       <CardContent className="space-y-4 flex-1 overflow-y-auto py-4">
         <div className="flex space-x-2 mb-4">
@@ -158,34 +147,37 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
           </div>
         )}
         
-        <Separator className="my-6" />
-
-        <div className="space-y-2 text-sm">
-            <h4 className="font-medium text-muted-foreground">Stock Info</h4>
-            <div className="flex justify-between"><span>Float:</span> <span>{selectedStock.float}M</span></div>
-            <div className="flex justify-between"><span>Volume:</span> <span>{selectedStock.volume.toFixed(1)}M</span></div>
-            {selectedStock.newsSnippet && (
-                 <div className="pt-1">
-                    <p className="text-muted-foreground">Catalyst:</p> 
-                    <p className="text-xs leading-tight" title={selectedStock.newsSnippet}>{selectedStock.newsSnippet.substring(0,100)}{selectedStock.newsSnippet.length > 100 ? '...' : ''}</p>
-                </div>
-            )}
-        </div>
+        {selectedStock && (
+          <>
+            <Separator className="my-6" />
+            <div className="space-y-2 text-sm">
+                <h4 className="font-medium text-muted-foreground">Stock Info</h4>
+                <div className="flex justify-between"><span>Float:</span> <span>{selectedStock.float}M</span></div>
+                <div className="flex justify-between"><span>Volume:</span> <span>{selectedStock.volume.toFixed(1)}M</span></div>
+                {selectedStock.newsSnippet && (
+                    <div className="pt-1">
+                        <p className="text-muted-foreground">Catalyst:</p> 
+                        <p className="text-xs leading-tight" title={selectedStock.newsSnippet}>{selectedStock.newsSnippet.substring(0,100)}{selectedStock.newsSnippet.length > 100 ? '...' : ''}</p>
+                    </div>
+                )}
+            </div>
+          </>
+        )}
 
       </CardContent>
       <CardFooter>
         <Button 
           type="button" 
           onClick={handleSubmit}
-          disabled={!currentAction || !quantity}
+          disabled={!selectedStock || !currentAction || !quantity || parseInt(quantity) <= 0}
           className={cn("w-full", 
-            currentAction === 'Buy' && 'bg-green-600 hover:bg-green-700 text-white',
-            currentAction === 'Short' && 'bg-red-600 hover:bg-red-700 text-white',
-            !currentAction && 'bg-primary'
+            currentAction === 'Buy' && selectedStock && 'bg-green-600 hover:bg-green-700 text-white',
+            currentAction === 'Short' && selectedStock && 'bg-red-600 hover:bg-red-700 text-white',
+            (!selectedStock || !currentAction) && 'bg-primary/70 hover:bg-primary/70 cursor-not-allowed'
           )}
         >
-          {currentAction ? <PackageOpen className="mr-2 h-4 w-4" /> : null}
-          {currentAction ? `Submit ${currentAction} Order` : 'Select Action'}
+          {currentAction && selectedStock ? <PackageOpen className="mr-2 h-4 w-4" /> : null}
+          {!selectedStock ? 'Select Stock to Trade' : (currentAction ? `Submit ${currentAction} Order` : 'Select Action')}
         </Button>
       </CardFooter>
     </Card>
