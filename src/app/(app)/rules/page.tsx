@@ -80,7 +80,7 @@ export default function RulesPage() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Alert Rules Engine" />
       <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
-        <Card className="bg-transparent shadow-none border-none rounded-none backdrop-blur-none">
+        <Card>
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <ListFilter className="mr-2 h-6 w-6 text-primary"/>
@@ -138,7 +138,7 @@ export default function RulesPage() {
                     control={form.control}
                     name="isActive"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-card/[.05] backdrop-blur-md"> 
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm bg-transparent backdrop-blur-md border-border/[.1]"> 
                             <div className="space-y-0.5">
                                 <FormLabel>Activate Rule</FormLabel>
                                 <FormDescription>
@@ -168,7 +168,7 @@ export default function RulesPage() {
 
         <Separator />
 
-        <Card className="bg-transparent shadow-none border-none rounded-none backdrop-blur-none">
+        <Card>
           <CardHeader>
             <CardTitle className="text-xl font-headline">Active Rules</CardTitle>
             <CardDescription>Manage your existing alert rules.</CardDescription>
@@ -177,7 +177,14 @@ export default function RulesPage() {
             {rules.length > 0 ? (
               <ul className="space-y-4">
                 {rules.map((rule) => (
-                  <li key={rule.id} className="flex items-center justify-between p-4 rounded-xl shadow-md bg-card/[.05] backdrop-blur-md hover:bg-card/[.1] transition-colors duration-200">
+                  <li 
+                    key={rule.id} 
+                    className={cn(
+                      "flex items-center justify-between p-4 rounded-xl shadow-none",
+                      "bg-transparent backdrop-blur-md border border-border/[.1]",
+                      "hover:bg-white/5 transition-colors duration-200"
+                    )}
+                  >
                     <div>
                       <p className="font-semibold text-foreground">{rule.name} 
                         <Badge 

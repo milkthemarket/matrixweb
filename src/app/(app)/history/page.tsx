@@ -45,7 +45,7 @@ export default function HistoryPage() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Trade History" />
       <div className="flex-1 p-4 md:p-6 overflow-hidden">
-        <Card className="h-full flex flex-col bg-transparent shadow-none rounded-none backdrop-blur-none">
+        <Card className="h-full flex flex-col">
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <HistoryIcon className="mr-2 h-6 w-6 text-primary"/>

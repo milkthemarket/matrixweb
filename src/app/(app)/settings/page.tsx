@@ -8,7 +8,7 @@ export default function SettingsPage() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Settings" />
       <div className="flex-1 p-4 md:p-6 overflow-auto">
-        <Card className="bg-transparent shadow-none rounded-none backdrop-blur-none border-none">
+        <Card>
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <SettingsIcon className="mr-2 h-6 w-6 text-primary"/>
@@ -25,7 +25,7 @@ export default function SettingsPage() {
             
             {/* Example of a potential settings section, styled as a frosted glass card if it were to be implemented */}
             {/*
-            <Card className="rounded-xl shadow-md bg-card/[.05] backdrop-blur-md">
+            <Card>
               <CardHeader>
                 <CardTitle>API Keys</CardTitle>
                 <CardDescription>Manage your Interactive Brokers API connection.</CardDescription>

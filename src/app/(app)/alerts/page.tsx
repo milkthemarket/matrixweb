@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import type { TradeAlert } from "@/types";
 import { formatDistanceToNow } from 'date-fns';
 import { BellRing, Info } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const mockAlerts: TradeAlert[] = [
   { id: '1', symbol: 'TSLA', message: 'TSLA broke above $185.00 resistance.', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), source: 'Rule Engine' },
@@ -46,7 +47,7 @@ export default function AlertsPage() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Trade Alerts" />
       <div className="flex-1 p-4 md:p-6 overflow-auto">
-        <Card className="h-full flex flex-col bg-transparent shadow-none border-none rounded-none backdrop-blur-none">
+        <Card className="h-full flex flex-col">
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <BellRing className="mr-2 h-6 w-6 text-primary" />
@@ -59,7 +60,14 @@ export default function AlertsPage() {
               {alerts.length > 0 ? (
                 <ul className="space-y-4">
                   {alerts.map((alert) => (
-                    <li key={alert.id} className="p-4 rounded-xl shadow-md bg-card/[.05] backdrop-blur-md hover:bg-card/[.1] transition-colors duration-200">
+                    <li 
+                      key={alert.id} 
+                      className={cn(
+                        "p-4 rounded-xl shadow-none",
+                        "bg-transparent backdrop-blur-md border border-border/[.1]",
+                        "hover:bg-white/5 transition-colors duration-200"
+                      )}
+                    >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center space-x-3">
                            <Info className="h-5 w-5 text-accent" />
