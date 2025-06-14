@@ -142,7 +142,6 @@ export default function DashboardPage() {
   const handleClearOrderCard = () => {
     setSelectedStockForOrderCard(null);
     setOrderCardActionType(null);
-    // setSelectedStockForNews(null); // Optionally clear news
   };
 
   const handleTradeSubmit = (tradeDetails: TradeRequest) => {
@@ -162,12 +161,12 @@ export default function DashboardPage() {
         limitPrice: tradeDetails.limitPrice,
         stopPrice: tradeDetails.stopPrice,
         trailAmount: tradeDetails.trailingOffset,
-        TIF: "Day", // Mocked
-        tradingHours: "Include Extended Hours", // Mocked
+        TIF: "Day", 
+        tradingHours: "Include Extended Hours", 
         placedTime: new Date().toISOString(),
-        filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(), // Mocked: 1-6 seconds later
-        orderStatus: "Filled", // Mocked
-        averagePrice: (tradeDetails.orderType === "Limit" && tradeDetails.limitPrice) ? tradeDetails.limitPrice : selectedStockForOrderCard.price, // Simplified mock
+        filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(), 
+        orderStatus: "Filled", 
+        averagePrice: (tradeDetails.orderType === "Limit" && tradeDetails.limitPrice) ? tradeDetails.limitPrice : selectedStockForOrderCard.price, 
       };
       addTradeToHistory(newHistoryEntry);
     }
@@ -182,10 +181,6 @@ export default function DashboardPage() {
         };
         setOpenPositions(prev => [newPosition, ...prev]);
     }
-    // Do not clear the order card fully, only the action related parts if necessary,
-    // Or let the OrderCard handle its internal state persistence as per previous update.
-    // For now, we'll rely on the OrderCard's persistence.
-    // handleClearOrderCard(); // Re-evaluate if this is needed based on desired UX after trade
   };
 
   const handleClosePosition = (positionId: string) => {
@@ -214,9 +209,9 @@ export default function DashboardPage() {
   };
 
   const getRowHighlightClass = (stock: Stock): string => {
-    if (stock.changePercent >= 10) return 'border-l-4 border-green-400 bg-green-500/5';
-    if (stock.changePercent <= -8) return 'border-l-4 border-red-400 bg-red-500/5';
-    if (stock.float <= 500 && stock.volume >= 50) return 'border-l-4 border-blue-400 bg-blue-500/5';
+    if (stock.changePercent >= 10) return 'border-l-4 border-[hsl(var(--chart-2))] bg-[hsla(var(--chart-2),0.05)]'; // Cyber Cyan
+    if (stock.changePercent <= -8) return 'border-l-4 border-[hsl(var(--chart-5))] bg-[hsla(var(--chart-5),0.05)]'; // Error Red
+    if (stock.float <= 500 && stock.volume >= 50) return 'border-l-4 border-accent bg-accent/5'; // Electric Violet
     return '';
   };
 
@@ -227,14 +222,14 @@ export default function DashboardPage() {
       <div className="flex flex-1 p-4 md:p-6 space-x-0 md:space-x-6 overflow-hidden">
 
         <div className="flex-1 flex flex-col overflow-hidden space-y-6">
-          <Card className="shadow-xl flex-1 flex flex-col overflow-hidden"> 
+          <Card className="shadow-md flex-1 flex flex-col overflow-hidden"> 
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
               <div>
                 <CardTitle className="text-2xl font-headline">Real-Time Stock Screener</CardTitle>
                 <CardDescription>Filter and find top market movers.</CardDescription>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                {autoRefreshEnabled && <Dot className="h-6 w-6 text-green-500 animate-pulse" />}
+                {autoRefreshEnabled && <Dot className="h-6 w-6 text-[#00FF9C] animate-pulse" />} {/* Confirm Green */}
                 {lastRefreshed && <span className="text-sm text-muted-foreground">Last refreshed: {format(lastRefreshed, "HH:mm:ss")}</span>}
                 <Switch
                   id="auto-refresh-toggle"
@@ -242,7 +237,7 @@ export default function DashboardPage() {
                   onCheckedChange={setAutoRefreshEnabled}
                   aria-label="Toggle auto refresh"
                 />
-                <Label htmlFor="auto-refresh-toggle" className="text-sm">Auto-Refresh</Label>
+                <Label htmlFor="auto-refresh-toggle" className="text-sm text-foreground">Auto-Refresh</Label>
                 <Select
                   value={String(refreshInterval)}
                   onValueChange={(val) => setRefreshInterval(Number(val) as RefreshInterval)}
@@ -257,11 +252,11 @@ export default function DashboardPage() {
                     <SelectItem value="60000">1m</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant="outline" size="sm" onClick={handleRefreshData} className="text-accent hover:text-accent-foreground border-accent">
+                <Button variant="outline" size="sm" onClick={handleRefreshData} className="text-primary hover:text-primary-foreground border-primary hover:bg-primary"> {/* Primary is Cyber Cyan */}
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Refresh
                 </Button>
-                <Button variant="outline" size="sm" onClick={handleExport} className="text-accent hover:text-accent-foreground border-accent">
+                <Button variant="outline" size="sm" onClick={handleExport} className="text-accent hover:text-accent-foreground border-accent hover:bg-accent"> {/* Accent is Electric Violet */}
                   <UploadCloud className="mr-2 h-4 w-4" />
                   Export CSV
                 </Button>
@@ -270,7 +265,7 @@ export default function DashboardPage() {
             <CardContent className="flex-1 flex flex-col overflow-hidden space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="search-symbol">Symbol Search</Label>
+                  <Label htmlFor="search-symbol" className="text-sm font-medium text-foreground">Symbol Search</Label>
                   <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
@@ -284,48 +279,24 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="min-change">Min. % Change ({minChangePercent}%)</Label>
-                  <Slider
-                    id="min-change"
-                    min={-10}
-                    max={20}
-                    step={0.5}
-                    defaultValue={[0]}
-                    value={[minChangePercent]}
-                    onValueChange={(value) => setMinChangePercent(value[0])}
-                  />
+                  <Label htmlFor="min-change" className="text-sm font-medium text-foreground">Min. % Change ({minChangePercent}%)</Label>
+                  <Slider id="min-change" min={-10} max={20} step={0.5} defaultValue={[0]} value={[minChangePercent]} onValueChange={(value) => setMinChangePercent(value[0])} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="max-float">Max. Float ({maxFloat === 20000 ? 'Any': `${maxFloat}M`})</Label>
-                  <Slider
-                    id="max-float"
-                    min={1}
-                    max={20000}
-                    step={100}
-                    defaultValue={[20000]}
-                    value={[maxFloat]}
-                    onValueChange={(value) => setMaxFloat(value[0])}
-                  />
+                  <Label htmlFor="max-float" className="text-sm font-medium text-foreground">Max. Float ({maxFloat === 20000 ? 'Any': `${maxFloat}M`})</Label>
+                  <Slider id="max-float" min={1} max={20000} step={100} defaultValue={[20000]} value={[maxFloat]} onValueChange={(value) => setMaxFloat(value[0])} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="min-volume">Min. Volume ({minVolume === 0 ? 'Any': `${minVolume}M`})</Label>
-                  <Slider
-                    id="min-volume"
-                    min={0}
-                    max={200}
-                    step={1}
-                    defaultValue={[0]}
-                    value={[minVolume]}
-                    onValueChange={(value) => setMinVolume(value[0])}
-                  />
+                  <Label htmlFor="min-volume" className="text-sm font-medium text-foreground">Min. Volume ({minVolume === 0 ? 'Any': `${minVolume}M`})</Label>
+                  <Slider id="min-volume" min={0} max={200} step={1} defaultValue={[0]} value={[minVolume]} onValueChange={(value) => setMinVolume(value[0])} />
                 </div>
               </div>
 
               <RulePills minChangePercent={minChangePercent} maxFloat={maxFloat} minVolume={minVolume} />
 
-              <div className="rounded-md border overflow-auto flex-1">
+              <div className="rounded-md border border-border/[.1] overflow-auto flex-1"> {/* Subtle border */}
                 <Table>
-                  <TableHeader className="sticky top-0 bg-card z-10">
+                  <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10"> {/* Frosted header */}
                     <TableRow>
                       <TableHead>Symbol</TableHead>
                       <TableHead className="text-right">Price</TableHead>
@@ -344,34 +315,34 @@ export default function DashboardPage() {
                             key={stock.id}
                             className={cn(
                                 getRowHighlightClass(stock),
-                                "hover:bg-muted/20",
-                                selectedStockForOrderCard?.id === stock.id && "bg-primary/10"
+                                "hover:bg-muted/5", // Subtle hover
+                                selectedStockForOrderCard?.id === stock.id && "bg-primary/10" // Cyber Cyan tint
                             )}
                         >
-                          <TableCell className="font-medium">
+                          <TableCell className="font-medium text-foreground">
                             <Popover>
                               <PopoverTrigger asChild>
                                 <span
-                                  className="cursor-pointer hover:text-primary flex items-center"
+                                  className="cursor-pointer hover:text-primary flex items-center" // Primary is Cyber Cyan
                                   onClick={() => handleSelectStockForOrder(stock, null)}
                                 >
                                   {stock.symbol}
-                                  {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-orange-400" title="Hot Catalyst" />}
-                                  {stock.catalystType === 'news' && <Megaphone className="ml-1 h-4 w-4 text-blue-400" title="News Catalyst"/>}
+                                  {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-destructive" title="Hot Catalyst" />} {/* Destructive is Neon Orange */}
+                                  {stock.catalystType === 'news' && <Megaphone className="ml-1 h-4 w-4 text-primary" title="News Catalyst"/>} {/* Primary is Cyber Cyan */}
                                 </span>
                               </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0 border-popover shadow-xl" side="right" align="start">
+                              <PopoverContent className="w-auto p-0 border-popover/[.1] shadow-md" side="right" align="start"> {/* Quantum Black for Popover */}
                                 <ChartPreview stock={stock} />
                               </PopoverContent>
                             </Popover>
                           </TableCell>
-                          <TableCell className="text-right">${stock.price.toFixed(2)}</TableCell>
-                          <TableCell className={cn("text-right", stock.changePercent >= 0 ? "text-green-400" : "text-red-400")}>
+                          <TableCell className="text-right text-foreground">${stock.price.toFixed(2)}</TableCell>
+                          <TableCell className={cn("text-right", stock.changePercent >= 0 ? "text-[#00FF9C]" : "text-destructive")}> {/* Confirm Green or Error Red */}
                             {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(1)}%
                           </TableCell>
-                          <TableCell className="text-right">{stock.float.toLocaleString()}</TableCell>
-                          <TableCell className="text-right">{stock.volume.toLocaleString()}</TableCell>
-                          <TableCell className="max-w-xs truncate" title={stock.newsSnippet || 'N/A'}>{stock.newsSnippet || 'N/A'}</TableCell>
+                          <TableCell className="text-right text-foreground">{stock.float.toLocaleString()}</TableCell>
+                          <TableCell className="text-right text-foreground">{stock.volume.toLocaleString()}</TableCell>
+                          <TableCell className="max-w-xs truncate text-foreground" title={stock.newsSnippet || 'N/A'}>{stock.newsSnippet || 'N/A'}</TableCell>
                           <TableCell className="text-right text-xs text-muted-foreground">
                             <ClientRenderedTime isoTimestamp={stock.lastUpdated} />
                           </TableCell>
@@ -379,7 +350,7 @@ export default function DashboardPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-8 px-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
+                              className="h-8 px-2 border-[#00FF9C] text-[#00FF9C] hover:bg-[#00FF9C] hover:text-black" // Confirm Green
                               onClick={() => handleSelectStockForOrder(stock, 'Buy')}
                             >
                               <TrendingUp className="mr-1 h-4 w-4" /> Buy
@@ -387,7 +358,7 @@ export default function DashboardPage() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-8 px-2 border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white"
+                              className="h-8 px-2 border-accent text-accent hover:bg-accent hover:text-accent-foreground" // Accent is Electric Violet
                               onClick={() => handleSelectStockForOrder(stock, 'Short')}
                             >
                               <TrendingDown className="mr-1 h-4 w-4" /> Short
@@ -397,7 +368,7 @@ export default function DashboardPage() {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={8} className="text-center h-24">
+                        <TableCell colSpan={8} className="text-center h-24 text-muted-foreground">
                           No stocks match your criteria. Try adjusting the filters.
                         </TableCell>
                       </TableRow>

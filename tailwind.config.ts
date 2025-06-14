@@ -18,11 +18,11 @@ export default {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
-          DEFAULT: 'hsl(var(--card))',
+          DEFAULT: 'hsl(var(--card))', // Should be hsl(var(--panel-base))
           foreground: 'hsl(var(--card-foreground))',
         },
         popover: {
-          DEFAULT: 'hsl(var(--popover))',
+          DEFAULT: 'hsl(var(--popover))', // Should be hsl(var(--panel-base))
           foreground: 'hsl(var(--popover-foreground))',
         },
         primary: {
@@ -45,7 +45,7 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
-        border: 'hsl(var(--border))',
+        border: 'hsl(var(--border))', // Should be hsl(var(--panel-base))
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         chart: {
@@ -56,22 +56,22 @@ export default {
           '5': 'hsl(var(--chart-5))',
         },
         sidebar: {
-          DEFAULT: 'hsl(var(--sidebar-background))',
+          DEFAULT: 'hsl(var(--sidebar-background))', // Should be hsl(var(--panel-base))
           foreground: 'hsl(var(--sidebar-foreground))',
           primary: 'hsl(var(--sidebar-primary))',
           'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
           accent: 'hsl(var(--sidebar-accent))',
           'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-          border: 'hsl(var(--sidebar-border))',
+          border: 'hsl(var(--sidebar-border))', // Should be hsl(var(--panel-base))
           ring: 'hsl(var(--sidebar-ring))',
         },
         panel: 'hsl(var(--panel-base))', 
         header: {
-          DEFAULT: 'hsl(var(--header-background))',
+          DEFAULT: 'hsl(var(--header-background))', // Should be hsl(var(--panel-base))
           foreground: 'hsl(var(--foreground))',
         },
         dialog: {
-          DEFAULT: 'hsl(var(--dialog-background))',
+          DEFAULT: 'hsl(var(--dialog-background))', // Should be hsl(var(--panel-base))
           foreground: 'hsl(var(--foreground))',
         },
       },

@@ -19,7 +19,7 @@ interface OrderCardProps {
   onClear: () => void;
 }
 
-const MOCK_BUYING_POWER = 10000; // Example buying power
+const MOCK_BUYING_POWER = 10000; 
 
 export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear }: OrderCardProps) {
   const [quantityValue, setQuantityValue] = useState('');
@@ -30,21 +30,13 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const [trailingOffset, setTrailingOffset] = useState('');
   const [currentAction, setCurrentAction] = useState<OrderActionType | null>(null);
   
-  // Mock buying power - in a real app, this would come from user data or an API
   const [buyingPower] = useState<number>(MOCK_BUYING_POWER); 
 
   useEffect(() => {
     if (selectedStock) {
       setCurrentAction(initialActionType);
-      // Do not reset quantityValue, quantityMode, orderType, limitPrice, stopPrice, trailingOffset
-      // They should persist as per previous requirements.
     } else {
       setCurrentAction(null);
-      // When stock is cleared, it might make sense to also clear action-specific prices,
-      // but quantity and mode can persist.
-      // setLimitPrice(''); // Optional: clear these if desired
-      // setStopPrice('');
-      // setTrailingOffset('');
     }
   }, [selectedStock, initialActionType]);
 
@@ -69,19 +61,19 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
         if (stockPrice > 0) {
           shares = Math.floor(rawValue / stockPrice);
         }
-        cost = rawValue; // The cost is the dollar amount entered
+        cost = rawValue; 
       } else if (quantityMode === 'PercentOfBuyingPower') {
         if (rawValue > 0 && rawValue <= 100) {
           const dollarAmount = (rawValue / 100) * buyingPower;
           if (stockPrice > 0) {
             shares = Math.floor(dollarAmount / stockPrice);
           }
-          cost = dollarAmount; // The cost is the calculated dollar amount
+          cost = dollarAmount; 
         } else {
-          valid = false; // Percent must be > 0 and <= 100
+          valid = false; 
         }
       }
-      if (shares <= 0) valid = false; // Cannot trade 0 or negative shares
+      if (shares <= 0) valid = false; 
     }
     return { finalSharesToSubmit: shares, estimatedCost: cost, isValidQuantity: valid };
   }, [quantityValue, quantityMode, selectedStock, buyingPower]);
@@ -154,11 +146,21 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     return false;
   };
 
+  // Quantum Black Button Styles
+  const buyButtonBase = "border-[#00FF9C] text-[#00FF9C] hover:bg-[#00FF9C] hover:text-black";
+  const buyButtonSelected = "bg-[#00FF9C] text-black hover:bg-[#00dd8b]";
+
+  const sellButtonBase = "border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"; // Error Red
+  const sellButtonSelected = "bg-destructive text-destructive-foreground hover:bg-destructive/90";
+
+  const shortButtonBase = "border-accent text-accent hover:bg-accent hover:text-accent-foreground"; // Electric Violet
+  const shortButtonSelected = "bg-accent text-accent-foreground hover:bg-accent/90";
+
 
   return (
-    <Card className="shadow-xl flex flex-col"> {/* Removed h-full */}
+    <Card className="shadow-md flex flex-col"> {/* Uses global Card styling */}
       <CardHeader className="relative">
-        <CardTitle className="text-xl font-headline">
+        <CardTitle className="text-xl font-headline text-foreground"> {/* Ensure text white */}
           {getCardTitle()}
         </CardTitle>
         <CardDescription>
@@ -170,43 +172,28 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
           </Button>
         )}
       </CardHeader>
-      <CardContent className="space-y-4 py-4 overflow-y-auto"> {/* Removed flex-1 */}
+      <CardContent className="space-y-4 py-4 overflow-y-auto">
         <div className="grid grid-cols-3 gap-2 mb-4">
             <Button
               onClick={() => handleActionSelect('Buy')}
-              variant={currentAction === 'Buy' ? "default" : "outline"}
-              className={cn(
-                "flex-1",
-                currentAction === 'Buy'
-                  ? 'bg-green-600 text-primary-foreground hover:bg-green-700 ring-2 ring-green-500 border-green-600'
-                  : 'border-green-500 text-green-500 hover:bg-green-500 hover:text-primary-foreground'
-              )}
+              variant="outline"
+              className={cn("flex-1", currentAction === 'Buy' ? buyButtonSelected : buyButtonBase)}
               disabled={!selectedStock}
             >
               <TrendingUp className="mr-2 h-4 w-4" /> Buy
             </Button>
             <Button
               onClick={() => handleActionSelect('Sell')}
-              variant={currentAction === 'Sell' ? "default" : "outline"}
-              className={cn(
-                "flex-1",
-                currentAction === 'Sell'
-                  ? 'bg-red-600 text-primary-foreground hover:bg-red-700 ring-2 ring-red-500 border-red-600'
-                  : 'border-red-500 text-red-500 hover:bg-red-500 hover:text-primary-foreground'
-              )}
+              variant="outline"
+              className={cn("flex-1", currentAction === 'Sell' ? sellButtonSelected : sellButtonBase)}
               disabled={!selectedStock}
             >
               <CircleSlash className="mr-2 h-4 w-4" /> Sell
             </Button>
             <Button
               onClick={() => handleActionSelect('Short')}
-              variant={currentAction === 'Short' ? "default" : "outline"}
-              className={cn(
-                "flex-1",
-                currentAction === 'Short'
-                  ? 'bg-purple-600 text-primary-foreground hover:bg-purple-700 ring-2 ring-purple-500 border-purple-600'
-                  : 'border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-primary-foreground'
-              )}
+              variant="outline"
+              className={cn("flex-1", currentAction === 'Short' ? shortButtonSelected : shortButtonBase)}
               disabled={!selectedStock}
             >
               <TrendingDown className="mr-2 h-4 w-4" /> Short
@@ -215,35 +202,22 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
         
         <div className="grid grid-cols-2 gap-2 items-end">
             <div className="space-y-1.5">
-                <Label htmlFor="quantityMode">Quantity Mode</Label>
+                <Label htmlFor="quantityMode" className="text-sm font-medium text-foreground">Quantity Mode</Label>
                 <Select
                     value={quantityMode}
                     onValueChange={(value) => setQuantityMode(value as QuantityInputMode)}
                     disabled={!selectedStock}
                 >
-                    <SelectTrigger id="quantityMode">
-                        <SelectValue placeholder="Select mode" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="Shares">Shares</SelectItem>
-                        <SelectItem value="DollarAmount">$ Amount</SelectItem>
-                        <SelectItem value="PercentOfBuyingPower">% Buying Power</SelectItem>
-                    </SelectContent>
+                    <SelectTrigger id="quantityMode"><SelectValue placeholder="Select mode" /></SelectTrigger>
+                    <SelectContent><SelectItem value="Shares">Shares</SelectItem><SelectItem value="DollarAmount">$ Amount</SelectItem><SelectItem value="PercentOfBuyingPower">% Buying Power</SelectItem></SelectContent>
                 </Select>
             </div>
             <div className="space-y-1.5">
-                <Label htmlFor="quantityValue">
+                <Label htmlFor="quantityValue" className="text-sm font-medium text-foreground">
                     <PackageOpen className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> 
                     {getQuantityInputLabel()}
                 </Label>
-                <Input
-                    id="quantityValue"
-                    type="number"
-                    value={quantityValue}
-                    onChange={(e) => setQuantityValue(e.target.value)}
-                    placeholder={quantityMode === 'Shares' ? "e.g., 100" : quantityMode === 'DollarAmount' ? "e.g., 1000" : "e.g., 10"}
-                    disabled={!selectedStock}
-                />
+                <Input id="quantityValue" type="number" value={quantityValue} onChange={(e) => setQuantityValue(e.target.value)} placeholder={quantityMode === 'Shares' ? "e.g., 100" : quantityMode === 'DollarAmount' ? "e.g., 1000" : "e.g., 10"} disabled={!selectedStock} />
             </div>
         </div>
         {selectedStock && quantityValue && isValidQuantity && (
@@ -255,22 +229,13 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
         )}
          {!isValidQuantity && quantityValue && selectedStock && <p className="text-xs text-red-500">Please enter a valid positive quantity.</p>}
 
-
         <div className="space-y-1.5">
-          <Label htmlFor="orderType">Order Type</Label>
-          <Select
-            value={orderType}
-            onValueChange={(value) => setOrderType(value as OrderSystemType)}
-            disabled={!selectedStock}
-          >
-            <SelectTrigger id="orderType">
-              <SelectValue placeholder="Select order type" />
-            </SelectTrigger>
+          <Label htmlFor="orderType" className="text-sm font-medium text-foreground">Order Type</Label>
+          <Select value={orderType} onValueChange={(value) => setOrderType(value as OrderSystemType)} disabled={!selectedStock}>
+            <SelectTrigger id="orderType"><SelectValue placeholder="Select order type" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="Market">Market</SelectItem>
-              <SelectItem value="Limit">Limit</SelectItem>
-              <SelectItem value="Stop">Stop</SelectItem>
-              <SelectItem value="Stop Limit">Stop Limit</SelectItem>
+              <SelectItem value="Market">Market</SelectItem><SelectItem value="Limit">Limit</SelectItem>
+              <SelectItem value="Stop">Stop</SelectItem><SelectItem value="Stop Limit">Stop Limit</SelectItem>
               <SelectItem value="Trailing Stop">Trailing Stop</SelectItem>
             </SelectContent>
           </Select>
@@ -278,58 +243,34 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
         {(orderType === 'Limit' || orderType === 'Stop Limit') && (
           <div className="space-y-1.5">
-            <Label htmlFor="limitPrice"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Limit Price</Label>
-            <Input
-              id="limitPrice"
-              type="number"
-              step="0.01"
-              value={limitPrice}
-              onChange={(e) => setLimitPrice(e.target.value)}
-              placeholder="e.g., 150.50"
-              disabled={!selectedStock}
-            />
+            <Label htmlFor="limitPrice" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Limit Price</Label>
+            <Input id="limitPrice" type="number" step="0.01" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} placeholder="e.g., 150.50" disabled={!selectedStock} />
           </div>
         )}
         {(orderType === 'Stop' || orderType === 'Stop Limit') && (
           <div className="space-y-1.5">
-            <Label htmlFor="stopPrice"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Stop Price</Label>
-            <Input
-              id="stopPrice"
-              type="number"
-              step="0.01"
-              value={stopPrice}
-              onChange={(e) => setStopPrice(e.target.value)}
-              placeholder="e.g., 149.00"
-              disabled={!selectedStock}
-            />
+            <Label htmlFor="stopPrice" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Stop Price</Label>
+            <Input id="stopPrice" type="number" step="0.01" value={stopPrice} onChange={(e) => setStopPrice(e.target.value)} placeholder="e.g., 149.00" disabled={!selectedStock} />
           </div>
         )}
         {orderType === 'Trailing Stop' && (
           <div className="space-y-1.5">
-            <Label htmlFor="trailingOffset"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Trailing Offset ($ or % points)</Label>
-            <Input
-              id="trailingOffset"
-              type="number"
-              step="0.01"
-              value={trailingOffset}
-              onChange={(e) => setTrailingOffset(e.target.value)}
-              placeholder="e.g., 1.5 (for $1.50 or 1.5%)"
-              disabled={!selectedStock}
-            />
+            <Label htmlFor="trailingOffset" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Trailing Offset ($ or % points)</Label>
+            <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="e.g., 1.5 (for $1.50 or 1.5%)" disabled={!selectedStock} />
           </div>
         )}
         
         {selectedStock && (
           <>
-            <Separator className="my-6" />
+            <Separator className="my-6 border-border/[.2]" /> {/* Subtle separator */}
             <div className="space-y-2 text-sm">
                 <h4 className="font-medium text-muted-foreground">Stock Info</h4>
-                <div className="flex justify-between"><span>Float:</span> <span>{selectedStock.float}M</span></div>
-                <div className="flex justify-between"><span>Volume:</span> <span>{selectedStock.volume.toFixed(1)}M</span></div>
+                <div className="flex justify-between text-foreground"><span>Float:</span> <span>{selectedStock.float}M</span></div>
+                <div className="flex justify-between text-foreground"><span>Volume:</span> <span>{selectedStock.volume.toFixed(1)}M</span></div>
                 {selectedStock.newsSnippet && (
                     <div className="pt-1">
                         <p className="text-muted-foreground">Catalyst:</p> 
-                        <p className="text-xs leading-tight" title={selectedStock.newsSnippet}>{selectedStock.newsSnippet.substring(0,100)}{selectedStock.newsSnippet.length > 100 ? '...' : ''}</p>
+                        <p className="text-xs leading-tight text-foreground" title={selectedStock.newsSnippet}>{selectedStock.newsSnippet.substring(0,100)}{selectedStock.newsSnippet.length > 100 ? '...' : ''}</p>
                     </div>
                 )}
             </div>
@@ -343,10 +284,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
           onClick={handleSubmit}
           disabled={isSubmitDisabled()}
           className={cn("w-full",
-            currentAction === 'Buy' && selectedStock && 'bg-green-600 hover:bg-green-700 text-primary-foreground',
-            currentAction === 'Sell' && selectedStock && 'bg-red-600 hover:bg-red-700 text-primary-foreground',
-            currentAction === 'Short' && selectedStock && 'bg-purple-600 hover:bg-purple-700 text-primary-foreground',
-            (!selectedStock || !currentAction) && 'bg-primary/70 hover:bg-primary/70 cursor-not-allowed'
+            currentAction === 'Buy' && selectedStock && buyButtonSelected,
+            currentAction === 'Sell' && selectedStock && sellButtonSelected,
+            currentAction === 'Short' && selectedStock && shortButtonSelected,
+            (!selectedStock || !currentAction) && 'bg-muted text-muted-foreground hover:bg-muted/80 cursor-not-allowed'
           )}
         >
           {currentAction && selectedStock ? <PackageOpen className="mr-2 h-4 w-4" /> : null}

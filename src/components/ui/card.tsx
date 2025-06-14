@@ -9,7 +9,7 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border bg-card/[.06] border-border/[.08] backdrop-blur-md text-card-foreground shadow-lg", // Updated for Quantum Black
+      "rounded-lg border bg-card/[.05] border-border/[.1] backdrop-blur-md text-card-foreground shadow-md", // Quantum Black: bg-white/5, border-white/10
       className
     )}
     {...props}
@@ -36,7 +36,7 @@ const CardTitle = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
+      "text-2xl font-semibold leading-none tracking-tight text-foreground", // Ensure text is white
       className
     )}
     {...props}
@@ -50,7 +50,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn("text-sm text-muted-foreground", className)} // Muted foreground for description
     {...props}
   />
 ))

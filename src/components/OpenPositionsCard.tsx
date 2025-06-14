@@ -6,7 +6,7 @@ import type { OpenPosition } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, XSquare, Briefcase } from 'lucide-react';
+import { XSquare, Briefcase } from 'lucide-react'; // Removed TrendingUp, TrendingDown
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +20,6 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
   const { toast } = useToast();
 
   const handleClose = (position: OpenPosition) => {
-    // In a real app, this would trigger an API call to close the position
     console.log("Closing position:", position);
     toast({
       title: "Position Close Requested",
@@ -34,19 +33,19 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
   };
 
   return (
-    <Card className="shadow-xl mt-6">
+    <Card className="shadow-md mt-6"> {/* Uses global Card styling for Quantum Black */}
       <CardHeader>
-        <CardTitle className="text-xl font-headline flex items-center">
-          <Briefcase className="mr-2 h-5 w-5 text-primary" />
+        <CardTitle className="text-xl font-headline flex items-center text-foreground"> {/* Ensure text is white */}
+          <Briefcase className="mr-2 h-5 w-5 text-primary" /> {/* Primary is Cyber Cyan */}
           Open Positions
         </CardTitle>
         <CardDescription>Your currently active trades.</CardDescription>
       </CardHeader>
-      <CardContent className="p-0"> {/* Remove padding for table to fit well */}
+      <CardContent className="p-0">
         {positions.length > 0 ? (
-          <ScrollArea className="h-[250px]"> {/* Adjust height as needed */}
+          <ScrollArea className="h-[250px]">
             <Table>
-              <TableHeader className="sticky top-0 bg-card z-10">
+              <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10"> {/* Frosted header */}
                 <TableRow>
                   <TableHead>Symbol</TableHead>
                   <TableHead className="text-right">Shares</TableHead>
@@ -60,15 +59,15 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
                 {positions.map((pos) => {
                   const pnl = calculatePnl(pos);
                   return (
-                    <TableRow key={pos.id}>
-                      <TableCell className="font-medium">{pos.symbol}</TableCell>
-                      <TableCell className="text-right">{pos.shares}</TableCell>
-                      <TableCell className="text-right">${pos.entryPrice.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">${pos.currentPrice.toFixed(2)}</TableCell>
+                    <TableRow key={pos.id} className="hover:bg-muted/5"> {/* Subtle hover */}
+                      <TableCell className="font-medium text-foreground">{pos.symbol}</TableCell>
+                      <TableCell className="text-right text-foreground">{pos.shares}</TableCell>
+                      <TableCell className="text-right text-foreground">${pos.entryPrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right text-foreground">${pos.currentPrice.toFixed(2)}</TableCell>
                       <TableCell 
                         className={cn(
                           "text-right font-semibold",
-                          pnl >= 0 ? "text-green-400" : "text-red-400"
+                          pnl >= 0 ? "text-[#00FF9C]" : "text-[#FF4C4C]" // Confirm Green for positive, Error Red for negative
                         )}
                       >
                         {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
@@ -77,7 +76,7 @@ export function OpenPositionsCard({ positions, onClosePosition }: OpenPositionsC
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-7 px-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                          className="h-7 px-2 border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground" // Error Red outline
                           onClick={() => handleClose(pos)}
                         >
                           <XSquare className="mr-1 h-3.5 w-3.5" /> Close
