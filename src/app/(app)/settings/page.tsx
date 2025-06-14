@@ -119,12 +119,6 @@ export default function SettingsPage() {
                 </div>
               </CardContent>
             </Card>
-
-            <div className="p-8 text-center text-muted-foreground">
-              <SettingsIcon className="h-16 w-16 mx-auto mb-4 opacity-50" />
-              <p className="text-lg">More settings are currently under construction.</p>
-              <p>Future options will include API key management for brokers, notification preferences, and theme adjustments.</p>
-            </div>
             
           </CardContent>
         </Card>
