@@ -16,7 +16,7 @@ import type { Stock, TradeRequest, OrderActionType, OpenPosition, NewsArticle, T
 import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
-import { useAlertContext, type RefreshInterval } from '@/contexts/AlertContext'; // Keep for interval, though UI is removed
+import type { RefreshInterval } from '@/contexts/AlertContext'; // Keep for interval, though UI is removed
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useToast } from "@/hooks/use-toast";
 import { OrderCard } from '@/components/OrderCard';
@@ -136,8 +136,10 @@ export default function DashboardPage() {
 
 
   const handleRefreshData = useCallback(() => {
-    setStocks(prevStocks =>
-      prevStocks.map(stock => {
+    let latestGeneratedStockData: Stock[] | null = null;
+
+    setStocks(prevStocks => {
+      const updatedStocks = prevStocks.map(stock => {
         const priceChangeFactor = 1 + (Math.random() - 0.5) * 0.03; 
         const newPrice = parseFloat((stock.price * priceChangeFactor).toFixed(2));
         const newVolume = parseFloat((stock.volume * (1 + (Math.random() - 0.2) * 0.1)).toFixed(1));
@@ -169,26 +171,34 @@ export default function DashboardPage() {
           lastUpdated: new Date().toISOString(),
           historicalPrices: Array.from({ length: 7 }, (_, i) => parseFloat((newPrice * (1 + (Math.random() - 0.5) * (0.01 * (7-i)))).toFixed(2)))
         };
-      })
-    );
+      });
+      latestGeneratedStockData = updatedStocks;
+      return updatedStocks;
+    });
+
     setOpenPositions(prevPositions =>
       prevPositions.map(pos => {
-        const stock = stocks.find(s => s.symbol === pos.symbol);
+        const stockForPosition = latestGeneratedStockData 
+            ? latestGeneratedStockData.find(s => s.symbol === pos.symbol) 
+            : null;
+        
         return {
           ...pos,
-          currentPrice: stock ? stock.price : parseFloat((pos.currentPrice * (1 + (Math.random() - 0.5) * 0.01)).toFixed(2))
-        }
+          currentPrice: stockForPosition 
+            ? stockForPosition.price 
+            : parseFloat((pos.currentPrice * (1 + (Math.random() - 0.5) * 0.01)).toFixed(2))
+        };
       })
     );
     setLastRefreshed(new Date());
-  }, [stocks]); 
+  }, []); 
 
 
   useEffect(() => {
-    setLastRefreshed(new Date());
+    setLastRefreshed(new Date()); // Initial set
     const intervalId = setInterval(handleRefreshData, DASHBOARD_REFRESH_INTERVAL);
     return () => clearInterval(intervalId);
-  }, [handleRefreshData]);
+  }, [handleRefreshData]); // handleRefreshData is now stable
 
   const activeRules = useMemo(() => mockRules.filter(rule => rule.isActive), []);
 
@@ -198,13 +208,13 @@ export default function DashboardPage() {
     }
     const rule = activeRules.find(r => r.id === selectedRuleId);
     if (!rule) {
-      return stocks; // Or an empty array if no rule match means no stocks
+      return stocks; 
     }
 
     return stocks.filter(stock => {
       return rule.criteria.every(criterion => {
         const stockValue = stock[criterion.metric as keyof Stock] as number | undefined;
-        if (stockValue === undefined || stockValue === null) return false; // Don't include if metric is missing
+        if (stockValue === undefined || stockValue === null) return false;
 
         const ruleValue = criterion.value;
 
@@ -220,8 +230,6 @@ export default function DashboardPage() {
               return stockValue >= ruleValue[0] && stockValue <= ruleValue[1];
             }
             return false;
-          // case 'contains': // For string type metrics, not used here
-          //   return typeof stockValue === 'string' && typeof ruleValue === 'string' && stockValue.toLowerCase().includes(ruleValue.toLowerCase());
           default: return true;
         }
       });
@@ -479,3 +487,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+      
