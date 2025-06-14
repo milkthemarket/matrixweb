@@ -6,11 +6,11 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/ui/label"; // Changed from FormLabel
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { FormItem, FormLabel, FormControl, FormDescription } from "@/components/ui/form";
+// Removed FormItem, FormLabel, FormControl, FormDescription imports that were specific to RHF context
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode } from '@/types';
 import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, Bot, User, Cog, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -224,6 +224,9 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
   const buttonBaseClass = "flex-1 flex items-center justify-center h-9 py-2 px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50";
   const inactiveButtonClass = "bg-transparent text-muted-foreground hover:bg-panel/[.05]";
+  const manualActiveButtonClass = "bg-panel/[.1] text-foreground shadow-sm";
+  const aiActiveButtonClass = "bg-primary text-primary-foreground shadow-sm";
+  const autoActiveButtonClass = "bg-accent text-accent-foreground shadow-sm";
 
 
   return (
@@ -247,9 +250,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             onClick={() => setTradeMode('manual')}
             className={cn(
               buttonBaseClass,
-              tradeMode === 'manual'
-                ? 'bg-panel/[.1] text-foreground shadow-sm' 
-                : inactiveButtonClass
+              tradeMode === 'manual' ? manualActiveButtonClass : inactiveButtonClass
             )}
             disabled={!selectedStock}
           >
@@ -259,9 +260,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             onClick={() => setTradeMode('ai')}
             className={cn(
               buttonBaseClass,
-              tradeMode === 'ai'
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : inactiveButtonClass
+              tradeMode === 'ai' ? aiActiveButtonClass : inactiveButtonClass
             )}
             disabled={!selectedStock}
           >
@@ -271,9 +270,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             onClick={() => setTradeMode('auto')}
             className={cn(
               buttonBaseClass,
-              tradeMode === 'auto'
-                ? 'bg-accent text-accent-foreground shadow-sm'
-                : inactiveButtonClass
+              tradeMode === 'auto' ? autoActiveButtonClass : inactiveButtonClass
             )}
             disabled={!selectedStock}
           >
@@ -441,22 +438,21 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
                     ))}
                   </ul>
                 </div>
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border/[.1] p-3 shadow-sm mt-4 bg-transparent">
+                <div className="flex flex-row items-center justify-between rounded-lg border border-border/[.1] p-3 shadow-sm mt-4 bg-transparent">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base text-foreground">
+                    <Label htmlFor="autoTradingSwitch" className="text-base text-foreground">
                       Auto-Trading Enabled
-                    </FormLabel>
-                    <FormDescription className="text-xs">
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
                       Allow automated execution for {selectedStock.symbol}.
-                    </FormDescription>
+                    </p>
                   </div>
-                  <FormControl>
-                    <Switch
-                      checked={isAutoTradingEnabled}
-                      onCheckedChange={setIsAutoTradingEnabled}
-                    />
-                  </FormControl>
-                </FormItem>
+                  <Switch
+                    id="autoTradingSwitch"
+                    checked={isAutoTradingEnabled}
+                    onCheckedChange={setIsAutoTradingEnabled}
+                  />
+                </div>
               </CardContent>
             </Card>
              <Link href="/rules" passHref legacyBehavior>
