@@ -17,30 +17,6 @@ import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, C
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-// Define an inline SVG component for the Cow icon
-const CowIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M14.838 3.408c.303 -.09.619 -.158 .942 -.192m3.642 .816a13.022 13.022 0 0 1 .578 4.028" />
-    <path d="M12.003 21.004c-2.489 0 -4.717 -.94 -6.365 -2.504c-1.71 -1.622 -2.638 -3.87 -2.638 -6.308c0 -2.294 .867 -4.49 2.468 -6.142c1.59 -1.64 3.742 -2.55 6.053 -2.55c2.31 0 4.47 .91 6.052 2.55c1.591 1.642 2.483 3.856 2.483 6.152c0 .482 -.027 .96 -.08 1.426" />
-    <path d="M12 13m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
-    <path d="M12 11v-3" />
-    <path d="M7 16.5c0 -.215 .031 -.424 .09 -.623m1.27 -1.52a2.5 2.5 0 0 1 3.647 -.884" />
-    <path d="M17 16.5a2.5 2.5 0 0 0 -2.5 -2.5" />
-  </svg>
-);
-
-
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/alerts", label: "Alerts", icon: Bell },
@@ -48,6 +24,28 @@ const navItems = [
   { href: "/history", label: "History", icon: History },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
+
+// Simple inline SVG for the Cow icon
+const AppLogoIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={cn("h-6 w-6 flex-shrink-0", className)}
+  >
+    <path d="M18.5 5h-13A2.5 2.5 0 0 0 3 7.5v9A2.5 2.5 0 0 0 5.5 19h13a2.5 2.5 0 0 0 2.5-2.5v-9A2.5 2.5 0 0 0 18.5 5Z"></path>
+    <path d="M8 12h.01"></path>
+    <path d="M16 12h.01"></path>
+    <path d="M12 2v2"></path>
+    <path d="M12 19v2"></path>
+    <path d="M10 7c-.42.8-.73 1.62-.91 2.46"></path>
+    <path d="M14.91 9.46c-.18-.84-.49-1.66-.91-2.46"></path>
+  </svg>
+);
 
 
 export function SidebarNav() {
@@ -62,10 +60,10 @@ export function SidebarNav() {
           "group-data-[state=expanded]:flex-row group-data-[state=expanded]:items-center group-data-[state=expanded]:justify-between",
           "group-data-[state=collapsed]:flex-col group-data-[state=collapsed]:items-center group-data-[state=collapsed]:gap-2"
         )}>
-          <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 group-data-[state=collapsed]:justify-center">
-            <CowIcon className="h-6 w-6 text-white flex-shrink-0 filter drop-shadow-[0_0_6px_rgba(255,255,255,0.1)] group-hover:fill-white transition-colors duration-150" />
+          <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 group-data-[state=collapsed]:justify-center hover:opacity-80 transition-opacity duration-150">
+            <AppLogoIcon className="text-purple-500" />
             {open && (
-              <h1 className="text-3xl font-bold tracking-wide text-foreground font-headline truncate">M.I.L.K.</h1>
+              <h1 className="text-3xl font-bold tracking-wide text-white font-headline truncate">M.I.L.K.</h1>
             )}
           </Link>
           {!isMobile && (
