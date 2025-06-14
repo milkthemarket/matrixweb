@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react'; // Added useState, useEffect
+import React, { useState, useEffect } from 'react'; 
 import type { MiloTradeIdea } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Bot, RefreshCw, Lightbulb, MessageSquare, AlertTriangle } from 'lucide-
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Skeleton } from '@/components/ui/skeleton'; // Added Skeleton import
+import { Skeleton } from '@/components/ui/skeleton'; 
 
 interface MilosTradeIdeasCardProps {
   ideas: MiloTradeIdea[];
@@ -84,9 +84,9 @@ export function MilosTradeIdeasCard({ ideas, onRefresh, isLoading = false }: Mil
                 >
                   <div className="flex items-center justify-between mb-1.5">
                     <h4 className="text-base font-semibold text-primary">{idea.ticker}</h4>
-                    <p className="text-xs text-muted-foreground">
+                    <div className="text-xs text-muted-foreground">
                       {clientTimestamps[idea.id] || <Skeleton className="h-3 w-20 inline-block" />}
-                    </p>
+                    </div>
                   </div>
                   <div className="mb-2 flex items-start">
                     <Lightbulb className="h-4 w-4 text-yellow-400 mr-2 mt-0.5 flex-shrink-0" />
@@ -112,3 +112,4 @@ export function MilosTradeIdeasCard({ ideas, onRefresh, isLoading = false }: Mil
     </Card>
   );
 }
+
