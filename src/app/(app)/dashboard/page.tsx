@@ -21,7 +21,7 @@ import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
 import { useAlertContext, type RefreshInterval } from '@/contexts/AlertContext';
 import { useToast } from "@/hooks/use-toast";
-import { OrderCard } from '@/components/OrderCard'; 
+import { OrderCard } from '@/components/OrderCard';
 import { NewsPanel } from '@/components/NewsPanel';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
 
@@ -39,6 +39,7 @@ const initialMockOpenPositions: OpenPosition[] = [
   { id: 'pos1', symbol: 'TSLA', entryPrice: 175.00, shares: 10, currentPrice: 180.01 },
   { id: 'pos2', symbol: 'AAPL', entryPrice: 168.50, shares: 20, currentPrice: 170.34 },
 ];
+// const initialMockOpenPositions: OpenPosition[] = []; // Test with no open positions
 
 const initialMockNewsArticles: NewsArticle[] = [
   { id: 'news1', symbol: 'AAPL', headline: 'Apple Unveils Vision Pro 2 Details', timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), source: 'TechCrunch', preview: 'Apple today shared more details about the upcoming Vision Pro 2, promising enhanced display and lighter design...', link: '#' },
@@ -55,21 +56,21 @@ const ClientRenderedTime: React.FC<{ isoTimestamp: string }> = ({ isoTimestamp }
       setFormattedTime(format(new Date(isoTimestamp), "HH:mm:ss"));
     }
   }, [isoTimestamp]);
-  return <>{formattedTime || '...'}</>; 
+  return <>{formattedTime || '...'}</>;
 };
 
 
 export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [minChangePercent, setMinChangePercent] = useState(0);
-  const [maxFloat, setMaxFloat] = useState(20000); 
+  const [maxFloat, setMaxFloat] = useState(20000);
   const [minVolume, setMinVolume] = useState(0);
   const [stocks, setStocks] = useState<Stock[]>(initialMockStocks);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
   const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
-  
+
   const [selectedStockForNews, setSelectedStockForNews] = useState<Stock | null>(null);
   const [newsArticles, setNewsArticles] = useState<NewsArticle[]>(initialMockNewsArticles);
   const [openPositions, setOpenPositions] = useState<OpenPosition[]>(initialMockOpenPositions);
@@ -94,15 +95,14 @@ export default function DashboardPage() {
         };
       })
     );
-    // Simulate price changes for open positions
-    setOpenPositions(prevPositions => 
+    setOpenPositions(prevPositions =>
       prevPositions.map(pos => ({
         ...pos,
-        currentPrice: parseFloat((pos.currentPrice * (1 + (Math.random() - 0.5) * 0.01)).toFixed(2)) // Smaller fluctuation for open positions
+        currentPrice: parseFloat((pos.currentPrice * (1 + (Math.random() - 0.5) * 0.01)).toFixed(2))
       }))
     );
     setLastRefreshed(new Date());
-  }, []); 
+  }, []);
 
   useEffect(() => {
     setLastRefreshed(new Date());
@@ -111,7 +111,7 @@ export default function DashboardPage() {
   useEffect(() => {
     let intervalId: NodeJS.Timeout | null = null;
     if (autoRefreshEnabled) {
-      handleRefreshData(); 
+      handleRefreshData();
       intervalId = setInterval(handleRefreshData, refreshInterval);
     }
     return () => {
@@ -128,17 +128,16 @@ export default function DashboardPage() {
     );
   }, [stocks, searchTerm, minChangePercent, maxFloat, minVolume]);
 
-  const handleSelectStock = (stock: Stock, action: OrderActionType | null) => {
+  const handleSelectStockForOrder = (stock: Stock, action: OrderActionType | null) => {
     setSelectedStockForOrderCard(stock);
     setOrderCardActionType(action);
-    setSelectedStockForNews(stock); // Also set for news panel
+    setSelectedStockForNews(stock);
   };
 
   const handleClearOrderCard = () => {
     setSelectedStockForOrderCard(null);
     setOrderCardActionType(null);
-    // Optionally clear news selection too, or keep it independent
-    // setSelectedStockForNews(null); 
+    // setSelectedStockForNews(null); // Optionally clear news if it should only show when an order is being composed
   };
 
   const handleTradeSubmit = (tradeDetails: TradeRequest) => {
@@ -147,12 +146,11 @@ export default function DashboardPage() {
       title: "Trade Processing",
       description: `${tradeDetails.action} ${tradeDetails.quantity} ${tradeDetails.symbol} (${tradeDetails.orderType}) submitted.`,
     });
-    // Mock adding to open positions if it's a Buy/Short, and not a Sell
     if (tradeDetails.action === 'Buy' || tradeDetails.action === 'Short') {
         const newPosition: OpenPosition = {
             id: `pos${Date.now()}`,
             symbol: tradeDetails.symbol,
-            entryPrice: selectedStockForOrderCard?.price || 0, // Use current price as entry for mock
+            entryPrice: selectedStockForOrderCard?.price || 0,
             shares: tradeDetails.quantity,
             currentPrice: selectedStockForOrderCard?.price || 0,
         };
@@ -163,7 +161,11 @@ export default function DashboardPage() {
 
   const handleClosePosition = (positionId: string) => {
     setOpenPositions(prev => prev.filter(p => p.id !== positionId));
-    // In a real app, you'd also update Firestore or your backend
+    toast({
+      title: "Position Closed",
+      description: `Position ${positionId} has been removed.`,
+      variant: "destructive"
+    });
   };
 
   const handleExport = () => {
@@ -194,7 +196,7 @@ export default function DashboardPage() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Dashboard & Screener" />
       <div className="flex flex-1 p-4 md:p-6 space-x-0 md:space-x-6 overflow-hidden">
-        
+
         {/* Left Column: Screener & News Panel */}
         <div className="flex-1 flex flex-col overflow-hidden space-y-6">
           <Card className="shadow-xl flex-1 flex flex-col overflow-hidden"> {/* Main Screener Card */}
@@ -292,7 +294,7 @@ export default function DashboardPage() {
               </div>
 
               <RulePills minChangePercent={minChangePercent} maxFloat={maxFloat} minVolume={minVolume} />
-              
+
               <div className="rounded-md border overflow-auto flex-1">
                 <Table>
                   <TableHeader className="sticky top-0 bg-card z-10">
@@ -310,20 +312,20 @@ export default function DashboardPage() {
                   <TableBody>
                     {filteredStocks.length > 0 ? (
                       filteredStocks.map((stock) => (
-                        <TableRow 
-                            key={stock.id} 
+                        <TableRow
+                            key={stock.id}
                             className={cn(
-                                getRowHighlightClass(stock), 
-                                "hover:bg-muted/20", 
+                                getRowHighlightClass(stock),
+                                "hover:bg-muted/20",
                                 selectedStockForOrderCard?.id === stock.id && "bg-primary/10"
                             )}
                         >
                           <TableCell className="font-medium">
                             <Popover>
                               <PopoverTrigger asChild>
-                                <span 
+                                <span
                                   className="cursor-pointer hover:text-primary flex items-center"
-                                  onClick={() => handleSelectStock(stock, null)}
+                                  onClick={() => handleSelectStockForOrder(stock, null)}
                                 >
                                   {stock.symbol}
                                   {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-orange-400" title="Hot Catalyst" />}
@@ -350,15 +352,15 @@ export default function DashboardPage() {
                               variant="outline"
                               size="sm"
                               className="h-8 px-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
-                              onClick={() => handleSelectStock(stock, 'Buy')}
+                              onClick={() => handleSelectStockForOrder(stock, 'Buy')}
                             >
                               <TrendingUp className="mr-1 h-4 w-4" /> Buy
                             </Button>
                             <Button
                               variant="outline"
                               size="sm"
-                              className="h-8 px-2 border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white" // Updated to purple for Short
-                              onClick={() => handleSelectStock(stock, 'Short')}
+                              className="h-8 px-2 border-purple-500 text-purple-500 hover:bg-purple-500 hover:text-white"
+                              onClick={() => handleSelectStockForOrder(stock, 'Short')}
                             >
                               <TrendingDown className="mr-1 h-4 w-4" /> Short
                             </Button>
@@ -378,21 +380,24 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          {/* News Panel - Conditionally Rendered */}
           <NewsPanel selectedStock={selectedStockForNews} newsArticles={newsArticles} />
         </div>
 
         {/* Right Column: Order Card & Open Positions */}
-        <div className="w-full md:w-96 lg:w-[26rem] hidden md:flex flex-col flex-shrink-0 overflow-y-auto space-y-6 pr-1"> {/* Added pr-1 for scrollbar visibility if needed */}
+        <div className="w-full md:w-96 lg:w-[26rem] hidden md:flex flex-col flex-shrink-0 overflow-y-auto space-y-6 pr-1">
           <OrderCard
             selectedStock={selectedStockForOrderCard}
             initialActionType={orderCardActionType}
             onSubmit={handleTradeSubmit}
             onClear={handleClearOrderCard}
           />
-          <OpenPositionsCard positions={openPositions} onClosePosition={handleClosePosition} />
+          {openPositions.length > 0 && (
+            <OpenPositionsCard positions={openPositions} onClosePosition={handleClosePosition} />
+          )}
         </div>
       </div>
     </main>
   );
 }
+
+    
