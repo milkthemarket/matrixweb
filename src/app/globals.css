@@ -69,20 +69,21 @@
   }
   body {
     @apply text-foreground;
-    /* New background gradient from prompt */
     background: radial-gradient(
       circle at center,
-      #2c0059 0%,    /* Deep purple center */
-      #1b012f 35%,   /* Softer gradient middle */
-      #0a041d 60%,   /* Dark outer transition */
-      hsl(var(--background)) 90% /* Nearly black edge */
+      rgba(124, 58, 237, 0.15) 0%,    /* soft purple core */
+      rgba(20, 0, 50, 0.08) 40%,      /* gentle fade */
+      #000104 80%,                   /* near-black outer rim */
+      #000000 100%                   /* full black edge */
     );
-    background-color: hsl(var(--background)); /* Fallback base */
+    background-color: hsl(var(--background)); /* Fallback */
     background-attachment: fixed;
-    background-repeat: no-repeat; /* Added to ensure gradient isn't repeated */
     min-height: 100vh;
+    font-family: var(--font-inter); /* Added as per prompt, ensure --font-inter is defined if used, or rely on Tailwind's font-body */
+    /* Retaining these from previous state for completeness if not covered by new block */
     height: 100%; 
     overflow-x: hidden;
+    background-repeat: no-repeat;
   }
 
   /* Custom scrollbar styles */
