@@ -27,11 +27,11 @@ export function SidebarNav() {
   const pathname = usePathname();
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
         <Link href="/dashboard" className="flex items-center gap-2">
           <CandlestickChart className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-semibold text-primary font-headline">TradePilot</h1>
+          <h1 className="text-2xl font-semibold text-primary font-headline group-data-[collapsible=icon]:hidden">TradePilot</h1>
         </Link>
       </SidebarHeader>
       <SidebarContent>
@@ -43,13 +43,13 @@ export function SidebarNav() {
                   variant="default"
                   className={cn(
                     "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard")
+                    pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard" && item.href !== "/")
                       ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                       : "font-normal"
                   )}
                   tooltip={{ children: item.label, className: "text-xs" }}
                 >
-                  <item.icon className={cn("h-5 w-5", pathname === item.href ? "text-primary" : "text-accent")} />
+                  <item.icon className={cn("h-5 w-5", (pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard" && item.href !== "/")) ? "text-primary" : "text-accent")} />
                   <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                 </SidebarMenuButton>
               </Link>
@@ -63,4 +63,3 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
-
