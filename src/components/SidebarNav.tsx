@@ -11,17 +11,11 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  useSidebar, // Import useSidebar
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon } from "lucide-react";
+import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, ChevronLeft, ChevronRight } from "lucide-react"; // Import chevrons
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/alerts", label: "Alerts", icon: Bell },
-  { href: "/rules", label: "Rules", icon: ListFilter },
-  { href: "/history", label: "History", icon: History },
-  { href: "/settings", label: "Settings", icon: SettingsIcon },
-];
+import { Button } from "@/components/ui/button"; // Import Button
 
 // Define an inline SVG component for the Cow icon
 const CowIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -47,16 +41,41 @@ const CowIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 
+const navItems = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/alerts", label: "Alerts", icon: Bell },
+  { href: "/rules", label: "Rules", icon: ListFilter },
+  { href: "/history", label: "History", icon: History },
+  { href: "/settings", label: "Settings", icon: SettingsIcon },
+];
+
+
 export function SidebarNav() {
   const pathname = usePathname();
+  const { open, toggleSidebar, isMobile } = useSidebar(); // Get sidebar state and toggle function
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <CowIcon className="h-7 w-7 text-primary" />
-          <h1 className="text-3xl font-bold tracking-wide text-primary font-headline group-data-[collapsible=icon]:hidden">MILK</h1>
-        </Link>
+        <div className="flex items-center justify-between w-full">
+          <Link href="/dashboard" className="flex items-center gap-2 min-w-0"> {/* Added min-w-0 for flex shrink */}
+            <CowIcon className="h-7 w-7 text-primary flex-shrink-0" /> {/* Added flex-shrink-0 */}
+            {open && (
+              <h1 className="text-3xl font-bold tracking-wide text-primary font-headline truncate">MILK</h1>
+            )}
+          </Link>
+          {!isMobile && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="h-7 w-7 text-muted-foreground hover:text-foreground flex-shrink-0"
+              aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
+            >
+              {open ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+            </Button>
+          )}
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
@@ -74,7 +93,9 @@ export function SidebarNav() {
                     tooltip={{ children: item.label, className: "text-xs" }}
                   >
                     <item.icon className={cn("h-5 w-5", isActive ? "text-sidebar-primary" : "text-muted-foreground group-hover:text-sidebar-accent-foreground")} />
-                    <span className="text-base font-semibold tracking-wide group-data-[collapsible=icon]:hidden">{item.label}</span>
+                    {open && ( // Conditionally render label based on 'open' state
+                      <span className="text-base font-semibold tracking-wide">{item.label}</span>
+                    )}
                   </SidebarMenuButton>
                 </Link>
               </SidebarMenuItem>
@@ -82,10 +103,11 @@ export function SidebarNav() {
           })}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden">
-        <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} MILK</p>
-      </SidebarFooter>
+      {open && ( // Conditionally render footer based on 'open' state
+        <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden">
+          <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} MILK</p>
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 }
-
