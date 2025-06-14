@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -5,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label"; 
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
@@ -21,7 +22,7 @@ interface OrderCardProps {
   onClear: () => void;
 }
 
-const MOCK_BUYING_POWER = 10000; 
+const MOCK_BUYING_POWER = 10000;
 
 const dummyAutoRules = [
   {
@@ -52,14 +53,14 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const [currentAction, setCurrentAction] = useState<OrderActionType | null>(null);
   const [timeInForce, setTimeInForce] = useState<string>('Day');
   const [isAutoTradingEnabled, setIsAutoTradingEnabled] = useState(true);
-  
-  const [buyingPower] = useState<number>(MOCK_BUYING_POWER); 
+
+  const [buyingPower] = useState<number>(MOCK_BUYING_POWER);
 
   useEffect(() => {
     if (selectedStock) {
       if (tradeMode === 'manual') {
          setCurrentAction(initialActionType);
-         setQuantityValue(''); 
+         setQuantityValue('');
          setOrderType('Market');
          setLimitPrice('');
          setStopPrice('');
@@ -79,7 +80,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       setLimitPrice('');
       setStopPrice('');
       setTrailingOffset('');
-      setCurrentAction(null); 
+      setCurrentAction(null);
       setTimeInForce('Day');
     }
   }, [tradeMode, selectedStock]);
@@ -94,7 +95,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       const nextMode = prevMode === 'Shares' ? 'DollarAmount' : prevMode === 'DollarAmount' ? 'PercentOfBuyingPower' : 'Shares';
       return nextMode;
     });
-    setQuantityValue(''); 
+    setQuantityValue('');
   };
 
   const getQuantityInputPlaceholder = () => {
@@ -123,18 +124,18 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
         } else {
           shares = 0;
         }
-        cost = rawValue; 
+        cost = rawValue;
       } else if (quantityMode === 'PercentOfBuyingPower') {
         if (rawValue > 0 && rawValue <= 100) {
           const dollarAmount = (rawValue / 100) * buyingPower;
           if (stockPrice > 0) {
             shares = Math.floor(dollarAmount / stockPrice);
           } else {
-            shares = 0; 
+            shares = 0;
           }
-          cost = dollarAmount; 
+          cost = dollarAmount;
         } else {
-          valid = false; 
+          valid = false;
         }
       }
       if (shares <= 0 && quantityMode !== 'DollarAmount' && quantityMode !== 'PercentOfBuyingPower') valid = false;
@@ -144,7 +145,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     }
     return { finalSharesToSubmit: shares, estimatedCost: cost, isValidQuantity: valid };
   }, [quantityValue, quantityMode, selectedStock, buyingPower]);
-  
+
   const handleManualSubmit = () => {
     if (!selectedStock || !currentAction || !isValidQuantity || finalSharesToSubmit <= 0) {
       alert("Stock, action, and a valid positive quantity resulting in at least 1 share are required.");
@@ -180,7 +181,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       tradeDetails.trailingOffset = parseFloat(trailingOffset);
     }
     onSubmit(tradeDetails);
-    setQuantityValue(''); 
+    setQuantityValue('');
   };
 
   const getCardTitle = () => {
@@ -216,15 +217,13 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
   const sellButtonBase = "border-destructive text-destructive hover:bg-destructive/10";
   const sellButtonSelected = "bg-destructive text-destructive-foreground hover:bg-destructive/90";
-  
+
   const shortButtonBase = "border-yellow-500 text-yellow-400 hover:bg-yellow-500/10 hover:text-yellow-300";
   const shortButtonSelected = "bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90";
 
   const buttonBaseClass = "flex-1 flex items-center justify-center h-9 py-2 px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50";
-  const inactiveButtonClass = "bg-transparent text-muted-foreground hover:bg-white/5"; // hover:bg-panel/[.05] to hover:bg-white/5
-  const manualActiveButtonClass = "bg-white/10 text-foreground shadow-sm"; // bg-panel/[.1] to bg-white/10
-  const aiActiveButtonClass = "bg-primary text-primary-foreground shadow-sm";
-  const autoActiveButtonClass = "bg-accent text-accent-foreground shadow-sm";
+  const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
+  const inactiveModeClass = "bg-transparent text-muted-foreground hover:bg-white/5";
 
 
   return (
@@ -248,7 +247,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             onClick={() => setTradeMode('manual')}
             className={cn(
               buttonBaseClass,
-              tradeMode === 'manual' ? manualActiveButtonClass : inactiveButtonClass
+              tradeMode === 'manual' ? activeModeClass : inactiveModeClass
             )}
             disabled={!selectedStock}
           >
@@ -258,7 +257,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             onClick={() => setTradeMode('ai')}
             className={cn(
               buttonBaseClass,
-              tradeMode === 'ai' ? aiActiveButtonClass : inactiveButtonClass
+              tradeMode === 'ai' ? activeModeClass : inactiveModeClass
             )}
             disabled={!selectedStock}
           >
@@ -268,7 +267,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             onClick={() => setTradeMode('auto')}
             className={cn(
               buttonBaseClass,
-              tradeMode === 'auto' ? autoActiveButtonClass : inactiveButtonClass
+              tradeMode === 'auto' ? activeModeClass : inactiveModeClass
             )}
             disabled={!selectedStock}
           >
@@ -304,7 +303,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
                   <TrendingDown className="mr-2 h-4 w-4" /> Short
                 </Button>
             </div>
-            
+
             <div className="space-y-1.5">
               <Label htmlFor="quantityValue" className="text-sm font-medium text-foreground">
                 <PackageOpen className="inline-block mr-1 h-4 w-4 text-muted-foreground" />
@@ -386,17 +385,17 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
                 <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="e.g., 1.5 (for $1.50 or 1.5%)" disabled={!selectedStock} className="bg-transparent"/>
               </div>
             )}
-            
+
             {selectedStock && (
               <>
-                <Separator className="my-6 border-white/5" /> 
+                <Separator className="my-6 border-white/5" />
                 <div className="space-y-2 text-sm">
                     <h4 className="font-medium text-muted-foreground">Stock Info</h4>
                     <div className="flex justify-between text-foreground"><span>Float:</span> <span>{selectedStock.float}M</span></div>
                     <div className="flex justify-between text-foreground"><span>Volume:</span> <span>{selectedStock.volume.toFixed(1)}M</span></div>
                     {selectedStock.newsSnippet && (
                         <div className="pt-1">
-                            <p className="text-muted-foreground">Catalyst:</p> 
+                            <p className="text-muted-foreground">Catalyst:</p>
                             <p className="text-xs leading-tight text-foreground" title={selectedStock.newsSnippet}>{selectedStock.newsSnippet.substring(0,100)}{selectedStock.newsSnippet.length > 100 ? '...' : ''}</p>
                         </div>
                     )}
@@ -492,3 +491,4 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     </Card>
   );
 }
+
