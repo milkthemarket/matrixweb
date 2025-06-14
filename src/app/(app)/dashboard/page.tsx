@@ -100,6 +100,21 @@ const initialMockStocks: Stock[] = [
   { id: '18', symbol: 'GTHX', price: 14.90, changePercent: -0.8, float: 80, volume: 0.45, newsSnippet: 'Awaiting FDA decision, quiet period.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [15.2, 15.1, 15.0, 14.8, 14.95, 14.7, 14.9], marketCap: 14.90 * 80 * 1e6, avgVolume: 0.6, atr: 1.1, rsi: 28.0, vwap: 14.92, beta: 1.7, high52: 30.00, low52: 10.00, gapPercent: -0.1, shortFloat: 8.2, instOwn: 50.3, premarketChange: 0.05 },
   { id: '19', symbol: 'UAL', price: 51.20, changePercent: 2.9, float: 320, volume: 7.2, newsSnippet: 'Travel demand remains strong for summer.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [49.8, 50.1, 50.5, 51.5, 51.0, 51.8, 51.2], marketCap: 51.20 * 320 * 1e6, avgVolume: 6.5, atr: 1.5, rsi: 60.7, vwap: 51.10, beta: 1.5, high52: 60.00, low52: 35.00, gapPercent: 0.7, shortFloat: 3.3, instOwn: 68.9, premarketChange: 0.3 },
   { id: '20', symbol: 'RBLX', price: 35.75, changePercent: 0.1, float: 550, volume: 10.1, newsSnippet: 'User engagement metrics stable.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [35.5, 35.6, 35.8, 35.7, 35.9, 35.65, 35.75], marketCap: 35.75 * 550 * 1e6, avgVolume: 12.0, atr: 1.3, rsi: 50.2, vwap: 35.70, beta: 1.9, high52: 50.00, low52: 25.00, gapPercent: 0.0, shortFloat: 7.8, instOwn: 73.5, premarketChange: -0.05 },
+  { id: '21', symbol: 'PYPL', price: 60.10, changePercent: -0.5, float: 1100, volume: 12.5, newsSnippet: 'New CEO outlines turnaround plan.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [60.5, 60.2, 59.8, 60.3, 60.0, 60.15, 60.10], marketCap: 60.10 * 1100 * 1e6, avgVolume: 15.0, atr: 1.8, rsi: 45.0, vwap: 60.05, beta: 1.3, high52: 80.00, low52: 50.00, gapPercent: -0.2, shortFloat: 2.5, instOwn: 70.0, premarketChange: -0.1 },
+  { id: '22', symbol: 'INTC', price: 30.50, changePercent: 1.2, float: 4200, volume: 45.0, newsSnippet: 'Foundry services gain new customer.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [30.0, 30.2, 30.6, 30.4, 30.8, 30.3, 30.50], marketCap: 30.50 * 4200 * 1e6, avgVolume: 50.0, atr: 0.9, rsi: 58.0, vwap: 30.45, beta: 1.0, high52: 50.00, low52: 25.00, gapPercent: 0.3, shortFloat: 1.1, instOwn: 65.0, premarketChange: 0.15 },
+  { id: '23', symbol: 'DIS', price: 102.00, changePercent: 0.8, float: 1800, volume: 8.0, newsSnippet: 'Streaming subscriber growth slows.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [101.0, 101.5, 102.5, 101.8, 102.2, 102.1, 102.00], marketCap: 102.00 * 1800 * 1e6, avgVolume: 10.0, atr: 2.5, rsi: 52.0, vwap: 101.90, beta: 1.2, high52: 120.00, low52: 80.00, gapPercent: 0.1, shortFloat: 0.9, instOwn: 68.0, premarketChange: 0.05 },
+  { id: '24', symbol: 'BA', price: 175.00, changePercent: -1.8, float: 580, volume: 5.5, newsSnippet: 'Production delays on key aircraft model.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [178.0, 177.0, 176.5, 175.5, 176.0, 174.5, 175.00], marketCap: 175.00 * 580 * 1e6, avgVolume: 6.0, atr: 4.0, rsi: 38.0, vwap: 175.20, beta: 1.4, high52: 250.00, low52: 150.00, gapPercent: -0.5, shortFloat: 3.0, instOwn: 60.0, premarketChange: -0.3 },
+  { id: '25', symbol: 'AMD', price: 160.75, changePercent: 3.1, float: 1600, volume: 60.0, newsSnippet: 'New AI chip outperforms competitors.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [155.0, 157.0, 159.0, 158.0, 161.0, 160.0, 160.75], marketCap: 160.75 * 1600 * 1e6, avgVolume: 55.0, atr: 5.0, rsi: 65.0, vwap: 160.50, beta: 1.5, high52: 200.00, low52: 100.00, gapPercent: 0.8, shortFloat: 1.5, instOwn: 72.0, premarketChange: 0.4 },
+  { id: '26', symbol: 'CVNA', price: 115.20, changePercent: 8.5, float: 70, volume: 15.0, newsSnippet: 'Short squeeze potential noted by analysts.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [105.0, 108.0, 112.0, 110.0, 116.0, 114.0, 115.20], marketCap: 115.20 * 70 * 1e6, avgVolume: 10.0, atr: 10.0, rsi: 78.0, vwap: 114.50, beta: 2.5, high52: 150.00, low52: 10.00, gapPercent: 2.0, shortFloat: 40.0, instOwn: 50.0, premarketChange: 1.5 },
+  { id: '27', symbol: 'PFE', price: 28.30, changePercent: 0.2, float: 5600, volume: 25.0, newsSnippet: 'Positive trial results for new vaccine.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [28.0, 28.1, 28.4, 28.2, 28.5, 28.25, 28.30], marketCap: 28.30 * 5600 * 1e6, avgVolume: 30.0, atr: 0.7, rsi: 50.0, vwap: 28.28, beta: 0.8, high52: 45.00, low52: 25.00, gapPercent: 0.0, shortFloat: 0.5, instOwn: 75.0, premarketChange: 0.02 },
+  { id: '28', symbol: 'UBER', price: 70.60, changePercent: -0.9, float: 2000, volume: 18.0, newsSnippet: 'Regulatory concerns in European markets.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [71.5, 71.0, 70.8, 70.5, 70.9, 70.4, 70.60], marketCap: 70.60 * 2000 * 1e6, avgVolume: 20.0, atr: 2.0, rsi: 42.0, vwap: 70.65, beta: 1.6, high52: 85.00, low52: 40.00, gapPercent: -0.3, shortFloat: 1.8, instOwn: 78.0, premarketChange: -0.1 },
+  { id: '29', symbol: 'SHOP', price: 65.40, changePercent: 1.5, float: 1200, volume: 7.0, newsSnippet: 'Announces new features for merchants.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [64.0, 64.5, 65.0, 65.8, 65.2, 65.5, 65.40], marketCap: 65.40 * 1200 * 1e6, avgVolume: 9.0, atr: 2.2, rsi: 60.0, vwap: 65.30, beta: 1.7, high52: 90.00, low52: 45.00, gapPercent: 0.4, shortFloat: 2.2, instOwn: 60.0, premarketChange: 0.2 },
+  { id: '30', symbol: 'SQ', price: 64.80, changePercent: -2.2, float: 500, volume: 10.0, newsSnippet: 'Competition heating up in payment space.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [66.5, 66.0, 65.5, 65.0, 65.2, 64.5, 64.80], marketCap: 64.80 * 500 * 1e6, avgVolume: 12.0, atr: 2.5, rsi: 35.0, vwap: 64.90, beta: 1.9, high52: 100.00, low52: 40.00, gapPercent: -0.7, shortFloat: 5.0, instOwn: 67.0, premarketChange: -0.4 },
+  { id: '31', symbol: 'ZM', price: 58.00, changePercent: 0.1, float: 280, volume: 4.0, newsSnippet: 'Enterprise adoption continues steadily.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [57.5, 57.8, 58.2, 57.9, 58.1, 58.05, 58.00], marketCap: 58.00 * 280 * 1e6, avgVolume: 5.0, atr: 1.5, rsi: 48.0, vwap: 57.95, beta: 1.4, high52: 80.00, low52: 50.00, gapPercent: 0.0, shortFloat: 3.5, instOwn: 55.0, premarketChange: 0.01 },
+  { id: '32', symbol: 'COIN', price: 225.50, changePercent: 5.2, float: 200, volume: 12.0, newsSnippet: 'Bitcoin price surge boosts crypto stocks.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [210.0, 215.0, 220.0, 218.0, 226.0, 224.0, 225.50], marketCap: 225.50 * 200 * 1e6, avgVolume: 10.0, atr: 15.0, rsi: 72.0, vwap: 224.80, beta: 2.8, high52: 300.00, low52: 50.00, gapPercent: 1.5, shortFloat: 10.0, instOwn: 45.0, premarketChange: 0.9 },
+  { id: '33', symbol: 'NFLX', price: 640.00, changePercent: -0.3, float: 430, volume: 2.5, newsSnippet: 'Password sharing crackdown impact unclear.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [642.0, 641.0, 638.0, 640.5, 639.0, 640.2, 640.00], marketCap: 640.00 * 430 * 1e6, avgVolume: 3.0, atr: 12.0, rsi: 49.0, vwap: 639.80, beta: 1.1, high52: 700.00, low52: 300.00, gapPercent: -0.1, shortFloat: 0.7, instOwn: 80.0, premarketChange: -0.05 },
+  { id: '34', symbol: 'WMT', price: 66.50, changePercent: 0.4, float: 2200, volume: 15.0, newsSnippet: 'Retail giant reports steady sales.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [66.0, 66.2, 66.6, 66.4, 66.8, 66.45, 66.50], marketCap: 66.50 * 2200 * 1e6, avgVolume: 18.0, atr: 1.0, rsi: 55.0, vwap: 66.48, beta: 0.7, high52: 70.00, low52: 50.00, gapPercent: 0.1, shortFloat: 0.4, instOwn: 40.0, premarketChange: 0.03 },
+  { id: '35', symbol: 'COST', price: 840.20, changePercent: 0.9, float: 440, volume: 1.0, newsSnippet: 'Membership renewal rates remain high.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [830.0, 835.0, 838.0, 842.0, 839.5, 841.0, 840.20], marketCap: 840.20 * 440 * 1e6, avgVolume: 1.2, atr: 10.0, rsi: 68.0, vwap: 840.00, beta: 0.9, high52: 850.00, low52: 500.00, gapPercent: 0.2, shortFloat: 0.6, instOwn: 70.0, premarketChange: 0.1 },
 ];
 
 
@@ -341,17 +356,16 @@ export default function DashboardPage() {
                 <Dot className="h-6 w-6 text-[hsl(var(--confirm-green))] animate-pulse" />
                 {lastRefreshed && <span className="text-sm text-muted-foreground">Refreshed: {new Date(lastRefreshed).toLocaleTimeString()}</span>}
                 <Button
-                  variant="ghost"
+                  variant="default"
                   size="sm"
                   onClick={handleRefreshData}
-                  className="text-foreground hover:bg-primary/10 hover:text-primary"
                 >
                   <RotateCcw className="mr-2 h-4 w-4" />
                   Refresh
                 </Button>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="ghost" size="sm" className="text-foreground hover:bg-accent/10 hover:text-accent">
+                    <Button variant="default" size="sm">
                       <Columns className="mr-2 h-4 w-4" /> Columns
                     </Button>
                   </PopoverTrigger>
@@ -396,10 +410,9 @@ export default function DashboardPage() {
                   </PopoverContent>
                 </Popover>
                 <Button
-                  variant="ghost"
+                  variant="default"
                   size="sm"
                   onClick={handleExport}
-                  className="text-foreground hover:bg-accent/10 hover:text-accent"
                 >
                   <UploadCloud className="mr-2 h-4 w-4" />
                   Export
