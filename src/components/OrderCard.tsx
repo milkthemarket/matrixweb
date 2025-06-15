@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"; // Removed CardDescription
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,13 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode, HistoryTradeMode, Account } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed, Search, Briefcase, Landmark, NotebookText } from 'lucide-react';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Clock4, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed, Search, Briefcase, Landmark, NotebookText, Percent } from 'lucide-react';
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import { cn } from '@/lib/utils';
 import { AiTradeCard } from '@/components/AiTradeCard';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
 import { AiAutoTradingWarningModal } from '@/components/AiAutoTradingWarningModal';
-import { useOpenPositionsContext, dummyAccounts as accountsFromContext } from '@/contexts/OpenPositionsContext'; // Import context and accounts
+import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 
 interface OrderCardProps {
   selectedStock: Stock | null;
@@ -29,8 +29,15 @@ interface OrderCardProps {
   onStockSymbolSubmit: (symbol: string) => void;
 }
 
+// Dummy autopilot rules for display, replace with actual logic if needed
+const dummyAutoRules = [
+  { id: 'ar1', name: 'RSI Momentum Play', description: 'Buy on RSI < 30, Sell on RSI > 70 with volume confirmation.' },
+  { id: 'ar2', name: 'Low Float Breakout', description: 'Enter on breakout above key resistance for low float stocks.' },
+];
+
+
 export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear, initialTradeMode, miloActionContextText, onStockSymbolSubmit }: OrderCardProps) {
-  const { selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext(); // Use context for account state
+  const { selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
 
   const [tradeMode, setTradeMode] = useState<TradeMode>(initialTradeMode || 'manual');
   const [quantityValue, setQuantityValue] = useState('');
@@ -81,8 +88,9 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     if (selectedStock) {
       if (tradeMode === 'manual') {
          setCurrentAction(initialActionType);
-         if (initialTradeMode === 'manual' || !quantityValue) {
-            setQuantityValue('');
+         // Reset quantity and order details if mode isn't AI/Autopilot coming from Milo context or if stock changes
+         if (initialTradeMode === 'manual' || !miloActionContextText || !quantityValue) {
+            setQuantityValue(''); // Keep quantityValue if it was set by Milo suggestion
             setOrderType('Market');
             setLimitPrice('');
             setStopPrice('');
@@ -90,12 +98,15 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
             setTimeInForce('Day');
          }
       }
-      if (initialTradeMode !== 'manual' && !miloActionContextText){
+      // Clear Milo context if we switch away from manual mode or if it's not relevant
+      if (tradeMode !== 'manual' && initialTradeMode === 'manual' && !miloActionContextText) {
           setDisplayedMiloContext(null);
       }
     } else {
+      // Clear all when no stock is selected
       setCurrentAction(null);
       setQuantityValue('');
+      // quantityMode can persist
       setOrderType('Market');
       setLimitPrice('');
       setStopPrice('');
@@ -104,19 +115,16 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       setDisplayedMiloContext(null);
       setIsAutopilotEnabled(false);
     }
-  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText, quantityValue]);
+  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText]);
 
 
   const handleActionSelect = (action: OrderActionType) => {
     setCurrentAction(action);
   };
 
-  const toggleQuantityMode = () => {
-    setQuantityMode(prevMode => {
-      const nextMode = prevMode === 'Shares' ? 'DollarAmount' : prevMode === 'DollarAmount' ? 'PercentOfBuyingPower' : 'Shares';
-      return nextMode;
-    });
-    setQuantityValue('');
+  const handleQuantityModeChange = (mode: QuantityInputMode) => {
+    setQuantityMode(mode);
+    setQuantityValue(''); // Reset input value when mode changes
   };
 
   const getQuantityInputPlaceholder = () => {
@@ -143,24 +151,24 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
         if (stockPrice > 0) {
           shares = Math.floor(rawValue / stockPrice);
         } else {
-          shares = 0;
+          shares = 0; // Cannot calculate shares if price is 0
         }
-        cost = rawValue;
+        cost = rawValue; // Cost is the dollar amount entered
       } else if (quantityMode === 'PercentOfBuyingPower') {
-        if (rawValue > 0 && rawValue <= 100) {
+        if (rawValue > 0 && rawValue <= 100) { // Percentage should be between 0 and 100
           const dollarAmount = (rawValue / 100) * currentBuyingPower;
           if (stockPrice > 0) {
             shares = Math.floor(dollarAmount / stockPrice);
           } else {
-            shares = 0;
+            shares = 0; // Cannot calculate shares if price is 0
           }
-          cost = dollarAmount;
+          cost = dollarAmount; // Cost is the calculated dollar amount
         } else {
-          valid = false;
+          valid = false; // Invalid percentage
         }
       }
-      if (shares <= 0 && quantityMode !== 'DollarAmount' && quantityMode !== 'PercentOfBuyingPower') valid = false;
-      if (shares <= 0 && (quantityMode === 'DollarAmount' || quantityMode === 'PercentOfBuyingPower') && stockPrice > 0 ) valid = false;
+      // Final validation: ensure at least 1 share is being traded if price is positive
+      if (shares <= 0 && stockPrice > 0) valid = false;
     }
     return { finalSharesToSubmit: shares, estimatedCost: cost, isValidQuantity: valid };
   }, [quantityValue, quantityMode, selectedStock, currentBuyingPower]);
@@ -185,7 +193,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       rawQuantityValue: quantityValue,
       rawQuantityMode: quantityMode,
       tradeModeOrigin: origin,
-      accountId: selectedAccountId, // Include selected account ID
+      accountId: selectedAccountId,
     };
 
     if (orderType === 'Limit' || orderType === 'Stop Limit') {
@@ -324,18 +332,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   return (
     <>
       <Card className="shadow-none flex flex-col">
-        <CardHeader className="relative pb-2">
-          <CardTitle className="text-xl font-headline text-foreground">
-            Trade Panel{getCardTitleSuffix()}
+        <CardHeader className="relative pb-4"> {/* Increased bottom padding */}
+          <CardTitle className="text-xl font-headline text-foreground mb-2">
+            Trade Panel
           </CardTitle>
-          {/* CardDescription removed from here */}
-          {selectedStock && (
-            <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={handleClearSelection} title="Clear Selection">
-              <XCircle className="h-5 w-5 text-muted-foreground hover:text-foreground" />
-            </Button>
-          )}
-        </CardHeader>
-        <CardContent className="space-y-4 py-4 overflow-y-auto">
           {/* Account Selector and Info */}
           <div className="space-y-3 p-3 rounded-lg border border-white/5 bg-black/5">
             <div className="flex items-center gap-2">
@@ -363,8 +363,13 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
               <div className="text-right font-medium text-foreground">${selectedAccount.buyingPower.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             </div>
           </div>
-
-
+          {selectedStock && (
+            <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={handleClearSelection} title="Clear Selection">
+              <XCircle className="h-5 w-5 text-muted-foreground hover:text-foreground" />
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent className="space-y-4 py-4 overflow-y-auto">
           {/* Ticker Input Section */}
           <div className="flex items-center space-x-2">
             <Input
@@ -459,10 +464,9 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
 
                   <div className="space-y-1.5">
                     <Label htmlFor="quantityValue" className="text-sm font-medium text-foreground">
-                      <PackageOpen className="inline-block mr-1 h-4 w-4 text-muted-foreground" />
-                      Quantity ({quantityMode === 'DollarAmount' ? '$ Amount' : quantityMode === 'PercentOfBuyingPower' ? '% Buying Power' : 'Shares'})
+                      Quantity
                     </Label>
-                    <div className="flex items-center rounded-md border border-input bg-transparent focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-background">
+                    <div className="flex items-stretch space-x-1">
                       <Input
                         id="quantityValue"
                         type="number"
@@ -470,29 +474,46 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                         onChange={(e) => setQuantityValue(e.target.value)}
                         placeholder={getQuantityInputPlaceholder()}
                         disabled={!selectedStock}
-                        className="flex-1 h-9 bg-transparent px-3 py-2 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="flex-1 h-9 bg-transparent px-3 py-2 focus-visible:ring-ring"
                       />
                       <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={toggleQuantityMode}
-                        disabled={!selectedStock}
-                        className="h-8 w-8 mr-1 text-muted-foreground hover:text-primary shrink-0"
-                        type="button"
+                        variant={quantityMode === 'Shares' ? 'default' : 'outline'}
+                        onClick={() => handleQuantityModeChange('Shares')}
+                        className="h-9 px-3 text-xs"
+                        size="sm"
+                        title="Enter number of shares"
                       >
-                        <Repeat className="h-4 w-4" />
+                        Shares
+                      </Button>
+                      <Button
+                        variant={quantityMode === 'DollarAmount' ? 'default' : 'outline'}
+                        onClick={() => handleQuantityModeChange('DollarAmount')}
+                        className="h-9 px-3 text-xs"
+                        size="sm"
+                        title="Enter total dollar amount for trade"
+                      >
+                        <DollarSign className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant={quantityMode === 'PercentOfBuyingPower' ? 'default' : 'outline'}
+                        onClick={() => handleQuantityModeChange('PercentOfBuyingPower')}
+                        className="h-9 px-3 text-xs"
+                        size="sm"
+                        title="Enter percent of buying power to use"
+                      >
+                        <Percent className="h-3 w-3" />
                       </Button>
                     </div>
                   </div>
 
                   {selectedStock && quantityValue && isValidQuantity && (
-                    <div className="text-xs text-muted-foreground space-y-0.5">
+                    <div className="text-xs text-muted-foreground space-y-0.5 mt-1.5">
                       {quantityMode !== 'Shares' && finalSharesToSubmit > 0 && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Shares: {finalSharesToSubmit}</p>}
                       {(quantityMode === 'Shares' || finalSharesToSubmit > 0) && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Cost: ${estimatedCost.toFixed(2)}</p>}
-                       {quantityMode === 'PercentOfBuyingPower' && <p className="text-xs text-muted-foreground">Using Account Buying Power: ${currentBuyingPower.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>}
+                       {quantityMode === 'PercentOfBuyingPower' && <p><Info className="inline-block mr-1 h-3 w-3" />Using ~{quantityValue}% of ${currentBuyingPower.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} buying power.</p>}
                     </div>
                   )}
-                   {!isValidQuantity && quantityValue && selectedStock && <p className="text-xs text-destructive">Please enter a valid positive quantity.</p>}
+                   {!isValidQuantity && quantityValue && selectedStock && <p className="text-xs text-destructive mt-1">Please enter a valid positive quantity that results in at least 1 share.</p>}
 
                   <div className="space-y-1.5">
                     <Label htmlFor="orderType" className="text-sm font-medium text-foreground">Order Type</Label>
@@ -543,7 +564,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                     <>
                       <Separator className="my-6 border-white/5" />
                       <div className="space-y-2 text-sm">
-                          <h4 className="font-medium text-muted-foreground">Stock Info</h4>
+                          <h4 className="font-medium text-muted-foreground">Stock Info for {selectedStock.symbol}</h4>
+                          <div className="flex justify-between text-foreground"><span>Last Price:</span> <span>${selectedStock.price.toFixed(2)}</span></div>
                           <div className="flex justify-between text-foreground"><span>Float:</span> <span>{selectedStock.float}M</span></div>
                           <div className="flex justify-between text-foreground"><span>Volume:</span> <span>{selectedStock.volume.toFixed(1)}M</span></div>
                           {selectedStock.newsSnippet && (
@@ -643,3 +665,4 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     </>
   );
 }
+
