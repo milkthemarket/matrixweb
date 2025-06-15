@@ -26,26 +26,20 @@ const navItems = [
   { href: "/academy", label: "Milk Academy", icon: GraduationCap },
 ];
 
-// New MilkDropIcon component structure, ready for Flaticon SVG path data
-const MilkDropIcon = ({ size = 28, className }: { size?: number; className?: string; }) => {
+// Phosphor cow icon (https://phosphoricons.com/) - open source
+const CowIcon = ({ size = 28, color = "currentColor", ...props }) => {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 512 512" // Use Flaticon's viewBox
-      fill="currentColor" // Ensures single color and theme compatibility
-      className={className}
-      aria-labelledby="milkLogoTitle"
-    >
-      <title id="milkLogoTitle">MILK Logo</title>
-      {/*
-        IMPORTANT: Replace the path below with the actual <path> data
-        from the "milking_1421714" SVG file you downloaded from Flaticon.
-        Example: <path d="Mactual path data from Flaticon...Z" />
-        The current path is just a placeholder.
-      */}
-      <path d="M100,100 h312 v312 h-312 z" /> {/* Placeholder path */}
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width={size} height={size} {...props}>
+      <rect width="256" height="256" fill="none"/>
+      <path d="M56,24h0a48,48,0,0,0,48,48h48a48,48,0,0,0,48-48h0" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+      <rect x="48" y="160" width="160" height="64" rx="32" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+      <line x1="80" y1="192" x2="96" y2="192" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+      <line x1="160" y1="192" x2="176" y2="192" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+      <circle cx="100" cy="124" r="12" fill={color} />
+      <circle cx="156" cy="124" r="12" fill={color} />
+      <path d="M160,72h32.78a48,48,0,0,1,47.07,38.53A8,8,0,0,1,232,120H192" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+      <path d="M96,72H63.22a48,48,0,0,0-47.07,38.53A8,8,0,0,0,24,120H64" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+      <path d="M64,164.28V104A32,32,0,0,1,96,72h64a32,32,0,0,1,32,32v60.28" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
     </svg>
   );
 };
@@ -64,7 +58,8 @@ export function SidebarNav() {
           "group-data-[state=collapsed]:flex-col group-data-[state=collapsed]:items-center group-data-[state=collapsed]:gap-2"
         )}>
           <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 group-data-[state=collapsed]:justify-center hover:opacity-80 transition-opacity duration-150">
-            <MilkDropIcon size={28} className="text-white flex-shrink-0" />
+            {/* Updated to CowIcon */}
+            <CowIcon size={28} className="text-white flex-shrink-0" />
             {open && state === 'expanded' && (
               <span className="text-2xl font-bold text-[#E5E5E5] tracking-widest font-headline truncate">M.I.L.K.</span>
             )}
@@ -114,8 +109,10 @@ export function SidebarNav() {
       {open && state ==='expanded' && (
         <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden flex flex-col space-y-1 items-start">
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} M.I.L.K.</p>
-          <p className="text-xs text-muted-foreground/70">Milking icon concept by monik from Flaticon.</p>
-          <p className="text-xs text-muted-foreground/70">Cow head icon concept by kerismaker from Flaticon.</p>
+          {/* Removed Flaticon attributions for main logo as it's now a Phosphor icon. */}
+          {/* MiloAvatarIcon attribution (if any) should be separate or alongside its usage. */}
+          <p className="text-xs text-muted-foreground/70">Main logo based on Phosphor Icons (open source).</p>
+          <p className="text-xs text-muted-foreground/70">Milo Avatar (cow head) icon concept by kerismaker from Flaticon.</p>
         </SidebarFooter>
       )}
 
