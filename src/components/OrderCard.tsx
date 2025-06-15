@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode, HistoryTradeMode } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed, Search } from 'lucide-react';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed, Search, Briefcase, Landmark } from 'lucide-react';
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import { cn } from '@/lib/utils';
 import { AiTradeCard } from '@/components/AiTradeCard';
@@ -25,10 +25,29 @@ interface OrderCardProps {
   onClear: () => void;
   initialTradeMode?: TradeMode;
   miloActionContextText?: string | null;
-  onStockSymbolSubmit: (symbol: string) => void; // New prop
+  onStockSymbolSubmit: (symbol: string) => void;
 }
 
-const MOCK_BUYING_POWER = 10000;
+// TODO: Replace with actual user account data from Firebase/backend
+const dummyAccounts = [
+  {
+    id: 'acc-001',
+    label: 'Taxable Margin',
+    type: 'margin',
+    number: '•••8740',
+    balance: 9500.20,
+    buyingPower: 12000.00,
+  },
+  {
+    id: 'acc-002',
+    label: 'Roth IRA',
+    type: 'ira',
+    number: '•••1234',
+    balance: 15220.55,
+    buyingPower: 15220.55,
+  },
+];
+
 
 const dummyAutoRules = [
   {
@@ -60,9 +79,17 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const [timeInForce, setTimeInForce] = useState<string>('Day');
   const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(false);
   const [displayedMiloContext, setDisplayedMiloContext] = useState<string | null>(null);
-  const [tickerInputValue, setTickerInputValue] = useState(''); // New state for ticker input
+  const [tickerInputValue, setTickerInputValue] = useState('');
 
-  const [buyingPower] = useState<number>(MOCK_BUYING_POWER);
+  const [accountsData] = useState(dummyAccounts);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>(dummyAccounts[0].id);
+
+  const selectedAccount = useMemo(() => {
+    return accountsData.find(acc => acc.id === selectedAccountId) || accountsData[0];
+  }, [accountsData, selectedAccountId]);
+
+  const currentBuyingPower = selectedAccount.buyingPower;
+
 
   const [showManualTradeWarningModal, setShowManualTradeWarningModal] = useState(false);
   const [manualTradeDisclaimerAcknowledged, setManualTradeDisclaimerAcknowledged] = useState(false);
@@ -82,24 +109,20 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
      setDisplayedMiloContext(miloActionContextText || null);
   }, [miloActionContextText]);
 
-  // Populate ticker input when a stock is selected from the screener or via direct input successfully
   useEffect(() => {
     if (selectedStock) {
       if (tickerInputValue.toUpperCase() !== selectedStock.symbol.toUpperCase()) {
         setTickerInputValue(selectedStock.symbol);
       }
     }
-    // If selectedStock becomes null (cleared from dashboard), the input field retains user's typing
-    // or is cleared by handleClearSelection if 'X' is clicked.
-  }, [selectedStock]);
+  }, [selectedStock, tickerInputValue]);
 
-  // Effect to manage fields when selectedStock or tradeMode changes
   useEffect(() => {
     if (selectedStock) {
       if (tradeMode === 'manual') {
          setCurrentAction(initialActionType);
          if (initialTradeMode === 'manual' || !quantityValue) {
-            setQuantityValue(''); // Clear quantity if mode was just set by Milo idea
+            setQuantityValue('');
             setOrderType('Market');
             setLimitPrice('');
             setStopPrice('');
@@ -110,7 +133,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       if (initialTradeMode !== 'manual' && !miloActionContextText){
           setDisplayedMiloContext(null);
       }
-    } else { // No stock selected
+    } else {
       setCurrentAction(null);
       setQuantityValue('');
       setOrderType('Market');
@@ -120,9 +143,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       setTimeInForce('Day');
       setDisplayedMiloContext(null);
       setIsAutopilotEnabled(false);
-      // setTickerInputValue(''); // Do not clear tickerInputValue here, user might be typing
     }
-  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText]);
+  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText, quantityValue]);
 
 
   const handleActionSelect = (action: OrderActionType) => {
@@ -166,7 +188,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
         cost = rawValue;
       } else if (quantityMode === 'PercentOfBuyingPower') {
         if (rawValue > 0 && rawValue <= 100) {
-          const dollarAmount = (rawValue / 100) * buyingPower;
+          const dollarAmount = (rawValue / 100) * currentBuyingPower;
           if (stockPrice > 0) {
             shares = Math.floor(dollarAmount / stockPrice);
           } else {
@@ -179,11 +201,9 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       }
       if (shares <= 0 && quantityMode !== 'DollarAmount' && quantityMode !== 'PercentOfBuyingPower') valid = false;
       if (shares <= 0 && (quantityMode === 'DollarAmount' || quantityMode === 'PercentOfBuyingPower') && stockPrice > 0 ) valid = false;
-
-
     }
     return { finalSharesToSubmit: shares, estimatedCost: cost, isValidQuantity: valid };
-  }, [quantityValue, quantityMode, selectedStock, buyingPower]);
+  }, [quantityValue, quantityMode, selectedStock, currentBuyingPower]);
 
   const handleManualSubmit = () => {
     if (!selectedStock || !currentAction || !isValidQuantity || finalSharesToSubmit <= 0) {
@@ -283,7 +303,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
 
   const handleClearSelection = () => {
     setDisplayedMiloContext(null);
-    setTickerInputValue(''); // Clear the input as well
+    setTickerInputValue('');
     onClear();
   }
 
@@ -307,11 +327,11 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     if (!selectedStock) return "Enter ticker or select from screener";
     if (tradeMode === 'autopilot' && selectedStock) return `Status for ${selectedStock.symbol}`;
     if (selectedStock) return `Current Price: $${selectedStock.price.toFixed(2)}`;
-    return "Ready for ticker or selection"; // Fallback
+    return "Ready for ticker or selection";
   };
 
   const getSubmitButtonText = () => {
-    if (!selectedStock) return "Load Ticker to Trade"; // Changed
+    if (!selectedStock) return "Load Ticker to Trade";
     if (!currentAction) return "Select Action";
     return `Submit ${currentAction} Order`;
   };
@@ -355,7 +375,36 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
           )}
         </CardHeader>
         <CardContent className="space-y-4 py-4 overflow-y-auto">
-          {/* Ticker Input Section - Always Visible */}
+          {/* Account Selector and Info */}
+          <div className="space-y-3 p-3 rounded-lg border border-white/5 bg-black/5">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="accountSelect" className="text-sm font-medium text-muted-foreground shrink-0">Account:</Label>
+              <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+                <SelectTrigger id="accountSelect" className="flex-1 min-w-[180px] h-9">
+                  <SelectValue placeholder="Select account" />
+                </SelectTrigger>
+                <SelectContent>
+                  {accountsData.map(acc => (
+                    <SelectItem key={acc.id} value={acc.id}>
+                      <div className="flex items-center gap-2">
+                        {acc.type === 'margin' ? <Briefcase className="h-4 w-4 text-muted-foreground" /> : <Landmark className="h-4 w-4 text-muted-foreground" />}
+                        <span>{acc.label} ({acc.number})</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+              <div className="text-muted-foreground">Available to Trade:</div>
+              <div className="text-right font-medium text-foreground">${selectedAccount.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+              <div className="text-muted-foreground">Buying Power:</div>
+              <div className="text-right font-medium text-foreground">${selectedAccount.buyingPower.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            </div>
+          </div>
+
+
+          {/* Ticker Input Section */}
           <div className="flex items-center space-x-2">
             <Input
               id="tickerInput"
@@ -371,7 +420,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
             </Button>
           </div>
 
-          {/* Trade Mode Selector - Always Visible */}
+          {/* Trade Mode Selector */}
           <div className="grid grid-cols-3 w-full rounded-md overflow-hidden border border-white/5 bg-black/15">
             <button
               onClick={() => setTradeMode('manual')}
@@ -479,7 +528,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                     <div className="text-xs text-muted-foreground space-y-0.5">
                       {quantityMode !== 'Shares' && finalSharesToSubmit > 0 && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Shares: {finalSharesToSubmit}</p>}
                       {(quantityMode === 'Shares' || finalSharesToSubmit > 0) && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Cost: ${estimatedCost.toFixed(2)}</p>}
-                       {quantityMode === 'PercentOfBuyingPower' && <p className="text-xs text-muted-foreground">Using Buying Power: ${buyingPower.toLocaleString()}</p>}
+                       {quantityMode === 'PercentOfBuyingPower' && <p className="text-xs text-muted-foreground">Using Account Buying Power: ${currentBuyingPower.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>}
                     </div>
                   )}
                    {!isValidQuantity && quantityValue && selectedStock && <p className="text-xs text-destructive">Please enter a valid positive quantity.</p>}
@@ -548,7 +597,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                 </>
               )}
               {tradeMode === 'ai' && selectedStock && (
-                 <AiTradeCard selectedStock={selectedStock} onSubmit={handleAISuggestionSubmit} buyingPower={buyingPower} />
+                 <AiTradeCard selectedStock={selectedStock} onSubmit={handleAISuggestionSubmit} buyingPower={currentBuyingPower} />
               )}
               {tradeMode === 'autopilot' && selectedStock && (
                 <div className="space-y-4">
@@ -633,3 +682,4 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     </>
   );
 }
+
