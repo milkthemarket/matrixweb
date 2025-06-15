@@ -43,16 +43,19 @@ const generateMockOptionsChain = (underlyingPrice: number, expirationDate: strin
     const moneyness = isCall ? underlyingPrice - strike : strike - underlyingPrice;
     
     let intrinsicValue = Math.max(0, moneyness);
-    let extrinsicValue = Math.max(0.1, (Math.random() * 2 + 0.5) * (1 - Math.abs(i) / numStrikes) * (Math.sqrt(underlyingPrice) / 10));
+    // Simulate extrinsic value decaying with moneyness and time to expiration
+    // For simplicity, base extrinsic value on random factor, scaled by moneyness and sqrt of price
+    let extrinsicValue = Math.max(0.1, (Math.random() * 2 + 0.5) * (1 - Math.abs(i) / numStrikes) * (Math.sqrt(underlyingPrice) / 10) * (Math.sqrt(daysToExpiration / 30))); // Add decay based on DTE
     
     if ((isCall && strike < underlyingPrice * 0.8) || (!isCall && strike > underlyingPrice * 1.2)) {
-        extrinsicValue *= 0.5;
+        extrinsicValue *= 0.5; // Further reduce extrinsic for deep ITM/OTM
     }
+    extrinsicValue = Math.max(0.01, extrinsicValue); // Ensure extrinsic isn't too small
 
     const ask = parseFloat((intrinsicValue + extrinsicValue).toFixed(2));
     const bid = parseFloat(Math.max(0.01, ask - Math.random() * 0.1 * ask - 0.05).toFixed(2));
     const change = parseFloat(((Math.random() - 0.45) * ask * 0.2).toFixed(2));
-    const lastPrice = parseFloat((ask - change).toFixed(2));
+    const lastPrice = parseFloat(Math.max(0.01, (ask - change)).toFixed(2)); // Ensure lastPrice isn't 0 if ask/bid are very low
     const percentChange = lastPrice > 0 ? parseFloat(((change / lastPrice) * 100).toFixed(2)) : 0;
     const breakeven = isCall ? strike + ask : strike - ask;
     const toBreakevenPercent = underlyingPrice > 0 ? parseFloat(((breakeven - underlyingPrice) / underlyingPrice * 100).toFixed(2)) : 0;
@@ -86,24 +89,24 @@ export default function OptionsPage() {
   const [selectedExpiration, setSelectedExpiration] = useState<string>(mockExpirations[0].value);
   
   const [optionsChain, setOptionsChain] = useState<OptionContract[]>([]);
-  const [isChainDataReady, setIsChainDataReady] = useState(false); // New state
+  const [isChainDataReady, setIsChainDataReady] = useState(false);
   const [selectedContract, setSelectedContract] = useState<OptionContract | null>(null);
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   
   const { toast } = useToast();
   const tableContainerRef = useRef<HTMLDivElement>(null);
-  const [stickyPricePillVisible, setStickyPricePillVisible] = useState(false); // Initialize to false
+  const [stickyPricePillVisible, setStickyPricePillVisible] = useState(false);
 
   useEffect(() => {
-    setIsChainDataReady(false); // Reset ready state when dependencies change
+    setIsChainDataReady(false); 
     const currentExpirationDetails = mockExpirations.find(exp => exp.value === selectedExpiration);
     if (currentExpirationDetails) {
       const chain = generateMockOptionsChain(tickerInfo.lastPrice, selectedExpiration, optionType, currentExpirationDetails.daysRemaining);
       setOptionsChain(chain);
-      setIsChainDataReady(true); // Mark data as ready after generation
+      setIsChainDataReady(true); 
     } else {
-      setOptionsChain([]); // Clear chain if no details found
-      setIsChainDataReady(true); // Consider empty chain as "ready" to avoid indefinite loading state
+      setOptionsChain([]); 
+      setIsChainDataReady(true); 
     }
   }, [tickerInfo.lastPrice, selectedExpiration, optionType]);
 
@@ -121,35 +124,25 @@ export default function OptionsPage() {
     setIsTradeModalOpen(false);
   };
 
-  const getMarketStatusColor = (status: OptionsTickerInfo['marketStatus']) => {
-    switch (status) {
-      case 'Market Open': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'Market Closed': return 'bg-red-500/20 text-red-400 border-red-500/30';
-      case 'Late Close': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
-    }
-  };
-
   useEffect(() => {
     const tableContainer = tableContainerRef.current;
-    if (!tableContainer) return;
+    if (!tableContainer || !isChainDataReady) return;
 
     const handleScroll = () => {
       const tableHeader = tableContainer.querySelector('thead');
       if (tableHeader) {
         const tableHeaderBottom = tableHeader.getBoundingClientRect().bottom;
-        // Ensure calculations are done only on client
         setStickyPricePillVisible(tableHeaderBottom < (tableContainer.getBoundingClientRect().top + 60));
       } else {
-        setStickyPricePillVisible(false); // Default to not visible if header isn't found
+        setStickyPricePillVisible(false); 
       }
     };
     
-    handleScroll(); // Initial check on mount
+    handleScroll(); 
 
     tableContainer.addEventListener('scroll', handleScroll);
     return () => tableContainer.removeEventListener('scroll', handleScroll);
-  }, [isChainDataReady]); // Re-run when chain data is ready as table might appear/affect layout
+  }, [isChainDataReady]); 
 
 
   const buttonBaseClass = "h-10 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background rounded-md";
@@ -167,21 +160,19 @@ export default function OptionsPage() {
           <Card>
             <CardContent className="p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
               <div className="flex items-center gap-3">
-                <SlidersHorizontal className="h-8 w-8 text-primary" />
+                {/* Icon removed from here */}
                 <div>
                   <h2 className="text-2xl font-bold text-foreground">
                     {tickerInfo.symbol}{' '}
-                    <span className={cn("text-xl", tickerInfo.priceChange >= 0 ? 'text-green-400' : 'text-red-400')}>
+                    <span className={cn("text-xl", tickerInfo.priceChange >= 0 ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
                       ${tickerInfo.lastPrice.toFixed(2)}
                     </span>
                   </h2>
-                  <p className={cn("text-sm", tickerInfo.priceChange >= 0 ? 'text-green-400' : 'text-red-400')}>
-                    {tickerInfo.priceChange.toFixed(2)} ({tickerInfo.priceChangePercent.toFixed(2)}%)
+                  <p className={cn("text-sm", tickerInfo.priceChange >= 0 ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
+                    {tickerInfo.priceChange >= 0 ? '+' : ''}{tickerInfo.priceChange.toFixed(2)} ({tickerInfo.priceChangePercent.toFixed(2)}%)
                   </p>
                 </div>
-                <Badge variant="outline" className={cn("text-xs whitespace-nowrap", getMarketStatusColor(tickerInfo.marketStatus))}>
-                  {tickerInfo.marketStatus}
-                </Badge>
+                {/* Market Status Badge removed from here */}
               </div>
               <Button variant="outline" className="border-accent text-accent hover:bg-accent/10">
                 <AreaChart className="mr-2 h-4 w-4" /> Price History
@@ -298,3 +289,4 @@ export default function OptionsPage() {
     </>
   );
 }
+
