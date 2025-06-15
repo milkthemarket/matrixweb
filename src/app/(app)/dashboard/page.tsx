@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -331,21 +331,26 @@ export default function DashboardPage() {
           historicalPrices: Array.from({ length: 7 }, (_, i) => parseFloat((newPrice * (1 + (Math.random() - 0.5) * (0.01 * (7-i)))).toFixed(2)))
         };
       });
-      updateAllPositionsPrices(updatedStocksData); // Use the computed value directly
       return updatedStocksData;
     });
-
     setLastRefreshed(new Date());
-  }, [updateAllPositionsPrices]);
+  }, [/*setStocks, setLastRefreshed are stable, can be empty if linter allows*/]);
 
+  // Effect to synchronize local stocks state with OpenPositionsContext
+  useEffect(() => {
+    if (stocks && stocks.length > 0) { // Ensure stocks is populated
+      updateAllPositionsPrices(stocks);
+    }
+  }, [stocks, updateAllPositionsPrices]); // updateAllPositionsPrices is a stable callback from context
 
+  // Effect for setting up the interval
   useEffect(() => {
     if (lastRefreshed === null) { // Set initial lastRefreshed only once on mount
         setLastRefreshed(new Date());
     }
     const intervalId = setInterval(handleRefreshData, DASHBOARD_REFRESH_INTERVAL);
     return () => clearInterval(intervalId);
-  }, [handleRefreshData, lastRefreshed]);
+  }, [handleRefreshData, lastRefreshed]); // Keep lastRefreshed dependency
 
   const activeRules = useMemo(() => mockRules.filter(rule => rule.isActive), []);
 
@@ -537,7 +542,7 @@ export default function DashboardPage() {
   }, []);
 
   const handleDragStart = (e: React.DragEvent<HTMLTableCellElement>, columnKey: keyof Stock) => {
-    e.dataTransfer.setData('draggedColumnKey', columnKey);
+    e.dataTransfer.setData('draggedColumnKey', columnKey as string);
     setDraggedColumnKey(columnKey);
   };
 
@@ -656,17 +661,17 @@ export default function DashboardPage() {
                           {initialColumnConfiguration
                             .filter(col => col.isToggleable)
                             .map(col => (
-                              <Tooltip key={`tooltip-${col.key}`}>
+                              <Tooltip key={`tooltip-${col.key as string}`}>
                                 <TooltipTrigger asChild>
                                   <Label
-                                    htmlFor={`col-${col.key}`}
+                                    htmlFor={`col-${col.key as string}`}
                                     className={cn(
                                       "flex items-center space-x-2 p-2 rounded-md hover:bg-white/5 transition-colors w-full",
                                       !visibleColumns[col.key as string] && "opacity-75"
                                     )}
                                   >
                                     <Checkbox
-                                      id={`col-${col.key}`}
+                                      id={`col-${col.key as string}`}
                                       checked={visibleColumns[col.key as string]}
                                       onCheckedChange={() => toggleColumnVisibility(col.key as string)}
                                     />
@@ -851,3 +856,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+    
