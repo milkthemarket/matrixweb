@@ -6,7 +6,7 @@ import type { OpenPosition, HistoryTradeMode } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
-import { XSquare, Briefcase, User, Bot, Cpu } from 'lucide-react';
+import { XSquare, Briefcase, User, Bot, Cpu, Layers } from 'lucide-react'; // Added Layers
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext'; 
@@ -14,9 +14,11 @@ import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 interface OpenPositionsCardProps {
 }
 
+type OpenPositionFilterMode = HistoryTradeMode | 'all';
+
 export function OpenPositionsCard({}: OpenPositionsCardProps) {
   const { openPositions, removeOpenPosition } = useOpenPositionsContext(); 
-  const [selectedOriginFilter, setSelectedOriginFilter] = useState<HistoryTradeMode>('manual');
+  const [selectedOriginFilter, setSelectedOriginFilter] = useState<OpenPositionFilterMode>('all'); // Default to 'all'
 
   const handleClose = (position: OpenPosition) => {
     console.log("Closing position:", position);
@@ -28,6 +30,9 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
   };
 
   const filteredPositions = useMemo(() => {
+    if (selectedOriginFilter === 'all') {
+      return openPositions;
+    }
     return openPositions.filter(pos => (pos.origin || 'manual') === selectedOriginFilter);
   }, [openPositions, selectedOriginFilter]);
 
@@ -44,7 +49,14 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
         </CardTitle>
         <CardDescription>Your currently active trades. Filter by origin below.</CardDescription>
         
-        <div className="grid grid-cols-3 w-full max-w-sm rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05] mt-3">
+        <div className="grid grid-cols-4 w-full max-w-md rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05] mt-3">
+          <button
+            onClick={() => setSelectedOriginFilter('all')}
+            className={cn(buttonBaseClass, selectedOriginFilter === 'all' ? activeModeClass : inactiveModeClass)}
+            title="Show All Trades"
+          >
+            <Layers className="mr-1.5 h-3.5 w-3.5" /> All
+          </button>
           <button
             onClick={() => setSelectedOriginFilter('manual')}
             className={cn(buttonBaseClass, selectedOriginFilter === 'manual' ? activeModeClass : inactiveModeClass)}
@@ -118,7 +130,9 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
         ) : (
           <div className="text-center text-sm text-muted-foreground py-10 px-6">
             <Briefcase className="mx-auto h-10 w-10 mb-2 opacity-50" />
-            No open positions matching "{selectedOriginFilter}" filter.
+            {selectedOriginFilter === 'all' 
+              ? "No open positions." 
+              : `No open positions matching "${selectedOriginFilter}" filter.`}
           </div>
         )}
       </CardContent>
