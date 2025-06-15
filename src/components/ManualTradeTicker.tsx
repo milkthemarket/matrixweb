@@ -4,7 +4,8 @@
 import React, { useMemo } from 'react';
 import { useSettingsContext } from '@/contexts/SettingsContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
-import { Wrench, Bot, Cpu } from 'lucide-react'; 
+import { Wrench, Cpu } from 'lucide-react'; 
+import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon'; // Changed Bot to MiloAvatarIcon
 import type { HistoryTradeMode } from '@/types';
 import { cn } from '@/lib/utils';
 import { useSidebar } from '@/components/ui/sidebar';
@@ -12,7 +13,7 @@ import { useSidebar } from '@/components/ui/sidebar';
 const getTradeOriginPrefix = (origin?: HistoryTradeMode): string => {
   if (origin === 'manual') return '(M)';
   if (origin === 'aiAssist') return '(AA)';
-  if (origin === 'autopilot') return '(AP)'; // Updated from fullyAI
+  if (origin === 'autopilot') return '(AP)'; 
   return '';
 };
 
@@ -20,7 +21,7 @@ export function ManualTradeTicker() {
   const {
     showManualTicker,
     showAIAssistedTicker,
-    showAutopilotTicker, // Updated from showFullyAITicker
+    showAutopilotTicker, 
     tickerSpeed
   } = useSettingsContext();
   const { openPositions } = useOpenPositionsContext();
@@ -32,7 +33,7 @@ export function ManualTradeTicker() {
         if (!hasMounted) return false; 
         if (showManualTicker && (pos.origin === 'manual' || !pos.origin) ) return true; 
         if (showAIAssistedTicker && pos.origin === 'aiAssist') return true;
-        if (showAutopilotTicker && pos.origin === 'autopilot') return true; // Updated from fullyAI
+        if (showAutopilotTicker && pos.origin === 'autopilot') return true; 
         return false;
       })
       .map(pos => {
@@ -43,7 +44,7 @@ export function ManualTradeTicker() {
         };
       })
       .sort((a, b) => new Date(b.id.replace('pos','')).getTime() - new Date(a.id.replace('pos','')).getTime()); 
-  }, [openPositions, showManualTicker, showAIAssistedTicker, showAutopilotTicker, hasMounted]); // Updated dependency
+  }, [openPositions, showManualTicker, showAIAssistedTicker, showAutopilotTicker, hasMounted]); 
 
   if (!hasMounted || displayableTradesWithPnl.length === 0) {
     return null;
@@ -61,14 +62,14 @@ export function ManualTradeTicker() {
   if (activeTradeTypesCount === 1) {
     if (showManualTicker) tickerMainLabel = "Manual Trades:";
     else if (showAIAssistedTicker) tickerMainLabel = "AI-Assisted Trades:";
-    else if (showAutopilotTicker) tickerMainLabel = "Autopilot Trades:"; // Updated
+    else if (showAutopilotTicker) tickerMainLabel = "Autopilot Trades:"; 
   }
 
 
   const MainIcon = () => {
     if (showManualTicker && activeTradeTypesCount === 1) return <Wrench className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />;
-    if (showAIAssistedTicker && activeTradeTypesCount === 1) return <Bot className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />;
-    if (showAutopilotTicker && activeTradeTypesCount === 1) return <Cpu className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />; // Updated
+    if (showAIAssistedTicker && activeTradeTypesCount === 1) return <MiloAvatarIcon size={14} className="mr-2 text-primary flex-shrink-0" />; // Changed Bot to MiloAvatarIcon
+    if (showAutopilotTicker && activeTradeTypesCount === 1) return <Cpu className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />; 
     return <Wrench className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />; 
   };
 

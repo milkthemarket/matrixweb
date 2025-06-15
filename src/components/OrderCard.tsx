@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode, HistoryTradeMode } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, Bot, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed } from 'lucide-react';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed } from 'lucide-react';
+import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon'; // Changed Bot to MiloAvatarIcon
 import { cn } from '@/lib/utils';
 import { AiTradeCard } from '@/components/AiTradeCard';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
@@ -363,7 +364,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
               )}
               disabled={!selectedStock}
             >
-              <Bot className="mr-2 h-4 w-4" /> AI Assist
+              <MiloAvatarIcon size={16} className="mr-2" /> AI Assist {/* Changed Bot to MiloAvatarIcon */}
             </button>
             <button
               onClick={() => setTradeMode('autopilot')}

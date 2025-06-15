@@ -106,11 +106,11 @@ export function SidebarNav() {
       {open && state ==='expanded' && (
         <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden flex flex-col space-y-1 items-start">
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} M.I.L.K.</p>
-          <p className="text-xs text-muted-foreground/70">SVG icon adapted. Original "milking" icon by monik from Flaticon.</p>
+          <p className="text-xs text-muted-foreground/70">Milk drop icon concept by monik from Flaticon.</p>
+          <p className="text-xs text-muted-foreground/70">Cow head icon concept by kerismaker from Flaticon.</p>
         </SidebarFooter>
       )}
 
     </Sidebar>
   );
 }
-

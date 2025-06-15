@@ -15,7 +15,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Bot, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
+import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon'; // Changed Bot to MiloAvatarIcon
 
 interface AiAutoTradingWarningModalProps {
   isOpen: boolean;
@@ -41,7 +42,7 @@ export function AiAutoTradingWarningModal({ isOpen, onClose, onConfirm }: AiAuto
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center text-foreground">
-            <Bot className="h-5 w-5 mr-2 text-primary" />
+            <MiloAvatarIcon size={20} className="h-5 w-5 mr-2 text-primary" /> {/* Changed Bot to MiloAvatarIcon */}
             Autopilot Enabled
           </AlertDialogTitle>
           <AlertDialogDescription className="pt-2 text-muted-foreground space-y-2">

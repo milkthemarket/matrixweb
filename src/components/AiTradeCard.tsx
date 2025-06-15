@@ -6,7 +6,8 @@ import type { Stock, AISuggestion, TradeRequest, OrderActionType, OrderSystemTyp
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Bot, PackageOpen, RefreshCw, TrendingDown, TrendingUp, Lightbulb, DollarSign, AlertTriangle } from 'lucide-react';
+import { PackageOpen, RefreshCw, TrendingDown, TrendingUp, Lightbulb, DollarSign, AlertTriangle } from 'lucide-react';
+import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon'; // Changed Bot to MiloAvatarIcon
 import { getTradeSuggestion } from '@/ai/flows/get-trade-suggestion-flow';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -107,7 +108,7 @@ export function AiTradeCard({ selectedStock, onSubmit, buyingPower }: AiTradeCar
   if (!suggestion || !selectedStock) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        <Bot className="mx-auto h-10 w-10 mb-2 opacity-50" />
+        <MiloAvatarIcon size={40} className="mx-auto mb-2 opacity-50 text-primary" /> {/* Changed Bot to MiloAvatarIcon */}
         <p>No AI suggestion available. Select a stock or refresh.</p>
          <Button onClick={fetchSuggestion} variant="outline" className="mt-4" disabled={!selectedStock}>
           <RefreshCw className="mr-2 h-4 w-4" /> Get Suggestion

@@ -11,7 +11,8 @@ import { Button } from "@/components/ui/button";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
 import type { TradeHistoryEntry, HistoryTradeMode, TradeStatsData } from "@/types";
 import { format, parseISO } from 'date-fns';
-import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, Bot, User, BarChartHorizontalBig, PackageOpen, Repeat, Award } from "lucide-react";
+import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, User, BarChartHorizontalBig, PackageOpen, Repeat, Award } from "lucide-react";
+import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon'; // Changed Bot to MiloAvatarIcon
 import { cn } from '@/lib/utils';
 
 const getStatusIcon = (status: TradeHistoryEntry['orderStatus']) => {
@@ -59,7 +60,7 @@ const mockTradeStats: Record<HistoryTradeMode, TradeStatsData> = {
     largestLoss: 0,
     avgHoldTime: '15m',
     mostTradedSymbol: 'AAPL',
-    winStreak: 4, // Since win rate is 100%, streak = total trades
+    winStreak: 4, 
   }
 };
 
@@ -128,7 +129,7 @@ export default function HistoryPage() {
               selectedHistoryTradeMode === 'aiAssist' ? activeModeClass : inactiveModeClass
             )}
           >
-            <Bot className="mr-2 h-4 w-4" /> AI Assist
+            <MiloAvatarIcon size={16} className="mr-2" /> AI Assist {/* Changed Bot to MiloAvatarIcon */}
           </button>
           <button
             onClick={() => setSelectedHistoryTradeMode('autopilot')}
