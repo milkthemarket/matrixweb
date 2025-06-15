@@ -46,9 +46,9 @@ export function AiAutoTradingWarningModal({ isOpen, onClose, onConfirm }: AiAuto
             Autopilot Enabled
           </AlertDialogTitle>
           <AlertDialogDescription className="pt-2 text-muted-foreground space-y-2">
-            <p>Milo (the AI bot) will now place and exit trades automatically for you in Autopilot mode, based on your preset rules and risk tolerance.</p>
-            <p>Trading will continue until you turn off this feature.</p>
-            <p className="font-medium text-foreground">Please monitor your account regularly.</p>
+            <div>Milo (the AI bot) will now place and exit trades automatically for you in Autopilot mode, based on your preset rules and risk tolerance.</div>
+            <div>Trading will continue until you turn off this feature.</div>
+            <div className="font-medium text-foreground">Please monitor your account regularly.</div>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="flex items-center space-x-2 py-4">
