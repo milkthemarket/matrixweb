@@ -83,6 +83,7 @@ export interface TradeRequest {
   rawQuantityMode?: QuantityInputMode;
   TIF?: string;
   tradeModeOrigin?: HistoryTradeMode;
+  accountId?: string; // Added for associating trade with an account
 }
 
 export interface AISuggestion {
@@ -106,6 +107,7 @@ export interface OpenPosition {
   shares: number;
   currentPrice: number;
   origin?: HistoryTradeMode;
+  accountId?: string; // Added to associate position with an account
 }
 
 export interface NewsArticle {
@@ -134,6 +136,7 @@ export interface TradeHistoryEntry {
   orderStatus: 'Filled' | 'Pending' | 'Canceled' | 'Partially Filled';
   averagePrice: number;
   tradeModeOrigin?: HistoryTradeMode;
+  accountId?: string; // Added for associating history with an account
 }
 
 export interface ColumnConfig<T = Stock | TradeHistoryEntry> { // Updated to allow TradeHistoryEntry
@@ -142,7 +145,7 @@ export interface ColumnConfig<T = Stock | TradeHistoryEntry> { // Updated to all
   defaultVisible?: boolean; // Made optional for history columns which might all be default visible for export
   isToggleable?: boolean; // Made optional
   isDraggable?: boolean;
-  defaultWidth?: number; 
+  defaultWidth?: number;
   align?: 'left' | 'right' | 'center';
   format?: (value: any, item: T) => string | React.ReactNode; // Changed 'stock' to 'item' for generality
   description?: string;
@@ -171,3 +174,13 @@ export interface MiloTradeIdea {
 
 // For the History Page filter
 export type HistoryFilterMode = HistoryTradeMode | 'all';
+
+// Account related types
+export interface Account {
+  id: string;
+  label: string;
+  type: 'margin' | 'ira' | 'paper';
+  number: string;
+  balance: number;
+  buyingPower: number;
+}

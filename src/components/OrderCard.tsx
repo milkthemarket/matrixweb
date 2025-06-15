@@ -3,20 +3,21 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"; // Removed CardDescription
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode, HistoryTradeMode } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed, Search, Briefcase, Landmark } from 'lucide-react';
+import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode, HistoryTradeMode, Account } from '@/types';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed, Search, Briefcase, Landmark, NotebookText } from 'lucide-react';
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import { cn } from '@/lib/utils';
 import { AiTradeCard } from '@/components/AiTradeCard';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
 import { AiAutoTradingWarningModal } from '@/components/AiAutoTradingWarningModal';
+import { useOpenPositionsContext, dummyAccounts as accountsFromContext } from '@/contexts/OpenPositionsContext'; // Import context and accounts
 
 interface OrderCardProps {
   selectedStock: Stock | null;
@@ -28,46 +29,9 @@ interface OrderCardProps {
   onStockSymbolSubmit: (symbol: string) => void;
 }
 
-// TODO: Replace with actual user account data from Firebase/backend
-const dummyAccounts = [
-  {
-    id: 'acc-001',
-    label: 'Taxable Margin',
-    type: 'margin',
-    number: '•••8740',
-    balance: 9500.20,
-    buyingPower: 12000.00,
-  },
-  {
-    id: 'acc-002',
-    label: 'Roth IRA',
-    type: 'ira',
-    number: '•••1234',
-    balance: 15220.55,
-    buyingPower: 15220.55,
-  },
-];
-
-
-const dummyAutoRules = [
-  {
-    id: "auto_rule_1",
-    name: "Momentum Short",
-    description: "Short any stock up >15% intraday with float under 10M"
-  },
-  {
-    id: "auto_rule_2",
-    name: "Gap Reversal",
-    description: "Buy dip on stocks with large pre-market gap downs >10%"
-  },
-  {
-    id: "auto_rule_3",
-    name: "Low RSI Buy",
-    description: "Buy stocks with RSI < 25 and high news volume"
-  }
-];
-
 export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear, initialTradeMode, miloActionContextText, onStockSymbolSubmit }: OrderCardProps) {
+  const { selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext(); // Use context for account state
+
   const [tradeMode, setTradeMode] = useState<TradeMode>(initialTradeMode || 'manual');
   const [quantityValue, setQuantityValue] = useState('');
   const [quantityMode, setQuantityMode] = useState<QuantityInputMode>('Shares');
@@ -81,15 +45,11 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const [displayedMiloContext, setDisplayedMiloContext] = useState<string | null>(null);
   const [tickerInputValue, setTickerInputValue] = useState('');
 
-  const [accountsData] = useState(dummyAccounts);
-  const [selectedAccountId, setSelectedAccountId] = useState<string>(dummyAccounts[0].id);
-
   const selectedAccount = useMemo(() => {
-    return accountsData.find(acc => acc.id === selectedAccountId) || accountsData[0];
-  }, [accountsData, selectedAccountId]);
+    return accounts.find(acc => acc.id === selectedAccountId) || accounts[0];
+  }, [accounts, selectedAccountId]);
 
   const currentBuyingPower = selectedAccount.buyingPower;
-
 
   const [showManualTradeWarningModal, setShowManualTradeWarningModal] = useState(false);
   const [manualTradeDisclaimerAcknowledged, setManualTradeDisclaimerAcknowledged] = useState(false);
@@ -225,6 +185,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       rawQuantityValue: quantityValue,
       rawQuantityMode: quantityMode,
       tradeModeOrigin: origin,
+      accountId: selectedAccountId, // Include selected account ID
     };
 
     if (orderType === 'Limit' || orderType === 'Stop Limit') {
@@ -246,7 +207,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       tradeDetails.trailingOffset = parseFloat(trailingOffset);
     }
 
-    if (tradeMode === 'manual' && !manualTradeDisclaimerAcknowledged) {
+    if (tradeMode === 'manual' && !manualTradeDisclaimerAcknowledged && selectedAccount.type !== 'paper') {
       setPendingTradeDetails(tradeDetails);
       setShowManualTradeWarningModal(true);
     } else {
@@ -256,7 +217,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   };
 
   const handleAISuggestionSubmit = (aiTradeDetails: TradeRequest) => {
-      onSubmit(aiTradeDetails);
+      const tradeWithAccount = {...aiTradeDetails, accountId: selectedAccountId };
+      onSubmit(tradeWithAccount);
   };
 
   const handleConfirmManualTrade = (dontShowAgain: boolean) => {
@@ -278,7 +240,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
 
   const handleAutopilotSwitchChange = (checked: boolean) => {
     if (checked) {
-      if (!aiAutopilotDisclaimerAcknowledged) {
+      if (!aiAutopilotDisclaimerAcknowledged && selectedAccount.type !== 'paper') {
         setShowAiAutopilotWarningModal(true);
       } else {
         setIsAutopilotEnabled(true);
@@ -313,22 +275,16 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     }
   };
 
-  const getCardTitle = () => {
+  const getCardTitleSuffix = () => {
     if (selectedStock) {
-      if (tradeMode === 'ai') return `AI Assist: ${selectedStock.symbol}`;
-      if (tradeMode === 'autopilot') return `Autopilot: ${selectedStock.symbol}`;
-      if (currentAction) return `${currentAction} ${selectedStock.symbol}`;
-      return selectedStock.symbol;
+      if (tradeMode === 'ai') return `: ${selectedStock.symbol}`;
+      if (tradeMode === 'autopilot') return `: ${selectedStock.symbol}`;
+      if (currentAction) return `: ${currentAction} ${selectedStock.symbol}`;
+      return `: ${selectedStock.symbol}`;
     }
-    return "Trade Panel";
+    return "";
   };
 
-  const getCardDescription = () => {
-    if (!selectedStock) return "Enter ticker or select from screener";
-    if (tradeMode === 'autopilot' && selectedStock) return `Status for ${selectedStock.symbol}`;
-    if (selectedStock) return `Current Price: $${selectedStock.price.toFixed(2)}`;
-    return "Ready for ticker or selection";
-  };
 
   const getSubmitButtonText = () => {
     if (!selectedStock) return "Load Ticker to Trade";
@@ -357,17 +313,22 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
   const inactiveModeClass = "bg-transparent text-muted-foreground hover:bg-white/5";
 
+  const getAccountIcon = (type: Account['type']) => {
+    if (type === 'margin') return <Briefcase className="h-4 w-4 text-muted-foreground" />;
+    if (type === 'ira') return <Landmark className="h-4 w-4 text-muted-foreground" />;
+    if (type === 'paper') return <NotebookText className="h-4 w-4 text-muted-foreground" />;
+    return null;
+  };
+
 
   return (
     <>
       <Card className="shadow-none flex flex-col">
-        <CardHeader className="relative">
+        <CardHeader className="relative pb-2">
           <CardTitle className="text-xl font-headline text-foreground">
-            {getCardTitle()}
+            Trade Panel{getCardTitleSuffix()}
           </CardTitle>
-          <CardDescription>
-            {getCardDescription()}
-          </CardDescription>
+          {/* CardDescription removed from here */}
           {selectedStock && (
             <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={handleClearSelection} title="Clear Selection">
               <XCircle className="h-5 w-5 text-muted-foreground hover:text-foreground" />
@@ -384,10 +345,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                   <SelectValue placeholder="Select account" />
                 </SelectTrigger>
                 <SelectContent>
-                  {accountsData.map(acc => (
+                  {accounts.map(acc => (
                     <SelectItem key={acc.id} value={acc.id}>
                       <div className="flex items-center gap-2">
-                        {acc.type === 'margin' ? <Briefcase className="h-4 w-4 text-muted-foreground" /> : <Landmark className="h-4 w-4 text-muted-foreground" />}
+                        {getAccountIcon(acc.type)}
                         <span>{acc.label} ({acc.number})</span>
                       </div>
                     </SelectItem>
@@ -682,4 +643,3 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     </>
   );
 }
-
