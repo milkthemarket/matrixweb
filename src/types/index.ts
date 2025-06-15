@@ -64,6 +64,8 @@ export interface TradeLogEntry {
 }
 
 export type OrderActionType = 'Buy' | 'Sell' | 'Short';
+export type OptionOrderActionType = 'Buy' | 'Sell'; // Options typically Buy to Open/Close, Sell to Open/Close
+export type OptionType = 'Call' | 'Put';
 export type OrderSystemType = 'Market' | 'Limit' | 'Stop' | 'Stop Limit' | 'Trailing Stop';
 export type QuantityInputMode = 'Shares' | 'DollarAmount' | 'PercentOfBuyingPower';
 export type TradeMode = 'manual' | 'ai' | 'autopilot';
@@ -83,7 +85,7 @@ export interface TradeRequest {
   rawQuantityMode?: QuantityInputMode;
   TIF?: string;
   tradeModeOrigin?: HistoryTradeMode;
-  accountId?: string; // Added for associating trade with an account
+  accountId?: string;
 }
 
 export interface AISuggestion {
@@ -107,7 +109,7 @@ export interface OpenPosition {
   shares: number;
   currentPrice: number;
   origin?: HistoryTradeMode;
-  accountId?: string; // Added to associate position with an account
+  accountId?: string;
 }
 
 export interface NewsArticle {
@@ -136,27 +138,27 @@ export interface TradeHistoryEntry {
   orderStatus: 'Filled' | 'Pending' | 'Canceled' | 'Partially Filled';
   averagePrice: number;
   tradeModeOrigin?: HistoryTradeMode;
-  accountId?: string; // Added for associating history with an account
+  accountId?: string;
 }
 
-export interface ColumnConfig<T = Stock | TradeHistoryEntry> { // Updated to allow TradeHistoryEntry
+export interface ColumnConfig<T = Stock | TradeHistoryEntry> {
   key: keyof T;
   label: string;
-  defaultVisible?: boolean; // Made optional for history columns which might all be default visible for export
-  isToggleable?: boolean; // Made optional
+  defaultVisible?: boolean;
+  isToggleable?: boolean;
   isDraggable?: boolean;
   defaultWidth?: number;
   align?: 'left' | 'right' | 'center';
-  format?: (value: any, item: T) => string | React.ReactNode; // Changed 'stock' to 'item' for generality
+  format?: (value: any, item: T) => string | React.ReactNode;
   description?: string;
 }
 
 
 export interface TradeStatsData {
   totalTrades: number;
-  winRate: number; // Percentage
-  totalPnL: number; // Dollar amount
-  avgReturn: number; // Percentage for individual modes, potentially dollar amount for overall
+  winRate: number;
+  totalPnL: number;
+  avgReturn: number;
   largestWin: number;
   largestLoss: number;
   avgHoldTime: string;
@@ -169,13 +171,11 @@ export interface MiloTradeIdea {
   ticker: string;
   reason: string;
   action: string;
-  timestamp: string; // ISO string date
+  timestamp: string;
 }
 
-// For the History Page filter
 export type HistoryFilterMode = HistoryTradeMode | 'all';
 
-// Account related types
 export interface Account {
   id: string;
   label: string;
@@ -185,3 +185,43 @@ export interface Account {
   buyingPower: number;
 }
 
+// Options Page Specific Types
+export interface OptionContract {
+  id: string; // Unique identifier for the contract, e.g., "SPY-20240617-C-600"
+  strike: number;
+  type: OptionType; // 'Call' | 'Put'
+  expirationDate: string; // ISO string or human-readable like "June 17 (2d)"
+  daysToExpiration?: number;
+  ask: number;
+  bid: number;
+  lastPrice?: number; // Last traded price of the option
+  change: number; // Dollar change in premium
+  percentChange: number; // Percentage change in premium
+  breakeven: number; // Breakeven price for the underlying at expiration
+  toBreakevenPercent?: number; // Percentage move needed for underlying to reach breakeven
+  volume?: number;
+  openInterest?: number;
+  impliedVolatility?: number; // IV in percentage
+  // Greeks - optional for now
+  delta?: number;
+  gamma?: number;
+  theta?: number;
+  vega?: number;
+}
+
+export interface OptionsTickerInfo {
+  symbol: string;
+  lastPrice: number;
+  priceChange: number;
+  priceChangePercent: number;
+  marketStatus: 'Market Open' | 'Market Closed' | 'Pre-Market' | 'Post-Market' | 'Late Close' | 'Halted';
+}
+
+export interface OptionTradeRequest {
+  contract: OptionContract;
+  action: OptionOrderActionType; // 'Buy' or 'Sell'
+  quantity: number; // Number of contracts
+  orderType: 'Market' | 'Limit'; // Simplified for options
+  limitPrice?: number; // Required if orderType is 'Limit'
+  accountId: string;
+}
