@@ -9,11 +9,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
-import type { TradeHistoryEntry, HistoryTradeMode, TradeStatsData } from "@/types";
+import type { TradeHistoryEntry, HistoryTradeMode, TradeStatsData, ColumnConfig, HistoryFilterMode } from "@/types";
 import { format, parseISO } from 'date-fns';
-import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, User, BarChartHorizontalBig, PackageOpen, Repeat, Award } from "lucide-react";
-import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon'; // Changed Bot to MiloAvatarIcon
+import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, User, BarChartHorizontalBig, PackageOpen, Repeat, Award, Layers, Download, PieChart } from "lucide-react";
+import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import { cn } from '@/lib/utils';
+import { exportToCSV } from '@/lib/exportCSV'; // Ensure this is correctly imported
+import { useToast } from "@/hooks/use-toast";
+
 
 const getStatusIcon = (status: TradeHistoryEntry['orderStatus']) => {
   switch (status) {
@@ -33,7 +36,7 @@ const mockTradeStats: Record<HistoryTradeMode, TradeStatsData> = {
     totalTrades: 14,
     winRate: 71.4,
     totalPnL: 1203.55,
-    avgReturn: 1.8,
+    avgReturn: 1.8, // Percentage
     largestWin: 312.50,
     largestLoss: -106.00,
     avgHoldTime: '2h 15m',
@@ -44,7 +47,7 @@ const mockTradeStats: Record<HistoryTradeMode, TradeStatsData> = {
     totalTrades: 9,
     winRate: 55.6,
     totalPnL: 637.80,
-    avgReturn: 0.9,
+    avgReturn: 0.9, // Percentage
     largestWin: 180.75,
     largestLoss: -142.00,
     avgHoldTime: '4h 42m',
@@ -55,7 +58,7 @@ const mockTradeStats: Record<HistoryTradeMode, TradeStatsData> = {
     totalTrades: 4,
     winRate: 100.0,
     totalPnL: 448.12,
-    avgReturn: 3.7,
+    avgReturn: 3.7, // Percentage
     largestWin: 152.00,
     largestLoss: 0,
     avgHoldTime: '15m',
@@ -64,24 +67,41 @@ const mockTradeStats: Record<HistoryTradeMode, TradeStatsData> = {
   }
 };
 
-const StatDisplay: React.FC<{ label: string; value: string | number; unit?: string; valueColor?: string; icon?: React.ReactNode }> = ({ label, value, unit, valueColor, icon }) => (
+const StatDisplay: React.FC<{ label: string; value: string | number; unit?: string; valueColor?: string; icon?: React.ReactNode; isCurrency?: boolean }> = ({ label, value, unit, valueColor, icon, isCurrency = false }) => (
   <div className="bg-transparent backdrop-blur-md p-3 rounded-lg flex flex-col items-start">
     <div className="flex items-center text-muted-foreground text-sm mb-1">
       {icon && <span className="mr-1.5">{icon}</span>}
       {label}
     </div>
     <span className={cn("text-xl font-semibold text-foreground", valueColor)}>
-      {unit === '$' && unit}
-      {typeof value === 'number' ? value.toLocaleString(undefined, { minimumFractionDigits: value % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 }) : value}
-      {unit && unit !== '$' && unit}
+      {isCurrency && unit === '$' && unit}
+      {typeof value === 'number' ? value.toLocaleString(undefined, { minimumFractionDigits: value % 1 === 0 && !isCurrency ? 0 : 2, maximumFractionDigits: 2 }) : value}
+      {!isCurrency && unit && unit !== '$' && unit}
     </span>
   </div>
 );
 
+const tradeHistoryColumnConfig: ColumnConfig<TradeHistoryEntry>[] = [
+  { key: 'symbol', label: 'Symbol' },
+  { key: 'side', label: 'Side' },
+  { key: 'totalQty', label: 'Total Qty', align: 'right' },
+  { key: 'averagePrice', label: 'Avg Price', align: 'right', format: (val) => `$${val.toFixed(2)}` },
+  { key: 'orderType', label: 'Order Type' },
+  { key: 'limitPrice', label: 'Limit Price', align: 'right', format: (val) => val ? `$${val.toFixed(2)}` : 'N/A' },
+  { key: 'stopPrice', label: 'Stop Price', align: 'right', format: (val) => val ? `$${val.toFixed(2)}` : 'N/A' },
+  { key: 'trailAmount', label: 'Trail Amount', align: 'right', format: (val) => val ? String(val) : 'N/A' },
+  { key: 'TIF', label: 'TIF' },
+  { key: 'tradingHours', label: 'Trading Hours' },
+  { key: 'placedTime', label: 'Placed Time', format: (val) => format(parseISO(val), "MM/dd/yy HH:mm:ss") },
+  { key: 'filledTime', label: 'Filled Time', format: (val) => format(parseISO(val), "MM/dd/yy HH:mm:ss") },
+  { key: 'orderStatus', label: 'Status' },
+];
+
 
 export default function HistoryPage() {
   const { tradeHistory } = useTradeHistoryContext();
-  const [selectedHistoryTradeMode, setSelectedHistoryTradeMode] = useState<HistoryTradeMode>('manual');
+  const [selectedHistoryFilterMode, setSelectedHistoryFilterMode] = useState<HistoryFilterMode>('all'); // Default to 'all'
+  const { toast } = useToast();
 
   const formatOptionalPrice = (price?: number) => price?.toFixed(2) ?? 'N/A';
   const formatOptionalNumber = (num?: number) => num?.toString() ?? 'N/A';
@@ -94,13 +114,94 @@ export default function HistoryPage() {
     }
   };
 
+  const overallStats = useMemo((): TradeStatsData => {
+    const modes: HistoryTradeMode[] = ['manual', 'aiAssist', 'autopilot'];
+    let totalTrades = 0;
+    let totalPnL = 0;
+    let totalWeightedWins = 0;
+    let largestWin = -Infinity;
+    let largestLoss = Infinity;
+    let maxWinStreak = 0;
+    
+    const tradeCountsBySymbol: Record<string, number> = {};
+
+    modes.forEach(mode => {
+      const stats = mockTradeStats[mode];
+      totalTrades += stats.totalTrades;
+      totalPnL += stats.totalPnL;
+      totalWeightedWins += (stats.winRate / 100) * stats.totalTrades;
+      if (stats.largestWin > largestWin) largestWin = stats.largestWin;
+      if (stats.largestLoss < largestLoss) largestLoss = stats.largestLoss;
+      if (stats.winStreak > maxWinStreak) maxWinStreak = stats.winStreak;
+      
+      tradeCountsBySymbol[stats.mostTradedSymbol] = (tradeCountsBySymbol[stats.mostTradedSymbol] || 0) + stats.totalTrades;
+    });
+
+    const overallWinRate = totalTrades > 0 ? (totalWeightedWins / totalTrades) * 100 : 0;
+    const overallAvgPnlPerTrade = totalTrades > 0 ? totalPnL / totalTrades : 0;
+
+    let overallMostTradedSymbol = 'N/A';
+    if (Object.keys(tradeCountsBySymbol).length > 0) {
+        overallMostTradedSymbol = Object.entries(tradeCountsBySymbol).sort((a,b) => b[1] - a[1])[0][0];
+    }
+
+    return {
+      totalTrades,
+      winRate: overallWinRate,
+      totalPnL,
+      avgReturn: overallAvgPnlPerTrade, // This is now Avg P&L per trade ($)
+      largestWin: largestWin === -Infinity ? 0 : largestWin,
+      largestLoss: largestLoss === Infinity ? 0 : largestLoss,
+      avgHoldTime: "Multiple", // Cannot aggregate meaningfully
+      mostTradedSymbol: overallMostTradedSymbol,
+      winStreak: maxWinStreak,
+    };
+  }, []);
+
+
   const currentStats = useMemo(() => {
-    return mockTradeStats[selectedHistoryTradeMode];
-  }, [selectedHistoryTradeMode]);
+    if (selectedHistoryFilterMode === 'all') {
+      return overallStats;
+    }
+    return mockTradeStats[selectedHistoryFilterMode];
+  }, [selectedHistoryFilterMode, overallStats]);
 
   const displayedTradeHistory = useMemo(() => {
-    return tradeHistory.filter(trade => (trade.tradeModeOrigin || 'manual') === selectedHistoryTradeMode);
-  }, [tradeHistory, selectedHistoryTradeMode]);
+    if (selectedHistoryFilterMode === 'all') {
+      return tradeHistory;
+    }
+    return tradeHistory.filter(trade => (trade.tradeModeOrigin || 'manual') === selectedHistoryFilterMode);
+  }, [tradeHistory, selectedHistoryFilterMode]);
+
+  const handleExport = () => {
+    if (displayedTradeHistory.length === 0) {
+      toast({
+        title: "Export Failed",
+        description: "No trade data to export for the current filter.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const filename = `trade_history_${selectedHistoryFilterMode}.csv`;
+    exportToCSV(filename, displayedTradeHistory, tradeHistoryColumnConfig);
+    toast({
+      title: "Export Successful",
+      description: `Trade history for "${selectedHistoryFilterMode}" exported to ${filename}.`,
+    });
+  };
+  
+  const comparisonTableMetrics: Array<{key: keyof TradeStatsData, label: string, unit?: string, isCurrency?: boolean, isPercentage?: boolean}> = [
+    { key: 'totalTrades', label: 'Total Trades' },
+    { key: 'winRate', label: 'Win Rate', unit: '%', isPercentage: true },
+    { key: 'totalPnL', label: 'Total P&L', unit: '$', isCurrency: true },
+    { key: 'avgReturn', label: selectedHistoryFilterMode === 'all' ? 'Avg P&L/Trade' : 'Avg Return', unit: selectedHistoryFilterMode === 'all' ? '$' : '%', isCurrency: selectedHistoryFilterMode === 'all', isPercentage: selectedHistoryFilterMode !== 'all'},
+    { key: 'largestWin', label: 'Largest Win', unit: '$', isCurrency: true },
+    { key: 'largestLoss', label: 'Largest Loss', unit: '$', isCurrency: true },
+    { key: 'avgHoldTime', label: 'Avg. Hold Time' },
+    { key: 'mostTradedSymbol', label: 'Most Traded' },
+    { key: 'winStreak', label: 'Win Streak' },
+  ];
+
 
   const buttonBaseClass = "flex-1 flex items-center justify-center h-9 py-2 px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50";
   const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
@@ -112,31 +213,28 @@ export default function HistoryPage() {
       <PageHeader title="Trade History & Performance" />
       <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
 
-        <div className="grid grid-cols-3 w-full max-w-md rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05] mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-4 w-full max-w-xl rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05] mx-auto">
           <button
-            onClick={() => setSelectedHistoryTradeMode('manual')}
-            className={cn(
-              buttonBaseClass,
-              selectedHistoryTradeMode === 'manual' ? activeModeClass : inactiveModeClass
-            )}
+            onClick={() => setSelectedHistoryFilterMode('all')}
+            className={cn(buttonBaseClass, selectedHistoryFilterMode === 'all' ? activeModeClass : inactiveModeClass)}
+          >
+            <Layers className="mr-2 h-4 w-4" /> All
+          </button>
+          <button
+            onClick={() => setSelectedHistoryFilterMode('manual')}
+            className={cn(buttonBaseClass, selectedHistoryFilterMode === 'manual' ? activeModeClass : inactiveModeClass)}
           >
             <User className="mr-2 h-4 w-4" /> Manual
           </button>
           <button
-            onClick={() => setSelectedHistoryTradeMode('aiAssist')}
-            className={cn(
-              buttonBaseClass,
-              selectedHistoryTradeMode === 'aiAssist' ? activeModeClass : inactiveModeClass
-            )}
+            onClick={() => setSelectedHistoryFilterMode('aiAssist')}
+            className={cn(buttonBaseClass, selectedHistoryFilterMode === 'aiAssist' ? activeModeClass : inactiveModeClass)}
           >
-            <MiloAvatarIcon size={16} className="mr-2" /> AI Assist {/* Changed Bot to MiloAvatarIcon */}
+            <MiloAvatarIcon size={16} className="mr-2" /> AI Assist
           </button>
           <button
-            onClick={() => setSelectedHistoryTradeMode('autopilot')}
-            className={cn(
-              buttonBaseClass,
-              selectedHistoryTradeMode === 'autopilot' ? activeModeClass : inactiveModeClass
-            )}
+            onClick={() => setSelectedHistoryFilterMode('autopilot')}
+            className={cn(buttonBaseClass, selectedHistoryFilterMode === 'autopilot' ? activeModeClass : inactiveModeClass)}
           >
             <Cpu className="mr-2 h-4 w-4" /> Autopilot
           </button>
@@ -146,32 +244,110 @@ export default function HistoryPage() {
           <CardHeader>
             <CardTitle className="text-xl font-headline flex items-center">
               <BarChartHorizontalBig className="mr-2 h-5 w-5 text-primary"/>
-              {selectedHistoryTradeMode === 'manual' ? 'Manual Trade Performance' : selectedHistoryTradeMode === 'aiAssist' ? 'AI Assisted Performance' : 'Autopilot Performance'}
+              {selectedHistoryFilterMode === 'all' ? 'Overall Performance Summary' : 
+               selectedHistoryFilterMode === 'manual' ? 'Manual Trade Performance' : 
+               selectedHistoryFilterMode === 'aiAssist' ? 'AI Assisted Performance' : 'Autopilot Performance'}
             </CardTitle>
-            <CardDescription>Summary of trades executed in this mode.</CardDescription>
+            <CardDescription>Summary of trades for the selected mode.</CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen size={16}/>} />
             <StatDisplay label="Win Rate" value={currentStats.winRate} unit="%" icon={<TrendingUp size={16}/>} valueColor={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
-            <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign size={16}/>} valueColor={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
-            <StatDisplay label="Avg Return / Trade" value={currentStats.avgReturn} unit="%" icon={<Percent size={16}/>} valueColor={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
-            <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp size={16}/>} valueColor="text-[hsl(var(--confirm-green))]" />
-            <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown size={16}/>} valueColor={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} />
+            <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign size={16}/>} valueColor={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
+            <StatDisplay 
+                label={selectedHistoryFilterMode === 'all' && currentStats.avgReturn !== undefined ? "Avg P&L / Trade" : "Avg Return / Trade"}
+                value={currentStats.avgReturn} 
+                unit={selectedHistoryFilterMode === 'all' && currentStats.avgReturn !== undefined ? "$" : "%"} 
+                icon={<Percent size={16}/>} 
+                valueColor={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"}
+                isCurrency={selectedHistoryFilterMode === 'all' && currentStats.avgReturn !== undefined}
+            />
+            <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp size={16}/>} valueColor="text-[hsl(var(--confirm-green))]" isCurrency/>
+            <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown size={16}/>} valueColor={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
             <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock size={16}/>} />
             <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat size={16}/>} />
             <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award size={16}/>} valueColor={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
           </CardContent>
         </Card>
 
+        {selectedHistoryFilterMode === 'all' && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl font-headline flex items-center">
+                <PieChart className="mr-2 h-5 w-5 text-primary"/>
+                Performance Comparison by Mode
+              </CardTitle>
+              <CardDescription>Side-by-side comparison of key metrics across trading modes.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="max-w-full">
+                <Table className="min-w-[700px]">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[200px]">Metric</TableHead>
+                      <TableHead className="text-center w-[150px]">
+                        <div className="flex items-center justify-center"><User className="mr-1.5 h-4 w-4" /> Manual</div>
+                      </TableHead>
+                      <TableHead className="text-center w-[150px]">
+                        <div className="flex items-center justify-center"><MiloAvatarIcon size={16} className="mr-1.5" /> AI Assist</div>
+                      </TableHead>
+                      <TableHead className="text-center w-[150px]">
+                        <div className="flex items-center justify-center"><Cpu className="mr-1.5 h-4 w-4" /> Autopilot</div>
+                      </TableHead>
+                       <TableHead className="text-center w-[150px] font-semibold">
+                        <div className="flex items-center justify-center"><Layers className="mr-1.5 h-4 w-4" /> Overall</div>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {comparisonTableMetrics.map(metric => (
+                      <TableRow key={metric.key}>
+                        <TableCell className="font-medium text-muted-foreground">{metric.label}</TableCell>
+                        {(['manual', 'aiAssist', 'autopilot'] as HistoryTradeMode[]).map(mode => {
+                          const value = mockTradeStats[mode][metric.key];
+                          let displayValue = typeof value === 'number' 
+                            ? value.toLocaleString(undefined, {minimumFractionDigits: (metric.isCurrency || metric.isPercentage) ? 2:0, maximumFractionDigits: 2}) 
+                            : value;
+                          if (metric.isCurrency) displayValue = `$${displayValue}`;
+                          if (metric.isPercentage && typeof value === 'number') displayValue = `${displayValue}%`;
+                          return <TableCell key={`${mode}-${metric.key}`} className="text-center text-foreground">{displayValue}</TableCell>;
+                        })}
+                        {(() => {
+                            const overallValue = overallStats[metric.key];
+                            let displayOverallValue = typeof overallValue === 'number'
+                                ? overallValue.toLocaleString(undefined, { minimumFractionDigits: (metric.key === 'avgReturn' || metric.isCurrency || metric.isPercentage) ? 2 : 0, maximumFractionDigits: 2 })
+                                : overallValue;
+                            if ((metric.key === 'avgReturn' || metric.isCurrency)) displayOverallValue = `$${displayOverallValue}`;
+                            if (metric.isPercentage && typeof overallValue === 'number') displayOverallValue = `${displayOverallValue}%`;
+                             if (metric.key === 'avgReturn' && !metric.isCurrency && !metric.isPercentage) displayOverallValue = `$${Number(overallValue).toFixed(2)}`;
+
+
+                            return <TableCell className="text-center text-foreground font-semibold">{displayOverallValue}</TableCell>;
+                        })()}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="flex-1 flex flex-col min-h-[400px]"> 
-          <CardHeader>
-            <CardTitle className="text-2xl font-headline flex items-center">
-              <HistoryIcon className="mr-2 h-6 w-6 text-primary"/>
-              Executed Trades
-            </CardTitle>
-            <CardDescription>
-              Review your past trade executions for "{selectedHistoryTradeMode}" mode.
-            </CardDescription>
+          <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
+            <div>
+              <CardTitle className="text-xl font-headline flex items-center">
+                <HistoryIcon className="mr-2 h-6 w-6 text-primary"/>
+                Executed Trades
+              </CardTitle>
+              <CardDescription>
+                Review your past trade executions for "{selectedHistoryFilterMode}" mode.
+              </CardDescription>
+            </div>
+            <Button onClick={handleExport} variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export to CSV
+            </Button>
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden">
             {displayedTradeHistory.length > 0 ? (
@@ -232,8 +408,16 @@ export default function HistoryPage() {
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                 <HistoryIcon className="h-12 w-12 mb-4" />
-                <p className="text-lg">No trade history for "{selectedHistoryTradeMode}" mode.</p>
-                <p>Executed trades will appear here.</p>
+                { selectedHistoryFilterMode === 'aiAssist' || selectedHistoryFilterMode === 'autopilot' ? (
+                  <p className="text-primary text-center"> 
+                    Milo’s looking for greener pastures—no trades just yet!
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-lg">No trade history for "{selectedHistoryFilterMode}" mode.</p>
+                    <p>Executed trades will appear here.</p>
+                  </>
+                )}
               </div>
             )}
           </CardContent>
@@ -242,4 +426,3 @@ export default function HistoryPage() {
     </main>
   );
 }
-

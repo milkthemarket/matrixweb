@@ -136,24 +136,24 @@ export interface TradeHistoryEntry {
   tradeModeOrigin?: HistoryTradeMode;
 }
 
-export interface ColumnConfig<T = Stock> {
+export interface ColumnConfig<T = Stock | TradeHistoryEntry> { // Updated to allow TradeHistoryEntry
   key: keyof T;
   label: string;
-  defaultVisible: boolean;
-  isToggleable: boolean;
+  defaultVisible?: boolean; // Made optional for history columns which might all be default visible for export
+  isToggleable?: boolean; // Made optional
   isDraggable?: boolean;
-  defaultWidth?: number; // Added for default column width
+  defaultWidth?: number; 
   align?: 'left' | 'right' | 'center';
-  format?: (value: any, stock: T) => string | React.ReactNode;
+  format?: (value: any, item: T) => string | React.ReactNode; // Changed 'stock' to 'item' for generality
   description?: string;
 }
 
 
 export interface TradeStatsData {
   totalTrades: number;
-  winRate: number;
-  totalPnL: number;
-  avgReturn: number;
+  winRate: number; // Percentage
+  totalPnL: number; // Dollar amount
+  avgReturn: number; // Percentage for individual modes, potentially dollar amount for overall
   largestWin: number;
   largestLoss: number;
   avgHoldTime: string;
@@ -169,3 +169,5 @@ export interface MiloTradeIdea {
   timestamp: string; // ISO string date
 }
 
+// For the History Page filter
+export type HistoryFilterMode = HistoryTradeMode | 'all';
