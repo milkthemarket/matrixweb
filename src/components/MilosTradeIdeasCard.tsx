@@ -16,7 +16,7 @@ interface MilosTradeIdeasCardProps {
   ideas: MiloTradeIdea[];
   onRefresh: () => void;
   isLoading?: boolean;
-  onIdeaSelect: (idea: MiloTradeIdea) => void; // New prop
+  onIdeaSelect: (idea: MiloTradeIdea) => void;
 }
 
 export function MilosTradeIdeasCard({ ideas, onRefresh, isLoading = false, onIdeaSelect }: MilosTradeIdeasCardProps) {
@@ -75,7 +75,7 @@ export function MilosTradeIdeasCard({ ideas, onRefresh, isLoading = false, onIde
             No trade ideas from Milo at the moment. Try refreshing.
           </div>
         ) : (
-          <ScrollArea className="h-[280px] px-6 pb-6">
+          <ScrollArea className="h-[400px] px-6 pb-6">
             <div className="space-y-3">
               {ideas.map((idea) => (
                 <button 

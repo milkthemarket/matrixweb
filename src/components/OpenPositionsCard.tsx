@@ -71,7 +71,7 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
       </CardHeader>
       <CardContent className="p-0">
         {filteredPositions.length > 0 ? (
-          <ScrollArea className="h-[250px]">
+          <ScrollArea className="h-[380px]">
             <Table>
               <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                 <TableRow>
@@ -133,3 +133,4 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
     </Card>
   );
 }
+
