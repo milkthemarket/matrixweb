@@ -157,6 +157,8 @@ export interface TradeStatsData {
   largestWin: number;
   largestLoss: number;
   avgHoldTime: string;
+  mostTradedSymbol: string;
+  winStreak: number;
 }
 
 export interface MiloTradeIdea {
@@ -166,3 +168,4 @@ export interface MiloTradeIdea {
   action: string;
   timestamp: string; // ISO string date
 }
+

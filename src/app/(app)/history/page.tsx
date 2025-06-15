@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
 import type { TradeHistoryEntry, HistoryTradeMode, TradeStatsData } from "@/types";
 import { format, parseISO } from 'date-fns';
-import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, Bot, User, BarChartHorizontalBig, PackageOpen } from "lucide-react";
+import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, Bot, User, BarChartHorizontalBig, PackageOpen, Repeat, Award } from "lucide-react";
 import { cn } from '@/lib/utils';
 
 const getStatusIcon = (status: TradeHistoryEntry['orderStatus']) => {
@@ -35,7 +35,9 @@ const mockTradeStats: Record<HistoryTradeMode, TradeStatsData> = {
     avgReturn: 1.8,
     largestWin: 312.50,
     largestLoss: -106.00,
-    avgHoldTime: '2h 15m'
+    avgHoldTime: '2h 15m',
+    mostTradedSymbol: 'TSLA',
+    winStreak: 4,
   },
   aiAssist: {
     totalTrades: 9,
@@ -44,16 +46,20 @@ const mockTradeStats: Record<HistoryTradeMode, TradeStatsData> = {
     avgReturn: 0.9,
     largestWin: 180.75,
     largestLoss: -142.00,
-    avgHoldTime: '4h 42m'
+    avgHoldTime: '4h 42m',
+    mostTradedSymbol: 'NVDA',
+    winStreak: 2,
   },
-  autopilot: { // Was 'fullyAI'
+  autopilot: { 
     totalTrades: 4,
     winRate: 100.0,
     totalPnL: 448.12,
     avgReturn: 3.7,
     largestWin: 152.00,
     largestLoss: 0,
-    avgHoldTime: '15m'
+    avgHoldTime: '15m',
+    mostTradedSymbol: 'AAPL',
+    winStreak: 4, // Since win rate is 100%, streak = total trades
   }
 };
 
@@ -64,8 +70,9 @@ const StatDisplay: React.FC<{ label: string; value: string | number; unit?: stri
       {label}
     </div>
     <span className={cn("text-xl font-semibold text-foreground", valueColor)}>
+      {unit === '$' && unit}
       {typeof value === 'number' ? value.toLocaleString(undefined, { minimumFractionDigits: value % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 }) : value}
-      {unit}
+      {unit && unit !== '$' && unit}
     </span>
   </div>
 );
@@ -150,6 +157,8 @@ export default function HistoryPage() {
             <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp size={16}/>} valueColor="text-[hsl(var(--confirm-green))]" />
             <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown size={16}/>} valueColor={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} />
             <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock size={16}/>} />
+            <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat size={16}/>} />
+            <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award size={16}/>} valueColor={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
           </CardContent>
         </Card>
 
