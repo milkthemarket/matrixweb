@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter, Bot, Cog, TrendingUp, TrendingDown, Activity, CalendarCheck2, GripHorizontal, Lock } from "lucide-react";
+import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter, Bot, Cog, TrendingUp, TrendingDown, Activity, CalendarCheck2, GripHorizontal, Lock, Star } from "lucide-react";
 import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule, MiloTradeIdea, HistoryTradeMode, TradeMode } from "@/types";
 import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
@@ -189,6 +189,8 @@ const initialMockMiloIdeas: MiloTradeIdea[] = [
   },
 ];
 
+const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX'];
+
 
 export default function DashboardPage() {
   const [stocks, setStocks] = useState<Stock[]>(initialMockStocks);
@@ -354,6 +356,8 @@ export default function DashboardPage() {
     switch (selectedRuleId) {
       case 'all':
         return processedStocks;
+      case 'my-watchlist':
+        return processedStocks.filter(stock => dummyWatchlistSymbols.includes(stock.symbol));
       case 'top-gainers':
         return processedStocks.sort((a, b) => b.changePercent - a.changePercent);
       case 'top-losers':
@@ -688,6 +692,9 @@ export default function DashboardPage() {
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Show All Stocks</SelectItem>
+                        <SelectItem value="my-watchlist">
+                          <span className="flex items-center"><Star className="mr-2 h-4 w-4 text-yellow-400" /> My Watchlist</span>
+                        </SelectItem>
                         <SelectItem value="top-gainers" className="text-[hsl(var(--confirm-green))]">
                             <span className="flex items-center"><TrendingUp className="mr-2 h-4 w-4" /> Top Gainers</span>
                         </SelectItem>
@@ -810,5 +817,3 @@ export default function DashboardPage() {
     </main>
   );
 }
-
-
