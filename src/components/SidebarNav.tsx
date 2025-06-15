@@ -60,7 +60,7 @@ export function SidebarNav() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="p-4">
+      <SidebarHeader className="p-3"> {/* Reduced padding from p-4 to p-3 */}
         <div className={cn(
           "flex w-full",
           "group-data-[state=expanded]:flex-row group-data-[state=expanded]:items-center group-data-[state=expanded]:justify-between",
@@ -79,13 +79,14 @@ export function SidebarNav() {
               onClick={toggleSidebar}
               className={cn(
                 "h-7 w-7 text-muted-foreground hover:text-primary shrink-0",
-                "hover:shadow-[0_0_4px_hsla(var(--primary),0.5)] focus-visible:shadow-[0_0_4px_hsla(var(--primary),0.5)] focus-visible:outline-none transition-shadow duration-150",
-                state === 'collapsed' && "group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none" 
+                "hover:shadow-[0_0_4px_hsla(var(--primary),0.5)] focus-visible:shadow-[0_0_4px_hsla(var(--primary),0.5)] focus-visible:outline-none transition-shadow duration-150"
+                // Removed: state === 'collapsed' && "group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none"
               )}
               aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
               tabIndex={0}
             >
-              {open && state === 'expanded' ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
+              {/* Icon changes based on 'open' state (which reflects 'expanded' state) */}
+              {open ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
             </Button>
           )}
         </div>
