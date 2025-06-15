@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
+import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { PageHeader } from "@/components/PageHeader";
@@ -10,18 +10,35 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/ui/label"; // Can keep if used outside RHF Form
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
-import { Lightbulb, ThumbsUp, Trophy, Flame, Construction, CheckCircle, MessageSquare, Send, Filter } from "lucide-react";
+import { Lightbulb, ThumbsUp, Trophy, Flame, Construction, CheckCircle, MessageSquare, Send } from "lucide-react";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+
+const suggestionCategories = [
+  "Charting", "AI", "UI/UX", "Order Types", "Notifications", 
+  "Data Integrations", "Performance", "Account Management", "Mobile", "Other"
+];
 
 const suggestionSchema = z.object({
   title: z.string().min(5, "Title must be at least 5 characters long.").max(100, "Title must be 100 characters or less."),
   description: z.string().min(20, "Description must be at least 20 characters long.").max(1000, "Description must be 1000 characters or less."),
   category: z.string().optional(),
+  customCategory: z.string().optional(),
+}).refine(data => {
+  if (data.category === 'Other') {
+    return data.customCategory && data.customCategory.trim().length > 0;
+  }
+  return true;
+}, {
+  message: "Custom category name is required when 'Other' is selected.",
+  path: ['customCategory'], 
 });
 
 type SuggestionFormData = z.infer<typeof suggestionSchema>;
@@ -32,13 +49,13 @@ interface Suggestion {
   id: string;
   title: string;
   description: string;
-  author?: string; // User ID or name
+  author?: string; 
   upvotes: number;
   userHasUpvoted?: boolean;
   status: SuggestionStatus;
-  createdAt: string; // ISO Date string
+  createdAt: string; 
   category?: string;
-  progress?: number; // For "In Progress" items
+  progress?: number; 
 }
 
 const mockSuggestions: Suggestion[] = [
@@ -107,20 +124,23 @@ export default function SuggestionsPage() {
 
   const form = useForm<SuggestionFormData>({
     resolver: zodResolver(suggestionSchema),
-    defaultValues: { title: '', description: '', category: '' },
+    defaultValues: { title: '', description: '', category: '', customCategory: '' },
   });
+
+  const watchedCategory = form.watch("category");
 
   const onSubmitSuggestion: SubmitHandler<SuggestionFormData> = async (data) => {
     setIsLoading(true);
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    const finalCategory = data.category === 'Other' ? data.customCategory : data.category;
+
     const newSuggestion: Suggestion = {
       id: `s${suggestions.length + 1}`,
       title: data.title,
       description: data.description,
-      category: data.category || 'General',
-      upvotes: 1, // Initial upvote from submitter
+      category: finalCategory || 'General',
+      upvotes: 1, 
       userHasUpvoted: true,
       status: 'New',
       createdAt: new Date().toISOString(),
@@ -133,7 +153,6 @@ export default function SuggestionsPage() {
     });
     form.reset();
     setIsLoading(false);
-    // TODO: Save to Firestore (userID, timestamp, etc.)
   };
 
   const handleUpvote = (id: string) => {
@@ -144,7 +163,6 @@ export default function SuggestionsPage() {
           : s
       )
     );
-    // TODO: Update Firestore with upvote (ensure user can only upvote once)
     console.log(`Upvoted suggestion ${id}`);
   };
   
@@ -168,30 +186,81 @@ export default function SuggestionsPage() {
               </CardTitle>
               <CardDescription>Have a feature request or an improvement idea? Let us know!</CardDescription>
             </CardHeader>
-            <form onSubmit={form.handleSubmit(onSubmitSuggestion)}>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Short Title</Label>
-                  <Input id="title" placeholder="e.g., Add Trailing Stop Loss for AI Trades" {...form.register("title")} disabled={isLoading} />
-                  {form.formState.errors.title && <p className="text-xs text-destructive mt-1">{form.formState.errors.title.message}</p>}
-                </div>
-                <div>
-                  <Label htmlFor="description">Detailed Description</Label>
-                  <Textarea id="description" placeholder="Explain your suggestion in detail. What problem does it solve? How would it work?" {...form.register("description")} rows={4} disabled={isLoading} />
-                  {form.formState.errors.description && <p className="text-xs text-destructive mt-1">{form.formState.errors.description.message}</p>}
-                </div>
-                <div>
-                  <Label htmlFor="category">Category (Optional)</Label>
-                  <Input id="category" placeholder="e.g., Charting, AI, UI/UX" {...form.register("category")} disabled={isLoading} />
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button type="submit" disabled={isLoading} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  <Send className="mr-2 h-4 w-4" />
-                  {isLoading ? "Submitting..." : "Submit Suggestion"}
-                </Button>
-              </CardFooter>
-            </form>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmitSuggestion)}>
+                <CardContent className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Short Title</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Add Trailing Stop Loss for AI Trades" {...field} disabled={isLoading} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Detailed Description</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Explain your suggestion in detail. What problem does it solve? How would it work?" rows={4} {...field} disabled={isLoading} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category (Optional)</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {suggestionCategories.map(cat => (
+                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {watchedCategory === 'Other' && (
+                    <FormField
+                      control={form.control}
+                      name="customCategory"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Custom Category Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your custom category" {...field} disabled={isLoading} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </CardContent>
+                <CardFooter>
+                  <Button type="submit" disabled={isLoading} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                    <Send className="mr-2 h-4 w-4" />
+                    {isLoading ? "Submitting..." : "Submit Suggestion"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Form>
           </Card>
 
           {topSuggestions.length > 0 && (
@@ -272,3 +341,4 @@ export default function SuggestionsPage() {
     </main>
   );
 }
+
