@@ -332,11 +332,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   return (
     <>
       <Card className="shadow-none flex flex-col">
-        <CardHeader className="relative pb-2 pt-4"> {/* Adjusted padding */}
+        <CardHeader className="relative pb-2 pt-4">
           <CardTitle className="text-xl font-headline text-foreground mb-2">
             Trade Panel
           </CardTitle>
-          {/* Account Selector and Info */}
           <div className="space-y-3 p-3 rounded-lg border border-white/5 bg-black/5">
             <div className="flex items-center gap-2">
               <Label htmlFor="accountSelect" className="text-sm font-medium text-muted-foreground shrink-0">Account:</Label>
@@ -370,7 +369,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
           )}
         </CardHeader>
         <CardContent className="space-y-4 py-4 overflow-y-auto">
-          {/* Ticker Input Section */}
           <div className="flex items-center space-x-2">
             <Input
               id="tickerInput"
@@ -386,7 +384,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
             </Button>
           </div>
 
-          {/* Trade Mode Selector */}
           <div className="grid grid-cols-3 w-full rounded-md overflow-hidden border border-white/5 bg-black/15">
             <button
               onClick={() => setTradeMode('manual')}
@@ -417,7 +414,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
             </button>
           </div>
 
-          {/* Conditional Content Area */}
           {!selectedStock ? (
             <div className="text-center py-12 text-muted-foreground flex flex-col items-center justify-center space-y-3">
               <MousePointerSquareDashed className="h-12 w-12 opacity-50" />
@@ -473,7 +469,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                         value={quantityValue}
                         onChange={(e) => setQuantityValue(e.target.value)}
                         placeholder={getQuantityInputPlaceholder()}
-                        disabled={!selectedStock}
                         className="flex-1 h-9 bg-transparent px-3 py-2 focus-visible:ring-ring"
                       />
                       <Button
