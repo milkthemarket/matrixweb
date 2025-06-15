@@ -13,7 +13,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, ChevronLeft, ChevronRight, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -23,6 +23,7 @@ const navItems = [
   { href: "/rules", label: "Rules", icon: ListFilter },
   { href: "/history", label: "History", icon: History },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
+  { href: "/academy", label: "Milk Academy", icon: GraduationCap },
 ];
 
 // New MilkDropIcon component rendering an SVG
