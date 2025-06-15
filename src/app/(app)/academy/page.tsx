@@ -5,8 +5,7 @@ import React from 'react';
 import Image from 'next/image';
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { GraduationCap, Construction, BookOpen, Film, HelpCircle } from "lucide-react";
+import { GraduationCap, BookOpen, Film, HelpCircle, Hand, Handshake, Rocket } from "lucide-react";
 
 const learningModules = [
   {
@@ -14,7 +13,7 @@ const learningModules = [
     description: "Learn the basics of navigating the MILK platform and setting up your workspace.",
     icon: BookOpen,
     image: "https://placehold.co/600x400.png",
-    aiHint: "education platform",
+    aiHint: "onboarding platform",
     comingSoon: false,
   },
   {
@@ -22,7 +21,7 @@ const learningModules = [
     description: "Dive deep into technical analysis and charting tools available in MILK.",
     icon: Film,
     image: "https://placehold.co/600x400.png",
-    aiHint: "tutorial chart",
+    aiHint: "stock chart",
     comingSoon: true,
   },
   {
@@ -30,15 +29,39 @@ const learningModules = [
     description: "Master the rule engine to create powerful, custom trade alerts.",
     icon: HelpCircle,
     image: "https://placehold.co/600x400.png",
-    aiHint: "guide alerts",
+    aiHint: "notification bell",
     comingSoon: true,
   },
   {
     title: "Milo AI: Tips & Tricks",
     description: "Leverage Milo, your AI assistant, for smarter trading decisions and automation.",
-    icon: GraduationCap,
+    icon: GraduationCap, // Keeping GraduationCap for Milo specific, as it's about learning to use AI
     image: "https://placehold.co/600x400.png",
-    aiHint: "ai assistant",
+    aiHint: "ai robot",
+    comingSoon: true,
+  },
+  {
+    title: "Mastering Manual Trading",
+    description: "Take full control. Learn to execute and manage your trades with precision using MILK's manual trading tools.",
+    icon: Hand,
+    image: "https://placehold.co/600x400.png",
+    aiHint: "manual control",
+    comingSoon: true,
+  },
+  {
+    title: "Leveraging AI Assist",
+    description: "Combine your insights with Milo's AI-generated trade ideas. You review, AI helps, you decide.",
+    icon: Handshake,
+    image: "https://placehold.co/600x400.png",
+    aiHint: "ai collaboration",
+    comingSoon: true,
+  },
+  {
+    title: "Exploring Autopilot Mode",
+    description: "Set your strategy and let Milo manage trades automatically based on your risk parameters and predefined rules.",
+    icon: Rocket,
+    image: "https://placehold.co/600x400.png",
+    aiHint: "autopilot rocket",
     comingSoon: true,
   }
 ];
@@ -54,14 +77,6 @@ export default function AcademyPage() {
             Your hub for tutorials, trading tips, and platform walkthroughs.
           </h2>
         </div>
-
-        <Alert className="border-accent bg-accent/5 text-accent-foreground">
-          <Construction className="h-5 w-5 text-accent" />
-          <AlertTitle className="font-semibold text-accent">Under Construction!</AlertTitle>
-          <AlertDescription>
-            The Milk Academy is currently being developed. More content coming soon!
-          </AlertDescription>
-        </Alert>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {learningModules.map((module, index) => (
