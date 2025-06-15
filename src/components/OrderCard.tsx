@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -115,7 +115,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       setDisplayedMiloContext(null);
       setIsAutopilotEnabled(false);
     }
-  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText]);
+  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText, quantityValue]);
 
 
   const handleActionSelect = (action: OrderActionType) => {
@@ -332,7 +332,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   return (
     <>
       <Card className="shadow-none flex flex-col">
-        <CardHeader className="relative pb-4"> {/* Increased bottom padding */}
+        <CardHeader className="relative pb-2 pt-4"> {/* Adjusted padding */}
           <CardTitle className="text-xl font-headline text-foreground mb-2">
             Trade Panel
           </CardTitle>
