@@ -10,15 +10,22 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label"; // Can keep if used outside RHF Form
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/hooks/use-toast";
 import { cn } from '@/lib/utils';
 import { Lightbulb, ThumbsUp, Trophy, Flame, Construction, CheckCircle, MessageSquare, Send } from "lucide-react";
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
+import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 
 const suggestionCategories = [
@@ -118,9 +125,9 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion; onUpvote: (id: string) 
 
 
 export default function SuggestionsPage() {
-  const { toast } = useToast();
   const [suggestions, setSuggestions] = useState<Suggestion[]>(mockSuggestions);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const form = useForm<SuggestionFormData>({
     resolver: zodResolver(suggestionSchema),
@@ -131,12 +138,12 @@ export default function SuggestionsPage() {
 
   const onSubmitSuggestion: SubmitHandler<SuggestionFormData> = async (data) => {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
     
     const finalCategory = data.category === 'Other' ? data.customCategory : data.category;
 
     const newSuggestion: Suggestion = {
-      id: `s${suggestions.length + 1}`,
+      id: `s${Date.now()}`, // More unique ID
       title: data.title,
       description: data.description,
       category: finalCategory || 'General',
@@ -145,14 +152,11 @@ export default function SuggestionsPage() {
       status: 'New',
       createdAt: new Date().toISOString(),
     };
-    setSuggestions(prev => [newSuggestion, ...prev]);
+    setSuggestions(prev => [newSuggestion, ...prev].sort((a, b) => b.upvotes - a.upvotes));
 
-    toast({
-      title: "Thank You!",
-      description: "Thank you for your suggestion! If it moves to the top, we’ll be in touch before the cows come home.",
-    });
     form.reset();
     setIsLoading(false);
+    setShowSuccessDialog(true); // Show the success dialog
   };
 
   const handleUpvote = (id: string) => {
@@ -161,9 +165,8 @@ export default function SuggestionsPage() {
         s.id === id 
           ? { ...s, upvotes: s.userHasUpvoted ? s.upvotes -1 : s.upvotes + 1, userHasUpvoted: !s.userHasUpvoted } 
           : s
-      )
+      ).sort((a, b) => b.upvotes - a.upvotes) // Re-sort after upvote
     );
-    console.log(`Upvoted suggestion ${id}`);
   };
   
   const topSuggestions = suggestions.filter(s => s.upvotes > 100 && s.status !== 'Completed').sort((a, b) => b.upvotes - a.upvotes).slice(0, 3);
@@ -173,172 +176,188 @@ export default function SuggestionsPage() {
 
 
   return (
-    <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <PageHeader title="Suggestions & Community Upgrades" />
-      <ScrollArea className="flex-1 p-4 md:p-6">
-        <div className="space-y-8">
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl font-headline flex items-center">
-                <MessageSquare className="mr-2 h-5 w-5 text-primary"/>
-                Submit Your Idea
-              </CardTitle>
-              <CardDescription>Have a feature request or an improvement idea? Let us know!</CardDescription>
-            </CardHeader>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmitSuggestion)}>
-                <CardContent className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Short Title</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g., Add Trailing Stop Loss for AI Trades" {...field} disabled={isLoading} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Detailed Description</FormLabel>
-                        <FormControl>
-                          <Textarea placeholder="Explain your suggestion in detail. What problem does it solve? How would it work?" rows={4} {...field} disabled={isLoading} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Category (Optional)</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a category" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {suggestionCategories.map(cat => (
-                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {watchedCategory === 'Other' && (
+    <>
+      <main className="flex flex-col flex-1 h-full overflow-hidden">
+        <PageHeader title="Suggestions & Community Upgrades" />
+        <ScrollArea className="flex-1 p-4 md:p-6">
+          <div className="space-y-8">
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl font-headline flex items-center">
+                  <MessageSquare className="mr-2 h-5 w-5 text-primary"/>
+                  Submit Your Idea
+                </CardTitle>
+                <CardDescription>Have a feature request or an improvement idea? Let us know!</CardDescription>
+              </CardHeader>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmitSuggestion)}>
+                  <CardContent className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="customCategory"
+                      name="title"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Custom Category Name</FormLabel>
+                          <FormLabel>Short Title</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter your custom category" {...field} disabled={isLoading} />
+                            <Input placeholder="e.g., Add Trailing Stop Loss for AI Trades" {...field} disabled={isLoading} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Detailed Description</FormLabel>
+                          <FormControl>
+                            <Textarea placeholder="Explain your suggestion in detail. What problem does it solve? How would it work?" rows={4} {...field} disabled={isLoading} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Category (Optional)</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a category" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {suggestionCategories.map(cat => (
+                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {watchedCategory === 'Other' && (
+                      <FormField
+                        control={form.control}
+                        name="customCategory"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Custom Category Name</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Enter your custom category" {...field} disabled={isLoading} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
+                  </CardContent>
+                  <CardFooter>
+                    <Button type="submit" disabled={isLoading} className="bg-primary text-primary-foreground hover:bg-primary/90">
+                      <Send className="mr-2 h-4 w-4" />
+                      {isLoading ? "Submitting..." : "Submit Suggestion"}
+                    </Button>
+                  </CardFooter>
+                </form>
+              </Form>
+            </Card>
+
+            {topSuggestions.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl font-headline flex items-center">
+                    <Trophy className="mr-2 h-5 w-5 text-yellow-400"/>Top Suggestions
+                  </CardTitle>
+                  <CardDescription>Most upvoted ideas from the community. Some may be prioritized!</CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {topSuggestions.map(suggestion => (
+                    <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl font-headline flex items-center">
+                    <Flame className="mr-2 h-5 w-5 text-destructive"/>Trending & New Ideas
+                  </CardTitle>
+                  <CardDescription>Freshly submitted ideas. Upvote your favorites!</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {trendingSuggestions.length > 0 ? (
+                    trendingSuggestions.map(suggestion => (
+                      <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground text-sm text-center py-4">No new suggestions right now. Be the first!</p>
                   )}
                 </CardContent>
-                <CardFooter>
-                  <Button type="submit" disabled={isLoading} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                    <Send className="mr-2 h-4 w-4" />
-                    {isLoading ? "Submitting..." : "Submit Suggestion"}
-                  </Button>
-                </CardFooter>
-              </form>
-            </Form>
-          </Card>
+              </Card>
 
-          {topSuggestions.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl font-headline flex items-center">
-                  <Trophy className="mr-2 h-5 w-5 text-yellow-400"/>Top Suggestions
-                </CardTitle>
-                <CardDescription>Most upvoted ideas from the community. Some may be prioritized!</CardDescription>
-              </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {topSuggestions.map(suggestion => (
-                  <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
-                ))}
-              </CardContent>
-            </Card>
-          )}
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl font-headline flex items-center">
-                  <Flame className="mr-2 h-5 w-5 text-destructive"/>Trending & New Ideas
-                </CardTitle>
-                <CardDescription>Freshly submitted ideas. Upvote your favorites!</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {trendingSuggestions.length > 0 ? (
-                  trendingSuggestions.map(suggestion => (
-                    <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
-                  ))
-                ) : (
-                  <p className="text-muted-foreground text-sm text-center py-4">No new suggestions right now. Be the first!</p>
+              <div className="space-y-6">
+                {inProgressSuggestions.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-xl font-headline flex items-center">
+                        <Construction className="mr-2 h-5 w-5 text-accent"/>Currently Being Built
+                      </CardTitle>
+                      <CardDescription>Features the dev team is actively working on.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {inProgressSuggestions.map(suggestion => (
+                        <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
+                      ))}
+                    </CardContent>
+                  </Card>
                 )}
-              </CardContent>
-            </Card>
 
-            <div className="space-y-6">
-              {inProgressSuggestions.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl font-headline flex items-center">
-                      <Construction className="mr-2 h-5 w-5 text-accent"/>Currently Being Built
-                    </CardTitle>
-                    <CardDescription>Features the dev team is actively working on.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {inProgressSuggestions.map(suggestion => (
-                      <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
-
-              {recentlyReleasedSuggestions.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl font-headline flex items-center">
-                      <CheckCircle className="mr-2 h-5 w-5 text-[hsl(var(--confirm-green))]"/>Recently Released
-                    </CardTitle>
-                    <CardDescription>Check out what's new in MILK!</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                     {recentlyReleasedSuggestions.map(suggestion => (
-                      <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
+                {recentlyReleasedSuggestions.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-xl font-headline flex items-center">
+                        <CheckCircle className="mr-2 h-5 w-5 text-[hsl(var(--confirm-green))]"/>Recently Released
+                      </CardTitle>
+                      <CardDescription>Check out what's new in MILK!</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                       {recentlyReleasedSuggestions.map(suggestion => (
+                        <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
+            <div className="text-center text-sm text-muted-foreground py-4">
+              <p>Your feedback helps shape the future of MILK. Thank you for your contributions!</p>
+              <p className="mt-1">Tip: Suggestions with more community upvotes are more likely to be prioritized.</p>
             </div>
           </div>
-          <div className="text-center text-sm text-muted-foreground py-4">
-            <p>Your feedback helps shape the future of MILK. Thank you for your contributions!</p>
-            <p className="mt-1">Tip: Suggestions with more community upvotes are more likely to be prioritized.</p>
-          </div>
-        </div>
-      </ScrollArea>
-    </main>
+        </ScrollArea>
+      </main>
+
+      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Thank You!</AlertDialogTitle>
+            <AlertDialogDescription>
+              Thank you for your suggestion! If it moves to the top, we’ll be in touch before the cows come home.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowSuccessDialog(false)}>Okay</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 
