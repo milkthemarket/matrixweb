@@ -26,19 +26,27 @@ const navItems = [
   { href: "/academy", label: "Milk Academy", icon: GraduationCap },
 ];
 
-// New MilkDropIcon component rendering an SVG
+// New MilkDropIcon component rendering an SVG for "milking" icon
 const MilkDropIcon = ({ size = 28, className }: { size?: number; className?: string; }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor" // Uses fill for a solid drop shape
-      className={className} // Takes color from className (e.g., text-white)
+      viewBox="0 0 24 24" // Adjusted viewBox for a more square-like icon if needed
+      fill="currentColor"
+      className={className}
     >
-      {/* Water drop / Milk drop shape */}
-      <path d="M12 2C7.58 2 4 5.58 4 10c0 2.85 1.65 5.35 4 6.64V20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-3.36c2.35-1.29 4-3.79 4-6.64C20 5.58 16.42 2 12 2zM12 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
+      {/* Simplified representation of hand milking udder with a drop */}
+      {/* Udder part */}
+      <path d="M8 10C8 8.34315 9.34315 7 11 7C12.6569 7 14 8.34315 14 10V13C14 14.1046 13.1046 15 12 15H10C8.89543 15 8 14.1046 8 13V10Z" />
+      {/* Teat part of udder */}
+      <path d="M11 15V17" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
+      {/* Hand (very simplified) */}
+      <path d="M15 9C15.5523 9 16 9.44772 16 10V12C16 12.5523 15.5523 13 15 13C14.4477 13 14 12.5523 14 12V10C14 9.44772 14.4477 9 15 9Z" />
+      <path d="M17 11H18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+       {/* Milk Drop */}
+      <path d="M11 18C11 18.5523 10.5523 19 10 19C9.44772 19 9 18.5523 9 18C9 17.4477 9.44772 17 10 17C10.2412 17 10.4691 17.0863 10.6465 17.2345L11 17.5L11.3535 17.2345C11.5309 17.0863 11.7588 17 12 17C12.5523 17 13 17.4477 13 18C13 19.1046 12.1046 20 11 20C9.89543 20 9 19.1046 9 18" transform="translate(0.5, 0.5) scale(0.9)"/>
     </svg>
   );
 };
@@ -107,7 +115,7 @@ export function SidebarNav() {
       {open && state ==='expanded' && (
         <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden flex flex-col space-y-1 items-start">
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} M.I.L.K.</p>
-          <p className="text-xs text-muted-foreground/70">Milk drop icon concept by monik from Flaticon.</p>
+          <p className="text-xs text-muted-foreground/70">Milking icon concept by monik from Flaticon.</p>
           <p className="text-xs text-muted-foreground/70">Cow head icon concept by kerismaker from Flaticon.</p>
         </SidebarFooter>
       )}
