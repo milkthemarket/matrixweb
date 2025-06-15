@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { AiTradeCard } from '@/components/AiTradeCard';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
 import { AiAutoTradingWarningModal } from '@/components/AiAutoTradingWarningModal';
+import { AiAssistWarningModal } from '@/components/AiAssistWarningModal'; // New Import
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 
 interface OrderCardProps {
@@ -62,6 +63,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
 
   const [showManualTradeWarningModal, setShowManualTradeWarningModal] = useState(false);
   const [manualTradeDisclaimerAcknowledged, setManualTradeDisclaimerAcknowledged] = useState(false);
+  
+  const [showAiAssistWarningModal, setShowAiAssistWarningModal] = useState(false);
+  const [aiAssistDisclaimerAcknowledged, setAiAssistDisclaimerAcknowledged] = useState(false);
+  
   const [pendingTradeDetails, setPendingTradeDetails] = useState<TradeRequest | null>(null);
 
   const [showAiAutopilotWarningModal, setShowAiAutopilotWarningModal] = useState(false);
@@ -90,8 +95,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     if (selectedStock) {
       if (tradeMode === 'manual') {
          setCurrentAction(initialActionType);
-         if (initialTradeMode === 'manual' || !miloActionContextText ) { // Keep quantityValue if set by Milo
-            // setQuantityValue(''); // Commented out to preserve quantityValue from Milo
+         if (initialTradeMode === 'manual' || !miloActionContextText ) {
+            // setQuantityValue(''); // Keep quantityValue if set by Milo
             setOrderType('Market');
             setLimitPrice('');
             setStopPrice('');
@@ -113,7 +118,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       setDisplayedMiloContext(null);
       setIsAutopilotEnabled(false);
     }
-  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStock, initialActionType, tradeMode, miloActionContextText]); // Removed initialTradeMode from deps, to avoid re-running when initialTradeMode is set
 
 
   const handleActionSelect = (action: OrderActionType) => {
@@ -137,16 +143,20 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const { finalSharesToSubmit, estimatedCost, isValidQuantity, validationMessage } = useMemo(() => {
     let shares = 0;
     let cost = 0;
-    let valid = false;
+    let valid = true; // Default to true, set to false on error
     let message = "";
     const stockPrice = selectedStock?.price || 0;
     const rawValue = parseFloat(quantityValue);
 
-    if (selectedStock && !isNaN(rawValue) && rawValue > 0) {
-      valid = true;
+    if (!selectedStock || !quantityValue) { // if no stock or no quantity value, it's not valid for submission but don't show error yet.
+        valid = false; 
+    } else if (isNaN(rawValue) || rawValue <= 0) {
+      message = "Please enter a valid positive number.";
+      valid = false;
+    } else {
       if (quantityMode === 'Shares') {
         shares = Math.floor(rawValue);
-        if (shares <= 0) {
+        if (shares <= 0) { // Should be caught by rawValue <= 0, but good for robustness
           valid = false;
           message = "Number of shares must be positive.";
         }
@@ -184,38 +194,28 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
           message = "Percentage must be between 0 and 100.";
         }
       }
-
-      if (valid && shares <= 0 && stockPrice > 0) {
-        // This condition is generally caught by mode-specific checks now, but acts as a fallback.
-        // We want to ensure the message for DollarAmount and PercentOfBuyingPower mode is the specific one.
-        if (quantityMode === 'Shares') { // Only shares mode needs this generic message if it somehow got here.
+    }
+    // A final check that we are actually trading some shares if valid so far
+    if (valid && shares <= 0 && stockPrice > 0) {
+        if (quantityMode === 'Shares') {
            message = "Quantity must result in at least 1 share.";
         }
+        // For DollarAmount and PercentOfBuyingPower, specific messages are already set if shares <= 0
         valid = false;
-      }
-
-    } else if (selectedStock && quantityValue) {
-      message = "Please enter a valid positive number.";
-      valid = false;
     }
+
 
     return { finalSharesToSubmit: shares, estimatedCost: cost, isValidQuantity: valid, validationMessage: message };
   }, [quantityValue, quantityMode, selectedStock, currentBuyingPower]);
 
   const handleManualSubmit = () => {
     if (!selectedStock || !currentAction || !isValidQuantity || finalSharesToSubmit <= 0) {
-      // The specific validation message will be displayed by the component,
-      // so a generic alert here might be redundant or confusing if validationMessage is already shown.
-      // Consider removing this alert if validationMessage display is sufficient.
-      // alert("Please correct the errors in the form.");
       return;
     }
 
     let origin: HistoryTradeMode = 'manual';
-    if (tradeMode === 'ai') origin = 'aiAssist';
-    else if (tradeMode === 'autopilot') origin = 'autopilot';
-
-
+    // tradeMode here correctly reflects 'manual' since this function is specific to manual submission path
+    
     const tradeDetails: TradeRequest = {
       symbol: selectedStock.symbol,
       quantity: finalSharesToSubmit,
@@ -224,7 +224,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       TIF: timeInForce,
       rawQuantityValue: quantityValue,
       rawQuantityMode: quantityMode,
-      tradeModeOrigin: origin,
+      tradeModeOrigin: origin, // origin is 'manual'
       accountId: selectedAccountId,
     };
 
@@ -247,18 +247,28 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       tradeDetails.trailingOffset = parseFloat(trailingOffset);
     }
 
-    if (tradeMode === 'manual' && !manualTradeDisclaimerAcknowledged && selectedAccount.type !== 'paper') {
+    if (selectedAccount.type !== 'paper' && !manualTradeDisclaimerAcknowledged) {
       setPendingTradeDetails(tradeDetails);
       setShowManualTradeWarningModal(true);
     } else {
       onSubmit(tradeDetails);
-       if (tradeMode === 'manual') setQuantityValue('');
+      setQuantityValue(''); // Clear quantity after successful submission
     }
   };
 
   const handleAISuggestionSubmit = (aiTradeDetails: TradeRequest) => {
-      const tradeWithAccount = {...aiTradeDetails, accountId: selectedAccountId };
-      onSubmit(tradeWithAccount);
+      const tradeWithAccountAndOrigin = {
+        ...aiTradeDetails, 
+        accountId: selectedAccountId,
+        tradeModeOrigin: 'aiAssist' as HistoryTradeMode // Explicitly set origin
+      };
+
+      if (selectedAccount.type !== 'paper' && !aiAssistDisclaimerAcknowledged) {
+        setPendingTradeDetails(tradeWithAccountAndOrigin);
+        setShowAiAssistWarningModal(true);
+      } else {
+        onSubmit(tradeWithAccountAndOrigin);
+      }
   };
 
   const handleConfirmManualTrade = (dontShowAgain: boolean) => {
@@ -267,20 +277,36 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     }
     if (pendingTradeDetails) {
       onSubmit(pendingTradeDetails);
+      if (pendingTradeDetails.tradeModeOrigin === 'manual') setQuantityValue(''); // Clear quantity only if it was a manual submission
     }
     setPendingTradeDetails(null);
     setShowManualTradeWarningModal(false);
-    setQuantityValue('');
   };
 
   const handleCancelManualTrade = () => {
     setPendingTradeDetails(null);
     setShowManualTradeWarningModal(false);
   };
+  
+  const handleConfirmAiAssistTrade = (dontShowAgain: boolean) => {
+    if (dontShowAgain) {
+      setAiAssistDisclaimerAcknowledged(true);
+    }
+    if (pendingTradeDetails) {
+      onSubmit(pendingTradeDetails);
+    }
+    setPendingTradeDetails(null);
+    setShowAiAssistWarningModal(false);
+  };
+
+  const handleCancelAiAssistTrade = () => {
+    setPendingTradeDetails(null);
+    setShowAiAssistWarningModal(false);
+  };
 
   const handleAutopilotSwitchChange = (checked: boolean) => {
     if (checked) {
-      if (!aiAutopilotDisclaimerAcknowledged && selectedAccount.type !== 'paper') {
+      if (selectedAccount.type !== 'paper' && !aiAutopilotDisclaimerAcknowledged) {
         setShowAiAutopilotWarningModal(true);
       } else {
         setIsAutopilotEnabled(true);
@@ -299,7 +325,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   };
 
   const handleCloseAiAutopilotWarning = () => {
-    setIsAutopilotEnabled(false);
+    setIsAutopilotEnabled(false); // Ensure switch state is reverted if modal is cancelled
     setShowAiAutopilotWarningModal(false);
   };
 
@@ -365,10 +391,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     <>
       <Card className="shadow-none flex flex-col">
         <CardHeader className="relative pb-2 pt-4">
-          <CardTitle className="text-xl font-headline text-foreground mb-2">
+          <CardTitle className="text-xl font-headline text-foreground mb-0"> {/* Reduced mb-2 to mb-0 */}
             Trade Panel
           </CardTitle>
-          <div className="space-y-3 p-3 rounded-lg border border-white/5 bg-black/5">
+          <div className="space-y-3 p-3 rounded-lg border border-white/5 bg-black/5 mt-2"> {/* Added mt-2 for spacing */}
             <div className="flex items-center gap-2">
               <Label htmlFor="accountSelect" className="text-sm font-medium text-muted-foreground shrink-0">Account:</Label>
               <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
@@ -500,6 +526,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                         onChange={(e) => setQuantityValue(e.target.value)}
                         placeholder={getQuantityInputPlaceholder()}
                         className="flex-1 h-9 bg-transparent px-3 py-2 focus-visible:ring-ring"
+                        // disabled={!selectedStock} // Removed to keep input always active when visible
                       />
                       <Button
                         variant={quantityMode === 'Shares' ? 'default' : 'outline'}
@@ -685,6 +712,11 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
         isOpen={showManualTradeWarningModal}
         onClose={handleCancelManualTrade}
         onConfirm={handleConfirmManualTrade}
+      />
+      <AiAssistWarningModal
+        isOpen={showAiAssistWarningModal}
+        onClose={handleCancelAiAssistTrade}
+        onConfirm={handleConfirmAiAssistTrade}
       />
       <AiAutoTradingWarningModal
         isOpen={showAiAutopilotWarningModal}
