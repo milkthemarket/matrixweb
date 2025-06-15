@@ -26,27 +26,26 @@ const navItems = [
   { href: "/academy", label: "Milk Academy", icon: GraduationCap },
 ];
 
-// New MilkDropIcon component rendering an SVG for "milking" icon
+// New MilkDropIcon component structure, ready for Flaticon SVG path data
 const MilkDropIcon = ({ size = 28, className }: { size?: number; className?: string; }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}
-      viewBox="0 0 24 24" // Adjusted viewBox for a more square-like icon if needed
-      fill="currentColor"
+      viewBox="0 0 512 512" // Use Flaticon's viewBox
+      fill="currentColor" // Ensures single color and theme compatibility
       className={className}
+      aria-labelledby="milkLogoTitle"
     >
-      {/* Simplified representation of hand milking udder with a drop */}
-      {/* Udder part */}
-      <path d="M8 10C8 8.34315 9.34315 7 11 7C12.6569 7 14 8.34315 14 10V13C14 14.1046 13.1046 15 12 15H10C8.89543 15 8 14.1046 8 13V10Z" />
-      {/* Teat part of udder */}
-      <path d="M11 15V17" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-      {/* Hand (very simplified) */}
-      <path d="M15 9C15.5523 9 16 9.44772 16 10V12C16 12.5523 15.5523 13 15 13C14.4477 13 14 12.5523 14 12V10C14 9.44772 14.4477 9 15 9Z" />
-      <path d="M17 11H18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-       {/* Milk Drop */}
-      <path d="M11 18C11 18.5523 10.5523 19 10 19C9.44772 19 9 18.5523 9 18C9 17.4477 9.44772 17 10 17C10.2412 17 10.4691 17.0863 10.6465 17.2345L11 17.5L11.3535 17.2345C11.5309 17.0863 11.7588 17 12 17C12.5523 17 13 17.4477 13 18C13 19.1046 12.1046 20 11 20C9.89543 20 9 19.1046 9 18" transform="translate(0.5, 0.5) scale(0.9)"/>
+      <title id="milkLogoTitle">MILK Logo</title>
+      {/*
+        IMPORTANT: Replace the path below with the actual <path> data
+        from the "milking_1421714" SVG file you downloaded from Flaticon.
+        Example: <path d="Mactual path data from Flaticon...Z" />
+        The current path is just a placeholder.
+      */}
+      <path d="M100,100 h312 v312 h-312 z" /> {/* Placeholder path */}
     </svg>
   );
 };
