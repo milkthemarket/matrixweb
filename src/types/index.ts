@@ -4,7 +4,7 @@ export type CatalystType = 'fire' | 'news';
 export interface Stock {
   id: string;
   symbol: string;
-  name?: string; // Added company name
+  name?: string; 
   price: number;
   changePercent: number;
   float: number; // in millions
@@ -31,9 +31,9 @@ export interface Stock {
 export type RuleOperator = '>' | '<' | '>=' | '<=' | '==' | '!=' | 'between' | 'contains';
 
 export interface RuleCriterion {
-  metric: keyof Stock | string; // keyof Stock for type safety, string for flexibility
+  metric: keyof Stock | string; 
   operator: RuleOperator;
-  value: number | string | [number, number]; // Single value, string, or tuple for 'between'
+  value: number | string | [number, number]; 
 }
 
 export interface AlertRule {
@@ -66,8 +66,8 @@ export interface TradeLogEntry {
 export type OrderActionType = 'Buy' | 'Sell' | 'Short';
 export type OrderSystemType = 'Market' | 'Limit' | 'Stop' | 'Stop Limit' | 'Trailing Stop';
 export type QuantityInputMode = 'Shares' | 'DollarAmount' | 'PercentOfBuyingPower';
-export type TradeMode = 'manual' | 'ai' | 'auto';
-export type HistoryTradeMode = 'manual' | 'aiAssist' | 'fullyAI';
+export type TradeMode = 'manual' | 'ai' | 'autopilot'; // Updated 'auto' to 'autopilot'
+export type HistoryTradeMode = 'manual' | 'aiAssist' | 'autopilot'; // Updated 'fullyAI' to 'autopilot'
 export type TickerSpeed = 'slow' | 'medium' | 'fast';
 
 

@@ -15,7 +15,7 @@ import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle
 import { cn } from '@/lib/utils';
 import { AiTradeCard } from '@/components/AiTradeCard';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
-import { AiAutoTradingWarningModal } from '@/components/AiAutoTradingWarningModal'; // Import new modal
+import { AiAutoTradingWarningModal } from '@/components/AiAutoTradingWarningModal';
 
 interface OrderCardProps {
   selectedStock: Stock | null;
@@ -56,7 +56,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const [trailingOffset, setTrailingOffset] = useState('');
   const [currentAction, setCurrentAction] = useState<OrderActionType | null>(null);
   const [timeInForce, setTimeInForce] = useState<string>('Day');
-  const [isAutoTradingEnabled, setIsAutoTradingEnabled] = useState(false); // Default to false
+  const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(false); 
   const [displayedMiloContext, setDisplayedMiloContext] = useState<string | null>(null);
 
   const [buyingPower] = useState<number>(MOCK_BUYING_POWER);
@@ -65,9 +65,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const [manualTradeDisclaimerAcknowledged, setManualTradeDisclaimerAcknowledged] = useState(false);
   const [pendingTradeDetails, setPendingTradeDetails] = useState<TradeRequest | null>(null);
 
-  // State for AI Auto-Trading Modal
-  const [showAiAutoTradingWarningModal, setShowAiAutoTradingWarningModal] = useState(false);
-  const [aiAutoTradingDisclaimerAcknowledged, setAiAutoTradingDisclaimerAcknowledged] = useState(false);
+  const [showAiAutopilotWarningModal, setShowAiAutopilotWarningModal] = useState(false);
+  const [aiAutopilotDisclaimerAcknowledged, setAiAutopilotDisclaimerAcknowledged] = useState(false);
 
 
   useEffect(() => {
@@ -104,12 +103,12 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       setCurrentAction(null);
       setQuantityValue('');
       setDisplayedMiloContext(null);
-      setIsAutoTradingEnabled(false); // Also disable auto-trading if stock is cleared
+      setIsAutopilotEnabled(false); 
     }
   }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText]); 
 
   useEffect(() => {
-    if (tradeMode === 'ai' || tradeMode === 'auto' || !selectedStock) {
+    if (tradeMode === 'ai' || tradeMode === 'autopilot' || !selectedStock) {
       setQuantityValue('');
       setOrderType('Market');
       setLimitPrice('');
@@ -189,7 +188,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     
     let origin: HistoryTradeMode = 'manual';
     if (tradeMode === 'ai') origin = 'aiAssist'; 
-    else if (tradeMode === 'auto') origin = 'fullyAI';
+    else if (tradeMode === 'autopilot') origin = 'autopilot';
 
 
     const tradeDetails: TradeRequest = {
@@ -252,32 +251,29 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     setShowManualTradeWarningModal(false);
   };
 
-  const handleAutoTradingSwitchChange = (checked: boolean) => {
-    if (checked) { // Trying to enable
-      if (!aiAutoTradingDisclaimerAcknowledged) {
-        setShowAiAutoTradingWarningModal(true);
-        // Do NOT set isAutoTradingEnabled here, wait for modal confirmation
+  const handleAutopilotSwitchChange = (checked: boolean) => {
+    if (checked) { 
+      if (!aiAutopilotDisclaimerAcknowledged) {
+        setShowAiAutopilotWarningModal(true);
       } else {
-        setIsAutoTradingEnabled(true);
+        setIsAutopilotEnabled(true);
       }
-    } else { // Turning off
-      setIsAutoTradingEnabled(false);
+    } else { 
+      setIsAutopilotEnabled(false);
     }
   };
 
-  const handleConfirmAiAutoTradingWarning = (dontShowAgain: boolean) => {
+  const handleConfirmAiAutopilotWarning = (dontShowAgain: boolean) => {
     if (dontShowAgain) {
-      setAiAutoTradingDisclaimerAcknowledged(true);
-      // Here you might save this preference to localStorage or backend
+      setAiAutopilotDisclaimerAcknowledged(true);
     }
-    setIsAutoTradingEnabled(true); // Now enable the feature
-    setShowAiAutoTradingWarningModal(false);
+    setIsAutopilotEnabled(true); 
+    setShowAiAutopilotWarningModal(false);
   };
 
-  const handleCloseAiAutoTradingWarning = () => {
-    // If modal is closed without confirmation, ensure the switch is off
-    setIsAutoTradingEnabled(false); 
-    setShowAiAutoTradingWarningModal(false);
+  const handleCloseAiAutopilotWarning = () => {
+    setIsAutopilotEnabled(false); 
+    setShowAiAutopilotWarningModal(false);
   };
   
   const handleClearSelection = () => {
@@ -288,14 +284,14 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const getCardTitle = () => {
     if (!selectedStock) return "Trade Panel";
     if (tradeMode === 'ai') return `AI Assist: ${selectedStock.symbol}`;
-    if (tradeMode === 'auto') return `AI Auto: ${selectedStock.symbol}`;
+    if (tradeMode === 'autopilot') return `Autopilot: ${selectedStock.symbol}`;
     if (currentAction) return `${currentAction} ${selectedStock.symbol}`;
     return selectedStock.symbol;
   };
 
   const getCardDescription = () => {
     if (!selectedStock) return "Select ticker from screener";
-    if (tradeMode === 'auto') return `Status for ${selectedStock.symbol}`;
+    if (tradeMode === 'autopilot') return `Status for ${selectedStock.symbol}`;
     return `Current Price: $${selectedStock.price.toFixed(2)}`;
   };
 
@@ -366,14 +362,14 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
               <Bot className="mr-2 h-4 w-4" /> AI Assist
             </button>
             <button
-              onClick={() => setTradeMode('auto')}
+              onClick={() => setTradeMode('autopilot')}
               className={cn(
                 buttonBaseClass,
-                tradeMode === 'auto' ? activeModeClass : inactiveModeClass
+                tradeMode === 'autopilot' ? activeModeClass : inactiveModeClass
               )}
               disabled={!selectedStock}
             >
-              <Cog className="mr-2 h-4 w-4" /> AI Auto
+              <Cog className="mr-2 h-4 w-4" /> Autopilot
             </button>
           </div>
 
@@ -524,11 +520,11 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
             </div>
           )}
 
-          {tradeMode === 'auto' && selectedStock && (
+          {tradeMode === 'autopilot' && selectedStock && (
             <div className="space-y-4">
               <Card className="bg-transparent shadow-none border-none">
                 <CardHeader className="p-0 pb-3">
-                  <CardTitle className="text-lg font-semibold text-foreground">AI Auto Mode Active</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-foreground">Autopilot Mode Active</CardTitle>
                   <CardDescription>Trades will be placed automatically based on your selected rules for {selectedStock.symbol}.</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0 space-y-3">
@@ -548,17 +544,17 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                    <div className="space-y-1.5 !mt-4">
                       <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-3 shadow-sm bg-black/10">
                           <div className="space-y-0.5">
-                              <Label htmlFor="autoTradingSwitch" className="text-base font-medium text-foreground cursor-pointer">
-                              AI Auto-Trading Enabled
+                              <Label htmlFor="autopilotSwitch" className="text-base font-medium text-foreground cursor-pointer">
+                              Autopilot Enabled
                               </Label>
                                <p className="text-xs text-muted-foreground">
-                              Allow automated execution for {selectedStock.symbol}.
+                              Allow Autopilot execution for {selectedStock.symbol}.
                               </p>
                           </div>
                           <Switch
-                              id="autoTradingSwitch"
-                              checked={isAutoTradingEnabled}
-                              onCheckedChange={handleAutoTradingSwitchChange}
+                              id="autopilotSwitch"
+                              checked={isAutopilotEnabled}
+                              onCheckedChange={handleAutopilotSwitchChange}
                           />
                       </div>
                   </div>
@@ -571,10 +567,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
               </Link>
             </div>
           )}
-           {tradeMode === 'auto' && !selectedStock && (
+           {tradeMode === 'autopilot' && !selectedStock && (
             <div className="text-center py-10 text-muted-foreground">
               <Cog className="mx-auto h-12 w-12 mb-4 opacity-50" />
-              <p>Select a stock to configure AI Auto Mode settings.</p>
+              <p>Select a stock to configure Autopilot Mode settings.</p>
             </div>
           )}
 
@@ -605,9 +601,9 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
         onConfirm={handleConfirmManualTrade}
       />
       <AiAutoTradingWarningModal
-        isOpen={showAiAutoTradingWarningModal}
-        onClose={handleCloseAiAutoTradingWarning}
-        onConfirm={handleConfirmAiAutoTradingWarning}
+        isOpen={showAiAutopilotWarningModal}
+        onClose={handleCloseAiAutopilotWarning}
+        onConfirm={handleConfirmAiAutopilotWarning}
       />
     </>
   );

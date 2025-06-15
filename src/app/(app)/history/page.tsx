@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
 import type { TradeHistoryEntry, HistoryTradeMode, TradeStatsData } from "@/types";
 import { format, parseISO } from 'date-fns';
-import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, Bot, User, BarChartHorizontalBig } from "lucide-react";
+import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, Bot, User, BarChartHorizontalBig, PackageOpen } from "lucide-react";
 import { cn } from '@/lib/utils';
 
 const getStatusIcon = (status: TradeHistoryEntry['orderStatus']) => {
@@ -46,7 +46,7 @@ const mockTradeStats: Record<HistoryTradeMode, TradeStatsData> = {
     largestLoss: -142.00,
     avgHoldTime: '4h 42m'
   },
-  fullyAI: {
+  autopilot: { // Was 'fullyAI'
     totalTrades: 4,
     winRate: 100.0,
     totalPnL: 448.12,
@@ -90,9 +90,9 @@ export default function HistoryPage() {
     return mockTradeStats[selectedHistoryTradeMode];
   }, [selectedHistoryTradeMode]);
 
-  // TODO: Implement filtering of `tradeHistory` based on `selectedHistoryTradeMode`
-  // This requires `TradeHistoryEntry` to have a field indicating its origin (manual, AI, etc.)
-  const displayedTradeHistory = tradeHistory;
+  const displayedTradeHistory = useMemo(() => {
+    return tradeHistory.filter(trade => (trade.tradeModeOrigin || 'manual') === selectedHistoryTradeMode);
+  }, [tradeHistory, selectedHistoryTradeMode]);
 
   const buttonBaseClass = "flex-1 flex items-center justify-center h-9 py-2 px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50";
   const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
@@ -124,13 +124,13 @@ export default function HistoryPage() {
             <Bot className="mr-2 h-4 w-4" /> AI Assist
           </button>
           <button
-            onClick={() => setSelectedHistoryTradeMode('fullyAI')}
+            onClick={() => setSelectedHistoryTradeMode('autopilot')}
             className={cn(
               buttonBaseClass,
-              selectedHistoryTradeMode === 'fullyAI' ? activeModeClass : inactiveModeClass
+              selectedHistoryTradeMode === 'autopilot' ? activeModeClass : inactiveModeClass
             )}
           >
-            <Cpu className="mr-2 h-4 w-4" /> Fully AI
+            <Cpu className="mr-2 h-4 w-4" /> Autopilot
           </button>
         </div>
 
@@ -138,7 +138,7 @@ export default function HistoryPage() {
           <CardHeader>
             <CardTitle className="text-xl font-headline flex items-center">
               <BarChartHorizontalBig className="mr-2 h-5 w-5 text-primary"/>
-              {selectedHistoryTradeMode === 'manual' ? 'Manual Trade Performance' : selectedHistoryTradeMode === 'aiAssist' ? 'AI Assisted Performance' : 'Fully AI Performance'}
+              {selectedHistoryTradeMode === 'manual' ? 'Manual Trade Performance' : selectedHistoryTradeMode === 'aiAssist' ? 'AI Assisted Performance' : 'Autopilot Performance'}
             </CardTitle>
             <CardDescription>Summary of trades executed in this mode.</CardDescription>
           </CardHeader>
@@ -153,19 +153,19 @@ export default function HistoryPage() {
           </CardContent>
         </Card>
 
-        <Card className="flex-1 flex flex-col min-h-[400px]"> {/* Ensure table card has enough height */}
+        <Card className="flex-1 flex flex-col min-h-[400px]"> 
           <CardHeader>
             <CardTitle className="text-2xl font-headline flex items-center">
               <HistoryIcon className="mr-2 h-6 w-6 text-primary"/>
               Executed Trades
             </CardTitle>
             <CardDescription>
-              Review your past trade executions. {/* Table filtering by mode is not yet implemented. */}
+              Review your past trade executions for "{selectedHistoryTradeMode}" mode.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden">
             {displayedTradeHistory.length > 0 ? (
-              <ScrollArea className="h-[calc(100%-0rem)]"> {/* Adjusted to be relative */}
+              <ScrollArea className="h-[calc(100%-0rem)]"> 
                 <Table>
                   <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                     <TableRow>
@@ -222,7 +222,7 @@ export default function HistoryPage() {
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                 <HistoryIcon className="h-12 w-12 mb-4" />
-                <p className="text-lg">No trade history yet.</p>
+                <p className="text-lg">No trade history for "{selectedHistoryTradeMode}" mode.</p>
                 <p>Executed trades will appear here.</p>
               </div>
             )}

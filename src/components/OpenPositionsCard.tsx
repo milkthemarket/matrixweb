@@ -9,19 +9,18 @@ import { Button } from '@/components/ui/button';
 import { XSquare, Briefcase, User, Bot, Cpu } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext'; // Import context
+import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext'; 
 
 interface OpenPositionsCardProps {
-  // Positions and onClosePosition are now handled by context
 }
 
 export function OpenPositionsCard({}: OpenPositionsCardProps) {
-  const { openPositions, removeOpenPosition } = useOpenPositionsContext(); // Use context
+  const { openPositions, removeOpenPosition } = useOpenPositionsContext(); 
   const [selectedOriginFilter, setSelectedOriginFilter] = useState<HistoryTradeMode>('manual');
 
   const handleClose = (position: OpenPosition) => {
     console.log("Closing position:", position);
-    removeOpenPosition(position.id); // Use context action
+    removeOpenPosition(position.id); 
   };
   
   const calculatePnl = (position: OpenPosition) => {
@@ -61,11 +60,11 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
             <Bot className="mr-1.5 h-3.5 w-3.5" /> AI Assist
           </button>
           <button
-            onClick={() => setSelectedOriginFilter('fullyAI')}
-            className={cn(buttonBaseClass, selectedOriginFilter === 'fullyAI' ? activeModeClass : inactiveModeClass)}
-            title="Show AI Auto Trades"
+            onClick={() => setSelectedOriginFilter('autopilot')}
+            className={cn(buttonBaseClass, selectedOriginFilter === 'autopilot' ? activeModeClass : inactiveModeClass)}
+            title="Show Autopilot Trades"
           >
-            <Cpu className="mr-1.5 h-3.5 w-3.5" /> AI Auto
+            <Cpu className="mr-1.5 h-3.5 w-3.5" /> Autopilot
           </button>
         </div>
       </CardHeader>

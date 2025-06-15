@@ -9,8 +9,8 @@ interface SettingsContextState {
   setShowManualTicker: (show: boolean) => void;
   showAIAssistedTicker: boolean;
   setShowAIAssistedTicker: (show: boolean) => void;
-  showFullyAITicker: boolean;
-  setShowFullyAITicker: (show: boolean) => void;
+  showAutopilotTicker: boolean; // Renamed from showFullyAITicker
+  setShowAutopilotTicker: (show: boolean) => void; // Renamed from setShowFullyAITicker
   tickerSpeed: TickerSpeed;
   setTickerSpeed: (speed: TickerSpeed) => void;
 }
@@ -18,10 +18,10 @@ interface SettingsContextState {
 const SettingsContext = createContext<SettingsContextState | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [showManualTicker, setShowManualTicker] = useState(false); // Default to false
-  const [showAIAssistedTicker, setShowAIAssistedTicker] = useState(true); // Default to true
-  const [showFullyAITicker, setShowFullyAITicker] = useState(true); // Default to true
-  const [tickerSpeed, setTickerSpeed] = useState<TickerSpeed>('medium'); // Default to medium
+  const [showManualTicker, setShowManualTicker] = useState(false); 
+  const [showAIAssistedTicker, setShowAIAssistedTicker] = useState(true); 
+  const [showAutopilotTicker, setShowAutopilotTicker] = useState(true); // Renamed state variable
+  const [tickerSpeed, setTickerSpeed] = useState<TickerSpeed>('medium'); 
 
   return (
     <SettingsContext.Provider
@@ -30,8 +30,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setShowManualTicker,
         showAIAssistedTicker,
         setShowAIAssistedTicker,
-        showFullyAITicker,
-        setShowFullyAITicker,
+        showAutopilotTicker, // Updated
+        setShowAutopilotTicker, // Updated
         tickerSpeed,
         setTickerSpeed,
       }}

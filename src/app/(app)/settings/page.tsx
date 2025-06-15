@@ -15,7 +15,7 @@ export default function SettingsPage() {
   const {
     showManualTicker, setShowManualTicker,
     showAIAssistedTicker, setShowAIAssistedTicker,
-    showFullyAITicker, setShowFullyAITicker,
+    showAutopilotTicker, setShowAutopilotTicker, // Updated from showFullyAITicker
     tickerSpeed, setTickerSpeed
   } = useSettingsContext();
 
@@ -81,18 +81,18 @@ export default function SettingsPage() {
                     </div>
                      <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-4 shadow-sm bg-black/10">
                       <div className="space-y-0.5">
-                          <Label htmlFor="fullyAITickerSwitch" className="font-medium text-foreground cursor-pointer">
-                              Show Fully AI Trades
+                          <Label htmlFor="autopilotTickerSwitch" className="font-medium text-foreground cursor-pointer">
+                              Show Autopilot Trades 
                           </Label>
                           <p className="text-xs text-muted-foreground">
                               Display trades automatically placed by AI in the ticker.
                           </p>
                       </div>
                       <Switch
-                          id="fullyAITickerSwitch"
-                          checked={showFullyAITicker}
-                          onCheckedChange={setShowFullyAITicker}
-                          aria-label="Toggle fully AI trade ticker"
+                          id="autopilotTickerSwitch" 
+                          checked={showAutopilotTicker} 
+                          onCheckedChange={setShowAutopilotTicker} 
+                          aria-label="Toggle Autopilot trade ticker"
                       />
                     </div>
                   </div>
