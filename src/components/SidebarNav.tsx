@@ -25,30 +25,19 @@ const navItems = [
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
-// New local Cow component rendering an SVG
-const Cow = ({ size = 28, className, strokeWidth = 2.2 }: { size?: number; className?: string; strokeWidth?: number }) => {
+// New MilkDropIcon component rendering an SVG
+const MilkDropIcon = ({ size = 28, className }: { size?: number; className?: string; }) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}
-      viewBox="0 0 24 24" // Using a common viewBox
-      fill="none"
-      stroke="currentColor" // Takes color from className (e.g., text-white)
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor" // Uses fill for a solid drop shape
+      className={className} // Takes color from className (e.g., text-white)
     >
-      {/* Simple cow head outline */}
-      <path d="M16 8.32C16 7.04 15.14 6 14.08 6H9.92C8.86 6 8 7.04 8 8.32V10.5h8V8.32z" />
-      <path d="M19 10.5H5C3.9 10.5 3 11.4 3 12.5v1C3 15.88 5.12 18 8 18h8c2.88 0 5-2.12 5-4.5v-1c0-1.1-.9-2-2-2z" />
-      {/* Horns */}
-      <path d="M9.5 6L8 3" />
-      <path d="M14.5 6L16 3" />
-      {/* Ears - simplified */}
-      <path d="M6.5 10.5C6 11 5.5 11.5 5.5 12.5" />
-      <path d="M17.5 10.5c.5.5 1 1 1 2" />
+      {/* Water drop / Milk drop shape */}
+      <path d="M12 2C7.58 2 4 5.58 4 10c0 2.85 1.65 5.35 4 6.64V20a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-3.36c2.35-1.29 4-3.79 4-6.64C20 5.58 16.42 2 12 2zM12 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
     </svg>
   );
 };
@@ -60,14 +49,14 @@ export function SidebarNav() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="p-3"> {/* Reduced padding from p-4 to p-3 */}
+      <SidebarHeader className="p-3">
         <div className={cn(
           "flex w-full",
           "group-data-[state=expanded]:flex-row group-data-[state=expanded]:items-center group-data-[state=expanded]:justify-between",
           "group-data-[state=collapsed]:flex-col group-data-[state=collapsed]:items-center group-data-[state=collapsed]:gap-2"
         )}>
           <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 group-data-[state=collapsed]:justify-center hover:opacity-80 transition-opacity duration-150">
-            <Cow size={28} className="text-white flex-shrink-0" strokeWidth={2.2} />
+            <MilkDropIcon size={28} className="text-white flex-shrink-0" />
             {open && state === 'expanded' && (
               <span className="text-2xl font-bold text-[#E5E5E5] tracking-widest font-headline truncate">M.I.L.K.</span>
             )}
@@ -80,12 +69,10 @@ export function SidebarNav() {
               className={cn(
                 "h-7 w-7 text-muted-foreground hover:text-primary shrink-0",
                 "hover:shadow-[0_0_4px_hsla(var(--primary),0.5)] focus-visible:shadow-[0_0_4px_hsla(var(--primary),0.5)] focus-visible:outline-none transition-shadow duration-150"
-                // Removed: state === 'collapsed' && "group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none"
               )}
               aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
               tabIndex={0}
             >
-              {/* Icon changes based on 'open' state (which reflects 'expanded' state) */}
               {open ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
             </Button>
           )}
@@ -117,11 +104,13 @@ export function SidebarNav() {
       </SidebarContent>
 
       {open && state ==='expanded' && (
-        <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden">
+        <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden flex flex-col space-y-1 items-start">
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} M.I.L.K.</p>
+          <p className="text-xs text-muted-foreground/70">SVG icon adapted. Original "milking" icon by monik from Flaticon.</p>
         </SidebarFooter>
       )}
 
     </Sidebar>
   );
 }
+
