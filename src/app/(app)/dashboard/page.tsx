@@ -297,10 +297,8 @@ export default function DashboardPage() {
 
 
   const handleRefreshData = useCallback(() => {
-    let latestGeneratedStockData: Stock[] = [];
-
     setStocks(prevStocks => {
-      const updatedStocks = prevStocks.map(stock => {
+      const updatedStocksData = prevStocks.map(stock => {
         const priceChangeFactor = 1 + (Math.random() - 0.5) * 0.03;
         const newPrice = parseFloat((stock.price * priceChangeFactor).toFixed(2));
         const newVolume = parseFloat((stock.volume * (1 + (Math.random() - 0.2) * 0.1)).toFixed(1));
@@ -333,20 +331,21 @@ export default function DashboardPage() {
           historicalPrices: Array.from({ length: 7 }, (_, i) => parseFloat((newPrice * (1 + (Math.random() - 0.5) * (0.01 * (7-i)))).toFixed(2)))
         };
       });
-      latestGeneratedStockData = updatedStocks;
-      return updatedStocks;
+      updateAllPositionsPrices(updatedStocksData); // Use the computed value directly
+      return updatedStocksData;
     });
 
-    updateAllPositionsPrices(latestGeneratedStockData);
     setLastRefreshed(new Date());
   }, [updateAllPositionsPrices]);
 
 
   useEffect(() => {
-    setLastRefreshed(new Date());
+    if (lastRefreshed === null) { // Set initial lastRefreshed only once on mount
+        setLastRefreshed(new Date());
+    }
     const intervalId = setInterval(handleRefreshData, DASHBOARD_REFRESH_INTERVAL);
     return () => clearInterval(intervalId);
-  }, [handleRefreshData]);
+  }, [handleRefreshData, lastRefreshed]);
 
   const activeRules = useMemo(() => mockRules.filter(rule => rule.isActive), []);
 
@@ -631,8 +630,8 @@ export default function DashboardPage() {
                 <CardDescription>Filter and find top market movers based on selected rule.</CardDescription>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                <Dot className="h-6 w-6 text-[hsl(var(--confirm-green))] animate-pulse" />
-                {lastRefreshed && <span className="text-sm text-muted-foreground">Refreshed: {new Date(lastRefreshed).toLocaleTimeString()}</span>}
+                {lastRefreshed && <Dot className="h-6 w-6 text-[hsl(var(--confirm-green))] animate-pulse" />}
+                {lastRefreshed && <span className="text-sm text-muted-foreground">Refreshed: {lastRefreshed.toLocaleTimeString()}</span>}
                 <Button
                   variant="default"
                   size="sm"
@@ -852,4 +851,3 @@ export default function DashboardPage() {
     </main>
   );
 }
-

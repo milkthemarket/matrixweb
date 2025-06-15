@@ -24,7 +24,7 @@ const mockAlerts: TradeAlert[] = [
 
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<TradeAlert[]>(mockAlerts);
-  const [currentTime, setCurrentTime] = useState(new Date());
+  const [currentTime, setCurrentTime] = useState<Date | null>(null); // Initialize with null
 
   const [receiveInAppAlerts, setReceiveInAppAlerts] = useState(true);
   const [sendSmsAlerts, setSendSmsAlerts] = useState(false);
@@ -32,6 +32,7 @@ export default function AlertsPage() {
   const [isAlertMethodsModalOpen, setIsAlertMethodsModalOpen] = useState(false);
 
   useEffect(() => {
+    setCurrentTime(new Date()); // Set initial time on client mount
     const timer = setInterval(() => setCurrentTime(new Date()), 60000); // Update time every minute for relative timestamps
     return () => clearInterval(timer);
   }, []);
@@ -57,7 +58,7 @@ export default function AlertsPage() {
       <main className="flex flex-col flex-1 h-full overflow-hidden">
         <PageHeader title="Trade Alerts & Settings" />
         <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
-          
+
           <Card>
             <CardHeader>
               <CardTitle className="text-xl font-headline flex items-center">
@@ -68,10 +69,10 @@ export default function AlertsPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
-                <Checkbox 
-                  id="inAppAlerts" 
-                  checked={receiveInAppAlerts} 
-                  onCheckedChange={(checked) => setReceiveInAppAlerts(Boolean(checked))} 
+                <Checkbox
+                  id="inAppAlerts"
+                  checked={receiveInAppAlerts}
+                  onCheckedChange={(checked) => setReceiveInAppAlerts(Boolean(checked))}
                 />
                 <div className="grid gap-1.5 leading-none">
                   <Label htmlFor="inAppAlerts" className="font-medium text-foreground cursor-pointer">
@@ -84,10 +85,10 @@ export default function AlertsPage() {
               </div>
 
               <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
-                <Checkbox 
-                  id="smsAlerts" 
-                  checked={sendSmsAlerts} 
-                  onCheckedChange={(checked) => setSendSmsAlerts(Boolean(checked))} 
+                <Checkbox
+                  id="smsAlerts"
+                  checked={sendSmsAlerts}
+                  onCheckedChange={(checked) => setSendSmsAlerts(Boolean(checked))}
                 />
                 <div className="grid gap-1.5 leading-none">
                   <Label htmlFor="smsAlerts" className="font-medium text-foreground cursor-pointer">
@@ -98,12 +99,12 @@ export default function AlertsPage() {
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
-                <Checkbox 
-                  id="emailAlerts" 
-                  checked={sendEmailAlerts} 
-                  onCheckedChange={(checked) => setSendEmailAlerts(Boolean(checked))} 
+                <Checkbox
+                  id="emailAlerts"
+                  checked={sendEmailAlerts}
+                  onCheckedChange={(checked) => setSendEmailAlerts(Boolean(checked))}
                 />
                 <div className="grid gap-1.5 leading-none">
                   <Label htmlFor="emailAlerts" className="font-medium text-foreground cursor-pointer">
@@ -116,8 +117,8 @@ export default function AlertsPage() {
               </div>
             </CardContent>
             <CardFooter>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="text-accent border-accent hover:bg-accent/10 hover:text-accent"
                 onClick={() => setIsAlertMethodsModalOpen(true)}
               >
@@ -136,15 +137,16 @@ export default function AlertsPage() {
               <CardDescription>Real-time notifications based on your rules and market events.</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 overflow-hidden">
-              <ScrollArea className="h-[calc(100%-0rem)] pr-4"> 
-                {alerts.length > 0 ? (
+              {/* Conditional rendering for ScrollArea content to ensure currentTime is available */}
+              {currentTime && alerts.length > 0 ? (
+                <ScrollArea className="h-[calc(100%-0rem)] pr-4">
                   <ul className="space-y-4">
                     {alerts.map((alert) => (
-                      <li 
-                        key={alert.id} 
+                      <li
+                        key={alert.id}
                         className={cn(
-                          "p-4 rounded-xl shadow-none border border-white/5", 
-                          "bg-black/10 backdrop-blur-md", 
+                          "p-4 rounded-xl shadow-none border border-white/5",
+                          "bg-black/10 backdrop-blur-md",
                           "hover:bg-white/10 transition-colors duration-200"
                         )}
                       >
@@ -165,21 +167,21 @@ export default function AlertsPage() {
                       </li>
                     ))}
                   </ul>
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                    <BellRing className="h-12 w-12 mb-4" />
-                    <p className="text-lg">No alerts yet.</p>
-                    <p>Alerts will appear here when triggered.</p>
-                  </div>
-                )}
-              </ScrollArea>
+                </ScrollArea>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                  <BellRing className="h-12 w-12 mb-4" />
+                  <p className="text-lg">No alerts yet.</p>
+                  <p>Alerts will appear here when triggered.</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
       </main>
-      <AlertMethodsModal 
-        isOpen={isAlertMethodsModalOpen} 
-        onClose={() => setIsAlertMethodsModalOpen(false)} 
+      <AlertMethodsModal
+        isOpen={isAlertMethodsModalOpen}
+        onClose={() => setIsAlertMethodsModalOpen(false)}
       />
     </>
   );

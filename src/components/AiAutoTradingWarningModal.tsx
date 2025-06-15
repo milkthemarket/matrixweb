@@ -46,14 +46,14 @@ export function AiAutoTradingWarningModal({ isOpen, onClose, onConfirm }: AiAuto
             Autopilot Enabled
           </AlertDialogTitle>
           <AlertDialogDescription className="pt-2 text-muted-foreground space-y-2">
-            <div>Milo (the AI bot) will now place and exit trades automatically for you in Autopilot mode, based on your preset rules and risk tolerance.</div>
-            <div>Trading will continue until you turn off this feature.</div>
-            <div className="font-medium text-foreground">Please monitor your account regularly.</div>
+            <span className="block">Milo (the AI bot) will now place and exit trades automatically for you in Autopilot mode, based on your preset rules and risk tolerance.</span>
+            <span className="block">Trading will continue until you turn off this feature.</span>
+            <span className="block font-medium text-foreground">Please monitor your account regularly.</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="flex items-center space-x-2 py-4">
-          <Checkbox 
-            id="dontShowAgainAiAutoTrade" 
+          <Checkbox
+            id="dontShowAgainAiAutoTrade"
             checked={dontShowAgain}
             onCheckedChange={(checked) => setDontShowAgain(Boolean(checked))}
           />
@@ -73,4 +73,3 @@ export function AiAutoTradingWarningModal({ isOpen, onClose, onConfirm }: AiAuto
     </AlertDialog>
   );
 }
-

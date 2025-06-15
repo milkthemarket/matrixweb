@@ -45,14 +45,14 @@ export function AiAssistWarningModal({ isOpen, onClose, onConfirm }: AiAssistWar
             AI Assisted Trade
           </AlertDialogTitle>
           <AlertDialogDescription className="pt-2 text-muted-foreground space-y-2">
-            <div>You're about to place a trade based on Milo's suggestion.</div>
-            <div>Remember, AI Assist provides ideas, but you are fully responsible for managing and exiting this position.</div>
-            <div className="font-medium text-foreground">Milo will not automatically manage this trade.</div>
+            <span className="block">You're about to place a trade based on Milo's suggestion.</span>
+            <span className="block">Remember, AI Assist provides ideas, but you are fully responsible for managing and exiting this position.</span>
+            <span className="block font-medium text-foreground">Milo will not automatically manage this trade.</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="flex items-center space-x-2 py-4">
-          <Checkbox 
-            id="dontShowAgainAiAssistTrade" 
+          <Checkbox
+            id="dontShowAgainAiAssistTrade"
             checked={dontShowAgain}
             onCheckedChange={(checked) => setDontShowAgain(Boolean(checked))}
           />
