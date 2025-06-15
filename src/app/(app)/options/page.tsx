@@ -23,13 +23,13 @@ const mockTickerInfo: OptionsTickerInfo = {
 };
 
 const mockExpirations = [
-  { value: '2024-06-21', label: 'June 21, 2024 (2d)' },
-  { value: '2024-06-28', label: 'June 28, 2024 (9d)' },
-  { value: '2024-07-05', label: 'July 5, 2024 (16d)' },
-  { value: '2024-07-19', label: 'July 19, 2024 (30d)' },
+  { value: '2024-06-21', label: 'June 21, 2024 (2d)', daysRemaining: 2 },
+  { value: '2024-06-28', label: 'June 28, 2024 (9d)', daysRemaining: 9 },
+  { value: '2024-07-05', label: 'July 5, 2024 (16d)', daysRemaining: 16 },
+  { value: '2024-07-19', label: 'July 19, 2024 (30d)', daysRemaining: 30 },
 ];
 
-const generateMockOptionsChain = (underlyingPrice: number, expiration: string, type: OptionType): OptionContract[] => {
+const generateMockOptionsChain = (underlyingPrice: number, expirationDate: string, type: OptionType, daysToExpiration: number): OptionContract[] => {
   const chain: OptionContract[] = [];
   const numStrikes = 20; // 10 ITM/ATM, 10 OTM
   const strikeIncrement = underlyingPrice > 200 ? 5 : (underlyingPrice > 50 ? 2.5 : 1);
@@ -58,11 +58,11 @@ const generateMockOptionsChain = (underlyingPrice: number, expiration: string, t
     const toBreakevenPercent = underlyingPrice > 0 ? parseFloat(((breakeven - underlyingPrice) / underlyingPrice * 100).toFixed(2)) : 0;
 
     chain.push({
-      id: `${mockTickerInfo.symbol}-${expiration.replace(/-/g, '')}-${type[0]}-${strike}`,
+      id: `${mockTickerInfo.symbol}-${expirationDate.replace(/-/g, '')}-${type[0]}-${strike}`,
       strike,
       type,
-      expirationDate: expiration,
-      daysToExpiration: Math.round((new Date(expiration).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)),
+      expirationDate: expirationDate,
+      daysToExpiration: daysToExpiration,
       ask,
       bid,
       lastPrice: lastPrice > 0.01 ? lastPrice : undefined,
@@ -94,8 +94,10 @@ export default function OptionsPage() {
   const [stickyPricePillVisible, setStickyPricePillVisible] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching new chain data when controls change
-    setOptionsChain(generateMockOptionsChain(tickerInfo.lastPrice, selectedExpiration, optionType));
+    const currentExpirationDetails = mockExpirations.find(exp => exp.value === selectedExpiration);
+    if (currentExpirationDetails) {
+      setOptionsChain(generateMockOptionsChain(tickerInfo.lastPrice, selectedExpiration, optionType, currentExpirationDetails.daysRemaining));
+    }
   }, [tickerInfo.lastPrice, selectedExpiration, optionType]);
 
   const handleSelectContract = (contract: OptionContract) => {
@@ -272,3 +274,4 @@ export default function OptionsPage() {
     </>
   );
 }
+
