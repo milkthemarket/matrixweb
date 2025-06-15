@@ -29,6 +29,8 @@ import { mockRules } from '@/app/(app)/rules/page';
 const MOCK_INITIAL_TIMESTAMP = '2024-07-01T10:00:00.000Z';
 const DASHBOARD_REFRESH_INTERVAL: RefreshInterval = 15000;
 const LOCAL_STORAGE_COLUMN_ORDER_KEY = 'tradeflow-dashboard-column-order';
+const LOCAL_STORAGE_COLUMN_WIDTHS_KEY = 'tradeflow-dashboard-column-widths';
+const MIN_COLUMN_WIDTH = 50; // Minimum width for a column in pixels
 
 const formatMarketCap = (value?: number) => {
   if (value === undefined || value === null) return 'N/A';
@@ -44,7 +46,7 @@ const formatVolume = (value?: number) => (value !== undefined && value !== null 
 
 
 const initialColumnConfiguration: ColumnConfig<Stock>[] = [
-  { key: 'symbol', label: 'Symbol', defaultVisible: true, isToggleable: false, isDraggable: false, align: 'left',
+  { key: 'symbol', label: 'Symbol', defaultVisible: true, isToggleable: false, isDraggable: false, align: 'left', defaultWidth: 100,
     format: (value, stock) => (
       <Popover>
         <PopoverTrigger asChild>
@@ -60,26 +62,26 @@ const initialColumnConfiguration: ColumnConfig<Stock>[] = [
       </Popover>
     )
   },
-  { key: 'name', label: 'Name', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'left', description: "Company Name" },
-  { key: 'price', label: 'Price', defaultVisible: true, isToggleable: false, isDraggable: false, align: 'right', format: (val) => `$${formatDecimal(val)}` },
-  { key: 'changePercent', label: '% Change', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', format: (val) => {
+  { key: 'name', label: 'Name', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'left', defaultWidth: 180, description: "Company Name" },
+  { key: 'price', label: 'Price', defaultVisible: true, isToggleable: false, isDraggable: true, align: 'right', defaultWidth: 90, format: (val) => `$${formatDecimal(val)}` },
+  { key: 'changePercent', label: '% Change', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 100, format: (val) => {
     const numVal = typeof val === 'number' ? val : 0;
     return <span className={cn(numVal >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}> {numVal >= 0 ? '+' : ''}{formatDecimal(numVal, 1)}% </span>
   }},
-  { key: 'float', label: 'Float (M)', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', format: (val) => formatDecimal(val, 0) },
-  { key: 'volume', label: 'Volume (M)', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', format: formatVolume },
-  { key: 'marketCap', label: 'Mkt Cap', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: formatMarketCap, description: "Market Capitalization" },
-  { key: 'avgVolume', label: 'Avg Vol (M)', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: formatVolume, description: "Average Daily Volume" },
-  { key: 'atr', label: 'ATR', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: (val) => formatDecimal(val), description: "Average True Range (Volatility)" },
-  { key: 'rsi', label: 'RSI', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: (val) => formatDecimal(val, 1), description: "Relative Strength Index" },
-  { key: 'vwap', label: 'VWAP', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: "Volume Weighted Average Price" },
-  { key: 'beta', label: 'Beta', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: (val) => formatDecimal(val, 2), description: "Market Risk Measure" },
-  { key: 'high52', label: '52W High', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: "52-Week High Price" },
-  { key: 'low52', label: '52W Low', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: "52-Week Low Price" },
-  { key: 'gapPercent', label: 'Gap %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: formatPercentage, description: "Today's Price Gap Percentage" },
-  { key: 'shortFloat', label: 'Short %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: formatPercentage, description: "Short Interest as % of Float" },
-  { key: 'instOwn', label: 'Inst. Own %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: formatPercentage, description: "Institutional Ownership Percentage" },
-  { key: 'premarketChange', label: 'Pre-Mkt %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: formatPercentage, description: "Pre-Market Change Percentage" },
+  { key: 'float', label: 'Float (M)', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 80, format: (val) => formatDecimal(val, 0) },
+  { key: 'volume', label: 'Volume (M)', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 90, format: formatVolume },
+  { key: 'marketCap', label: 'Mkt Cap', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 110, format: formatMarketCap, description: "Market Capitalization" },
+  { key: 'avgVolume', label: 'Avg Vol (M)', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 90, format: formatVolume, description: "Average Daily Volume" },
+  { key: 'atr', label: 'ATR', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 70, format: (val) => formatDecimal(val), description: "Average True Range (Volatility)" },
+  { key: 'rsi', label: 'RSI', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 70, format: (val) => formatDecimal(val, 1), description: "Relative Strength Index" },
+  { key: 'vwap', label: 'VWAP', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 90, format: (val) => `$${formatDecimal(val)}`, description: "Volume Weighted Average Price" },
+  { key: 'beta', label: 'Beta', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 70, format: (val) => formatDecimal(val, 2), description: "Market Risk Measure" },
+  { key: 'high52', label: '52W High', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 90, format: (val) => `$${formatDecimal(val)}`, description: "52-Week High Price" },
+  { key: 'low52', label: '52W Low', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 90, format: (val) => `$${formatDecimal(val)}`, description: "52-Week Low Price" },
+  { key: 'gapPercent', label: 'Gap %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 80, format: formatPercentage, description: "Today's Price Gap Percentage" },
+  { key: 'shortFloat', label: 'Short %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 80, format: formatPercentage, description: "Short Interest as % of Float" },
+  { key: 'instOwn', label: 'Inst. Own %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 100, format: formatPercentage, description: "Institutional Ownership Percentage" },
+  { key: 'premarketChange', label: 'Pre-Mkt %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 100, format: formatPercentage, description: "Pre-Market Change Percentage" },
 ];
 
 
@@ -179,12 +181,16 @@ export default function DashboardPage() {
   const { addTradeToHistory } = useTradeHistoryContext();
   const { toast } = useToast();
 
-  // State for column order and drag state
   const [currentColumnOrder, setCurrentColumnOrder] = useState<(keyof Stock)[]>(() => initialColumnConfiguration.map(c => c.key));
   const [draggedColumnKey, setDraggedColumnKey] = useState<keyof Stock | null>(null);
   const [draggingOverKey, setDraggingOverKey] = useState<keyof Stock | null>(null);
+  
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
+  const [resizingColumnKey, setResizingColumnKey] = useState<string | null>(null);
+  const [resizeStartX, setResizeStartX] = useState<number>(0);
+  const [initialColumnWidthForResize, setInitialColumnWidthForResize] = useState<number>(0);
 
-  // Load and save column order from/to localStorage
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedOrderJSON = localStorage.getItem(LOCAL_STORAGE_COLUMN_ORDER_KEY);
@@ -201,6 +207,28 @@ export default function DashboardPage() {
       } else {
         setCurrentColumnOrder(initialColumnConfiguration.map(c => c.key));
       }
+
+      const savedWidthsJSON = localStorage.getItem(LOCAL_STORAGE_COLUMN_WIDTHS_KEY);
+      const defaultWidths: Record<string, number> = {};
+      initialColumnConfiguration.forEach(col => {
+        defaultWidths[col.key as string] = col.defaultWidth || 120; // Default fallback
+      });
+
+      if (savedWidthsJSON) {
+        try {
+          const savedWidths = JSON.parse(savedWidthsJSON) as Record<string, number>;
+          const mergedWidths = { ...defaultWidths, ...savedWidths };
+          const finalWidths: Record<string, number> = {};
+          initialColumnConfiguration.forEach(col => {
+             finalWidths[col.key as string] = mergedWidths[col.key as string] || defaultWidths[col.key as string];
+          });
+          setColumnWidths(finalWidths);
+        } catch (e) {
+          setColumnWidths(defaultWidths);
+        }
+      } else {
+        setColumnWidths(defaultWidths);
+      }
     }
   }, []);
 
@@ -209,6 +237,12 @@ export default function DashboardPage() {
       localStorage.setItem(LOCAL_STORAGE_COLUMN_ORDER_KEY, JSON.stringify(currentColumnOrder));
     }
   }, [currentColumnOrder]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && Object.keys(columnWidths).length > 0) {
+      localStorage.setItem(LOCAL_STORAGE_COLUMN_WIDTHS_KEY, JSON.stringify(columnWidths));
+    }
+  }, [columnWidths]);
 
 
   const initialVisibleColumns = useMemo(() => {
@@ -457,7 +491,6 @@ export default function DashboardPage() {
     }, 1500);
   }, []);
 
-  // Drag and Drop handlers
   const handleDragStart = (e: React.DragEvent<HTMLTableCellElement>, columnKey: keyof Stock) => {
     e.dataTransfer.setData('draggedColumnKey', columnKey);
     setDraggedColumnKey(columnKey);
@@ -497,6 +530,46 @@ export default function DashboardPage() {
       });
     }
   };
+
+  const handleResizeMouseDown = (e: React.MouseEvent<HTMLDivElement>, columnKey: string) => {
+    e.preventDefault();
+    e.stopPropagation(); 
+    setResizingColumnKey(columnKey);
+    setResizeStartX(e.clientX);
+    const currentWidth = columnWidths[columnKey] || initialColumnConfiguration.find(c => c.key === columnKey)?.defaultWidth || 120;
+    setInitialColumnWidthForResize(currentWidth);
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!resizingColumnKey) return;
+      const deltaX = e.clientX - resizeStartX;
+      const newWidth = Math.max(MIN_COLUMN_WIDTH, initialColumnWidthForResize + deltaX);
+      setColumnWidths(prev => ({ ...prev, [resizingColumnKey]: newWidth }));
+    };
+  
+    const handleMouseUp = () => {
+      if (resizingColumnKey) {
+        setResizingColumnKey(null);
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+      }
+    };
+  
+    if (resizingColumnKey) {
+      document.body.addEventListener('mousemove', handleMouseMove);
+      document.body.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    }
+  
+    return () => {
+      document.body.removeEventListener('mousemove', handleMouseMove);
+      document.body.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [resizingColumnKey, resizeStartX, initialColumnWidthForResize]);
 
 
   return (
@@ -610,6 +683,11 @@ export default function DashboardPage() {
 
               <div className="rounded-xl overflow-auto flex-1">
                 <Table>
+                  <colgroup>
+                    {displayedColumns.map(col => (
+                      <col key={`coldef-${col.key as string}`} style={{ width: columnWidths[col.key as string] ? `${columnWidths[col.key as string]}px` : (col.defaultWidth ? `${col.defaultWidth}px` : 'auto') }} />
+                    ))}
+                  </colgroup>
                   <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                     <TableRow>
                       {displayedColumns.map((col) => (
@@ -625,13 +703,20 @@ export default function DashboardPage() {
                             col.align === 'center' && "text-center",
                             col.isDraggable && "cursor-grab",
                             draggingOverKey === col.key && "bg-primary/20",
-                            "transition-colors duration-150"
+                            "transition-colors duration-150 relative group" // Added relative and group for resize handle
                           )}
                         >
-                          <div className="flex items-center gap-1">
-                            {col.isDraggable ? <GripHorizontal className="h-4 w-4 text-muted-foreground/50" /> : <Lock className="h-3 w-3 text-muted-foreground/50" />}
-                            {col.label}
+                          <div className="flex items-center justify-between w-full">
+                             <div className="flex items-center gap-1 overflow-hidden">
+                                {col.isDraggable ? <GripHorizontal className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" /> : <Lock className="h-3 w-3 text-muted-foreground/50 flex-shrink-0" />}
+                                <span className="truncate">{col.label}</span>
+                             </div>
                           </div>
+                           <div
+                              onMouseDown={(e) => handleResizeMouseDown(e, col.key as string)}
+                              className="absolute top-0 right-0 h-full w-1.5 cursor-col-resize opacity-0 group-hover:opacity-100 hover:bg-primary/30 z-20 transition-opacity"
+                              title={`Resize ${col.label} column`}
+                            />
                         </TableHead>
                       ))}
                     </TableRow>
@@ -687,9 +772,7 @@ export default function DashboardPage() {
             onSubmit={handleTradeSubmit}
             onClear={handleClearOrderCard}
           />
-
-            <OpenPositionsCard />
-
+          <OpenPositionsCard />
           <MilosTradeIdeasCard
             ideas={miloIdeas}
             onRefresh={handleRefreshMiloIdeas}

@@ -141,7 +141,8 @@ export interface ColumnConfig<T = Stock> {
   label: string;
   defaultVisible: boolean;
   isToggleable: boolean;
-  isDraggable?: boolean; // Added for column reordering
+  isDraggable?: boolean;
+  defaultWidth?: number; // Added for default column width
   align?: 'left' | 'right' | 'center';
   format?: (value: any, stock: T) => string | React.ReactNode;
   description?: string;
