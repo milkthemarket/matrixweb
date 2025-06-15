@@ -1,13 +1,13 @@
 
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { AreaChart, SlidersHorizontal, ChevronDown, PlusCircle, Eye } from "lucide-react";
+import { AreaChart, SlidersHorizontal, ChevronDown, PlusCircle, Eye, Loader2 } from "lucide-react";
 import { OptionsChainTable } from '@/components/options/OptionsChainTable';
 import { OptionTradeModal } from '@/components/options/OptionTradeModal';
 import type { OptionsTickerInfo, OptionContract, OptionOrderActionType, OptionType, OptionTradeRequest } from '@/types';
@@ -43,22 +43,22 @@ const generateMockOptionsChain = (underlyingPrice: number, expirationDate: strin
     const moneyness = isCall ? underlyingPrice - strike : strike - underlyingPrice;
     
     let intrinsicValue = Math.max(0, moneyness);
-    let extrinsicValue = Math.max(0.1, (Math.random() * 2 + 0.5) * (1 - Math.abs(i) / numStrikes) * (Math.sqrt(underlyingPrice) / 10)); // More extrinsic for ATM
+    let extrinsicValue = Math.max(0.1, (Math.random() * 2 + 0.5) * (1 - Math.abs(i) / numStrikes) * (Math.sqrt(underlyingPrice) / 10));
     
-    if ((isCall && strike < underlyingPrice * 0.8) || (!isCall && strike > underlyingPrice * 1.2)) { // Deep ITM/OTM less liquidity
+    if ((isCall && strike < underlyingPrice * 0.8) || (!isCall && strike > underlyingPrice * 1.2)) {
         extrinsicValue *= 0.5;
     }
 
     const ask = parseFloat((intrinsicValue + extrinsicValue).toFixed(2));
-    const bid = parseFloat(Math.max(0.01, ask - Math.random() * 0.1 * ask - 0.05).toFixed(2)); // Bid slightly lower
-    const change = parseFloat(((Math.random() - 0.45) * ask * 0.2).toFixed(2)); // Random change up to 20% of ask
+    const bid = parseFloat(Math.max(0.01, ask - Math.random() * 0.1 * ask - 0.05).toFixed(2));
+    const change = parseFloat(((Math.random() - 0.45) * ask * 0.2).toFixed(2));
     const lastPrice = parseFloat((ask - change).toFixed(2));
     const percentChange = lastPrice > 0 ? parseFloat(((change / lastPrice) * 100).toFixed(2)) : 0;
     const breakeven = isCall ? strike + ask : strike - ask;
     const toBreakevenPercent = underlyingPrice > 0 ? parseFloat(((breakeven - underlyingPrice) / underlyingPrice * 100).toFixed(2)) : 0;
 
     chain.push({
-      id: `${mockTickerInfo.symbol}-${expirationDate.replace(/-/g, '')}-${type[0]}-${strike}`,
+      id: `${mockTickerInfo.symbol}-${expirationDate.replace(/-/g, '')}-${type[0]}${strike}`, // Ensure ID is unique
       strike,
       type,
       expirationDate: expirationDate,
@@ -72,7 +72,7 @@ const generateMockOptionsChain = (underlyingPrice: number, expirationDate: strin
       toBreakevenPercent,
       volume: Math.floor(Math.random() * 2000 + 50),
       openInterest: Math.floor(Math.random() * 10000 + 100),
-      impliedVolatility: parseFloat((Math.random() * 30 + 15).toFixed(2)), // IV between 15-45%
+      impliedVolatility: parseFloat((Math.random() * 30 + 15).toFixed(2)),
     });
   }
   return chain.sort((a,b) => a.strike - b.strike);
@@ -86,17 +86,24 @@ export default function OptionsPage() {
   const [selectedExpiration, setSelectedExpiration] = useState<string>(mockExpirations[0].value);
   
   const [optionsChain, setOptionsChain] = useState<OptionContract[]>([]);
+  const [isChainDataReady, setIsChainDataReady] = useState(false); // New state
   const [selectedContract, setSelectedContract] = useState<OptionContract | null>(null);
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   
   const { toast } = useToast();
-  const tableContainerRef = React.useRef<HTMLDivElement>(null);
-  const [stickyPricePillVisible, setStickyPricePillVisible] = useState(true);
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const [stickyPricePillVisible, setStickyPricePillVisible] = useState(false); // Initialize to false
 
   useEffect(() => {
+    setIsChainDataReady(false); // Reset ready state when dependencies change
     const currentExpirationDetails = mockExpirations.find(exp => exp.value === selectedExpiration);
     if (currentExpirationDetails) {
-      setOptionsChain(generateMockOptionsChain(tickerInfo.lastPrice, selectedExpiration, optionType, currentExpirationDetails.daysRemaining));
+      const chain = generateMockOptionsChain(tickerInfo.lastPrice, selectedExpiration, optionType, currentExpirationDetails.daysRemaining);
+      setOptionsChain(chain);
+      setIsChainDataReady(true); // Mark data as ready after generation
+    } else {
+      setOptionsChain([]); // Clear chain if no details found
+      setIsChainDataReady(true); // Consider empty chain as "ready" to avoid indefinite loading state
     }
   }, [tickerInfo.lastPrice, selectedExpiration, optionType]);
 
@@ -131,13 +138,18 @@ export default function OptionsPage() {
       const tableHeader = tableContainer.querySelector('thead');
       if (tableHeader) {
         const tableHeaderBottom = tableHeader.getBoundingClientRect().bottom;
-        setStickyPricePillVisible(tableHeaderBottom < 60); // Adjust 60 to match your header height or desired offset
+        // Ensure calculations are done only on client
+        setStickyPricePillVisible(tableHeaderBottom < (tableContainer.getBoundingClientRect().top + 60));
+      } else {
+        setStickyPricePillVisible(false); // Default to not visible if header isn't found
       }
     };
+    
+    handleScroll(); // Initial check on mount
 
     tableContainer.addEventListener('scroll', handleScroll);
     return () => tableContainer.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isChainDataReady]); // Re-run when chain data is ready as table might appear/affect layout
 
 
   const buttonBaseClass = "h-10 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background rounded-md";
@@ -229,7 +241,6 @@ export default function OptionsPage() {
                 </SelectContent>
               </Select>
               
-              {/* Placeholder for future strategy builder */}
               <Button variant="outline" size="sm" className="border-dashed text-muted-foreground hover:text-foreground">
                 <PlusCircle className="mr-2 h-4 w-4" /> Builder
               </Button>
@@ -241,7 +252,7 @@ export default function OptionsPage() {
 
           {/* Options Chain Table */}
           <div className="flex-1 relative overflow-hidden" ref={tableContainerRef}>
-             {stickyPricePillVisible && (
+             {isChainDataReady && stickyPricePillVisible && (
                 <div className="sticky top-0 z-20 flex justify-center py-1 mb-1">
                     <Badge
                     variant="outline"
@@ -251,12 +262,25 @@ export default function OptionsPage() {
                     </Badge>
                 </div>
             )}
-            <OptionsChainTable
-              chainData={optionsChain}
-              underlyingPrice={tickerInfo.lastPrice}
-              onSelectContract={handleSelectContract}
-              tradeAction={tradeAction}
-            />
+            {!isChainDataReady ? (
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                    <Loader2 className="h-10 w-10 animate-spin mb-4 text-primary" />
+                    <p>Loading options data...</p>
+                </div>
+            ) : optionsChain.length === 0 && isChainDataReady ? (
+                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                    <SlidersHorizontal className="h-12 w-12 mb-4 opacity-50" />
+                    <p>No options data available for the selected criteria.</p>
+                    <p>Try a different expiration or ticker.</p>
+                </div>
+            ) : (
+                <OptionsChainTable
+                chainData={optionsChain}
+                underlyingPrice={tickerInfo.lastPrice}
+                onSelectContract={handleSelectContract}
+                tradeAction={tradeAction}
+                />
+            )}
           </div>
 
         </div>
@@ -274,4 +298,3 @@ export default function OptionsPage() {
     </>
   );
 }
-
