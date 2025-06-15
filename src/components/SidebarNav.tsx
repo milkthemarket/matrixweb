@@ -13,7 +13,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, ChevronLeft, ChevronRight, GraduationCap } from "lucide-react";
+import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, ChevronLeft, ChevronRight, GraduationCap, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -24,6 +24,7 @@ const navItems = [
   { href: "/history", label: "History", icon: History },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
   { href: "/academy", label: "Milk Academy", icon: GraduationCap },
+  { href: "/suggestions", label: "Suggestions", icon: Lightbulb },
 ];
 
 // Phosphor cow icon (https://phosphoricons.com/) - open source
@@ -35,8 +36,8 @@ const CowIcon = ({ size = 28, color = "currentColor", ...props }) => {
       <rect x="48" y="160" width="160" height="64" rx="32" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
       <line x1="80" y1="192" x2="96" y2="192" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
       <line x1="160" y1="192" x2="176" y2="192" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
-      <circle cx="100" cy="124" r="12" fill={color} />
-      <circle cx="156" cy="124" r="12" fill={color} />
+      <circle cx="100" cy="124" r="12" fill={color}/>
+      <circle cx="156" cy="124" r="12" fill={color}/>
       <path d="M160,72h32.78a48,48,0,0,1,47.07,38.53A8,8,0,0,1,232,120H192" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
       <path d="M96,72H63.22a48,48,0,0,0-47.07,38.53A8,8,0,0,0,24,120H64" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
       <path d="M64,164.28V104A32,32,0,0,1,96,72h64a32,32,0,0,1,32,32v60.28" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
@@ -58,7 +59,6 @@ export function SidebarNav() {
           "group-data-[state=collapsed]:flex-col group-data-[state=collapsed]:items-center group-data-[state=collapsed]:gap-2"
         )}>
           <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 group-data-[state=collapsed]:justify-center hover:opacity-80 transition-opacity duration-150">
-            {/* Updated to CowIcon */}
             <CowIcon size={28} className="text-white flex-shrink-0" />
             {open && state === 'expanded' && (
               <span className="text-2xl font-bold text-[#E5E5E5] tracking-widest font-headline truncate">M.I.L.K.</span>
@@ -109,8 +109,6 @@ export function SidebarNav() {
       {open && state ==='expanded' && (
         <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden flex flex-col space-y-1 items-start">
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} M.I.L.K.</p>
-          {/* Removed Flaticon attributions for main logo as it's now a Phosphor icon. */}
-          {/* MiloAvatarIcon attribution (if any) should be separate or alongside its usage. */}
           <p className="text-xs text-muted-foreground/70">Main logo based on Phosphor Icons (open source).</p>
           <p className="text-xs text-muted-foreground/70">Milo Avatar (cow head) icon concept by kerismaker from Flaticon.</p>
         </SidebarFooter>
