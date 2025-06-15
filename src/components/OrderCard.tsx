@@ -11,8 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode, HistoryTradeMode } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed } from 'lucide-react';
-import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon'; // Changed Bot to MiloAvatarIcon
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed, Search } from 'lucide-react';
+import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import { cn } from '@/lib/utils';
 import { AiTradeCard } from '@/components/AiTradeCard';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
@@ -25,6 +25,7 @@ interface OrderCardProps {
   onClear: () => void;
   initialTradeMode?: TradeMode;
   miloActionContextText?: string | null;
+  onStockSymbolSubmit: (symbol: string) => void; // New prop
 }
 
 const MOCK_BUYING_POWER = 10000;
@@ -47,7 +48,7 @@ const dummyAutoRules = [
   }
 ];
 
-export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear, initialTradeMode, miloActionContextText }: OrderCardProps) {
+export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear, initialTradeMode, miloActionContextText, onStockSymbolSubmit }: OrderCardProps) {
   const [tradeMode, setTradeMode] = useState<TradeMode>(initialTradeMode || 'manual');
   const [quantityValue, setQuantityValue] = useState('');
   const [quantityMode, setQuantityMode] = useState<QuantityInputMode>('Shares');
@@ -57,8 +58,9 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const [trailingOffset, setTrailingOffset] = useState('');
   const [currentAction, setCurrentAction] = useState<OrderActionType | null>(null);
   const [timeInForce, setTimeInForce] = useState<string>('Day');
-  const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(false); 
+  const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(false);
   const [displayedMiloContext, setDisplayedMiloContext] = useState<string | null>(null);
+  const [tickerInputValue, setTickerInputValue] = useState(''); // New state for ticker input
 
   const [buyingPower] = useState<number>(MOCK_BUYING_POWER);
 
@@ -80,15 +82,24 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
      setDisplayedMiloContext(miloActionContextText || null);
   }, [miloActionContextText]);
 
+  // Populate ticker input when a stock is selected from the screener or via direct input successfully
+  useEffect(() => {
+    if (selectedStock) {
+      if (tickerInputValue.toUpperCase() !== selectedStock.symbol.toUpperCase()) {
+        setTickerInputValue(selectedStock.symbol);
+      }
+    }
+    // If selectedStock becomes null (cleared from dashboard), the input field retains user's typing
+    // or is cleared by handleClearSelection if 'X' is clicked.
+  }, [selectedStock]);
 
+  // Effect to manage fields when selectedStock or tradeMode changes
   useEffect(() => {
     if (selectedStock) {
       if (tradeMode === 'manual') {
-         setCurrentAction(initialActionType); 
-         if (initialTradeMode === 'manual') {
-            setQuantityValue('');
-         }
-         if (initialTradeMode === 'manual' || !quantityValue) { 
+         setCurrentAction(initialActionType);
+         if (initialTradeMode === 'manual' || !quantityValue) {
+            setQuantityValue(''); // Clear quantity if mode was just set by Milo idea
             setOrderType('Market');
             setLimitPrice('');
             setStopPrice('');
@@ -96,33 +107,22 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
             setTimeInForce('Day');
          }
       }
-      if (initialTradeMode !== 'manual' && !miloActionContextText){ 
+      if (initialTradeMode !== 'manual' && !miloActionContextText){
           setDisplayedMiloContext(null);
       }
-
-    } else { 
+    } else { // No stock selected
       setCurrentAction(null);
-      setQuantityValue('');
-      setDisplayedMiloContext(null);
-      setIsAutopilotEnabled(false); 
-      // When stock is cleared, reset tradeMode to manual if it was triggered by Milo idea context
-      if (initialTradeMode === 'manual' && miloActionContextText) {
-        setTradeMode('manual');
-      }
-    }
-  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText]); 
-
-  useEffect(() => {
-    if (tradeMode === 'ai' || tradeMode === 'autopilot' || !selectedStock) {
       setQuantityValue('');
       setOrderType('Market');
       setLimitPrice('');
       setStopPrice('');
       setTrailingOffset('');
-      setCurrentAction(null);
       setTimeInForce('Day');
+      setDisplayedMiloContext(null);
+      setIsAutopilotEnabled(false);
+      // setTickerInputValue(''); // Do not clear tickerInputValue here, user might be typing
     }
-  }, [tradeMode, selectedStock]);
+  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText]);
 
 
   const handleActionSelect = (action: OrderActionType) => {
@@ -190,9 +190,9 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       alert("Stock, action, and a valid positive quantity resulting in at least 1 share are required.");
       return;
     }
-    
+
     let origin: HistoryTradeMode = 'manual';
-    if (tradeMode === 'ai') origin = 'aiAssist'; 
+    if (tradeMode === 'ai') origin = 'aiAssist';
     else if (tradeMode === 'autopilot') origin = 'autopilot';
 
 
@@ -204,7 +204,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       TIF: timeInForce,
       rawQuantityValue: quantityValue,
       rawQuantityMode: quantityMode,
-      tradeModeOrigin: origin, 
+      tradeModeOrigin: origin,
     };
 
     if (orderType === 'Limit' || orderType === 'Stop Limit') {
@@ -231,12 +231,12 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       setShowManualTradeWarningModal(true);
     } else {
       onSubmit(tradeDetails);
-       if (tradeMode === 'manual') setQuantityValue(''); 
+       if (tradeMode === 'manual') setQuantityValue('');
     }
   };
-  
+
   const handleAISuggestionSubmit = (aiTradeDetails: TradeRequest) => {
-      onSubmit(aiTradeDetails); 
+      onSubmit(aiTradeDetails);
   };
 
   const handleConfirmManualTrade = (dontShowAgain: boolean) => {
@@ -248,7 +248,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     }
     setPendingTradeDetails(null);
     setShowManualTradeWarningModal(false);
-    setQuantityValue(''); 
+    setQuantityValue('');
   };
 
   const handleCancelManualTrade = () => {
@@ -257,13 +257,13 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   };
 
   const handleAutopilotSwitchChange = (checked: boolean) => {
-    if (checked) { 
+    if (checked) {
       if (!aiAutopilotDisclaimerAcknowledged) {
         setShowAiAutopilotWarningModal(true);
       } else {
         setIsAutopilotEnabled(true);
       }
-    } else { 
+    } else {
       setIsAutopilotEnabled(false);
     }
   };
@@ -272,36 +272,46 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     if (dontShowAgain) {
       setAiAutopilotDisclaimerAcknowledged(true);
     }
-    setIsAutopilotEnabled(true); 
+    setIsAutopilotEnabled(true);
     setShowAiAutopilotWarningModal(false);
   };
 
   const handleCloseAiAutopilotWarning = () => {
-    setIsAutopilotEnabled(false); 
+    setIsAutopilotEnabled(false);
     setShowAiAutopilotWarningModal(false);
   };
-  
+
   const handleClearSelection = () => {
-    setDisplayedMiloContext(null); 
-    onClear(); 
+    setDisplayedMiloContext(null);
+    setTickerInputValue(''); // Clear the input as well
+    onClear();
   }
 
+  const handleTickerSearch = () => {
+    if (tickerInputValue.trim()) {
+      onStockSymbolSubmit(tickerInputValue.trim());
+    }
+  };
+
   const getCardTitle = () => {
-    if (!selectedStock) return "Trade Panel";
-    if (tradeMode === 'ai') return `AI Assist: ${selectedStock.symbol}`;
-    if (tradeMode === 'autopilot') return `Autopilot: ${selectedStock.symbol}`;
-    if (currentAction) return `${currentAction} ${selectedStock.symbol}`;
-    return selectedStock.symbol;
+    if (selectedStock) {
+      if (tradeMode === 'ai') return `AI Assist: ${selectedStock.symbol}`;
+      if (tradeMode === 'autopilot') return `Autopilot: ${selectedStock.symbol}`;
+      if (currentAction) return `${currentAction} ${selectedStock.symbol}`;
+      return selectedStock.symbol;
+    }
+    return "Trade Panel";
   };
 
   const getCardDescription = () => {
-    if (!selectedStock) return "Select a stock from the screener";
-    if (tradeMode === 'autopilot') return `Status for ${selectedStock.symbol}`;
-    return `Current Price: $${selectedStock.price.toFixed(2)}`;
+    if (!selectedStock) return "Enter ticker or select from screener";
+    if (tradeMode === 'autopilot' && selectedStock) return `Status for ${selectedStock.symbol}`;
+    if (selectedStock) return `Current Price: $${selectedStock.price.toFixed(2)}`;
+    return "Ready for ticker or selection"; // Fallback
   };
 
   const getSubmitButtonText = () => {
-    if (!selectedStock) return "Select Stock to Trade";
+    if (!selectedStock) return "Load Ticker to Trade"; // Changed
     if (!currentAction) return "Select Action";
     return `Submit ${currentAction} Order`;
   };
@@ -345,6 +355,23 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
           )}
         </CardHeader>
         <CardContent className="space-y-4 py-4 overflow-y-auto">
+          {/* Ticker Input Section - Always Visible */}
+          <div className="flex items-center space-x-2">
+            <Input
+              id="tickerInput"
+              type="text"
+              placeholder="Enter ticker (e.g., AAPL)"
+              value={tickerInputValue}
+              onChange={(e) => setTickerInputValue(e.target.value.toUpperCase())}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleTickerSearch(); }}
+              className="bg-transparent"
+            />
+            <Button variant="ghost" size="icon" onClick={handleTickerSearch} title="Search Ticker">
+              <Search className="h-5 w-5 text-primary" />
+            </Button>
+          </div>
+
+          {/* Trade Mode Selector - Always Visible */}
           <div className="grid grid-cols-3 w-full rounded-md overflow-hidden border border-white/5 bg-black/15">
             <button
               onClick={() => setTradeMode('manual')}
@@ -352,7 +379,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                 buttonBaseClass,
                 tradeMode === 'manual' ? activeModeClass : inactiveModeClass
               )}
-              disabled={!selectedStock}
             >
               <User className="mr-2 h-4 w-4" /> Manual
             </button>
@@ -362,9 +388,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                 buttonBaseClass,
                 tradeMode === 'ai' ? activeModeClass : inactiveModeClass
               )}
-              disabled={!selectedStock}
             >
-              <MiloAvatarIcon size={16} className="mr-2" /> AI Assist {/* Changed Bot to MiloAvatarIcon */}
+              <MiloAvatarIcon size={16} className="mr-2" /> AI Assist
             </button>
             <button
               onClick={() => setTradeMode('autopilot')}
@@ -372,16 +397,16 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                 buttonBaseClass,
                 tradeMode === 'autopilot' ? activeModeClass : inactiveModeClass
               )}
-              disabled={!selectedStock}
             >
               <Cog className="mr-2 h-4 w-4" /> Autopilot
             </button>
           </div>
 
+          {/* Conditional Content Area */}
           {!selectedStock ? (
             <div className="text-center py-12 text-muted-foreground flex flex-col items-center justify-center space-y-3">
               <MousePointerSquareDashed className="h-12 w-12 opacity-50" />
-              <p className="text-sm">Select a stock from the screener to start trading.</p>
+              <p className="text-sm">Select a stock from the screener or type a ticker above to start trading.</p>
             </div>
           ) : (
             <>
@@ -522,10 +547,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                   )}
                 </>
               )}
-              {tradeMode === 'ai' && (
+              {tradeMode === 'ai' && selectedStock && (
                  <AiTradeCard selectedStock={selectedStock} onSubmit={handleAISuggestionSubmit} buyingPower={buyingPower} />
               )}
-              {tradeMode === 'autopilot' && (
+              {tradeMode === 'autopilot' && selectedStock && (
                 <div className="space-y-4">
                   <Card className="bg-transparent shadow-none border-none">
                     <CardHeader className="p-0 pb-3">

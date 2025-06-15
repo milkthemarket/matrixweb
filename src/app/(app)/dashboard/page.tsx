@@ -212,7 +212,7 @@ export default function DashboardPage() {
   const [currentColumnOrder, setCurrentColumnOrder] = useState<(keyof Stock)[]>(() => initialColumnConfiguration.map(c => c.key));
   const [draggedColumnKey, setDraggedColumnKey] = useState<keyof Stock | null>(null);
   const [draggingOverKey, setDraggingOverKey] = useState<keyof Stock | null>(null);
-  
+
   const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
   const [resizingColumnKey, setResizingColumnKey] = useState<string | null>(null);
   const [resizeStartX, setResizeStartX] = useState<number>(0);
@@ -442,6 +442,22 @@ export default function DashboardPage() {
     }
   };
 
+  const handleStockSymbolSubmitFromOrderCard = (symbol: string) => {
+    const stockToSelect = stocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
+    if (stockToSelect) {
+      setSelectedStockForOrderCard(stockToSelect);
+      setOrderCardActionType(null);
+      setOrderCardInitialTradeMode(undefined);
+      setOrderCardMiloActionContext(null);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Ticker Not Found",
+        description: `The ticker "${symbol.toUpperCase()}" was not found in the screener list.`,
+      });
+    }
+  };
+
 
   const handleTradeSubmit = (tradeDetails: TradeRequest) => {
     console.log("Trade Submitted via Order Card:", tradeDetails);
@@ -563,7 +579,7 @@ export default function DashboardPage() {
 
   const handleResizeMouseDown = (e: React.MouseEvent<HTMLDivElement>, columnKey: string) => {
     e.preventDefault();
-    e.stopPropagation(); 
+    e.stopPropagation();
     setResizingColumnKey(columnKey);
     setResizeStartX(e.clientX);
     const currentWidth = columnWidths[columnKey] || initialColumnConfiguration.find(c => c.key === columnKey)?.defaultWidth || 120;
@@ -577,7 +593,7 @@ export default function DashboardPage() {
       const newWidth = Math.max(MIN_COLUMN_WIDTH, initialColumnWidthForResize + deltaX);
       setColumnWidths(prev => ({ ...prev, [resizingColumnKey]: newWidth }));
     };
-  
+
     const handleMouseUp = () => {
       if (resizingColumnKey) {
         setResizingColumnKey(null);
@@ -585,14 +601,14 @@ export default function DashboardPage() {
         document.body.style.userSelect = '';
       }
     };
-  
+
     if (resizingColumnKey) {
       document.body.addEventListener('mousemove', handleMouseMove);
       document.body.addEventListener('mouseup', handleMouseUp);
       document.body.style.cursor = 'col-resize';
       document.body.style.userSelect = 'none';
     }
-  
+
     return () => {
       document.body.removeEventListener('mousemove', handleMouseMove);
       document.body.removeEventListener('mouseup', handleMouseUp);
@@ -804,6 +820,7 @@ export default function DashboardPage() {
             miloActionContextText={orderCardMiloActionContext}
             onSubmit={handleTradeSubmit}
             onClear={handleClearOrderCard}
+            onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
           />
           <OpenPositionsCard />
           <MilosTradeIdeasCard
