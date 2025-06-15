@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode, HistoryTradeMode } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, Bot, User, Cog, ListChecks } from 'lucide-react';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, Bot, User, Cog, ListChecks, Lightbulb } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AiTradeCard } from '@/components/AiTradeCard';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
@@ -21,6 +21,8 @@ interface OrderCardProps {
   initialActionType: OrderActionType | null;
   onSubmit: (tradeDetails: TradeRequest) => void;
   onClear: () => void;
+  initialTradeMode?: TradeMode;
+  miloActionContextText?: string | null;
 }
 
 const MOCK_BUYING_POWER = 10000;
@@ -43,8 +45,8 @@ const dummyAutoRules = [
   }
 ];
 
-export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear }: OrderCardProps) {
-  const [tradeMode, setTradeMode] = useState<TradeMode>('manual');
+export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear, initialTradeMode, miloActionContextText }: OrderCardProps) {
+  const [tradeMode, setTradeMode] = useState<TradeMode>(initialTradeMode || 'manual');
   const [quantityValue, setQuantityValue] = useState('');
   const [quantityMode, setQuantityMode] = useState<QuantityInputMode>('Shares');
   const [orderType, setOrderType] = useState<OrderSystemType>('Market');
@@ -54,6 +56,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const [currentAction, setCurrentAction] = useState<OrderActionType | null>(null);
   const [timeInForce, setTimeInForce] = useState<string>('Day');
   const [isAutoTradingEnabled, setIsAutoTradingEnabled] = useState(true);
+  const [displayedMiloContext, setDisplayedMiloContext] = useState<string | null>(null);
 
   const [buyingPower] = useState<number>(MOCK_BUYING_POWER);
 
@@ -61,25 +64,50 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
   const [manualTradeDisclaimerAcknowledged, setManualTradeDisclaimerAcknowledged] = useState(false);
   const [pendingTradeDetails, setPendingTradeDetails] = useState<TradeRequest | null>(null);
 
+  useEffect(() => {
+    if (initialTradeMode) {
+      setTradeMode(initialTradeMode);
+    }
+  }, [initialTradeMode]);
+
+  useEffect(() => {
+     setDisplayedMiloContext(miloActionContextText || null);
+  }, [miloActionContextText]);
+
 
   useEffect(() => {
     if (selectedStock) {
       if (tradeMode === 'manual') {
-         setCurrentAction(initialActionType);
-         setQuantityValue('');
-         setOrderType('Market');
-         setLimitPrice('');
-         setStopPrice('');
-         setTrailingOffset('');
-         setTimeInForce('Day');
+         setCurrentAction(initialActionType); // This will be set by parent for Milo ideas
+         // If it's a Milo idea being loaded (indicated by initialTradeMode === 'manual' from parent), clear quantity
+         if (initialTradeMode === 'manual') {
+            setQuantityValue('');
+         }
+         // Default other fields or let them persist unless specifically reset by Milo idea logic
+         if (initialTradeMode === 'manual' || !quantityValue) { // Reset if Milo or quantity is empty
+            setOrderType('Market');
+            setLimitPrice('');
+            setStopPrice('');
+            setTrailingOffset('');
+            setTimeInForce('Day');
+         }
       }
-    } else {
+      if (initialTradeMode !== 'manual' && !miloActionContextText){ // Clear Milo context if not a Milo-triggered manual mode
+          setDisplayedMiloContext(null);
+      }
+
+    } else { // Stock cleared
       setCurrentAction(null);
       setQuantityValue('');
+      setDisplayedMiloContext(null);
+      // Optionally reset tradeMode to 'manual' or let parent control via initialTradeMode
+      // if (initialTradeMode === undefined) setTradeMode('manual'); 
     }
-  }, [selectedStock, initialActionType, tradeMode]);
+  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText]); // Added dependencies
 
   useEffect(() => {
+    // This effect ensures that if the card is switched to AI or Auto mode,
+    // or if no stock is selected, manual fields are cleared.
     if (tradeMode === 'ai' || tradeMode === 'auto' || !selectedStock) {
       setQuantityValue('');
       setOrderType('Market');
@@ -88,6 +116,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       setTrailingOffset('');
       setCurrentAction(null);
       setTimeInForce('Day');
+      // Do NOT clear displayedMiloContext here, as it might be relevant if switching back to manual shortly.
+      // It's cleared if selectedStock becomes null or if a new non-Milo stock is selected.
     }
   }, [tradeMode, selectedStock]);
 
@@ -159,8 +189,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     }
     
     let origin: HistoryTradeMode = 'manual';
-    if (tradeMode === 'ai') origin = 'aiAssist';
-    else if (tradeMode === 'auto') origin = 'fullyAI';
+    if (tradeMode === 'ai') origin = 'aiAssist'; // If submission comes from AiTradeCard, it will set this
+    else if (tradeMode === 'auto') origin = 'fullyAI'; // Unlikely to submit from here for auto
 
 
     const tradeDetails: TradeRequest = {
@@ -171,7 +201,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       TIF: timeInForce,
       rawQuantityValue: quantityValue,
       rawQuantityMode: quantityMode,
-      tradeModeOrigin: origin,
+      tradeModeOrigin: origin, // This will be 'manual' if submitted from this button
     };
 
     if (orderType === 'Limit' || orderType === 'Stop Limit') {
@@ -198,9 +228,16 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
       setShowManualTradeWarningModal(true);
     } else {
       onSubmit(tradeDetails);
-      setQuantityValue(''); // Reset quantity after successful submission or if warning bypassed
+      // Reset quantity only if it's a manual submission, not AI which has its own flow
+       if (tradeMode === 'manual') setQuantityValue(''); 
     }
   };
+  
+  // This handler is for AiTradeCard's submit, which will set its own tradeModeOrigin
+  const handleAISuggestionSubmit = (aiTradeDetails: TradeRequest) => {
+      onSubmit(aiTradeDetails); // aiTradeDetails already has tradeModeOrigin: 'aiAssist'
+  };
+
 
   const handleConfirmAndPlaceTrade = (dontShowAgain: boolean) => {
     if (dontShowAgain) {
@@ -211,13 +248,18 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
     }
     setPendingTradeDetails(null);
     setShowManualTradeWarningModal(false);
-    setQuantityValue(''); // Reset quantity after successful submission from modal
+    setQuantityValue(''); 
   };
 
   const handleCancelManualTrade = () => {
     setPendingTradeDetails(null);
     setShowManualTradeWarningModal(false);
   };
+  
+  const handleClearSelection = () => {
+    setDisplayedMiloContext(null); // Clear Milo context display
+    onClear(); // Call parent's clear handler
+  }
 
   const getCardTitle = () => {
     if (!selectedStock) return "Trade Panel";
@@ -272,7 +314,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             {getCardDescription()}
           </CardDescription>
           {selectedStock && (
-            <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={onClear} title="Clear Selection">
+            <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={handleClearSelection} title="Clear Selection">
               <XCircle className="h-5 w-5 text-muted-foreground hover:text-foreground" />
             </Button>
           )}
@@ -313,6 +355,14 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
 
           {tradeMode === 'manual' && selectedStock && (
             <>
+              {displayedMiloContext && (
+                <div className="mt-2 p-3 rounded-lg border border-dashed border-primary/30 bg-primary/5 text-sm">
+                  <h4 className="text-xs font-medium text-primary mb-1 flex items-center">
+                    <Lightbulb className="mr-1.5 h-3.5 w-3.5" /> Milo's Action Context:
+                  </h4>
+                  <p className="text-xs text-primary/80">{displayedMiloContext}</p>
+                </div>
+              )}
               <div className="grid grid-cols-3 gap-2 mb-4">
                   <Button
                     onClick={() => handleActionSelect('Buy')}
@@ -441,7 +491,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear 
             </>
           )}
           {tradeMode === 'ai' && selectedStock && (
-             <AiTradeCard selectedStock={selectedStock} onSubmit={onSubmit} buyingPower={buyingPower} />
+             <AiTradeCard selectedStock={selectedStock} onSubmit={handleAISuggestionSubmit} buyingPower={buyingPower} />
           )}
           {tradeMode === 'ai' && !selectedStock && (
             <div className="text-center py-10 text-muted-foreground">

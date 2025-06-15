@@ -46,7 +46,7 @@ export function ManualTradeWarningModal({ isOpen, onClose, onConfirm }: ManualTr
             Manual Trade Warning
           </AlertDialogTitle>
           <AlertDialogDescription className="pt-2">
-            You are placing a manual trade. This means MILO will not automatically manage or exit this position for you. Please ensure you have your own risk management strategy in place.
+            You are placing a manual trade. This means Milo will not automatically manage or exit this position for you. Please ensure you have your own risk management strategy in place.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="flex items-center space-x-2 py-4">

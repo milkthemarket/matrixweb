@@ -12,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter, Bot, Cog } from "lucide-react";
-import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule, MiloTradeIdea, HistoryTradeMode } from "@/types";
+import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule, MiloTradeIdea, HistoryTradeMode, TradeMode } from "@/types";
 import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
@@ -167,6 +167,9 @@ export default function DashboardPage() {
 
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
   const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
+  const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
+  const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
+
 
   const { openPositions, addOpenPosition, removeOpenPosition, updateAllPositionsPrices } = useOpenPositionsContext();
   const [miloIdeas, setMiloIdeas] = useState<MiloTradeIdea[]>(initialMockMiloIdeas);
@@ -287,12 +290,47 @@ export default function DashboardPage() {
   const handleSelectStockForOrder = (stock: Stock, action: OrderActionType | null) => {
     setSelectedStockForOrderCard(stock);
     setOrderCardActionType(action);
+    setOrderCardInitialTradeMode(undefined); // Clear Milo context if user clicks a stock row
+    setOrderCardMiloActionContext(null);
   };
 
   const handleClearOrderCard = () => {
     setSelectedStockForOrderCard(null);
     setOrderCardActionType(null);
+    setOrderCardInitialTradeMode(undefined); 
+    setOrderCardMiloActionContext(null);
   };
+
+  const handleMiloIdeaSelect = (idea: MiloTradeIdea) => {
+    const stock = stocks.find(s => s.symbol === idea.ticker);
+    if (stock) {
+        setSelectedStockForOrderCard(stock);
+        
+        let parsedActionType: OrderActionType = 'Buy'; // Default
+        const actionLower = idea.action.toLowerCase();
+        if (actionLower.includes('sell') || actionLower.includes('exit') || actionLower.includes('take profit')) {
+            parsedActionType = 'Sell';
+        } else if (actionLower.includes('short')) {
+            parsedActionType = 'Short';
+        } else if (actionLower.includes('buy') || actionLower.includes('entry') || actionLower.includes('acquire')) {
+            parsedActionType = 'Buy';
+        }
+        setOrderCardActionType(parsedActionType);
+        setOrderCardInitialTradeMode('manual');
+        setOrderCardMiloActionContext(idea.action); // Pass the descriptive action from Milo
+         toast({
+          title: "Milo Idea Loaded",
+          description: `${idea.ticker} details populated in the trade panel.`,
+        });
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Stock Not Found",
+            description: `Could not find ${idea.ticker} in the current screener list.`,
+        });
+    }
+  };
+
 
   const handleTradeSubmit = (tradeDetails: TradeRequest) => {
     console.log("Trade Submitted via Order Card:", tradeDetails);
@@ -528,16 +566,19 @@ export default function DashboardPage() {
           <OrderCard
             selectedStock={selectedStockForOrderCard}
             initialActionType={orderCardActionType}
+            initialTradeMode={orderCardInitialTradeMode}
+            miloActionContextText={orderCardMiloActionContext}
             onSubmit={handleTradeSubmit}
             onClear={handleClearOrderCard}
           />
           
-            <OpenPositionsCard /> {/* Now uses context, no props needed here */}
+            <OpenPositionsCard /> 
           
           <MilosTradeIdeasCard 
             ideas={miloIdeas} 
             onRefresh={handleRefreshMiloIdeas}
             isLoading={isMiloLoading}
+            onIdeaSelect={handleMiloIdeaSelect}
           />
         </div>
       </div>
