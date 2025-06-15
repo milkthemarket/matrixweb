@@ -11,12 +11,12 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter, Bot, Cog, TrendingUp, TrendingDown, Activity, CalendarCheck2 } from "lucide-react";
+import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter, Bot, Cog, TrendingUp, TrendingDown, Activity, CalendarCheck2, GripHorizontal, Lock } from "lucide-react";
 import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule, MiloTradeIdea, HistoryTradeMode, TradeMode } from "@/types";
 import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
-import type { RefreshInterval } from '@/contexts/AlertContext'; 
+import type { RefreshInterval } from '@/contexts/AlertContext';
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 import { useToast } from "@/hooks/use-toast";
@@ -24,10 +24,11 @@ import { OrderCard } from '@/components/OrderCard';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
 import { MilosTradeIdeasCard } from '@/components/MilosTradeIdeasCard';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { mockRules } from '@/app/(app)/rules/page'; 
+import { mockRules } from '@/app/(app)/rules/page';
 
 const MOCK_INITIAL_TIMESTAMP = '2024-07-01T10:00:00.000Z';
-const DASHBOARD_REFRESH_INTERVAL: RefreshInterval = 15000; 
+const DASHBOARD_REFRESH_INTERVAL: RefreshInterval = 15000;
+const LOCAL_STORAGE_COLUMN_ORDER_KEY = 'tradeflow-dashboard-column-order';
 
 const formatMarketCap = (value?: number) => {
   if (value === undefined || value === null) return 'N/A';
@@ -42,8 +43,8 @@ const formatDecimal = (value?: number, places = 2) => (value !== undefined && va
 const formatVolume = (value?: number) => (value !== undefined && value !== null ? `${value.toFixed(1)}M` : 'N/A');
 
 
-const columnConfiguration: ColumnConfig<Stock>[] = [
-  { key: 'symbol', label: 'Symbol', defaultVisible: true, isToggleable: false, align: 'left',
+const initialColumnConfiguration: ColumnConfig<Stock>[] = [
+  { key: 'symbol', label: 'Symbol', defaultVisible: true, isToggleable: false, isDraggable: false, align: 'left',
     format: (value, stock) => (
       <Popover>
         <PopoverTrigger asChild>
@@ -59,37 +60,37 @@ const columnConfiguration: ColumnConfig<Stock>[] = [
       </Popover>
     )
   },
-  { key: 'name', label: 'Name', defaultVisible: true, isToggleable: true, align: 'left', description: "Company Name" },
-  { key: 'price', label: 'Price', defaultVisible: true, isToggleable: false, align: 'right', format: (val) => `$${formatDecimal(val)}` },
-  { key: 'changePercent', label: '% Change', defaultVisible: true, isToggleable: true, align: 'right', format: (val) => {
+  { key: 'name', label: 'Name', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'left', description: "Company Name" },
+  { key: 'price', label: 'Price', defaultVisible: true, isToggleable: false, isDraggable: false, align: 'right', format: (val) => `$${formatDecimal(val)}` },
+  { key: 'changePercent', label: '% Change', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', format: (val) => {
     const numVal = typeof val === 'number' ? val : 0;
     return <span className={cn(numVal >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}> {numVal >= 0 ? '+' : ''}{formatDecimal(numVal, 1)}% </span>
   }},
-  { key: 'float', label: 'Float (M)', defaultVisible: true, isToggleable: true, align: 'right', format: (val) => formatDecimal(val, 0) },
-  { key: 'volume', label: 'Volume (M)', defaultVisible: true, isToggleable: true, align: 'right', format: formatVolume },
-  { key: 'marketCap', label: 'Mkt Cap', defaultVisible: false, isToggleable: true, align: 'right', format: formatMarketCap, description: "Market Capitalization" },
-  { key: 'avgVolume', label: 'Avg Vol (M)', defaultVisible: false, isToggleable: true, align: 'right', format: formatVolume, description: "Average Daily Volume" },
-  { key: 'atr', label: 'ATR', defaultVisible: false, isToggleable: true, align: 'right', format: (val) => formatDecimal(val), description: "Average True Range (Volatility)" },
-  { key: 'rsi', label: 'RSI', defaultVisible: false, isToggleable: true, align: 'right', format: (val) => formatDecimal(val, 1), description: "Relative Strength Index" },
-  { key: 'vwap', label: 'VWAP', defaultVisible: false, isToggleable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: "Volume Weighted Average Price" },
-  { key: 'beta', label: 'Beta', defaultVisible: false, isToggleable: true, align: 'right', format: (val) => formatDecimal(val, 2), description: "Market Risk Measure" },
-  { key: 'high52', label: '52W High', defaultVisible: false, isToggleable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: "52-Week High Price" },
-  { key: 'low52', label: '52W Low', defaultVisible: false, isToggleable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: "52-Week Low Price" },
-  { key: 'gapPercent', label: 'Gap %', defaultVisible: false, isToggleable: true, align: 'right', format: formatPercentage, description: "Today's Price Gap Percentage" },
-  { key: 'shortFloat', label: 'Short %', defaultVisible: false, isToggleable: true, align: 'right', format: formatPercentage, description: "Short Interest as % of Float" },
-  { key: 'instOwn', label: 'Inst. Own %', defaultVisible: false, isToggleable: true, align: 'right', format: formatPercentage, description: "Institutional Ownership Percentage" },
-  { key: 'premarketChange', label: 'Pre-Mkt %', defaultVisible: false, isToggleable: true, align: 'right', format: formatPercentage, description: "Pre-Market Change Percentage" },
+  { key: 'float', label: 'Float (M)', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', format: (val) => formatDecimal(val, 0) },
+  { key: 'volume', label: 'Volume (M)', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', format: formatVolume },
+  { key: 'marketCap', label: 'Mkt Cap', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: formatMarketCap, description: "Market Capitalization" },
+  { key: 'avgVolume', label: 'Avg Vol (M)', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: formatVolume, description: "Average Daily Volume" },
+  { key: 'atr', label: 'ATR', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: (val) => formatDecimal(val), description: "Average True Range (Volatility)" },
+  { key: 'rsi', label: 'RSI', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: (val) => formatDecimal(val, 1), description: "Relative Strength Index" },
+  { key: 'vwap', label: 'VWAP', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: "Volume Weighted Average Price" },
+  { key: 'beta', label: 'Beta', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: (val) => formatDecimal(val, 2), description: "Market Risk Measure" },
+  { key: 'high52', label: '52W High', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: "52-Week High Price" },
+  { key: 'low52', label: '52W Low', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: "52-Week Low Price" },
+  { key: 'gapPercent', label: 'Gap %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: formatPercentage, description: "Today's Price Gap Percentage" },
+  { key: 'shortFloat', label: 'Short %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: formatPercentage, description: "Short Interest as % of Float" },
+  { key: 'instOwn', label: 'Inst. Own %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: formatPercentage, description: "Institutional Ownership Percentage" },
+  { key: 'premarketChange', label: 'Pre-Mkt %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', format: formatPercentage, description: "Pre-Market Change Percentage" },
 ];
 
 
 const initialMockStocks: Stock[] = [
   { id: '1', symbol: 'AAPL', name: 'Apple Inc.', price: 170.34, changePercent: 2.5, float: 15000, volume: 90.5, newsSnippet: 'New iPhone announced.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [168, 169, 170, 171, 170.5, 172, 170.34], marketCap: 170.34 * 15000 * 1e6, avgVolume: 85.2, atr: 3.4, rsi: 60.1, vwap: 170.25, beta: 1.2, high52: 190.5, low52: 150.2, gapPercent: 0.5, shortFloat: 1.5, instOwn: 65.2, premarketChange: 0.3 },
   { id: '2', symbol: 'MSFT', name: 'Microsoft Corp.', price: 420.72, changePercent: -1.2, float: 7000, volume: 60.2, newsSnippet: 'AI partnership.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [425, 422, 423, 420, 421, 419, 420.72], marketCap: 420.72 * 7000 * 1e6, avgVolume: 55.0, atr: 8.1, rsi: 40.5, vwap: 420.80, beta: 1.1, high52: 450.0, low52: 300.0, gapPercent: -0.2, shortFloat: 0.8, instOwn: 70.1, premarketChange: -0.1 },
-  { id: '3', symbol: 'TSLA', name: 'Tesla, Inc.', price: 180.01, changePercent: 5.8, float: 800, volume: 120.1, newsSnippet: 'Cybertruck deliveries ramp up.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [170, 172, 175, 173, 178, 181, 180.01], marketCap: 180.01 * 800 * 1e6, avgVolume: 110.5, atr: 5.5, rsi: 75.2, vwap: 179.90, beta: 1.8, high52: 180.01, low52: 150.0, gapPercent: 1.2, shortFloat: 15.3, instOwn: 45.0, premarketChange: 0.8 }, // TSLA at 52W high
+  { id: '3', symbol: 'TSLA', name: 'Tesla, Inc.', price: 180.01, changePercent: 5.8, float: 800, volume: 120.1, newsSnippet: 'Cybertruck deliveries ramp up.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [170, 172, 175, 173, 178, 181, 180.01], marketCap: 180.01 * 800 * 1e6, avgVolume: 110.5, atr: 5.5, rsi: 75.2, vwap: 179.90, beta: 1.8, high52: 180.01, low52: 150.0, gapPercent: 1.2, shortFloat: 15.3, instOwn: 45.0, premarketChange: 0.8 },
   { id: '4', symbol: 'NVDA', name: 'NVIDIA Corporation', price: 900.50, changePercent: 0.5, float: 2500, volume: 75.3, newsSnippet: 'New GPU unveiled.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [890, 895, 900, 905, 902, 903, 900.50], marketCap: 900.50 * 2500 * 1e6, avgVolume: 70.1, atr: 20.0, rsi: 65.0, vwap: 900.60, beta: 1.5, high52: 950.0, low52: 400.0, gapPercent: 0.1, shortFloat: 2.1, instOwn: 60.5, premarketChange: 0.2 },
   { id: '5', symbol: 'GOOGL', name: 'Alphabet Inc. (Class A)', price: 140.22, changePercent: 1.1, float: 6000, volume: 40.8, newsSnippet: 'Search algorithm update.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [138, 139, 140, 139.5, 141, 140.5, 140.22], marketCap: 140.22 * 6000 * 1e6, avgVolume: 38.0, atr: 2.5, rsi: 55.8, vwap: 140.15, beta: 1.0, high52: 160.0, low52: 120.0, gapPercent: 0.3, shortFloat: 1.0, instOwn: 75.3, premarketChange: 0.1 },
   { id: '6', symbol: 'AMZN', name: 'Amazon.com, Inc.', price: 185.50, changePercent: 1.8, float: 10000, volume: 52.3, newsSnippet: 'Prime Day sales exceed expectations.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [182.1, 183.5, 184.0, 185.8, 185.1, 186.2, 185.5], marketCap: 185.50 * 10000 * 1e6, avgVolume: 50.1, atr: 3.5, rsi: 62.0, vwap: 185.40, beta: 1.15, high52: 190.00, low52: 125.00, gapPercent: 0.4, shortFloat: 1.2, instOwn: 60.0, premarketChange: 0.25 },
-  { id: '7', symbol: 'SNOW', name: 'Snowflake Inc.', price: 120.00, changePercent: -2.1, float: 300, volume: 5.5, newsSnippet: 'Lowered guidance for next quarter.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [132.0, 131.5, 130.0, 129.5, 128.0, 127.5, 128.75], marketCap: 128.75 * 300 * 1e6, avgVolume: 6.2, atr: 4.1, rsi: 38.5, vwap: 129.00, beta: 1.4, high52: 210.00, low52: 120.00, gapPercent: -0.8, shortFloat: 5.5, instOwn: 70.5, premarketChange: -0.5 }, // SNOW at 52W low
+  { id: '7', symbol: 'SNOW', name: 'Snowflake Inc.', price: 120.00, changePercent: -2.1, float: 300, volume: 5.5, newsSnippet: 'Lowered guidance for next quarter.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [132.0, 131.5, 130.0, 129.5, 128.0, 127.5, 128.75], marketCap: 128.75 * 300 * 1e6, avgVolume: 6.2, atr: 4.1, rsi: 38.5, vwap: 129.00, beta: 1.4, high52: 210.00, low52: 120.00, gapPercent: -0.8, shortFloat: 5.5, instOwn: 70.5, premarketChange: -0.5 },
   { id: '8', symbol: 'XOM', name: 'Exxon Mobil Corporation', price: 112.30, changePercent: 0.45, float: 4000, volume: 15.2, newsSnippet: 'Oil prices show slight increase.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [111.8, 112.0, 112.5, 112.1, 112.6, 112.4, 112.3], marketCap: 112.30 * 4000 * 1e6, avgVolume: 16.0, atr: 1.8, rsi: 53.0, vwap: 112.25, beta: 0.9, high52: 125.00, low52: 95.00, gapPercent: 0.1, shortFloat: 1.0, instOwn: 55.8, premarketChange: 0.05 },
   { id: '9', symbol: 'LULU', name: 'Lululemon Athletica Inc.', price: 305.60, changePercent: 3.5, float: 120, volume: 2.1, newsSnippet: 'Strong international sales growth reported.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [295.0, 298.5, 300.0, 303.2, 301.8, 306.5, 305.6], marketCap: 305.60 * 120 * 1e6, avgVolume: 1.9, atr: 8.5, rsi: 68.3, vwap: 304.90, beta: 1.3, high52: 420.00, low52: 280.00, gapPercent: 1.1, shortFloat: 4.1, instOwn: 80.2, premarketChange: 0.7 },
   { id: '10', symbol: 'BCTX', name: 'BriaCell Therapeutics Corp.', price: 5.15, changePercent: 15.2, float: 50, volume: 22.5, newsSnippet: 'Positive phase 2 trial results announced.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [4.5, 4.6, 4.8, 5.0, 4.9, 5.2, 5.15], marketCap: 5.15 * 50 * 1e6, avgVolume: 5.0, atr: 0.75, rsi: 80.5, vwap: 5.05, beta: 2.1, high52: 10.50, low52: 2.00, gapPercent: 3.2, shortFloat: 18.0, instOwn: 30.1, premarketChange: 1.5 },
@@ -137,26 +138,26 @@ const initialMockStocks: Stock[] = [
 
 
 const initialMockMiloIdeas: MiloTradeIdea[] = [
-  { 
-    id: 'milo1', 
-    ticker: 'NVDA', 
-    reason: 'RSI is nearing oversold (currently 32) and float is relatively low (2500M). Possible bounce setup if broader market holds.', 
+  {
+    id: 'milo1',
+    ticker: 'NVDA',
+    reason: 'RSI is nearing oversold (currently 32) and float is relatively low (2500M). Possible bounce setup if broader market holds.',
     action: 'Consider buying if volume spikes above 1.5x average (current avg: 70.1M) and price breaks above $905.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString() 
+    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString()
   },
-  { 
-    id: 'milo2', 
-    ticker: 'AMD', 
-    reason: 'Recent breakout above $160 resistance, confirmed by strong earnings catalyst and sector strength.', 
+  {
+    id: 'milo2',
+    ticker: 'AMD',
+    reason: 'Recent breakout above $160 resistance, confirmed by strong earnings catalyst and sector strength.',
     action: 'Watch for entry on a minor pullback to the $158–$159 support zone. Set stop-loss below $155.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString() 
+    timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString()
   },
-  { 
-    id: 'milo3', 
-    ticker: 'BCTX', 
-    reason: 'Significant price increase (+15.2%) on high relative volume (22.5M vs 5.0M avg). Positive trial news catalyst.', 
+  {
+    id: 'milo3',
+    ticker: 'BCTX',
+    reason: 'Significant price increase (+15.2%) on high relative volume (22.5M vs 5.0M avg). Positive trial news catalyst.',
     action: 'Potential momentum play. Monitor for continuation above $5.25. High risk due to volatility.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString() 
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString()
   },
 ];
 
@@ -164,25 +165,55 @@ const initialMockMiloIdeas: MiloTradeIdea[] = [
 export default function DashboardPage() {
   const [stocks, setStocks] = useState<Stock[]>(initialMockStocks);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
-  const [selectedRuleId, setSelectedRuleId] = useState<string>('all'); 
+  const [selectedRuleId, setSelectedRuleId] = useState<string>('all');
 
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
   const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
   const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
   const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
 
-
   const { openPositions, addOpenPosition, removeOpenPosition, updateAllPositionsPrices } = useOpenPositionsContext();
   const [miloIdeas, setMiloIdeas] = useState<MiloTradeIdea[]>(initialMockMiloIdeas);
   const [isMiloLoading, setIsMiloLoading] = useState(false);
 
-
   const { addTradeToHistory } = useTradeHistoryContext();
   const { toast } = useToast();
-  
+
+  // State for column order and drag state
+  const [currentColumnOrder, setCurrentColumnOrder] = useState<(keyof Stock)[]>(() => initialColumnConfiguration.map(c => c.key));
+  const [draggedColumnKey, setDraggedColumnKey] = useState<keyof Stock | null>(null);
+  const [draggingOverKey, setDraggingOverKey] = useState<keyof Stock | null>(null);
+
+  // Load and save column order from/to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedOrderJSON = localStorage.getItem(LOCAL_STORAGE_COLUMN_ORDER_KEY);
+      if (savedOrderJSON) {
+        try {
+          const savedOrder = JSON.parse(savedOrderJSON) as (keyof Stock)[];
+          const validSavedOrder = savedOrder.filter(key => initialColumnConfiguration.some(c => c.key === key));
+          const currentConfigKeys = initialColumnConfiguration.map(c => c.key);
+          const newKeys = currentConfigKeys.filter(key => !validSavedOrder.includes(key));
+          setCurrentColumnOrder([...validSavedOrder, ...newKeys]);
+        } catch (e) {
+          setCurrentColumnOrder(initialColumnConfiguration.map(c => c.key));
+        }
+      } else {
+        setCurrentColumnOrder(initialColumnConfiguration.map(c => c.key));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && currentColumnOrder.length > 0) {
+      localStorage.setItem(LOCAL_STORAGE_COLUMN_ORDER_KEY, JSON.stringify(currentColumnOrder));
+    }
+  }, [currentColumnOrder]);
+
+
   const initialVisibleColumns = useMemo(() => {
     const visible: Record<string, boolean> = {};
-    columnConfiguration.forEach(col => {
+    initialColumnConfiguration.forEach(col => {
       if (col.isToggleable) {
         visible[col.key as string] = col.defaultVisible;
       }
@@ -194,10 +225,13 @@ export default function DashboardPage() {
   const toggleColumnVisibility = (columnKey: keyof Stock | string) => {
     setVisibleColumns(prev => ({ ...prev, [columnKey]: !prev[columnKey] }));
   };
-  
+
   const displayedColumns = useMemo(() => {
-    return columnConfiguration.filter(col => !col.isToggleable || visibleColumns[col.key as string]);
-  }, [visibleColumns]);
+    const columnObjectsInOrder = currentColumnOrder
+      .map(key => initialColumnConfiguration.find(c => c.key === key))
+      .filter(Boolean) as ColumnConfig<Stock>[];
+    return columnObjectsInOrder.filter(col => !col.isToggleable || visibleColumns[col.key as string]);
+  }, [currentColumnOrder, visibleColumns]);
 
 
   const handleRefreshData = useCallback(() => {
@@ -205,7 +239,7 @@ export default function DashboardPage() {
 
     setStocks(prevStocks => {
       const updatedStocks = prevStocks.map(stock => {
-        const priceChangeFactor = 1 + (Math.random() - 0.5) * 0.03; 
+        const priceChangeFactor = 1 + (Math.random() - 0.5) * 0.03;
         const newPrice = parseFloat((stock.price * priceChangeFactor).toFixed(2));
         const newVolume = parseFloat((stock.volume * (1 + (Math.random() - 0.2) * 0.1)).toFixed(1));
         const newAvgVolume = parseFloat(( (stock.avgVolume || stock.volume) * (1 + (Math.random() - 0.4) * 0.05)).toFixed(1));
@@ -240,17 +274,17 @@ export default function DashboardPage() {
       latestGeneratedStockData = updatedStocks;
       return updatedStocks;
     });
-    
+
     updateAllPositionsPrices(latestGeneratedStockData);
     setLastRefreshed(new Date());
-  }, [updateAllPositionsPrices]); 
+  }, [updateAllPositionsPrices]);
 
 
   useEffect(() => {
-    setLastRefreshed(new Date()); 
+    setLastRefreshed(new Date());
     const intervalId = setInterval(handleRefreshData, DASHBOARD_REFRESH_INTERVAL);
     return () => clearInterval(intervalId);
-  }, [handleRefreshData]); 
+  }, [handleRefreshData]);
 
   const activeRules = useMemo(() => mockRules.filter(rule => rule.isActive), []);
 
@@ -267,15 +301,14 @@ export default function DashboardPage() {
       case 'active':
         return processedStocks.sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0));
       case '52-week':
-        return processedStocks.filter(stock => 
+        return processedStocks.filter(stock =>
           stock.price && stock.high52 && stock.low52 &&
           (stock.price >= (stock.high52 * 0.98) || stock.price <= (stock.low52 * 1.02))
         );
       default:
-        // Handle custom rules
         const rule = activeRules.find(r => r.id === selectedRuleId);
         if (!rule) {
-          return processedStocks; 
+          return processedStocks;
         }
         return processedStocks.filter(stock => {
           return rule.criteria.every(criterion => {
@@ -304,14 +337,14 @@ export default function DashboardPage() {
   const handleSelectStockForOrder = (stock: Stock, action: OrderActionType | null) => {
     setSelectedStockForOrderCard(stock);
     setOrderCardActionType(action);
-    setOrderCardInitialTradeMode(undefined); // Clear Milo context if user clicks a stock row
+    setOrderCardInitialTradeMode(undefined);
     setOrderCardMiloActionContext(null);
   };
 
   const handleClearOrderCard = () => {
     setSelectedStockForOrderCard(null);
     setOrderCardActionType(null);
-    setOrderCardInitialTradeMode(undefined); 
+    setOrderCardInitialTradeMode(undefined);
     setOrderCardMiloActionContext(null);
   };
 
@@ -319,8 +352,8 @@ export default function DashboardPage() {
     const stock = stocks.find(s => s.symbol === idea.ticker);
     if (stock) {
         setSelectedStockForOrderCard(stock);
-        
-        let parsedActionType: OrderActionType = 'Buy'; // Default
+
+        let parsedActionType: OrderActionType = 'Buy';
         const actionLower = idea.action.toLowerCase();
         if (actionLower.includes('sell') || actionLower.includes('exit') || actionLower.includes('take profit')) {
             parsedActionType = 'Sell';
@@ -331,7 +364,7 @@ export default function DashboardPage() {
         }
         setOrderCardActionType(parsedActionType);
         setOrderCardInitialTradeMode('manual');
-        setOrderCardMiloActionContext(idea.action); // Pass the descriptive action from Milo
+        setOrderCardMiloActionContext(idea.action);
          toast({
           title: "Milo Idea Loaded",
           description: `${idea.ticker} details populated in the trade panel.`,
@@ -396,7 +429,7 @@ export default function DashboardPage() {
       });
       return;
     }
-    exportToCSV('stock_screener_data.csv', filteredStocks, columnConfiguration);
+    exportToCSV('stock_screener_data.csv', filteredStocks, initialColumnConfiguration);
     toast({
       title: "Export Successful",
       description: "Stock screener data has been exported to CSV.",
@@ -412,18 +445,58 @@ export default function DashboardPage() {
 
   const handleRefreshMiloIdeas = useCallback(() => {
     setIsMiloLoading(true);
-    // Simulate API call
     setTimeout(() => {
       const shuffledIdeas = [...initialMockMiloIdeas].sort(() => Math.random() - 0.5);
       const updatedIdeas = shuffledIdeas.map(idea => ({
         ...idea,
-        id: `${idea.id}_${Date.now()}`, 
-        timestamp: new Date().toISOString() 
+        id: `${idea.id}_${Date.now()}`,
+        timestamp: new Date().toISOString()
       }));
-      setMiloIdeas(updatedIdeas.slice(0, 3 + Math.floor(Math.random()*2))); 
+      setMiloIdeas(updatedIdeas.slice(0, 3 + Math.floor(Math.random()*2)));
       setIsMiloLoading(false);
     }, 1500);
   }, []);
+
+  // Drag and Drop handlers
+  const handleDragStart = (e: React.DragEvent<HTMLTableCellElement>, columnKey: keyof Stock) => {
+    e.dataTransfer.setData('draggedColumnKey', columnKey);
+    setDraggedColumnKey(columnKey);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLTableCellElement>, columnKey: keyof Stock) => {
+    e.preventDefault();
+    if (draggedColumnKey && draggedColumnKey !== columnKey) {
+        setDraggingOverKey(columnKey);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLTableCellElement>) => {
+    setDraggingOverKey(null);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLTableCellElement>, targetColumnKey: keyof Stock) => {
+    e.preventDefault();
+    const sourceColumnKey = e.dataTransfer.getData('draggedColumnKey') as keyof Stock;
+    setDraggingOverKey(null);
+    setDraggedColumnKey(null);
+
+    const sourceColConfig = initialColumnConfiguration.find(c => c.key === sourceColumnKey);
+    const targetColConfig = initialColumnConfiguration.find(c => c.key === targetColumnKey);
+
+    if (sourceColumnKey && targetColumnKey && sourceColumnKey !== targetColumnKey && sourceColConfig?.isDraggable && targetColConfig?.isDraggable) {
+      setCurrentColumnOrder(prevOrder => {
+        const newOrder = [...prevOrder];
+        const draggedIndex = newOrder.indexOf(sourceColumnKey);
+        const targetIndex = newOrder.indexOf(targetColumnKey);
+
+        if (draggedIndex === -1 || targetIndex === -1) return prevOrder;
+
+        const [draggedItem] = newOrder.splice(draggedIndex, 1);
+        newOrder.splice(targetIndex, 0, draggedItem);
+        return newOrder;
+      });
+    }
+  };
 
 
   return (
@@ -462,7 +535,7 @@ export default function DashboardPage() {
                      <ScrollArea className="h-[250px] md:h-[350px]">
                       <TooltipProvider>
                         <div className="p-3 space-y-1">
-                          {columnConfiguration
+                          {initialColumnConfiguration
                             .filter(col => col.isToggleable)
                             .map(col => (
                               <Tooltip key={`tooltip-${col.key}`}>
@@ -534,14 +607,31 @@ export default function DashboardPage() {
                     </SelectContent>
                   </Select>
               </div>
-              
+
               <div className="rounded-xl overflow-auto flex-1">
                 <Table>
                   <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                     <TableRow>
                       {displayedColumns.map((col) => (
-                        <TableHead key={col.key as string} className={cn(col.align === 'right' && "text-right", col.align === 'center' && "text-center")}>
-                          {col.label}
+                        <TableHead
+                          key={col.key as string}
+                          draggable={col.isDraggable}
+                          onDragStart={(e) => col.isDraggable && handleDragStart(e, col.key as keyof Stock)}
+                          onDragOver={(e) => col.isDraggable && handleDragOver(e, col.key as keyof Stock)}
+                          onDragLeave={(e) => col.isDraggable && handleDragLeave(e)}
+                          onDrop={(e) => col.isDraggable && handleDrop(e, col.key as keyof Stock)}
+                          className={cn(
+                            col.align === 'right' && "text-right",
+                            col.align === 'center' && "text-center",
+                            col.isDraggable && "cursor-grab",
+                            draggingOverKey === col.key && "bg-primary/20",
+                            "transition-colors duration-150"
+                          )}
+                        >
+                          <div className="flex items-center gap-1">
+                            {col.isDraggable ? <GripHorizontal className="h-4 w-4 text-muted-foreground/50" /> : <Lock className="h-3 w-3 text-muted-foreground/50" />}
+                            {col.label}
+                          </div>
                         </TableHead>
                       ))}
                     </TableRow>
@@ -597,11 +687,11 @@ export default function DashboardPage() {
             onSubmit={handleTradeSubmit}
             onClear={handleClearOrderCard}
           />
-          
-            <OpenPositionsCard /> 
-          
-          <MilosTradeIdeasCard 
-            ideas={miloIdeas} 
+
+            <OpenPositionsCard />
+
+          <MilosTradeIdeasCard
+            ideas={miloIdeas}
             onRefresh={handleRefreshMiloIdeas}
             isLoading={isMiloLoading}
             onIdeaSelect={handleMiloIdeaSelect}
@@ -611,4 +701,3 @@ export default function DashboardPage() {
     </main>
   );
 }
-

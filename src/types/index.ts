@@ -4,7 +4,7 @@ export type CatalystType = 'fire' | 'news';
 export interface Stock {
   id: string;
   symbol: string;
-  name?: string; 
+  name?: string;
   price: number;
   changePercent: number;
   float: number; // in millions
@@ -31,9 +31,9 @@ export interface Stock {
 export type RuleOperator = '>' | '<' | '>=' | '<=' | '==' | '!=' | 'between' | 'contains';
 
 export interface RuleCriterion {
-  metric: keyof Stock | string; 
+  metric: keyof Stock | string;
   operator: RuleOperator;
-  value: number | string | [number, number]; 
+  value: number | string | [number, number];
 }
 
 export interface AlertRule {
@@ -66,8 +66,8 @@ export interface TradeLogEntry {
 export type OrderActionType = 'Buy' | 'Sell' | 'Short';
 export type OrderSystemType = 'Market' | 'Limit' | 'Stop' | 'Stop Limit' | 'Trailing Stop';
 export type QuantityInputMode = 'Shares' | 'DollarAmount' | 'PercentOfBuyingPower';
-export type TradeMode = 'manual' | 'ai' | 'autopilot'; // Updated 'auto' to 'autopilot'
-export type HistoryTradeMode = 'manual' | 'aiAssist' | 'autopilot'; // Updated 'fullyAI' to 'autopilot'
+export type TradeMode = 'manual' | 'ai' | 'autopilot';
+export type HistoryTradeMode = 'manual' | 'aiAssist' | 'autopilot';
 export type TickerSpeed = 'slow' | 'medium' | 'fast';
 
 
@@ -141,6 +141,7 @@ export interface ColumnConfig<T = Stock> {
   label: string;
   defaultVisible: boolean;
   isToggleable: boolean;
+  isDraggable?: boolean; // Added for column reordering
   align?: 'left' | 'right' | 'center';
   format?: (value: any, stock: T) => string | React.ReactNode;
   description?: string;
@@ -164,4 +165,3 @@ export interface MiloTradeIdea {
   action: string;
   timestamp: string; // ISO string date
 }
-
