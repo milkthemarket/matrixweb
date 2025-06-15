@@ -148,8 +148,8 @@ export default function SuggestionsPage() {
     setSuggestions(prev => [newSuggestion, ...prev]);
 
     toast({
-      title: "Suggestion Submitted!",
-      description: "Thanks for your feedback. We'll review it soon.",
+      title: "Thank You!",
+      description: "Thank you for your suggestion! If it moves to the top, we’ll be in touch before the cows come home.",
     });
     form.reset();
     setIsLoading(false);
