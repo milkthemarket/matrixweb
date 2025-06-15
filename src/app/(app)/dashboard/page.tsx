@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter, Bot, Cog, TrendingUp, TrendingDown, Activity, CalendarCheck2, GripHorizontal, Lock, Star } from "lucide-react";
+import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter, Bot, Cog, TrendingUp, TrendingDown, Activity, CalendarCheck2, GripHorizontal, Lock, Star, List, Filter } from "lucide-react";
 import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule, MiloTradeIdea, HistoryTradeMode, TradeMode } from "@/types";
 import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
@@ -707,24 +707,42 @@ export default function DashboardPage() {
                         <SelectValue placeholder="Select a screener or rule..." />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">Show All Stocks</SelectItem>
+                        <SelectItem value="all">
+                          <span className="flex items-center">
+                            <List className="mr-2 h-4 w-4 text-muted-foreground" /> Show All Stocks
+                          </span>
+                        </SelectItem>
                         <SelectItem value="my-watchlist">
-                          <span className="flex items-center"><Star className="mr-2 h-4 w-4 text-yellow-400" /> My Watchlist</span>
+                          <span className="flex items-center">
+                            <Star className="mr-2 h-4 w-4 text-yellow-400" /> My Watchlist
+                          </span>
                         </SelectItem>
                         <SelectItem value="top-gainers" className="text-[hsl(var(--confirm-green))]">
-                            <span className="flex items-center"><TrendingUp className="mr-2 h-4 w-4" /> Top Gainers</span>
+                          <span className="flex items-center">
+                            <TrendingUp className="mr-2 h-4 w-4" /> Top Gainers
+                          </span>
                         </SelectItem>
                         <SelectItem value="top-losers" className="text-destructive">
-                             <span className="flex items-center"><TrendingDown className="mr-2 h-4 w-4" /> Top Losers</span>
+                          <span className="flex items-center">
+                            <TrendingDown className="mr-2 h-4 w-4" /> Top Losers
+                          </span>
                         </SelectItem>
                         <SelectItem value="active">
-                             <span className="flex items-center"><Activity className="mr-2 h-4 w-4" /> Most Active</span>
+                          <span className="flex items-center">
+                            <Activity className="mr-2 h-4 w-4 text-primary" /> Most Active
+                          </span>
                         </SelectItem>
                         <SelectItem value="52-week">
-                            <span className="flex items-center"><CalendarCheck2 className="mr-2 h-4 w-4" /> 52 Week Highs/Lows</span>
+                          <span className="flex items-center">
+                            <CalendarCheck2 className="mr-2 h-4 w-4 text-accent" /> 52 Week Highs/Lows
+                          </span>
                         </SelectItem>
                         {activeRules.map(rule => (
-                            <SelectItem key={rule.id} value={rule.id}>{rule.name}</SelectItem>
+                          <SelectItem key={rule.id} value={rule.id}>
+                            <span className="flex items-center">
+                              <Filter className="mr-2 h-4 w-4 text-foreground/80" /> {rule.name}
+                            </span>
+                          </SelectItem>
                         ))}
                     </SelectContent>
                   </Select>
@@ -834,3 +852,4 @@ export default function DashboardPage() {
     </main>
   );
 }
+
