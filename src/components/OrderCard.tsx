@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode, HistoryTradeMode } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, Bot, User, Cog, ListChecks, Lightbulb } from 'lucide-react';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Repeat, Clock4, Bot, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AiTradeCard } from '@/components/AiTradeCard';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
@@ -104,6 +104,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       setQuantityValue('');
       setDisplayedMiloContext(null);
       setIsAutopilotEnabled(false); 
+      // When stock is cleared, reset tradeMode to manual if it was triggered by Milo idea context
+      if (initialTradeMode === 'manual' && miloActionContextText) {
+        setTradeMode('manual');
+      }
     }
   }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText]); 
 
@@ -290,7 +294,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   };
 
   const getCardDescription = () => {
-    if (!selectedStock) return "Select ticker from screener";
+    if (!selectedStock) return "Select a stock from the screener";
     if (tradeMode === 'autopilot') return `Status for ${selectedStock.symbol}`;
     return `Current Price: $${selectedStock.price.toFixed(2)}`;
   };
@@ -373,207 +377,202 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
             </button>
           </div>
 
-          {tradeMode === 'manual' && selectedStock && (
+          {!selectedStock ? (
+            <div className="text-center py-12 text-muted-foreground flex flex-col items-center justify-center space-y-3">
+              <MousePointerSquareDashed className="h-12 w-12 opacity-50" />
+              <p className="text-sm">Select a stock from the screener to start trading.</p>
+            </div>
+          ) : (
             <>
-              {displayedMiloContext && (
-                <div className="mt-2 p-3 rounded-lg border border-dashed border-primary/30 bg-primary/5 text-sm">
-                  <h4 className="text-xs font-medium text-primary mb-1 flex items-center">
-                    <Lightbulb className="mr-1.5 h-3.5 w-3.5" /> Milo's Action Context:
-                  </h4>
-                  <p className="text-xs text-primary/80">{displayedMiloContext}</p>
-                </div>
-              )}
-              <div className="grid grid-cols-3 gap-2 mb-4">
-                  <Button
-                    onClick={() => handleActionSelect('Buy')}
-                    variant="outline"
-                    className={cn("flex-1", currentAction === 'Buy' ? buyButtonSelected : buyButtonBase, currentAction === 'Buy' && 'hover:text-[hsl(var(--confirm-green-foreground))]')}
-                    disabled={!selectedStock}
-                  >
-                    <TrendingUp className="mr-2 h-4 w-4" /> Buy
-                  </Button>
-                  <Button
-                    onClick={() => handleActionSelect('Sell')}
-                    variant="outline"
-                    className={cn("flex-1", currentAction === 'Sell' ? sellButtonSelected : sellButtonBase, currentAction === 'Sell' && 'hover:text-destructive-foreground')}
-                    disabled={!selectedStock}
-                  >
-                    <CircleSlash className="mr-2 h-4 w-4" /> Sell
-                  </Button>
-                  <Button
-                    onClick={() => handleActionSelect('Short')}
-                    variant="outline"
-                    className={cn("flex-1", currentAction === 'Short' ? shortButtonSelected : shortButtonBase, currentAction === 'Short' && 'hover:text-yellow-950')}
-                    disabled={!selectedStock}
-                  >
-                    <TrendingDown className="mr-2 h-4 w-4" /> Short
-                  </Button>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="quantityValue" className="text-sm font-medium text-foreground">
-                  <PackageOpen className="inline-block mr-1 h-4 w-4 text-muted-foreground" />
-                  Quantity ({quantityMode === 'DollarAmount' ? '$ Amount' : quantityMode === 'PercentOfBuyingPower' ? '% Buying Power' : 'Shares'})
-                </Label>
-                <div className="flex items-center rounded-md border border-input bg-transparent focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-background">
-                  <Input
-                    id="quantityValue"
-                    type="number"
-                    value={quantityValue}
-                    onChange={(e) => setQuantityValue(e.target.value)}
-                    placeholder={getQuantityInputPlaceholder()}
-                    disabled={!selectedStock}
-                    className="flex-1 h-9 bg-transparent px-3 py-2 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleQuantityMode}
-                    disabled={!selectedStock}
-                    className="h-8 w-8 mr-1 text-muted-foreground hover:text-primary shrink-0"
-                    type="button"
-                  >
-                    <Repeat className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {selectedStock && quantityValue && isValidQuantity && (
-                <div className="text-xs text-muted-foreground space-y-0.5">
-                  {quantityMode !== 'Shares' && finalSharesToSubmit > 0 && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Shares: {finalSharesToSubmit}</p>}
-                  {(quantityMode === 'Shares' || finalSharesToSubmit > 0) && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Cost: ${estimatedCost.toFixed(2)}</p>}
-                   {quantityMode === 'PercentOfBuyingPower' && <p className="text-xs text-muted-foreground">Using Buying Power: ${buyingPower.toLocaleString()}</p>}
-                </div>
-              )}
-               {!isValidQuantity && quantityValue && selectedStock && <p className="text-xs text-destructive">Please enter a valid positive quantity.</p>}
-
-              <div className="space-y-1.5">
-                <Label htmlFor="orderType" className="text-sm font-medium text-foreground">Order Type</Label>
-                <Select value={orderType} onValueChange={(value) => setOrderType(value as OrderSystemType)} disabled={!selectedStock}>
-                  <SelectTrigger id="orderType"><SelectValue placeholder="Select order type" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Market">Market</SelectItem><SelectItem value="Limit">Limit</SelectItem>
-                    <SelectItem value="Stop">Stop</SelectItem><SelectItem value="Stop Limit">Stop Limit</SelectItem>
-                    <SelectItem value="Trailing Stop">Trailing Stop</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="timeInForce" className="text-sm font-medium text-foreground">
-                  <Clock4 className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Time-in-Force
-                </Label>
-                <Select value={timeInForce} onValueChange={(value) => setTimeInForce(value)} disabled={!selectedStock}>
-                  <SelectTrigger id="timeInForce"><SelectValue placeholder="Select TIF" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Day">Day</SelectItem>
-                    <SelectItem value="GTC">Good-Til-Canceled (GTC)</SelectItem>
-                    <SelectItem value="IOC">Immediate or Cancel (IOC)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {(orderType === 'Limit' || orderType === 'Stop Limit') && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="limitPrice" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Limit Price</Label>
-                  <Input id="limitPrice" type="number" step="0.01" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} placeholder="e.g., 150.50" disabled={!selectedStock} className="bg-transparent" />
-                </div>
-              )}
-              {(orderType === 'Stop' || orderType === 'Stop Limit') && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="stopPrice" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Stop Price</Label>
-                  <Input id="stopPrice" type="number" step="0.01" value={stopPrice} onChange={(e) => setStopPrice(e.target.value)} placeholder="e.g., 149.00" disabled={!selectedStock} className="bg-transparent"/>
-                </div>
-              )}
-              {orderType === 'Trailing Stop' && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="trailingOffset" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Trailing Offset ($ or % points)</Label>
-                  <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="e.g., 1.5 (for $1.50 or 1.5%)" disabled={!selectedStock} className="bg-transparent"/>
-                </div>
-              )}
-
-              {selectedStock && (
+              {tradeMode === 'manual' && (
                 <>
-                  <Separator className="my-6 border-white/5" />
-                  <div className="space-y-2 text-sm">
-                      <h4 className="font-medium text-muted-foreground">Stock Info</h4>
-                      <div className="flex justify-between text-foreground"><span>Float:</span> <span>{selectedStock.float}M</span></div>
-                      <div className="flex justify-between text-foreground"><span>Volume:</span> <span>{selectedStock.volume.toFixed(1)}M</span></div>
-                      {selectedStock.newsSnippet && (
-                          <div className="pt-1">
-                              <p className="text-muted-foreground">Catalyst:</p>
-                              <p className="text-xs leading-tight text-foreground" title={selectedStock.newsSnippet}>{selectedStock.newsSnippet.substring(0,100)}{selectedStock.newsSnippet.length > 100 ? '...' : ''}</p>
-                          </div>
-                      )}
+                  {displayedMiloContext && (
+                    <div className="mt-2 p-3 rounded-lg border border-dashed border-primary/30 bg-primary/5 text-sm">
+                      <h4 className="text-xs font-medium text-primary mb-1 flex items-center">
+                        <Lightbulb className="mr-1.5 h-3.5 w-3.5" /> Milo's Action Context:
+                      </h4>
+                      <p className="text-xs text-primary/80">{displayedMiloContext}</p>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                      <Button
+                        onClick={() => handleActionSelect('Buy')}
+                        variant="outline"
+                        className={cn("flex-1", currentAction === 'Buy' ? buyButtonSelected : buyButtonBase, currentAction === 'Buy' && 'hover:text-[hsl(var(--confirm-green-foreground))]')}
+                        disabled={!selectedStock}
+                      >
+                        <TrendingUp className="mr-2 h-4 w-4" /> Buy
+                      </Button>
+                      <Button
+                        onClick={() => handleActionSelect('Sell')}
+                        variant="outline"
+                        className={cn("flex-1", currentAction === 'Sell' ? sellButtonSelected : sellButtonBase, currentAction === 'Sell' && 'hover:text-destructive-foreground')}
+                        disabled={!selectedStock}
+                      >
+                        <CircleSlash className="mr-2 h-4 w-4" /> Sell
+                      </Button>
+                      <Button
+                        onClick={() => handleActionSelect('Short')}
+                        variant="outline"
+                        className={cn("flex-1", currentAction === 'Short' ? shortButtonSelected : shortButtonBase, currentAction === 'Short' && 'hover:text-yellow-950')}
+                        disabled={!selectedStock}
+                      >
+                        <TrendingDown className="mr-2 h-4 w-4" /> Short
+                      </Button>
                   </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="quantityValue" className="text-sm font-medium text-foreground">
+                      <PackageOpen className="inline-block mr-1 h-4 w-4 text-muted-foreground" />
+                      Quantity ({quantityMode === 'DollarAmount' ? '$ Amount' : quantityMode === 'PercentOfBuyingPower' ? '% Buying Power' : 'Shares'})
+                    </Label>
+                    <div className="flex items-center rounded-md border border-input bg-transparent focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-background">
+                      <Input
+                        id="quantityValue"
+                        type="number"
+                        value={quantityValue}
+                        onChange={(e) => setQuantityValue(e.target.value)}
+                        placeholder={getQuantityInputPlaceholder()}
+                        disabled={!selectedStock}
+                        className="flex-1 h-9 bg-transparent px-3 py-2 border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={toggleQuantityMode}
+                        disabled={!selectedStock}
+                        className="h-8 w-8 mr-1 text-muted-foreground hover:text-primary shrink-0"
+                        type="button"
+                      >
+                        <Repeat className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {selectedStock && quantityValue && isValidQuantity && (
+                    <div className="text-xs text-muted-foreground space-y-0.5">
+                      {quantityMode !== 'Shares' && finalSharesToSubmit > 0 && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Shares: {finalSharesToSubmit}</p>}
+                      {(quantityMode === 'Shares' || finalSharesToSubmit > 0) && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Cost: ${estimatedCost.toFixed(2)}</p>}
+                       {quantityMode === 'PercentOfBuyingPower' && <p className="text-xs text-muted-foreground">Using Buying Power: ${buyingPower.toLocaleString()}</p>}
+                    </div>
+                  )}
+                   {!isValidQuantity && quantityValue && selectedStock && <p className="text-xs text-destructive">Please enter a valid positive quantity.</p>}
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="orderType" className="text-sm font-medium text-foreground">Order Type</Label>
+                    <Select value={orderType} onValueChange={(value) => setOrderType(value as OrderSystemType)} disabled={!selectedStock}>
+                      <SelectTrigger id="orderType"><SelectValue placeholder="Select order type" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Market">Market</SelectItem><SelectItem value="Limit">Limit</SelectItem>
+                        <SelectItem value="Stop">Stop</SelectItem><SelectItem value="Stop Limit">Stop Limit</SelectItem>
+                        <SelectItem value="Trailing Stop">Trailing Stop</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="timeInForce" className="text-sm font-medium text-foreground">
+                      <Clock4 className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Time-in-Force
+                    </Label>
+                    <Select value={timeInForce} onValueChange={(value) => setTimeInForce(value)} disabled={!selectedStock}>
+                      <SelectTrigger id="timeInForce"><SelectValue placeholder="Select TIF" /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Day">Day</SelectItem>
+                        <SelectItem value="GTC">Good-Til-Canceled (GTC)</SelectItem>
+                        <SelectItem value="IOC">Immediate or Cancel (IOC)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {(orderType === 'Limit' || orderType === 'Stop Limit') && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="limitPrice" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Limit Price</Label>
+                      <Input id="limitPrice" type="number" step="0.01" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} placeholder="e.g., 150.50" disabled={!selectedStock} className="bg-transparent" />
+                    </div>
+                  )}
+                  {(orderType === 'Stop' || orderType === 'Stop Limit') && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="stopPrice" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Stop Price</Label>
+                      <Input id="stopPrice" type="number" step="0.01" value={stopPrice} onChange={(e) => setStopPrice(e.target.value)} placeholder="e.g., 149.00" disabled={!selectedStock} className="bg-transparent"/>
+                    </div>
+                  )}
+                  {orderType === 'Trailing Stop' && (
+                    <div className="space-y-1.5">
+                      <Label htmlFor="trailingOffset" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Trailing Offset ($ or % points)</Label>
+                      <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="e.g., 1.5 (for $1.50 or 1.5%)" disabled={!selectedStock} className="bg-transparent"/>
+                    </div>
+                  )}
+
+                  {selectedStock && (
+                    <>
+                      <Separator className="my-6 border-white/5" />
+                      <div className="space-y-2 text-sm">
+                          <h4 className="font-medium text-muted-foreground">Stock Info</h4>
+                          <div className="flex justify-between text-foreground"><span>Float:</span> <span>{selectedStock.float}M</span></div>
+                          <div className="flex justify-between text-foreground"><span>Volume:</span> <span>{selectedStock.volume.toFixed(1)}M</span></div>
+                          {selectedStock.newsSnippet && (
+                              <div className="pt-1">
+                                  <p className="text-muted-foreground">Catalyst:</p>
+                                  <p className="text-xs leading-tight text-foreground" title={selectedStock.newsSnippet}>{selectedStock.newsSnippet.substring(0,100)}{selectedStock.newsSnippet.length > 100 ? '...' : ''}</p>
+                              </div>
+                          )}
+                      </div>
+                    </>
+                  )}
                 </>
+              )}
+              {tradeMode === 'ai' && (
+                 <AiTradeCard selectedStock={selectedStock} onSubmit={handleAISuggestionSubmit} buyingPower={buyingPower} />
+              )}
+              {tradeMode === 'autopilot' && (
+                <div className="space-y-4">
+                  <Card className="bg-transparent shadow-none border-none">
+                    <CardHeader className="p-0 pb-3">
+                      <CardTitle className="text-lg font-semibold text-foreground">Autopilot Mode Active</CardTitle>
+                      <CardDescription>Trades will be placed automatically based on your selected rules for {selectedStock.symbol}.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-0 space-y-3">
+                      <div>
+                        <h4 className="font-medium text-muted-foreground mb-2 flex items-center">
+                          <ListChecks className="mr-2 h-4 w-4 text-primary" /> Active Strategies (Examples)
+                        </h4>
+                        <ul className="space-y-2 text-sm">
+                          {dummyAutoRules.map(rule => (
+                            <li key={rule.id} className="p-2.5 rounded-md bg-black/10 border border-white/5">
+                              <p className="font-medium text-foreground">{rule.name}</p>
+                              <p className="text-xs text-muted-foreground">{rule.description}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                       <div className="space-y-1.5 !mt-4">
+                          <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-3 shadow-sm bg-black/10">
+                              <div className="space-y-0.5">
+                                  <Label htmlFor="autopilotSwitch" className="text-base font-medium text-foreground cursor-pointer">
+                                  Autopilot Enabled
+                                  </Label>
+                                   <p className="text-xs text-muted-foreground">
+                                  Allow Autopilot execution for {selectedStock.symbol}.
+                                  </p>
+                              </div>
+                              <Switch
+                                  id="autopilotSwitch"
+                                  checked={isAutopilotEnabled}
+                                  onCheckedChange={handleAutopilotSwitchChange}
+                              />
+                          </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                   <Link href="/rules">
+                      <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent-foreground">
+                          <Cog className="mr-2 h-4 w-4" /> Manage Rules & Strategies
+                      </Button>
+                  </Link>
+                </div>
               )}
             </>
           )}
-          {tradeMode === 'ai' && selectedStock && (
-             <AiTradeCard selectedStock={selectedStock} onSubmit={handleAISuggestionSubmit} buyingPower={buyingPower} />
-          )}
-          {tradeMode === 'ai' && !selectedStock && (
-            <div className="text-center py-10 text-muted-foreground">
-              <Bot className="mx-auto h-12 w-12 mb-4 opacity-50" />
-              <p>Select a stock to get AI suggestions.</p>
-            </div>
-          )}
-
-          {tradeMode === 'autopilot' && selectedStock && (
-            <div className="space-y-4">
-              <Card className="bg-transparent shadow-none border-none">
-                <CardHeader className="p-0 pb-3">
-                  <CardTitle className="text-lg font-semibold text-foreground">Autopilot Mode Active</CardTitle>
-                  <CardDescription>Trades will be placed automatically based on your selected rules for {selectedStock.symbol}.</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0 space-y-3">
-                  <div>
-                    <h4 className="font-medium text-muted-foreground mb-2 flex items-center">
-                      <ListChecks className="mr-2 h-4 w-4 text-primary" /> Active Strategies (Examples)
-                    </h4>
-                    <ul className="space-y-2 text-sm">
-                      {dummyAutoRules.map(rule => (
-                        <li key={rule.id} className="p-2.5 rounded-md bg-black/10 border border-white/5">
-                          <p className="font-medium text-foreground">{rule.name}</p>
-                          <p className="text-xs text-muted-foreground">{rule.description}</p>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                   <div className="space-y-1.5 !mt-4">
-                      <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-3 shadow-sm bg-black/10">
-                          <div className="space-y-0.5">
-                              <Label htmlFor="autopilotSwitch" className="text-base font-medium text-foreground cursor-pointer">
-                              Autopilot Enabled
-                              </Label>
-                               <p className="text-xs text-muted-foreground">
-                              Allow Autopilot execution for {selectedStock.symbol}.
-                              </p>
-                          </div>
-                          <Switch
-                              id="autopilotSwitch"
-                              checked={isAutopilotEnabled}
-                              onCheckedChange={handleAutopilotSwitchChange}
-                          />
-                      </div>
-                  </div>
-                </CardContent>
-              </Card>
-               <Link href="/rules">
-                  <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent-foreground">
-                      <Cog className="mr-2 h-4 w-4" /> Manage Rules & Strategies
-                  </Button>
-              </Link>
-            </div>
-          )}
-           {tradeMode === 'autopilot' && !selectedStock && (
-            <div className="text-center py-10 text-muted-foreground">
-              <Cog className="mx-auto h-12 w-12 mb-4 opacity-50" />
-              <p>Select a stock to configure Autopilot Mode settings.</p>
-            </div>
-          )}
-
 
         </CardContent>
         {tradeMode === 'manual' && selectedStock && (
@@ -608,4 +607,3 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     </>
   );
 }
-
