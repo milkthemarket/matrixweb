@@ -15,6 +15,7 @@ import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle
 import { cn } from '@/lib/utils';
 import { AiTradeCard } from '@/components/AiTradeCard';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
+import { AiAutoTradingWarningModal } from '@/components/AiAutoTradingWarningModal'; // Import new modal
 
 interface OrderCardProps {
   selectedStock: Stock | null;
@@ -55,7 +56,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const [trailingOffset, setTrailingOffset] = useState('');
   const [currentAction, setCurrentAction] = useState<OrderActionType | null>(null);
   const [timeInForce, setTimeInForce] = useState<string>('Day');
-  const [isAutoTradingEnabled, setIsAutoTradingEnabled] = useState(true);
+  const [isAutoTradingEnabled, setIsAutoTradingEnabled] = useState(false); // Default to false
   const [displayedMiloContext, setDisplayedMiloContext] = useState<string | null>(null);
 
   const [buyingPower] = useState<number>(MOCK_BUYING_POWER);
@@ -63,6 +64,11 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const [showManualTradeWarningModal, setShowManualTradeWarningModal] = useState(false);
   const [manualTradeDisclaimerAcknowledged, setManualTradeDisclaimerAcknowledged] = useState(false);
   const [pendingTradeDetails, setPendingTradeDetails] = useState<TradeRequest | null>(null);
+
+  // State for AI Auto-Trading Modal
+  const [showAiAutoTradingWarningModal, setShowAiAutoTradingWarningModal] = useState(false);
+  const [aiAutoTradingDisclaimerAcknowledged, setAiAutoTradingDisclaimerAcknowledged] = useState(false);
+
 
   useEffect(() => {
     if (initialTradeMode) {
@@ -78,13 +84,11 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   useEffect(() => {
     if (selectedStock) {
       if (tradeMode === 'manual') {
-         setCurrentAction(initialActionType); // This will be set by parent for Milo ideas
-         // If it's a Milo idea being loaded (indicated by initialTradeMode === 'manual' from parent), clear quantity
+         setCurrentAction(initialActionType); 
          if (initialTradeMode === 'manual') {
             setQuantityValue('');
          }
-         // Default other fields or let them persist unless specifically reset by Milo idea logic
-         if (initialTradeMode === 'manual' || !quantityValue) { // Reset if Milo or quantity is empty
+         if (initialTradeMode === 'manual' || !quantityValue) { 
             setOrderType('Market');
             setLimitPrice('');
             setStopPrice('');
@@ -92,22 +96,19 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
             setTimeInForce('Day');
          }
       }
-      if (initialTradeMode !== 'manual' && !miloActionContextText){ // Clear Milo context if not a Milo-triggered manual mode
+      if (initialTradeMode !== 'manual' && !miloActionContextText){ 
           setDisplayedMiloContext(null);
       }
 
-    } else { // Stock cleared
+    } else { 
       setCurrentAction(null);
       setQuantityValue('');
       setDisplayedMiloContext(null);
-      // Optionally reset tradeMode to 'manual' or let parent control via initialTradeMode
-      // if (initialTradeMode === undefined) setTradeMode('manual'); 
+      setIsAutoTradingEnabled(false); // Also disable auto-trading if stock is cleared
     }
-  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText]); // Added dependencies
+  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText]); 
 
   useEffect(() => {
-    // This effect ensures that if the card is switched to AI or Auto mode,
-    // or if no stock is selected, manual fields are cleared.
     if (tradeMode === 'ai' || tradeMode === 'auto' || !selectedStock) {
       setQuantityValue('');
       setOrderType('Market');
@@ -116,8 +117,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       setTrailingOffset('');
       setCurrentAction(null);
       setTimeInForce('Day');
-      // Do NOT clear displayedMiloContext here, as it might be relevant if switching back to manual shortly.
-      // It's cleared if selectedStock becomes null or if a new non-Milo stock is selected.
     }
   }, [tradeMode, selectedStock]);
 
@@ -189,8 +188,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     }
     
     let origin: HistoryTradeMode = 'manual';
-    if (tradeMode === 'ai') origin = 'aiAssist'; // If submission comes from AiTradeCard, it will set this
-    else if (tradeMode === 'auto') origin = 'fullyAI'; // Unlikely to submit from here for auto
+    if (tradeMode === 'ai') origin = 'aiAssist'; 
+    else if (tradeMode === 'auto') origin = 'fullyAI';
 
 
     const tradeDetails: TradeRequest = {
@@ -201,7 +200,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       TIF: timeInForce,
       rawQuantityValue: quantityValue,
       rawQuantityMode: quantityMode,
-      tradeModeOrigin: origin, // This will be 'manual' if submitted from this button
+      tradeModeOrigin: origin, 
     };
 
     if (orderType === 'Limit' || orderType === 'Stop Limit') {
@@ -228,18 +227,15 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       setShowManualTradeWarningModal(true);
     } else {
       onSubmit(tradeDetails);
-      // Reset quantity only if it's a manual submission, not AI which has its own flow
        if (tradeMode === 'manual') setQuantityValue(''); 
     }
   };
   
-  // This handler is for AiTradeCard's submit, which will set its own tradeModeOrigin
   const handleAISuggestionSubmit = (aiTradeDetails: TradeRequest) => {
-      onSubmit(aiTradeDetails); // aiTradeDetails already has tradeModeOrigin: 'aiAssist'
+      onSubmit(aiTradeDetails); 
   };
 
-
-  const handleConfirmAndPlaceTrade = (dontShowAgain: boolean) => {
+  const handleConfirmManualTrade = (dontShowAgain: boolean) => {
     if (dontShowAgain) {
       setManualTradeDisclaimerAcknowledged(true);
     }
@@ -255,10 +251,38 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     setPendingTradeDetails(null);
     setShowManualTradeWarningModal(false);
   };
+
+  const handleAutoTradingSwitchChange = (checked: boolean) => {
+    if (checked) { // Trying to enable
+      if (!aiAutoTradingDisclaimerAcknowledged) {
+        setShowAiAutoTradingWarningModal(true);
+        // Do NOT set isAutoTradingEnabled here, wait for modal confirmation
+      } else {
+        setIsAutoTradingEnabled(true);
+      }
+    } else { // Turning off
+      setIsAutoTradingEnabled(false);
+    }
+  };
+
+  const handleConfirmAiAutoTradingWarning = (dontShowAgain: boolean) => {
+    if (dontShowAgain) {
+      setAiAutoTradingDisclaimerAcknowledged(true);
+      // Here you might save this preference to localStorage or backend
+    }
+    setIsAutoTradingEnabled(true); // Now enable the feature
+    setShowAiAutoTradingWarningModal(false);
+  };
+
+  const handleCloseAiAutoTradingWarning = () => {
+    // If modal is closed without confirmation, ensure the switch is off
+    setIsAutoTradingEnabled(false); 
+    setShowAiAutoTradingWarningModal(false);
+  };
   
   const handleClearSelection = () => {
-    setDisplayedMiloContext(null); // Clear Milo context display
-    onClear(); // Call parent's clear handler
+    setDisplayedMiloContext(null); 
+    onClear(); 
   }
 
   const getCardTitle = () => {
@@ -534,7 +558,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                           <Switch
                               id="autoTradingSwitch"
                               checked={isAutoTradingEnabled}
-                              onCheckedChange={setIsAutoTradingEnabled}
+                              onCheckedChange={handleAutoTradingSwitchChange}
                           />
                       </div>
                   </div>
@@ -578,8 +602,14 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       <ManualTradeWarningModal
         isOpen={showManualTradeWarningModal}
         onClose={handleCancelManualTrade}
-        onConfirm={handleConfirmAndPlaceTrade}
+        onConfirm={handleConfirmManualTrade}
+      />
+      <AiAutoTradingWarningModal
+        isOpen={showAiAutoTradingWarningModal}
+        onClose={handleCloseAiAutoTradingWarning}
+        onConfirm={handleConfirmAiAutoTradingWarning}
       />
     </>
   );
 }
+
