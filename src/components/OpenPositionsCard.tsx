@@ -6,7 +6,8 @@ import type { OpenPosition, HistoryTradeMode } from '@/types';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
-import { XSquare, Briefcase, User, Bot, Cpu, Layers } from 'lucide-react'; // Added Layers
+import { XSquare, Briefcase, User, Layers, Cpu } from 'lucide-react'; // Added Layers, Cpu. Removed Bot.
+import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon'; // Added MiloAvatarIcon
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext'; 
@@ -18,7 +19,7 @@ type OpenPositionFilterMode = HistoryTradeMode | 'all';
 
 export function OpenPositionsCard({}: OpenPositionsCardProps) {
   const { openPositions, removeOpenPosition } = useOpenPositionsContext(); 
-  const [selectedOriginFilter, setSelectedOriginFilter] = useState<OpenPositionFilterMode>('all'); // Default to 'all'
+  const [selectedOriginFilter, setSelectedOriginFilter] = useState<OpenPositionFilterMode>('all'); 
 
   const handleClose = (position: OpenPosition) => {
     console.log("Closing position:", position);
@@ -69,7 +70,7 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
             className={cn(buttonBaseClass, selectedOriginFilter === 'aiAssist' ? activeModeClass : inactiveModeClass)}
             title="Show AI Assisted Trades"
           >
-            <Bot className="mr-1.5 h-3.5 w-3.5" /> AI Assist
+            <MiloAvatarIcon size={14} className="mr-1.5" /> AI Assist
           </button>
           <button
             onClick={() => setSelectedOriginFilter('autopilot')}
@@ -128,11 +129,17 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
             </Table>
           </ScrollArea>
         ) : (
-          <div className="text-center text-sm text-muted-foreground py-10 px-6">
-            <Briefcase className="mx-auto h-10 w-10 mb-2 opacity-50" />
-            {selectedOriginFilter === 'all' 
-              ? "No open positions." 
-              : `No open positions matching "${selectedOriginFilter}" filter.`}
+          <div className="text-center text-sm py-10 px-6">
+            <Briefcase className="mx-auto h-10 w-10 mb-3 opacity-50 text-muted-foreground" />
+            { (selectedOriginFilter === 'aiAssist' || selectedOriginFilter === 'autopilot') ? (
+              <p className="text-primary"> 
+                Milo’s looking for greener pastures—no trades just yet!
+              </p>
+            ) : selectedOriginFilter === 'all' ? (
+              <p className="text-muted-foreground">No open positions.</p>
+            ) : (
+              <p className="text-muted-foreground">{`No open positions matching "${selectedOriginFilter}" filter.`}</p>
+            )}
           </div>
         )}
       </CardContent>
@@ -146,4 +153,3 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
     </Card>
   );
 }
-
