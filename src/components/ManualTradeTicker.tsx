@@ -29,8 +29,8 @@ export function ManualTradeTicker() {
   const displayableTradesWithPnl = useMemo(() => {
     return openPositions
       .filter(pos => {
-        if (!hasMounted) return false; // Don't display until client mounted to avoid hydration issues with context
-        if (showManualTicker && (pos.origin === 'manual' || !pos.origin) ) return true; // Treat undefined origin as manual for display
+        if (!hasMounted) return false; 
+        if (showManualTicker && (pos.origin === 'manual' || !pos.origin) ) return true; 
         if (showAIAssistedTicker && pos.origin === 'aiAssist') return true;
         if (showFullyAITicker && pos.origin === 'fullyAI') return true;
         return false;
@@ -51,7 +51,7 @@ export function ManualTradeTicker() {
 
   const leftPaddingClass = !isMobile
     ? (sidebarState === 'expanded' ? 'pl-[16rem]' : 'pl-[3rem]')
-    : 'pl-4'; // Add some base padding for mobile
+    : 'pl-4'; 
 
   const tickerAnimationClass = `animate-ticker-${tickerSpeed}`;
 
@@ -69,18 +69,17 @@ export function ManualTradeTicker() {
     if (showManualTicker && activeTradeTypesCount === 1) return <Wrench className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />;
     if (showAIAssistedTicker && activeTradeTypesCount === 1) return <Bot className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />;
     if (showFullyAITicker && activeTradeTypesCount === 1) return <Cpu className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />;
-    // Default or mixed icon if multiple types are shown, or use a generic "live" icon
     return <Wrench className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />; 
   };
 
 
   return (
     <div className={cn(
-      "w-full bg-black/40 text-white text-xs border-b border-primary shadow-inner sticky top-0 z-20 h-7 flex items-center", // Added h-7 and flex items-center
-      leftPaddingClass // This padding is for the content area, not the bar itself if it's full-width
+      "w-full bg-black/40 text-white text-xs border-b border-primary shadow-inner sticky top-0 z-20 h-5 flex items-center", // Changed h-7 to h-5
+      leftPaddingClass 
     )}>
-      <div className="overflow-hidden whitespace-nowrap w-full"> {/* Ensure this takes up available width */}
-        <div className={cn("flex items-center pr-4", tickerAnimationClass)}> {/* Removed pl-4 md:pl-0, padding is handled by leftPaddingClass */}
+      <div className="overflow-hidden whitespace-nowrap w-full"> 
+        <div className={cn("flex items-center pr-4", tickerAnimationClass)}> 
           <MainIcon />
           <span className="font-medium mr-3 flex-shrink-0">{tickerMainLabel}</span>
           {displayableTradesWithPnl.map((trade, idx) => (
@@ -96,7 +95,6 @@ export function ManualTradeTicker() {
               {idx < displayableTradesWithPnl.length - 1 && <span className="text-muted-foreground mx-2">|</span>}
             </span>
           ))}
-           {/* Duplicate content to ensure smooth continuous scroll for marquee effect */}
           {displayableTradesWithPnl.length > 0 && <span className="text-muted-foreground mx-2 flex-shrink-0">|</span>}
           {displayableTradesWithPnl.map((trade, idx) => (
              <span
@@ -105,7 +103,7 @@ export function ManualTradeTicker() {
                 "mx-3 flex-shrink-0",
                 trade.pnl >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"
               )}
-              aria-hidden="true" // Hide clones from screen readers
+              aria-hidden="true" 
             >
               {getTradeOriginPrefix(trade.origin)} {trade.symbol}{' '}
               {trade.pnl >= 0 ? "+" : ""}${trade.pnl.toFixed(2)}
@@ -117,4 +115,3 @@ export function ManualTradeTicker() {
     </div>
   );
 }
-

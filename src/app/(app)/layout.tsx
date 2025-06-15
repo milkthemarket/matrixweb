@@ -19,9 +19,9 @@ export default function AppLayout({
       <TradeHistoryProvider>
         <SettingsProvider>
           <OpenPositionsProvider>
-            <div className="flex min-h-screen w-full flex-col pt-7"> {/* Outer flex-col for ticker, ADDED pt-7 */}
-              <ManualTradeTicker /> {/* Render ticker at the top, it will stick to top of this pt-7 box */}
-              <div className="flex flex-1"> {/* Inner flex for sidebar and content */}
+            <div className="flex min-h-screen w-full flex-col"> {/* Outer flex-col for ticker, REMOVED pt-7 */}
+              <ManualTradeTicker /> {/* Render ticker at the top, it will stick to top of this box */}
+              <div className="flex flex-1 pt-5"> {/* Inner flex for sidebar and content, CHANGED to pt-5 */}
                 <SidebarNav />
                 <SidebarInset className="flex flex-col flex-1 overflow-hidden">
                   {children}
@@ -34,4 +34,3 @@ export default function AppLayout({
     </AlertProvider>
   );
 }
-

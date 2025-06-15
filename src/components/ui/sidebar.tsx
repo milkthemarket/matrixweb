@@ -26,7 +26,7 @@ const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
-const TICKER_HEIGHT_REMS = "1.75rem"; // h-7 = 28px = 1.75rem
+const TICKER_HEIGHT_REMS = "1.25rem"; 
 
 type SidebarContext = {
   state: "expanded" | "collapsed"
@@ -185,28 +185,30 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, state, open, openMobile, setOpenMobile, hasMounted } = useSidebar()
+    const { isMobile, open: contextOpen, openMobile, setOpenMobile, hasMounted, state } = useSidebar();
 
     if (!hasMounted) {
-      const initialWidth = open ? 'var(--sidebar-width)' : 'var(--sidebar-width-icon)';
+      // For SSR/pre-hydration placeholder, assume the initial state is expanded.
+      // This aligns with SidebarProvider's defaultOpen = true.
+      // Client-side useEffect in SidebarProvider will adjust based on cookie/props.
+      const initialWidth = 'var(--sidebar-width)';
       return (
          <div
-          className={cn("hidden md:block shrink-0 sticky self-start", 
-                       `top-[${TICKER_HEIGHT_REMS}] h-[calc(100vh-${TICKER_HEIGHT_REMS})] z-10` // Ensure consistent placeholder positioning
+          className={cn("hidden md:block shrink-0 sticky self-start z-10",
+                       `top-[${TICKER_HEIGHT_REMS}] h-[calc(100vh-${TICKER_HEIGHT_REMS})]`
           )}
           style={{ width: initialWidth }}
-          data-comment="Sidebar placeholder for SSR/hydration"
         />
       );
     }
-    
+
 
     if (collapsible === "none") {
       return (
         <div
           className={cn(
             "flex h-full w-[--sidebar-width] flex-col bg-transparent backdrop-blur-md text-sidebar-foreground shadow-none",
-            `sticky top-[${TICKER_HEIGHT_REMS}] h-[calc(100vh-${TICKER_HEIGHT_REMS})] self-start z-10`, // Make non-collapsible sticky too
+            `sticky top-[${TICKER_HEIGHT_REMS}] h-[calc(100vh-${TICKER_HEIGHT_REMS})] self-start z-10`,
             className
           )}
           ref={ref}
@@ -225,7 +227,7 @@ const Sidebar = React.forwardRef<
             data-mobile="true"
             className={cn(
               "w-[--sidebar-width] bg-transparent backdrop-blur-md p-0 text-sidebar-foreground shadow-none [&>button]:hidden",
-              `!top-[${TICKER_HEIGHT_REMS}] !h-[calc(100%-${TICKER_HEIGHT_REMS})] !bottom-auto` // Override sheet defaults
+              `!top-[${TICKER_HEIGHT_REMS}] !h-[calc(100%-${TICKER_HEIGHT_REMS})] !bottom-auto`
             )}
             style={
               {
@@ -239,7 +241,7 @@ const Sidebar = React.forwardRef<
         </Sheet>
       )
     }
-    
+
     // Desktop Sidebar Logic
     return (
       <div
@@ -342,8 +344,7 @@ const SidebarInset = React.forwardRef<
     <main
       ref={ref}
       className={cn(
-        "relative flex min-h-0 flex-1 flex-col bg-transparent", // min-h-0 for flex child
-        // Removed peer styles as sticky positioning changes direct peer relationship for inset logic
+        "relative flex min-h-0 flex-1 flex-col bg-transparent", 
         className
       )}
       {...props}
@@ -378,7 +379,7 @@ const SidebarHeader = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="header"
-      className={cn("flex flex-col gap-2 p-4 group-data-[state=collapsed]:items-center", className)}
+      className={cn("flex flex-col gap-2 p-3 group-data-[state=collapsed]:items-center", className)}
       {...props}
     />
   )
@@ -778,5 +779,4 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
 
