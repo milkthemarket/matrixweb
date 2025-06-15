@@ -4,8 +4,8 @@
 import React, { useMemo } from 'react';
 import { useSettingsContext } from '@/contexts/SettingsContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
-import { Wrench, Cpu } from 'lucide-react'; 
-import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon'; // Changed Bot to MiloAvatarIcon
+import { Wrench, Cpu, Activity } from 'lucide-react'; 
+import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import type { HistoryTradeMode } from '@/types';
 import { cn } from '@/lib/utils';
 import { useSidebar } from '@/components/ui/sidebar';
@@ -46,6 +46,18 @@ export function ManualTradeTicker() {
       .sort((a, b) => new Date(b.id.replace('pos','')).getTime() - new Date(a.id.replace('pos','')).getTime()); 
   }, [openPositions, showManualTicker, showAIAssistedTicker, showAutopilotTicker, hasMounted]); 
 
+  const hasManual = useMemo(() => showManualTicker && displayableTradesWithPnl.some(t => (t.origin || 'manual') === 'manual'), [showManualTicker, displayableTradesWithPnl]);
+  const hasAiAssist = useMemo(() => showAIAssistedTicker && displayableTradesWithPnl.some(t => t.origin === 'aiAssist'), [showAIAssistedTicker, displayableTradesWithPnl]);
+  const hasAutopilot = useMemo(() => showAutopilotTicker && displayableTradesWithPnl.some(t => t.origin === 'autopilot'), [showAutopilotTicker, displayableTradesWithPnl]);
+
+  const activeLabels: string[] = [];
+  if (hasManual) activeLabels.push("Manual Trades:");
+  if (hasAiAssist) activeLabels.push("Assist Trades:");
+  if (hasAutopilot) activeLabels.push("Autopilot Trades:");
+
+  const tickerMainLabel = activeLabels.length > 0 ? activeLabels.join(" | ") : "Live Trades:";
+
+
   if (!hasMounted || displayableTradesWithPnl.length === 0) {
     return null;
   }
@@ -56,21 +68,15 @@ export function ManualTradeTicker() {
 
   const tickerAnimationClass = `animate-ticker-${tickerSpeed}`;
 
-  let tickerMainLabel = "Live Trades:";
-  const activeTradeTypesCount = [showManualTicker, showAIAssistedTicker, showAutopilotTicker].filter(Boolean).length;
-  
-  if (activeTradeTypesCount === 1) {
-    if (showManualTicker) tickerMainLabel = "Manual Trades:";
-    else if (showAIAssistedTicker) tickerMainLabel = "AI-Assisted Trades:";
-    else if (showAutopilotTicker) tickerMainLabel = "Autopilot Trades:"; 
-  }
-
 
   const MainIcon = () => {
-    if (showManualTicker && activeTradeTypesCount === 1) return <Wrench className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />;
-    if (showAIAssistedTicker && activeTradeTypesCount === 1) return <MiloAvatarIcon size={14} className="mr-2 text-primary flex-shrink-0" />; // Changed Bot to MiloAvatarIcon
-    if (showAutopilotTicker && activeTradeTypesCount === 1) return <Cpu className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />; 
-    return <Wrench className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />; 
+    if (activeLabels.length > 0) {
+      if (activeLabels[0].startsWith("Manual")) return <Wrench className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />;
+      if (activeLabels[0].startsWith("Assist")) return <MiloAvatarIcon size={14} className="mr-2 text-primary flex-shrink-0" />;
+      if (activeLabels[0].startsWith("Autopilot")) return <Cpu className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />;
+    }
+    // Fallback if activeLabels is empty but displayableTradesWithPnl has items (should be rare)
+    return <Activity className="h-3.5 w-3.5 mr-2 text-primary flex-shrink-0" />;
   };
 
 
