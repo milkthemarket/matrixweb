@@ -4,6 +4,7 @@ export type CatalystType = 'fire' | 'news';
 export interface Stock {
   id: string;
   symbol: string;
+  name?: string; // Added company name
   price: number;
   changePercent: number;
   float: number; // in millions
