@@ -62,7 +62,33 @@ const initialColumnConfiguration: ColumnConfig<Stock>[] = [
       </Popover>
     )
   },
-  { key: 'name', label: 'Name', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'left', defaultWidth: 180, description: "Company Name" },
+  {
+    key: 'name',
+    label: 'Name',
+    defaultVisible: true,
+    isToggleable: true,
+    isDraggable: true,
+    align: 'left',
+    defaultWidth: 180,
+    description: "Company Name",
+    format: (nameValue: string | undefined, stock) => {
+      const name = nameValue || stock.name || 'N/A'; // Use stock.name as fallback
+      return (
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="truncate w-full">
+                {name}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{name}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+  },
   { key: 'price', label: 'Price', defaultVisible: true, isToggleable: false, isDraggable: true, align: 'right', defaultWidth: 90, format: (val) => `$${formatDecimal(val)}` },
   { key: 'changePercent', label: '% Change', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 100, format: (val) => {
     const numVal = typeof val === 'number' ? val : 0;
@@ -682,7 +708,7 @@ export default function DashboardPage() {
               </div>
 
               <div className="rounded-xl overflow-auto flex-1">
-                <Table>
+                <Table className="table-layout-fixed">
                   <colgroup>
                     {displayedColumns.map(col => (
                       <col key={`coldef-${col.key as string}`} style={{ width: columnWidths[col.key as string] ? `${columnWidths[col.key as string]}px` : (col.defaultWidth ? `${col.defaultWidth}px` : 'auto') }} />
@@ -703,7 +729,7 @@ export default function DashboardPage() {
                             col.align === 'center' && "text-center",
                             col.isDraggable && "cursor-grab",
                             draggingOverKey === col.key && "bg-primary/20",
-                            "transition-colors duration-150 relative group" // Added relative and group for resize handle
+                            "transition-colors duration-150 relative group"
                           )}
                         >
                           <div className="flex items-center justify-between w-full">
@@ -784,3 +810,5 @@ export default function DashboardPage() {
     </main>
   );
 }
+
+
