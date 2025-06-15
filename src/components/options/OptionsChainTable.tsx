@@ -1,23 +1,26 @@
 
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import type { OptionContract, OptionOrderActionType } from '@/types';
 import { PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { OptionDetailPanel } from './OptionDetailPanel';
 
 interface OptionsChainTableProps {
   chainData: OptionContract[];
   underlyingPrice: number;
+  underlyingTicker: string; // Added to pass to detail panel
   onSelectContract: (contract: OptionContract) => void;
   tradeAction: OptionOrderActionType;
 }
 
-export function OptionsChainTable({ chainData, underlyingPrice, onSelectContract, tradeAction }: OptionsChainTableProps) {
-  
+export function OptionsChainTable({ chainData, underlyingPrice, underlyingTicker, onSelectContract, tradeAction }: OptionsChainTableProps) {
+  const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
+
   const findATMStrikeIndex = () => {
     if (!chainData || chainData.length === 0) return -1;
     let closestIndex = 0;
@@ -34,6 +37,10 @@ export function OptionsChainTable({ chainData, underlyingPrice, onSelectContract
 
   const atmIndex = findATMStrikeIndex();
 
+  const handleRowClick = (contractId: string) => {
+    setExpandedRowId(prevId => (prevId === contractId ? null : contractId));
+  };
+
   if (!chainData || chainData.length === 0) {
     return (
       <div className="flex items-center justify-center h-full text-muted-foreground">
@@ -44,7 +51,7 @@ export function OptionsChainTable({ chainData, underlyingPrice, onSelectContract
 
   return (
     <ScrollArea className="h-full w-full">
-      <Table className="min-w-max">
+      <Table className="min-w-max table-fixed"> {/* Ensure table-fixed for consistent column widths */}
         <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
           <TableRow>
             <TableHead className="w-[80px] text-center">Add</TableHead>
@@ -66,62 +73,73 @@ export function OptionsChainTable({ chainData, underlyingPrice, onSelectContract
             const isATM = index === atmIndex;
             const isITM = contract.type === 'Call' ? contract.strike < underlyingPrice : contract.strike > underlyingPrice;
             const isOTM = contract.type === 'Call' ? contract.strike > underlyingPrice : contract.strike < underlyingPrice;
+            const isExpanded = expandedRowId === contract.id;
 
             return (
-              <TableRow
-                key={contract.id}
-                className={cn(
-                  "hover:bg-white/10 transition-colors duration-150",
-                  isATM ? "bg-primary/10" : 
-                  isITM ? "bg-green-500/5" : 
-                  isOTM ? "bg-red-500/5" : ""
+              <React.Fragment key={contract.id}>
+                <TableRow
+                  className={cn(
+                    "hover:bg-white/10 transition-colors duration-150 cursor-pointer",
+                    isExpanded && "bg-primary/15", // Highlight for expanded row itself
+                    !isExpanded && isATM ? "bg-primary/10" : 
+                    !isExpanded && isITM ? "bg-green-500/5" : 
+                    !isExpanded && isOTM ? "bg-red-500/5" : ""
+                  )}
+                  onClick={() => handleRowClick(contract.id)}
+                >
+                  <TableCell className="text-center">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-primary hover:bg-primary/10"
+                      onClick={(e) => { e.stopPropagation(); onSelectContract(contract); }}
+                      title={`Add ${contract.type} @ ${contract.strike} to trade`}
+                    >
+                      <PlusCircle className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                  <TableCell className={cn("text-right font-medium", isATM && "text-primary font-bold")}>
+                    {contract.strike.toFixed(2)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                     <Button
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                          "h-7 px-2 font-mono",
+                          tradeAction === 'Buy' ? "text-orange-400 hover:bg-orange-400/10 hover:text-orange-300" : "text-foreground",
+                          "focus-visible:ring-orange-500 focus-visible:ring-offset-card"
+                      )}
+                      onClick={(e) => { e.stopPropagation(); onSelectContract(contract); }}
+                      title={`${tradeAction} ${contract.type} @ ${contract.strike} (Ask: ${contract.ask.toFixed(2)})`}
+                     >
+                      {contract.ask.toFixed(2)}
+                     </Button>
+                  </TableCell>
+                  <TableCell className="text-right font-mono">{contract.bid.toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-mono">{contract.lastPrice?.toFixed(2) || '-'}</TableCell>
+                  <TableCell className={cn("text-right font-mono", contract.change >= 0 ? 'text-green-400' : 'text-red-400')}>
+                    {contract.change.toFixed(2)}
+                  </TableCell>
+                  <TableCell className={cn("text-right font-mono", contract.percentChange >= 0 ? 'text-green-400' : 'text-red-400')}>
+                    {contract.percentChange.toFixed(2)}%
+                  </TableCell>
+                  <TableCell className="text-right font-mono">{contract.breakeven.toFixed(2)}</TableCell>
+                  <TableCell className={cn("text-right font-mono", contract.toBreakevenPercent && contract.toBreakevenPercent >= 0 ? 'text-green-400' : 'text-red-400')}>
+                    {contract.toBreakevenPercent?.toFixed(2) || '-'}%
+                  </TableCell>
+                  <TableCell className="text-right font-mono">{contract.volume?.toLocaleString() || '-'}</TableCell>
+                  <TableCell className="text-right font-mono">{contract.openInterest?.toLocaleString() || '-'}</TableCell>
+                  <TableCell className="text-right font-mono">{contract.impliedVolatility?.toFixed(1) || '-'}%</TableCell>
+                </TableRow>
+                {isExpanded && (
+                  <TableRow className="bg-black/20 hover:bg-black/25">
+                    <TableCell colSpan={12} className="p-0">
+                      <OptionDetailPanel contract={contract} underlyingTicker={underlyingTicker} />
+                    </TableCell>
+                  </TableRow>
                 )}
-              >
-                <TableCell className="text-center">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 text-primary hover:bg-primary/10"
-                    onClick={() => onSelectContract(contract)}
-                    title={`Add ${contract.type} @ ${contract.strike} to trade`}
-                  >
-                    <PlusCircle className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-                <TableCell className={cn("text-right font-medium", isATM && "text-primary font-bold")}>
-                  {contract.strike.toFixed(2)}
-                </TableCell>
-                <TableCell className="text-right">
-                   <Button
-                    variant="ghost"
-                    size="sm"
-                    className={cn(
-                        "h-7 px-2 font-mono",
-                        tradeAction === 'Buy' ? "text-orange-400 hover:bg-orange-400/10 hover:text-orange-300" : "text-foreground",
-                        "focus-visible:ring-orange-500 focus-visible:ring-offset-card"
-                    )}
-                    onClick={() => onSelectContract(contract)}
-                    title={`${tradeAction} ${contract.type} @ ${contract.strike} (Ask: ${contract.ask.toFixed(2)})`}
-                   >
-                    {contract.ask.toFixed(2)}
-                   </Button>
-                </TableCell>
-                <TableCell className="text-right font-mono">{contract.bid.toFixed(2)}</TableCell>
-                <TableCell className="text-right font-mono">{contract.lastPrice?.toFixed(2) || '-'}</TableCell>
-                <TableCell className={cn("text-right font-mono", contract.change >= 0 ? 'text-green-400' : 'text-red-400')}>
-                  {contract.change.toFixed(2)}
-                </TableCell>
-                <TableCell className={cn("text-right font-mono", contract.percentChange >= 0 ? 'text-green-400' : 'text-red-400')}>
-                  {contract.percentChange.toFixed(2)}%
-                </TableCell>
-                <TableCell className="text-right font-mono">{contract.breakeven.toFixed(2)}</TableCell>
-                <TableCell className={cn("text-right font-mono", contract.toBreakevenPercent && contract.toBreakevenPercent >= 0 ? 'text-green-400' : 'text-red-400')}>
-                  {contract.toBreakevenPercent?.toFixed(2) || '-'}%
-                </TableCell>
-                <TableCell className="text-right font-mono">{contract.volume?.toLocaleString() || '-'}</TableCell>
-                <TableCell className="text-right font-mono">{contract.openInterest?.toLocaleString() || '-'}</TableCell>
-                <TableCell className="text-right font-mono">{contract.impliedVolatility?.toFixed(1) || '-'}%</TableCell>
-              </TableRow>
+              </React.Fragment>
             );
           })}
         </TableBody>

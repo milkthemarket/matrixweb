@@ -64,7 +64,7 @@ export interface TradeLogEntry {
 }
 
 export type OrderActionType = 'Buy' | 'Sell' | 'Short';
-export type OptionOrderActionType = 'Buy' | 'Sell'; // Options typically Buy to Open/Close, Sell to Open/Close
+export type OptionOrderActionType = 'Buy' | 'Sell'; 
 export type OptionType = 'Call' | 'Put';
 export type OrderSystemType = 'Market' | 'Limit' | 'Stop' | 'Stop Limit' | 'Trailing Stop';
 export type QuantityInputMode = 'Shares' | 'DollarAmount' | 'PercentOfBuyingPower';
@@ -187,22 +187,21 @@ export interface Account {
 
 // Options Page Specific Types
 export interface OptionContract {
-  id: string; // Unique identifier for the contract, e.g., "SPY-20240617-C-600"
+  id: string; 
   strike: number;
-  type: OptionType; // 'Call' | 'Put'
-  expirationDate: string; // ISO string or human-readable like "June 17 (2d)"
-  daysToExpiration?: number;
+  type: OptionType; 
+  expirationDate: string; 
+  daysToExpiration: number; // Changed from optional to required
   ask: number;
   bid: number;
-  lastPrice?: number; // Last traded price of the option
-  change: number; // Dollar change in premium
-  percentChange: number; // Percentage change in premium
-  breakeven: number; // Breakeven price for the underlying at expiration
-  toBreakevenPercent?: number; // Percentage move needed for underlying to reach breakeven
+  lastPrice?: number; 
+  change: number; 
+  percentChange: number; 
+  breakeven: number; 
+  toBreakevenPercent?: number; 
   volume?: number;
   openInterest?: number;
-  impliedVolatility?: number; // IV in percentage
-  // Greeks - optional for now
+  impliedVolatility?: number; 
   delta?: number;
   gamma?: number;
   theta?: number;
@@ -219,9 +218,26 @@ export interface OptionsTickerInfo {
 
 export interface OptionTradeRequest {
   contract: OptionContract;
-  action: OptionOrderActionType; // 'Buy' or 'Sell'
-  quantity: number; // Number of contracts
-  orderType: 'Market' | 'Limit'; // Simplified for options
-  limitPrice?: number; // Required if orderType is 'Limit'
+  action: OptionOrderActionType; 
+  quantity: number; 
+  orderType: 'Market' | 'Limit'; 
+  limitPrice?: number; 
   accountId: string;
+}
+
+// Added for OptionDetailPanel
+export interface OptionContractDetails {
+  bidSize: number;
+  askSize: number;
+  mark: number;
+  high: number;
+  low: number;
+  previousClose: number;
+  lastTrade: number;
+  // Volume, OpenInterest, ImpliedVolatility can come from OptionContract
+  delta: number;
+  gamma: number;
+  theta: number;
+  vega: number;
+  rho: number;
 }
