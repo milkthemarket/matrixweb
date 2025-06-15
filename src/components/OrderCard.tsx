@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react'; // Added useRef
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(false);
   const [displayedMiloContext, setDisplayedMiloContext] = useState<string | null>(null);
   const [tickerInputValue, setTickerInputValue] = useState('');
+
+  const quantityInputRef = useRef<HTMLInputElement>(null); // Ref for the quantity input
 
   const selectedAccount = useMemo(() => {
     return accounts.find(acc => acc.id === selectedAccountId) || accounts[0];
@@ -115,7 +117,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       setDisplayedMiloContext(null);
       setIsAutopilotEnabled(false);
     }
-  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText, quantityValue]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedStock, initialActionType, tradeMode, initialTradeMode, miloActionContextText]); // Removed quantityValue to prevent loop with setQuantityValue inside
 
 
   const handleActionSelect = (action: OrderActionType) => {
@@ -125,6 +128,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const handleQuantityModeChange = (mode: QuantityInputMode) => {
     setQuantityMode(mode);
     setQuantityValue(''); // Reset input value when mode changes
+    quantityInputRef.current?.focus(); // Attempt to refocus the input
   };
 
   const getQuantityInputPlaceholder = () => {
@@ -464,6 +468,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                     </Label>
                     <div className="flex items-stretch space-x-1">
                       <Input
+                        ref={quantityInputRef}
                         id="quantityValue"
                         type="number"
                         value={quantityValue}
@@ -660,4 +665,3 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     </>
   );
 }
-
