@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Phone, Mail, CheckCircle2, XCircle, Save } from 'lucide-react';
+import { Phone, Mail, CheckCircle2, XCircle, Save, Settings } from 'lucide-react'; // Added Settings
 import { cn } from '@/lib/utils';
 
 interface AlertMethodsModalProps {
