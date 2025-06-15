@@ -184,13 +184,19 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile, hasMounted } = useSidebar()
+    const { isMobile, state, open, openMobile, setOpenMobile, hasMounted } = useSidebar()
 
     if (!hasMounted) {
-      // Return null or a placeholder skeleton to prevent hydration mismatch
-      // For now, null is safest to prevent structural differences.
-      // A placeholder could be: <div style={{ width: 'var(--sidebar-width-icon)' }} className="hidden md:block shrink-0" />;
-      return null;
+      // SSR and initial client render path.
+      // Render a consistent placeholder whose width depends on the initial 'open' state.
+      const initialWidth = open ? 'var(--sidebar-width)' : 'var(--sidebar-width-icon)';
+      return (
+        <div
+          className="hidden md:block shrink-0" // Ensures it's only visible on desktop and shrinks
+          style={{ width: initialWidth }}
+          data-comment="Sidebar placeholder for SSR/hydration"
+        />
+      );
     }
 
     if (collapsible === "none") {
@@ -227,8 +233,6 @@ const Sidebar = React.forwardRef<
         </Sheet>
       )
     }
-
-    const iconModeSidebarWidth = "calc(var(--sidebar-width-icon) + 2 * theme(spacing.2))"
 
     return (
       <div
@@ -588,7 +592,7 @@ const SidebarMenuButton = React.forwardRef<
       />
     )
 
-    if (!tooltip || !hasMounted) { // Also check hasMounted for tooltip
+    if (!tooltip || !hasMounted) { 
       return button
     }
 
@@ -780,3 +784,4 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+
