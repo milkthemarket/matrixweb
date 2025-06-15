@@ -25,32 +25,33 @@ const navItems = [
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
-// Inline SVG for the Cow/MILK logo
-const MilkLogoIcon = ({ className, size = 20 }: { className?: string; size?: number }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className={cn("lucide lucide-cow", className)}
-    width={size}
-    height={size}
-  >
-    <path d="M18.5 6C19.5 8.5 21 10.5 21 14.5C21 18.5 19.5 20.5 17 21.5" />
-    <path d="M15.5 4.5C14.5 7 13 9 13 13C13 17 14.5 19 17 20" />
-    <path d="M9 13.5c0-2 2-4 2-4" />
-    <path d="M5.5 20.5C5.5 17.5 8.5 15 11.5 15c0-2-2-3-2-3" />
-    <path d="M3 19c0-2 2.5-4 2.5-4" />
-    <path d="M7 14.1C7 12.5 4.5 12 4.5 9.5 4.5 7.5 6 6 6 6" />
-    <path d="M11.5 15c0 .5-.5 1.5-.5 1.5" />
-    <path d="M11 6.5c-1.5 0-1.5.5-1.5.5" />
-    <path d="M13 9c.1-.1.2-.3.2-.4" />
-    <path d="M4.5 9.5C4.5 9.5 3 8.5 3 7.5s.5-2 2.5-2" />
-  </svg>
-);
+// New local Cow component rendering an SVG
+const Cow = ({ size = 28, className, strokeWidth = 2.2 }: { size?: number; className?: string; strokeWidth?: number }) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24" // Using a common viewBox
+      fill="none"
+      stroke="currentColor" // Takes color from className (e.g., text-white)
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      {/* Simple cow head outline */}
+      <path d="M16 8.32C16 7.04 15.14 6 14.08 6H9.92C8.86 6 8 7.04 8 8.32V10.5h8V8.32z" />
+      <path d="M19 10.5H5C3.9 10.5 3 11.4 3 12.5v1C3 15.88 5.12 18 8 18h8c2.88 0 5-2.12 5-4.5v-1c0-1.1-.9-2-2-2z" />
+      {/* Horns */}
+      <path d="M9.5 6L8 3" />
+      <path d="M14.5 6L16 3" />
+      {/* Ears - simplified */}
+      <path d="M6.5 10.5C6 11 5.5 11.5 5.5 12.5" />
+      <path d="M17.5 10.5c.5.5 1 1 1 2" />
+    </svg>
+  );
+};
 
 
 export function SidebarNav() {
@@ -66,9 +67,9 @@ export function SidebarNav() {
           "group-data-[state=collapsed]:flex-col group-data-[state=collapsed]:items-center group-data-[state=collapsed]:gap-2"
         )}>
           <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 group-data-[state=collapsed]:justify-center hover:opacity-80 transition-opacity duration-150">
-            <MilkLogoIcon size={20} className="text-purple-500 flex-shrink-0" />
+            <Cow size={28} className="text-white flex-shrink-0" strokeWidth={2.2} />
             {open && state === 'expanded' && (
-              <span className="text-lg font-bold tracking-wide text-white font-headline truncate">M.I.L.K.</span>
+              <span className="text-2xl font-bold text-[#E5E5E5] tracking-widest font-headline truncate">M.I.L.K.</span>
             )}
           </Link>
           {!isMobile && (
