@@ -2,26 +2,51 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
-import type { TickerSpeed } from '@/types';
+import type { TickerSpeed, SoundOption, NotificationSoundEvent } from '@/types';
 
 interface SettingsContextState {
   showManualTicker: boolean;
   setShowManualTicker: (show: boolean) => void;
   showAIAssistedTicker: boolean;
   setShowAIAssistedTicker: (show: boolean) => void;
-  showAutopilotTicker: boolean; // Renamed from showFullyAITicker
-  setShowAutopilotTicker: (show: boolean) => void; // Renamed from setShowFullyAITicker
+  showAutopilotTicker: boolean;
+  setShowAutopilotTicker: (show: boolean) => void;
   tickerSpeed: TickerSpeed;
   setTickerSpeed: (speed: TickerSpeed) => void;
+  notificationSounds: Record<NotificationSoundEvent, SoundOption>;
+  setNotificationSound: (event: NotificationSoundEvent, sound: SoundOption) => void;
+  playSound: (sound: SoundOption) => void;
 }
 
 const SettingsContext = createContext<SettingsContextState | undefined>(undefined);
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const [showManualTicker, setShowManualTicker] = useState(false); 
-  const [showAIAssistedTicker, setShowAIAssistedTicker] = useState(true); 
-  const [showAutopilotTicker, setShowAutopilotTicker] = useState(true); // Renamed state variable
-  const [tickerSpeed, setTickerSpeed] = useState<TickerSpeed>('medium'); 
+  const [showManualTicker, setShowManualTicker] = useState(false);
+  const [showAIAssistedTicker, setShowAIAssistedTicker] = useState(true);
+  const [showAutopilotTicker, setShowAutopilotTicker] = useState(true);
+  const [tickerSpeed, setTickerSpeed] = useState<TickerSpeed>('medium');
+  const [notificationSounds, setNotificationSounds] = useState<Record<NotificationSoundEvent, SoundOption>>({
+    mooAlert: 'moo',
+    tradePlaced: 'chime',
+    tradeClosed: 'chime',
+  });
+
+  const setNotificationSound = (event: NotificationSoundEvent, sound: SoundOption) => {
+    setNotificationSounds(prev => ({ ...prev, [event]: sound }));
+  };
+
+  const playSound = (sound: SoundOption) => {
+    if (sound === 'off') return;
+    // In a real application, you would use the Audio API here.
+    // Example:
+    // const audio = new Audio(`/sounds/${sound}.mp3`); // Assuming sounds are in public/sounds
+    // audio.play().catch(error => console.error("Error playing sound:", error));
+    console.log(`Playing sound: ${sound}`);
+    // For "moo" specifically:
+    if (sound === 'moo') {
+        console.log("🐄 Moo! 🐄");
+    }
+  };
 
   return (
     <SettingsContext.Provider
@@ -30,10 +55,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setShowManualTicker,
         showAIAssistedTicker,
         setShowAIAssistedTicker,
-        showAutopilotTicker, // Updated
-        setShowAutopilotTicker, // Updated
+        showAutopilotTicker,
+        setShowAutopilotTicker,
         tickerSpeed,
         setTickerSpeed,
+        notificationSounds,
+        setNotificationSound,
+        playSound,
       }}
     >
       {children}

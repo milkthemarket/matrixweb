@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
 import { AiAutoTradingWarningModal } from '@/components/AiAutoTradingWarningModal';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
+import { useSettingsContext } from '@/contexts/SettingsContext'; // Import settings context
 
 interface OrderCardProps {
   selectedStock: Stock | null;
@@ -36,6 +37,7 @@ const dummyAutoRules = [
 
 export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear, initialTradeMode, miloActionContextText, onStockSymbolSubmit }: OrderCardProps) {
   const { selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
+  const { notificationSounds, playSound } = useSettingsContext(); // Get sound settings
 
   const [tradeMode, setTradeMode] = useState<TradeMode>(initialTradeMode || 'manual');
   const [quantityValue, setQuantityValue] = useState('');
@@ -70,6 +72,8 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   useEffect(() => {
     if (initialTradeMode) {
       setTradeMode(initialTradeMode);
+    } else {
+      setTradeMode('manual'); // Default to manual if no initial mode
     }
   }, [initialTradeMode]);
 
@@ -83,7 +87,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
         setTickerInputValue(selectedStock.symbol);
       }
     } else {
-      // Only clear ticker input if it's not focused, to allow user typing
       if (document.activeElement !== document.getElementById('tickerInput')) {
         setTickerInputValue('');
       }
@@ -140,21 +143,21 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const { finalSharesToSubmit, estimatedCost, isValidQuantity, validationMessage } = useMemo(() => {
     let shares = 0;
     let cost = 0;
-    let valid = true; 
+    let valid = true;
     let message = "";
     const stockPrice = selectedStock?.price || 0;
     const rawValue = parseFloat(quantityValue);
 
-    if (!selectedStock || !quantityValue) { 
-        valid = false; 
-        if (selectedStock && !quantityValue) message = "Enter quantity."; // Specific message if stock selected but no quantity
+    if (!selectedStock || !quantityValue) {
+        valid = false;
+        if (selectedStock && !quantityValue) message = "Enter quantity.";
     } else if (isNaN(rawValue) || rawValue <= 0) {
       message = "Please enter a valid positive number.";
       valid = false;
     } else {
       if (quantityMode === 'Shares') {
         shares = Math.floor(rawValue);
-        if (shares <= 0) { 
+        if (shares <= 0) {
           valid = false;
           message = "Number of shares must be positive.";
         }
@@ -220,7 +223,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       TIF: timeInForce,
       rawQuantityValue: quantityValue,
       rawQuantityMode: quantityMode,
-      tradeModeOrigin: origin, 
+      tradeModeOrigin: origin,
       accountId: selectedAccountId,
     };
 
@@ -243,12 +246,15 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       tradeDetails.trailingOffset = parseFloat(trailingOffset);
     }
     
-    if (selectedAccount?.type !== 'paper' && !manualTradeDisclaimerAcknowledged) {
+    if (selectedAccount?.type !== 'paper' && origin === 'manual' && !manualTradeDisclaimerAcknowledged) {
       setPendingTradeDetails(tradeDetails);
       setShowManualTradeWarningModal(true);
     } else {
       onSubmit(tradeDetails);
-      setQuantityValue(''); 
+      if (notificationSounds.tradePlaced !== 'off') {
+        playSound(notificationSounds.tradePlaced);
+      }
+      if (tradeDetails.tradeModeOrigin === 'manual' && !miloActionContextText) setQuantityValue('');
     }
   };
 
@@ -258,7 +264,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     }
     if (pendingTradeDetails) {
       onSubmit(pendingTradeDetails);
-      if (pendingTradeDetails.tradeModeOrigin === 'manual' && !miloActionContextText) setQuantityValue(''); 
+      if (notificationSounds.tradePlaced !== 'off') {
+        playSound(notificationSounds.tradePlaced);
+      }
+      if (pendingTradeDetails.tradeModeOrigin === 'manual' && !miloActionContextText) setQuantityValue('');
     }
     setPendingTradeDetails(null);
     setShowManualTradeWarningModal(false);
@@ -275,6 +284,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
         setShowAiAutopilotWarningModal(true);
       } else {
         setIsAutopilotEnabled(true);
+        // Simulate autopilot trade placed
+        if (notificationSounds.tradePlaced !== 'off') {
+            playSound(notificationSounds.tradePlaced);
+        }
       }
     } else {
       setIsAutopilotEnabled(false);
@@ -287,10 +300,14 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     }
     setIsAutopilotEnabled(true);
     setShowAiAutopilotWarningModal(false);
+    // Simulate autopilot trade placed after confirmation
+    if (notificationSounds.tradePlaced !== 'off') {
+        playSound(notificationSounds.tradePlaced);
+    }
   };
 
   const handleCloseAiAutopilotWarning = () => {
-    setIsAutopilotEnabled(false); 
+    setIsAutopilotEnabled(false);
     setShowAiAutopilotWarningModal(false);
   };
 
@@ -345,10 +362,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     <>
       <Card className="shadow-none flex flex-col h-full">
         <CardHeader className="relative pb-2 pt-4">
-          <CardTitle className="text-xl font-headline text-foreground mb-0"> 
+          <CardTitle className="text-xl font-headline text-foreground mb-0">
             Trade Panel
           </CardTitle>
-          <div className="space-y-3 p-3 rounded-lg border border-white/5 bg-black/5 mt-2"> 
+          <div className="space-y-3 p-3 rounded-lg border border-white/5 bg-black/5 mt-2">
             <div className="flex items-center gap-2">
               <Label htmlFor="accountSelect" className="text-sm font-medium text-muted-foreground shrink-0">Account:</Label>
               <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
@@ -557,29 +574,29 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
               <div className="space-y-2 text-sm">
                   <h4 className="font-medium text-muted-foreground">Stock Info for {selectedStock ? selectedStock.symbol : '—'}</h4>
                   <div className="flex justify-between text-foreground">
-                    <span>Last Price:</span> 
+                    <span>Last Price:</span>
                     <span>{selectedStock ? `$${selectedStock.price.toFixed(2)}` : '—'}</span>
                   </div>
                   <div className="flex justify-between text-foreground">
-                    <span>Float:</span> 
+                    <span>Float:</span>
                     <span>{selectedStock ? `${selectedStock.float}M` : '—'}</span>
                   </div>
                   <div className="flex justify-between text-foreground">
-                    <span>Volume:</span> 
+                    <span>Volume:</span>
                     <span>{selectedStock ? `${selectedStock.volume.toFixed(1)}M` : '—'}</span>
                   </div>
-                  {selectedStock?.newsSnippet || !selectedStock ? (
-                      <div className="pt-1">
-                          <p className="text-muted-foreground">Catalyst:</p>
-                          {selectedStock?.newsSnippet ? (
-                            <p className="text-xs leading-tight text-foreground" title={selectedStock.newsSnippet}>
-                              {selectedStock.newsSnippet.substring(0,100)}{selectedStock.newsSnippet.length > 100 ? '...' : ''}
-                            </p>
-                          ) : (
-                            <p className="text-xs leading-tight text-muted-foreground italic">Enter a ticker to see stock info.</p>
-                          )}
-                      </div>
-                  ) : null}
+                  <div className="pt-1">
+                      <p className="text-muted-foreground">Catalyst:</p>
+                      {selectedStock?.newsSnippet ? (
+                        <p className="text-xs leading-tight text-foreground" title={selectedStock.newsSnippet}>
+                          {selectedStock.newsSnippet.substring(0,100)}{selectedStock.newsSnippet.length > 100 ? '...' : ''}
+                        </p>
+                      ) : (
+                        <p className="text-xs leading-tight text-muted-foreground italic">
+                          {selectedStock ? (selectedStock.newsSnippet || 'No specific news snippet.') : 'Enter a ticker to see stock info.'}
+                        </p>
+                      )}
+                  </div>
               </div>
             </>
           )}
@@ -639,7 +656,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
           )}
         </CardContent>
         {tradeMode === 'manual' && (
-          <CardFooter className="mt-auto pt-4"> {/* Added mt-auto and pt-4 */}
+          <CardFooter className="mt-auto pt-4">
             <Button
               type="button"
               onClick={handleManualSubmit}
@@ -670,4 +687,3 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     </>
   );
 }
-

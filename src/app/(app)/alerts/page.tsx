@@ -14,6 +14,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { BellRing, Info, MailOpen, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AlertMethodsModal } from '@/components/AlertMethodsModal';
+import { useSettingsContext } from '@/contexts/SettingsContext'; // Import settings context
 
 const mockAlerts: TradeAlert[] = [
   { id: '1', symbol: 'TSLA', message: 'TSLA broke above $185.00 resistance.', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), source: 'Rule Engine' },
@@ -24,20 +25,21 @@ const mockAlerts: TradeAlert[] = [
 
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<TradeAlert[]>(mockAlerts);
-  const [currentTime, setCurrentTime] = useState<Date | null>(null); // Initialize with null
+  const [currentTime, setCurrentTime] = useState<Date | null>(null);
 
   const [receiveInAppAlerts, setReceiveInAppAlerts] = useState(true);
   const [sendSmsAlerts, setSendSmsAlerts] = useState(false);
   const [sendEmailAlerts, setSendEmailAlerts] = useState(false);
   const [isAlertMethodsModalOpen, setIsAlertMethodsModalOpen] = useState(false);
 
+  const { notificationSounds, playSound } = useSettingsContext(); // Get sound settings
+
   useEffect(() => {
-    setCurrentTime(new Date()); // Set initial time on client mount
-    const timer = setInterval(() => setCurrentTime(new Date()), 60000); // Update time every minute for relative timestamps
+    setCurrentTime(new Date());
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
 
-  // Simulate new alerts
   useEffect(() => {
     const newAlertInterval = setInterval(() => {
       const newAlert: TradeAlert = {
@@ -47,10 +49,16 @@ export default function AlertsPage() {
         timestamp: new Date().toISOString(),
         source: 'System Generated'
       };
-      setAlerts(prevAlerts => [newAlert, ...prevAlerts].slice(0, 20)); // Keep max 20 alerts
-    }, 30000); // New alert every 30 seconds
+      setAlerts(prevAlerts => [newAlert, ...prevAlerts].slice(0, 20));
+      
+      // Play sound for new Moo Alert
+      if (notificationSounds.mooAlert !== 'off') {
+        playSound(notificationSounds.mooAlert);
+      }
+
+    }, 30000);
     return () => clearInterval(newAlertInterval);
-  }, []);
+  }, [notificationSounds.mooAlert, playSound]);
 
 
   return (
@@ -137,7 +145,6 @@ export default function AlertsPage() {
               <CardDescription>Real-time notifications based on your rules and market events.</CardDescription>
             </CardHeader>
             <CardContent className="flex-1 overflow-hidden">
-              {/* Conditional rendering for ScrollArea content to ensure currentTime is available */}
               {currentTime && alerts.length > 0 ? (
                 <ScrollArea className="h-[calc(100%-0rem)] pr-4">
                   <ul className="space-y-4">

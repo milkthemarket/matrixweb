@@ -68,9 +68,11 @@ export type OptionOrderActionType = 'Buy' | 'Sell';
 export type OptionType = 'Call' | 'Put';
 export type OrderSystemType = 'Market' | 'Limit' | 'Stop' | 'Stop Limit' | 'Trailing Stop';
 export type QuantityInputMode = 'Shares' | 'DollarAmount' | 'PercentOfBuyingPower';
-export type TradeMode = 'manual' | 'ai' | 'autopilot';
+export type TradeMode = 'manual' | 'autopilot'; // Removed 'ai'
 export type HistoryTradeMode = 'manual' | 'aiAssist' | 'autopilot';
 export type TickerSpeed = 'slow' | 'medium' | 'fast';
+export type SoundOption = 'default' | 'chime' | 'bell' | 'moo' | 'off';
+export type NotificationSoundEvent = 'mooAlert' | 'tradePlaced' | 'tradeClosed';
 
 
 export interface TradeRequest {

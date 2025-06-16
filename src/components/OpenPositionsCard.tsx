@@ -11,6 +11,7 @@ import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
+import { useSettingsContext } from '@/contexts/SettingsContext'; // Import settings context
 
 interface OpenPositionsCardProps {
 }
@@ -19,11 +20,15 @@ type OpenPositionFilterMode = HistoryTradeMode | 'all';
 
 export function OpenPositionsCard({}: OpenPositionsCardProps) {
   const { openPositions, removeOpenPosition, selectedAccountId } = useOpenPositionsContext();
+  const { notificationSounds, playSound } = useSettingsContext(); // Get sound settings
   const [selectedOriginFilter, setSelectedOriginFilter] = useState<OpenPositionFilterMode>('all');
 
   const handleClose = (position: OpenPosition) => {
     console.log("Closing position:", position);
     removeOpenPosition(position.id);
+    if (notificationSounds.tradeClosed !== 'off') {
+      playSound(notificationSounds.tradeClosed);
+    }
   };
 
   const calculatePnl = (position: OpenPosition) => {
@@ -31,10 +36,8 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
   };
 
   const filteredPositions = useMemo(() => {
-    // First, filter by selectedAccountId
     const accountPositions = openPositions.filter(pos => pos.accountId === selectedAccountId);
 
-    // Then, filter by origin (manual, aiAssist, autopilot, or all)
     if (selectedOriginFilter === 'all') {
       return accountPositions;
     }

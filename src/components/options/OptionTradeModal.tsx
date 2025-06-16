@@ -18,7 +18,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { OptionContract, OptionOrderActionType, OptionTradeRequest } from '@/types';
 import { PackageOpen, Info, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext'; // For account selection
+import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
+import { useSettingsContext } from '@/contexts/SettingsContext'; // Import settings context
 
 interface OptionTradeModalProps {
   isOpen: boolean;
@@ -39,24 +40,25 @@ export function OptionTradeModal({
   underlyingPrice,
   onSubmit,
 }: OptionTradeModalProps) {
-  const [quantity, setQuantity] = useState('1'); // Default to 1 contract
+  const [quantity, setQuantity] = useState('1');
   const [orderType, setOrderType] = useState<'Market' | 'Limit'>('Market');
   const [limitPrice, setLimitPrice] = useState('');
   
   const { accounts, selectedAccountId, setSelectedAccountId } = useOpenPositionsContext();
+  const { notificationSounds, playSound } = useSettingsContext(); // Get sound settings
   
   const estimatedCost = useMemo(() => {
     if (!contract) return 0;
     const numQuantity = parseInt(quantity) || 0;
-    const pricePerContract = orderType === 'Limit' && limitPrice ? parseFloat(limitPrice) : contract.ask; // Use ask for market, or limit price
-    return numQuantity * pricePerContract * 100; // Options are typically for 100 shares
+    const pricePerContract = orderType === 'Limit' && limitPrice ? parseFloat(limitPrice) : contract.ask;
+    return numQuantity * pricePerContract * 100;
   }, [contract, quantity, orderType, limitPrice]);
 
   useEffect(() => {
     if (isOpen && contract) {
-      setQuantity('1'); // Reset quantity
+      setQuantity('1');
       setOrderType('Market');
-      setLimitPrice(contract.ask.toFixed(2)); // Pre-fill limit price with ask
+      setLimitPrice(contract.ask.toFixed(2));
     }
   }, [isOpen, contract]);
 
@@ -82,6 +84,9 @@ export function OptionTradeModal({
       accountId: selectedAccountId,
     };
     onSubmit(tradeDetails);
+    if (notificationSounds.tradePlaced !== 'off') {
+      playSound(notificationSounds.tradePlaced);
+    }
   };
 
   const actionColorClass = tradeAction === 'Buy' ? 'text-green-400' : 'text-red-400';
@@ -190,4 +195,3 @@ export function OptionTradeModal({
     </Dialog>
   );
 }
-
