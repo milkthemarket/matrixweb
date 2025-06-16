@@ -1,4 +1,6 @@
 
+"use client";
+
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 type PageHeaderProps = {
