@@ -89,6 +89,7 @@ const CriteriaIcon: React.FC<{ met: boolean; IconComponent: React.ElementType; l
 );
 
 const TooltipProviderWrapper: React.FC<{ content: string; children: React.ReactNode }> = ({ content, children }) => {
+  // Basic tooltip using title attribute for simplicity, can be replaced with ShadCN Tooltip if needed
   return <div title={content}>{children}</div>;
 };
 
@@ -172,6 +173,7 @@ const MooAlertsContent: React.FC = () => {
                 variant={Object.values(selectedCriteria).every(v => !v) ? "default" : "outline"}
                 onClick={handleShowAll}
                 className={cn(
+                  "h-8 px-3 text-xs",
                   Object.values(selectedCriteria).every(v => !v) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-white/5"
                 )}
               >
@@ -183,60 +185,58 @@ const MooAlertsContent: React.FC = () => {
                   variant={selectedCriteria[key] ? "default" : "outline"}
                   onClick={() => handleCriteriaToggle(key)}
                   className={cn(
-                    "flex items-center gap-1.5",
+                    "flex items-center gap-1.5 h-8 px-3 text-xs",
                     selectedCriteria[key] ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-white/5"
                   )}
                 >
-                  {Icon && <Icon className={cn("h-4 w-4", selectedCriteria[key] ? "text-primary-foreground" : "text-muted-foreground/80")} />}
+                  {Icon && <Icon className={cn("h-3.5 w-3.5", selectedCriteria[key] ? "text-primary-foreground" : "text-muted-foreground/80")} />}
                   {label}
                 </Button>
               ))}
             </div>
 
             {filteredAlerts.length > 0 ? (
-              <ScrollArea className="h-[calc(100vh-24rem)]"> {/* Adjust height as needed */}
-                <div className="space-y-3 pr-3">
+              <ScrollArea className="h-[calc(100vh-26rem)]"> {/* Adjusted height slightly */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-3">
                   {filteredAlerts.map(alert => (
-                    <Card key={alert.id} className="bg-black/20 border border-white/10 shadow-sm">
-                      <CardHeader className="p-3 pb-2">
-                        <div className="flex justify-between items-start gap-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-baseline gap-2 flex-wrap">
-                               <CardTitle className="text-lg font-semibold text-primary">{alert.symbol}</CardTitle>
-                               <span className="text-base font-mono text-foreground">${alert.currentPrice.toFixed(2)}</span>
+                    <Card key={alert.id} className="bg-black/20 border border-white/10 shadow-sm flex flex-col">
+                      <CardHeader className="p-3 pb-1.5"> {/* Reduced padding */}
+                        <div className="flex flex-col items-start gap-0.5">
+                           <div className="flex items-baseline gap-2 flex-wrap w-full">
+                               <CardTitle className="text-base font-semibold text-primary">{alert.symbol}</CardTitle>
+                               <span className="text-sm font-mono text-foreground">${alert.currentPrice.toFixed(2)}</span>
                                {alert.premarketChangePercent !== undefined && (
-                                  <span className={cn("text-sm font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
+                                  <span className={cn("text-xs font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
                                   Pre: {alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%
                                   </span>
                               )}
                             </div>
-                             <div className="flex items-center gap-2 mt-0.5">
+                             <div className="flex items-center gap-2">
                                 <Badge variant="outline" className={cn("text-xs py-0.5 px-1.5 h-auto", getSentimentBadgeClass(alert.sentiment))}>
                                   {alert.sentiment}
                                 </Badge>
                                 <p className="text-xs text-muted-foreground">{alert.time}</p>
                               </div>
                           </div>
-                        </div>
                       </CardHeader>
-                      <CardContent className="p-3 pt-1 space-y-2">
-                        <p className="text-sm text-foreground leading-snug">{alert.headline}</p>
+                      <CardContent className="p-3 pt-1.5 space-y-1.5 flex-1"> {/* Reduced padding and space */}
+                        <p className="text-sm text-foreground leading-snug line-clamp-2">{alert.headline}</p> {/* line-clamp for consistent height */}
                         
-                        <div className="flex items-center space-x-2.5 pt-1">
+                        <div className="flex items-center space-x-2 pt-0.5"> {/* Reduced space, pt */}
                           <CriteriaIcon met={alert.criteria.news} IconComponent={Newspaper} label="Positive News" />
                           <CriteriaIcon met={alert.criteria.volume} IconComponent={BarChartBig} label="High Pre-market Volume" />
                           <CriteriaIcon met={alert.criteria.chart} IconComponent={LineChart} label="Clean Chart Structure" />
                           <CriteriaIcon met={alert.criteria.shortable} IconComponent={TrendingDown} label="Shortable" activeColorClass="text-yellow-400" />
                         </div>
-
-                        <div className="flex items-center justify-end space-x-2 pt-1">
-                          <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent h-8 px-2.5">
+                        
+                        <div className="flex items-center space-x-2 pt-1.5"> {/* Buttons row, reduced pt */}
+                           <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent h-7 px-2 text-xs">
                             <Link href={`/dashboard?ticker=${alert.symbol}`}>
-                              <Send className="mr-1.5 h-3.5 w-3.5" /> Send
+                              <Send className="mr-1 h-3 w-3" /> Send
                             </Link>
                           </Button>
-                          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-8 px-2.5">
-                            <AlertCircle className="mr-1.5 h-3.5 w-3.5" /> Alert
+                          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-7 px-2 text-xs">
+                            <AlertCircle className="mr-1 h-3 w-3" /> Alert
                           </Button>
                         </div>
                       </CardContent>
@@ -281,3 +281,4 @@ export default function MooAlertsPage() {
     </Suspense>
   );
 }
+
