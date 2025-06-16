@@ -19,23 +19,23 @@ const mockTickerInfo: OptionsTickerInfo = {
   lastPrice: 543.10,
   priceChange: -3.45,
   priceChangePercent: -0.63,
-  marketStatus: 'Late Close',
+  marketStatus: 'Market Open', // Changed from Late Close for realism
 };
 
 const mockExpirations = [
-  { value: '2024-06-21', label: 'June 21, 2024 (2d)', daysRemaining: 2 },
-  { value: '2024-06-28', label: 'June 28, 2024 (9d)', daysRemaining: 9 },
-  { value: '2024-07-05', label: 'July 5, 2024 (16d)', daysRemaining: 16 },
-  { value: '2024-07-19', label: 'July 19, 2024 (30d)', daysRemaining: 30 },
+  { value: '2024-06-21', label: 'June 21, 2024 (0d)', daysRemaining: 0 },
+  { value: '2024-06-28', label: 'June 28, 2024 (7d)', daysRemaining: 7 },
+  { value: '2024-07-05', label: 'July 5, 2024 (14d)', daysRemaining: 14 },
+  { value: '2024-07-19', label: 'July 19, 2024 (28d)', daysRemaining: 28 },
 ];
 
 const generateMockOptionsChain = (underlyingPrice: number, expirationDate: string, type: OptionType, daysRemaining: number): OptionContract[] => {
   const chain: OptionContract[] = [];
-  const numStrikes = 20; 
-  const strikeIncrement = underlyingPrice > 200 ? 5 : (underlyingPrice > 50 ? 2.5 : 1);
+  const numStrikes = 15; // Generate 15 strikes
+  const strikeIncrement = underlyingPrice > 200 ? 1 : (underlyingPrice > 50 ? 0.5 : 0.25); // Smaller increments for SPY
   const baseStrike = Math.round(underlyingPrice / strikeIncrement) * strikeIncrement;
 
-  for (let i = -Math.floor(numStrikes / 3) ; i < Math.ceil(numStrikes * 2 / 3); i++) {
+  for (let i = -Math.floor(numStrikes / 2) ; i <= Math.floor(numStrikes / 2); i++) {
     const strike = baseStrike + i * strikeIncrement;
     if (strike <= 0) continue;
 
@@ -43,37 +43,53 @@ const generateMockOptionsChain = (underlyingPrice: number, expirationDate: strin
     const moneyness = isCall ? underlyingPrice - strike : strike - underlyingPrice;
     
     let intrinsicValue = Math.max(0, moneyness);
-    let extrinsicValue = Math.max(0.1, (Math.random() * 2 + 0.5) * (1 - Math.abs(i) / numStrikes) * (Math.sqrt(underlyingPrice) / 10) * (Math.sqrt(daysRemaining / 30)));
+    // More realistic extrinsic value: higher for ATM, lower for deep ITM/OTM, decays with time
+    let extrinsicValueFactor = (1 - Math.abs(i) / (numStrikes / 1.5)); // Peaked at ATM
+    extrinsicValueFactor = Math.max(0.1, extrinsicValueFactor); // ensure some extrinsic
+    let timeDecayFactor = Math.sqrt(Math.max(1, daysRemaining) / 30); // Sqrt for non-linear decay, ensure daysRemaining > 0 for calc
     
-    if ((isCall && strike < underlyingPrice * 0.8) || (!isCall && strike > underlyingPrice * 1.2)) {
-        extrinsicValue *= 0.5;
-    }
-    extrinsicValue = Math.max(0.01, extrinsicValue);
+    let extrinsicValue = Math.max(0.01, (Math.random() * 0.5 + 0.2) * extrinsicValueFactor * timeDecayFactor * (underlyingPrice * 0.005));
 
-    const ask = parseFloat((intrinsicValue + extrinsicValue).toFixed(2));
-    const bid = parseFloat(Math.max(0.01, ask - Math.random() * 0.1 * ask - 0.05).toFixed(2));
-    const change = parseFloat(((Math.random() - 0.45) * ask * 0.2).toFixed(2));
-    const lastPrice = parseFloat(Math.max(0.01, (ask - change)).toFixed(2)); 
-    const percentChange = lastPrice > 0 ? parseFloat(((change / lastPrice) * 100).toFixed(2)) : 0;
+    // Reduce extrinsic for very deep ITM/OTM
+    if (Math.abs(underlyingPrice - strike) > underlyingPrice * 0.1) {
+        extrinsicValue *= 0.3;
+    }
+    extrinsicValue = parseFloat(Math.max(0.01, extrinsicValue).toFixed(2));
+
+    const price = parseFloat((intrinsicValue + extrinsicValue).toFixed(2));
+    
+    const bidAskSpread = Math.max(0.01, price * (0.02 + Math.random() * 0.03)); // 2-5% spread
+    const ask = parseFloat((price + bidAskSpread / 2).toFixed(2));
+    const bid = parseFloat(Math.max(0.01, (price - bidAskSpread / 2)).toFixed(2));
+    
+    const changeDirection = Math.random() < 0.5 ? -1 : 1;
+    const changeMagnitude = price * (Math.random() * 0.1 + 0.05); // 5-15% change
+    const change = parseFloat((changeDirection * changeMagnitude).toFixed(2));
+    
+    const lastPriceCand = parseFloat((price - change).toFixed(2));
+    const lastPrice = lastPriceCand > 0.01 ? lastPriceCand : undefined; // Can be undefined
+
+    const percentChange = lastPrice && lastPrice > 0.01 ? parseFloat(((change / lastPrice) * 100).toFixed(2)) : (Math.random() - 0.5) * 100; // Random if no last
+    
     const breakeven = isCall ? strike + ask : strike - ask;
-    const toBreakevenPercent = underlyingPrice > 0 ? parseFloat(((breakeven - underlyingPrice) / underlyingPrice * 100).toFixed(2)) : 0;
+    const toBreakevenPercent = underlyingPrice > 0 ? parseFloat(((breakeven - underlyingPrice) / underlyingPrice * 100).toFixed(2)) : undefined;
 
     chain.push({
-      id: `${mockTickerInfo.symbol}-${expirationDate.replace(/-/g, '')}-${type[0]}${strike.toFixed(0).replace('.', '')}`, // Unique ID
+      id: `${mockTickerInfo.symbol}-${expirationDate.replace(/-/g, '')}-${type[0]}${strike.toFixed(0).replace('.', '')}`,
       strike,
       type,
       expirationDate: expirationDate,
       daysToExpiration: daysRemaining,
       ask,
       bid,
-      lastPrice: lastPrice > 0.01 ? lastPrice : undefined,
+      lastPrice,
       change,
       percentChange,
       breakeven: parseFloat(breakeven.toFixed(2)),
       toBreakevenPercent,
-      volume: Math.floor(Math.random() * 2000 + 50),
-      openInterest: Math.floor(Math.random() * 10000 + 100),
-      impliedVolatility: parseFloat((Math.random() * 30 + 15).toFixed(2)),
+      volume: Math.floor(Math.random() * 1500 + (isCall && strike > underlyingPrice - 5 && strike < underlyingPrice + 5 ? 500 : 50)), // Higher volume for ATM
+      openInterest: Math.floor(Math.random() * 5000 + (isCall && strike > underlyingPrice - 5 && strike < underlyingPrice + 5 ? 1000 : 100)),
+      impliedVolatility: parseFloat((Math.random() * 15 + 10 + (5 * extrinsicValueFactor)).toFixed(2)), // IV higher for ATM
     });
   }
   return chain.sort((a,b) => a.strike - b.strike);
@@ -83,7 +99,7 @@ const generateMockOptionsChain = (underlyingPrice: number, expirationDate: strin
 export default function OptionsPage() {
   const [tickerInfo, setTickerInfo] = useState<OptionsTickerInfo>(mockTickerInfo);
   const [tradeAction, setTradeAction] = useState<OptionOrderActionType>('Buy');
-  const [optionType, setOptionType] = useState<OptionType>('Call');
+  const [optionType, setOptionType] = useState<OptionType>('Call'); // Default to Call
   const [selectedExpiration, setSelectedExpiration] = useState<string>(mockExpirations[0].value);
   
   const [optionsChain, setOptionsChain] = useState<OptionContract[]>([]);
@@ -100,14 +116,15 @@ export default function OptionsPage() {
     const currentExpirationDetails = mockExpirations.find(exp => exp.value === selectedExpiration);
     if (currentExpirationDetails) {
       // Simulate data fetching delay
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         const chain = generateMockOptionsChain(tickerInfo.lastPrice, selectedExpiration, optionType, currentExpirationDetails.daysRemaining);
         setOptionsChain(chain);
         setIsChainDataReady(true); 
-      }, 500); // 500ms delay
+      }, 300); // Reduced delay
+      return () => clearTimeout(timer);
     } else {
       setOptionsChain([]); 
-      setIsChainDataReady(true); // Set to true even if no details found, to stop loading state
+      setIsChainDataReady(true);
     }
   }, [tickerInfo.lastPrice, selectedExpiration, optionType]);
 
@@ -128,7 +145,7 @@ export default function OptionsPage() {
   useEffect(() => {
     const tableContainer = tableContainerRef.current;
     if (!tableContainer || !isChainDataReady) {
-      setStickyPricePillVisible(false); // Ensure it's hidden if data not ready or no container
+      setStickyPricePillVisible(false);
       return;
     }
 
@@ -136,18 +153,22 @@ export default function OptionsPage() {
       const tableHeader = tableContainer.querySelector('thead');
       if (tableHeader) {
         const tableHeaderBottom = tableHeader.getBoundingClientRect().bottom;
-        // Adjust the threshold (e.g., +60) if your header or sticky pill height changes
         setStickyPricePillVisible(tableHeaderBottom < (tableContainer.getBoundingClientRect().top + 60)); 
       } else {
         setStickyPricePillVisible(false); 
       }
     };
     
-    handleScroll(); // Initial check
-
-    tableContainer.addEventListener('scroll', handleScroll);
-    return () => tableContainer.removeEventListener('scroll', handleScroll);
-  }, [isChainDataReady]); 
+    if (isChainDataReady) { // Only attach listener if data is ready and table might be visible
+      handleScroll(); 
+      tableContainer.addEventListener('scroll', handleScroll);
+    }
+    return () => {
+      if (tableContainer) { // Check if tableContainer is still valid during cleanup
+         tableContainer.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [isChainDataReady]);
 
 
   const buttonBaseClass = "h-10 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background rounded-md";
@@ -176,7 +197,9 @@ export default function OptionsPage() {
                     {tickerInfo.priceChange >= 0 ? '+' : ''}{tickerInfo.priceChange.toFixed(2)} ({tickerInfo.priceChangePercent.toFixed(2)}%)
                   </p>
                 </div>
+                {/* Removed Market Status Badge */}
               </div>
+              {/* Removed SlidersHorizontal icon from Price History Button */}
               <Button variant="outline" className="border-accent text-accent hover:bg-accent/10">
                 <AreaChart className="mr-2 h-4 w-4" /> Price History
               </Button>
@@ -259,15 +282,9 @@ export default function OptionsPage() {
             {!isChainDataReady ? (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                     <Loader2 className="h-10 w-10 animate-spin mb-4 text-primary" />
-                    <p>Loading options data...</p>
+                    <p>Loading options data for {optionType}s...</p>
                 </div>
-            ) : optionsChain.length === 0 && isChainDataReady ? ( // Added condition for empty chain but data is "ready"
-                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                    <SlidersHorizontal className="h-12 w-12 mb-4 opacity-50" />
-                    <p>No options data available for the selected criteria.</p>
-                    <p>Try a different expiration or ticker.</p>
-                </div>
-            ) : (
+            ) : ( // Data is ready, now check if optionsChain is empty or not
                 <OptionsChainTable
                   chainData={optionsChain}
                   underlyingPrice={tickerInfo.lastPrice}
