@@ -26,7 +26,7 @@ const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 const SIDEBAR_WIDTH_ICON = "3rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
-const TICKER_HEIGHT_REMS = "1.25rem"; 
+// const TICKER_HEIGHT_REMS = "1.25rem"; // This constant will be effectively replaced by direct values
 
 type SidebarContext = {
   state: "expanded" | "collapsed"
@@ -188,14 +188,11 @@ const Sidebar = React.forwardRef<
     const { isMobile, open: contextOpen, openMobile, setOpenMobile, hasMounted, state } = useSidebar();
 
     if (!hasMounted) {
-      // For SSR/pre-hydration placeholder, assume the initial state is expanded.
-      // This aligns with SidebarProvider's defaultOpen = true.
-      // Client-side useEffect in SidebarProvider will adjust based on cookie/props.
       const initialWidth = 'var(--sidebar-width)';
       return (
          <div
           className={cn("hidden md:block shrink-0 sticky self-start z-10",
-                       `top-[${TICKER_HEIGHT_REMS}] h-[calc(100vh-${TICKER_HEIGHT_REMS})]`
+                       "top-5 h-[calc(100vh-1.25rem)]" // Updated
           )}
           style={{ width: initialWidth }}
         />
@@ -208,7 +205,7 @@ const Sidebar = React.forwardRef<
         <div
           className={cn(
             "flex h-full w-[--sidebar-width] flex-col bg-transparent backdrop-blur-md text-sidebar-foreground shadow-none",
-            `sticky top-[${TICKER_HEIGHT_REMS}] h-[calc(100vh-${TICKER_HEIGHT_REMS})] self-start z-10`,
+            "sticky top-5 h-[calc(100vh-1.25rem)] self-start z-10", // Updated
             className
           )}
           ref={ref}
@@ -227,7 +224,7 @@ const Sidebar = React.forwardRef<
             data-mobile="true"
             className={cn(
               "w-[--sidebar-width] bg-transparent backdrop-blur-md p-0 text-sidebar-foreground shadow-none [&>button]:hidden",
-              `!top-[${TICKER_HEIGHT_REMS}] !h-[calc(100%-${TICKER_HEIGHT_REMS})] !bottom-auto`
+              "!top-5 !h-[calc(100%-1.25rem)] !bottom-auto" // Updated
             )}
             style={
               {
@@ -248,7 +245,7 @@ const Sidebar = React.forwardRef<
         ref={ref}
         className={cn(
           "group hidden md:flex flex-col text-sidebar-foreground sticky self-start z-10",
-          `top-[${TICKER_HEIGHT_REMS}] h-[calc(100vh-${TICKER_HEIGHT_REMS})]`,
+          "top-5 h-[calc(100vh-1.25rem)]", // Updated
           "duration-200 transition-[width] ease-linear",
           "w-[var(--sidebar-width)]",
           // Collapsed state widths
@@ -779,4 +776,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
