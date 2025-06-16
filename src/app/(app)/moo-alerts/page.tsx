@@ -76,35 +76,48 @@ const CriteriaIcon: React.FC<{ met: boolean; IconComponent: React.ElementType; l
   </TooltipProviderWrapper>
 );
 
-// Tooltip needs to be a client component or wrapped to avoid issues with Suspense
 const TooltipProviderWrapper: React.FC<{ content: string; children: React.ReactNode }> = ({ content, children }) => {
-  // This is a simplified wrapper. In a real app, you might use ShadCN's Tooltip if it's compatible
-  // or a custom lightweight tooltip solution. For now, it just renders children.
-  // To use ShadCN's Tooltip, you would import Tooltip, TooltipTrigger, TooltipContent, TooltipProvider
-  // from '@/components/ui/tooltip' and structure it appropriately.
-  // Since Tooltip often relies on client-side JS for positioning, directly using it here
-  // might require this wrapper to be a client component itself or carefully managed.
-  // For simplicity, I'm omitting full Tooltip implementation here to avoid potential hydration errors
-  // without full setup. The "title" attribute can serve as a basic tooltip for now.
   return <div title={content}>{children}</div>;
 };
+
+interface SelectedCriteriaState {
+  news: boolean;
+  volume: boolean;
+  chart: boolean;
+  shortable: boolean;
+}
+
+const initialCriteriaFilterState: SelectedCriteriaState = {
+  news: false,
+  volume: false,
+  chart: false,
+  shortable: false,
+};
+
+const criteriaFilterConfig: Array<{ key: keyof SelectedCriteriaState; label: string; Icon?: React.ElementType }> = [
+  { key: 'news', label: 'News', Icon: Newspaper },
+  { key: 'volume', label: 'Volume', Icon: BarChartBig },
+  { key: 'chart', label: 'Chart', Icon: LineChart },
+  { key: 'shortable', label: 'Shortable', Icon: TrendingDown },
+];
 
 
 const MooAlertsContent: React.FC = () => {
   const [alerts, setAlerts] = useState<MooAlertItem[]>(initialDummyAlerts);
-  const [filter, setFilter] = useState<'all' | 1 | 2 | 3 | 4>('all');
-
-  const countMetCriteria = (item: MooAlertItem) => {
-    return (item.criteria.news ? 1 : 0) + 
-           (item.criteria.volume ? 1 : 0) + 
-           (item.criteria.chart ? 1 : 0) +
-           (item.criteria.shortable ? 1 : 0);
-  };
+  const [selectedCriteria, setSelectedCriteria] = useState<SelectedCriteriaState>(initialCriteriaFilterState);
 
   const filteredAlerts = useMemo(() => {
-    if (filter === 'all') return alerts;
-    return alerts.filter(alert => countMetCriteria(alert) === filter);
-  }, [alerts, filter]);
+    const activeFilterKeys = (Object.keys(selectedCriteria) as Array<keyof SelectedCriteriaState>)
+      .filter(key => selectedCriteria[key]);
+
+    if (activeFilterKeys.length === 0) {
+      return alerts; // Show all if no filters are active
+    }
+
+    return alerts.filter(alert => {
+      return activeFilterKeys.every(key => alert.criteria[key]);
+    });
+  }, [alerts, selectedCriteria]);
 
   const getSentimentBadgeClass = (sentiment: MooAlertSentiment) => {
     switch (sentiment) {
@@ -116,13 +129,16 @@ const MooAlertsContent: React.FC = () => {
     }
   };
   
-  const filterButtons: {label: string, value: typeof filter}[] = [
-    {label: "Show All", value: 'all'},
-    {label: "1/4 Met", value: 1},
-    {label: "2/4 Met", value: 2},
-    {label: "3/4 Met", value: 3},
-    {label: "4/4 Only", value: 4},
-  ];
+  const handleCriteriaToggle = (criterionKey: keyof SelectedCriteriaState) => {
+    setSelectedCriteria(prev => ({
+      ...prev,
+      [criterionKey]: !prev[criterionKey],
+    }));
+  };
+
+  const handleShowAll = () => {
+    setSelectedCriteria(initialCriteriaFilterState);
+  };
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
@@ -139,23 +155,34 @@ const MooAlertsContent: React.FC = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-wrap gap-2 mb-6">
-              {filterButtons.map(btn => (
+            <div className="flex flex-wrap items-center gap-2 mb-6">
+              <Button
+                variant={Object.values(selectedCriteria).every(v => !v) ? "default" : "outline"}
+                onClick={handleShowAll}
+                className={cn(
+                  Object.values(selectedCriteria).every(v => !v) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-white/5"
+                )}
+              >
+                Show All
+              </Button>
+              {criteriaFilterConfig.map(({ key, label, Icon }) => (
                 <Button
-                  key={btn.value}
-                  variant={filter === btn.value ? "default" : "outline"}
-                  onClick={() => setFilter(btn.value)}
+                  key={key}
+                  variant={selectedCriteria[key] ? "default" : "outline"}
+                  onClick={() => handleCriteriaToggle(key)}
                   className={cn(
-                    filter === btn.value ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-white/5"
+                    "flex items-center gap-1.5",
+                    selectedCriteria[key] ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-white/5"
                   )}
                 >
-                  {btn.label}
+                  {Icon && <Icon className={cn("h-4 w-4", selectedCriteria[key] ? "text-primary-foreground" : "text-muted-foreground/80")} />}
+                  {label}
                 </Button>
               ))}
             </div>
 
             {filteredAlerts.length > 0 ? (
-              <ScrollArea className="h-[calc(100vh-20rem)]"> {/* Adjust height as needed */}
+              <ScrollArea className="h-[calc(100vh-22rem)]"> {/* Adjust height as needed */}
                 <div className="space-y-4 pr-3">
                   {filteredAlerts.map(alert => (
                     <Card key={alert.id} className="bg-black/20 border border-white/10 shadow-md">
@@ -177,11 +204,11 @@ const MooAlertsContent: React.FC = () => {
                           <CriteriaIcon met={alert.criteria.shortable} IconComponent={TrendingDown} label="Shortable" activeColorClass="text-yellow-400" />
                         </div>
                         <div className="flex items-center space-x-2 pt-3">
-                          <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent">
-                           <Link href={`/dashboard?ticker=${alert.symbol}`}>
-                              <Send className="mr-2 h-4 w-4" /> Send to Trade Panel
-                           </Link>
-                          </Button>
+                           <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent">
+                             <Link href={`/dashboard?ticker=${alert.symbol}`}>
+                                <Send className="mr-2 h-4 w-4" /> Send to Trade Panel
+                             </Link>
+                           </Button>
                           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
                             <AlertCircle className="mr-2 h-4 w-4" /> Set Alert
                           </Button>
@@ -229,3 +256,4 @@ export default function MooAlertsPage() {
     </Suspense>
   );
 }
+    
