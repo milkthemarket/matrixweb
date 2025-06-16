@@ -21,6 +21,8 @@ const initialDummyAlerts: MooAlertItem[] = [
     headline: "TSLA surges after earnings beat",
     time: "7:08am",
     sentiment: "Positive",
+    currentPrice: 182.50,
+    premarketChangePercent: 1.5,
     criteria: { news: true, volume: true, chart: true, shortable: true }
   },
   {
@@ -30,6 +32,8 @@ const initialDummyAlerts: MooAlertItem[] = [
     headline: "NVDA announces new AI chip",
     time: "6:51am",
     sentiment: "Positive",
+    currentPrice: 905.75,
+    premarketChangePercent: 0.8,
     criteria: { news: true, volume: false, chart: true, shortable: false }
   },
   {
@@ -39,6 +43,8 @@ const initialDummyAlerts: MooAlertItem[] = [
     headline: "AMC in focus on pre-market spike",
     time: "7:12am",
     sentiment: "Neutral",
+    currentPrice: 5.12,
+    premarketChangePercent: 3.2,
     criteria: { news: false, volume: true, chart: false, shortable: true }
   },
   {
@@ -48,6 +54,8 @@ const initialDummyAlerts: MooAlertItem[] = [
     headline: "GME showing unusual options activity",
     time: "8:02am",
     sentiment: "Negative",
+    currentPrice: 24.80,
+    premarketChangePercent: -1.1,
     criteria: { news: false, volume: true, chart: true, shortable: true }
   },
   {
@@ -57,6 +65,8 @@ const initialDummyAlerts: MooAlertItem[] = [
     headline: "SPY testing key support level",
     time: "8:15am",
     sentiment: "Neutral",
+    currentPrice: 549.30,
+    premarketChangePercent: -0.2,
     criteria: { news: false, volume: false, chart: true, shortable: false }
   },
   {
@@ -66,6 +76,8 @@ const initialDummyAlerts: MooAlertItem[] = [
     headline: "AAPL rumored to unveil new product next week",
     time: "8:30am",
     sentiment: "Positive",
+    currentPrice: 171.05,
+    premarketChangePercent: 0.5,
     criteria: { news: true, volume: false, chart: false, shortable: true }
   }
 ];
@@ -77,6 +89,8 @@ const CriteriaIcon: React.FC<{ met: boolean; IconComponent: React.ElementType; l
 );
 
 const TooltipProviderWrapper: React.FC<{ content: string; children: React.ReactNode }> = ({ content, children }) => {
+  // In a real app, you'd use <Tooltip><TooltipTrigger>{children}</TooltipTrigger><TooltipContent>{content}</TooltipContent></Tooltip>
+  // For simplicity in this example, we'll use the native title attribute.
   return <div title={content}>{children}</div>;
 };
 
@@ -111,7 +125,7 @@ const MooAlertsContent: React.FC = () => {
       .filter(key => selectedCriteria[key]);
 
     if (activeFilterKeys.length === 0) {
-      return alerts; // Show all if no filters are active
+      return alerts;
     }
 
     return alerts.filter(alert => {
@@ -188,12 +202,22 @@ const MooAlertsContent: React.FC = () => {
                     <Card key={alert.id} className="bg-black/20 border border-white/10 shadow-md">
                       <CardHeader className="pb-3">
                         <div className="flex justify-between items-start">
-                          <CardTitle className="text-lg font-semibold text-primary">{alert.symbol}</CardTitle>
+                          <div className="flex items-baseline gap-2">
+                             <CardTitle className="text-lg font-semibold text-primary">{alert.symbol}</CardTitle>
+                             <span className="text-base font-mono text-foreground">${alert.currentPrice.toFixed(2)}</span>
+                          </div>
                           <Badge variant="outline" className={cn("text-xs", getSentimentBadgeClass(alert.sentiment))}>
                             {alert.sentiment}
                           </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">{alert.time}</p>
+                        <div className="flex justify-between items-center text-sm">
+                            <p className="text-muted-foreground">{alert.time}</p>
+                            {alert.premarketChangePercent !== undefined && (
+                                <span className={cn("font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
+                                Pre: {alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%
+                                </span>
+                            )}
+                        </div>
                       </CardHeader>
                       <CardContent className="space-y-3">
                         <p className="text-base text-foreground">{alert.headline}</p>
@@ -206,7 +230,7 @@ const MooAlertsContent: React.FC = () => {
                         <div className="flex items-center space-x-2 pt-3">
                            <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent">
                              <Link href={`/dashboard?ticker=${alert.symbol}`}>
-                                <Send className="mr-2 h-4 w-4" /> Send to Trade Panel
+                               <Send className="mr-2 h-4 w-4" /> Send to Trade Panel
                              </Link>
                            </Button>
                           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
@@ -256,4 +280,3 @@ export default function MooAlertsPage() {
     </Suspense>
   );
 }
-    

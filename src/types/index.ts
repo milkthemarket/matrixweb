@@ -64,7 +64,7 @@ export interface TradeLogEntry {
 }
 
 export type OrderActionType = 'Buy' | 'Sell' | 'Short';
-export type OptionOrderActionType = 'Buy' | 'Sell'; 
+export type OptionOrderActionType = 'Buy' | 'Sell';
 export type OptionType = 'Call' | 'Put';
 export type OrderSystemType = 'Market' | 'Limit' | 'Stop' | 'Stop Limit' | 'Trailing Stop';
 export type QuantityInputMode = 'Shares' | 'DollarAmount' | 'PercentOfBuyingPower';
@@ -187,21 +187,21 @@ export interface Account {
 
 // Options Page Specific Types
 export interface OptionContract {
-  id: string; 
+  id: string;
   strike: number;
-  type: OptionType; 
-  expirationDate: string; 
+  type: OptionType;
+  expirationDate: string;
   daysToExpiration: number;
   ask: number;
   bid: number;
-  lastPrice?: number; 
-  change: number; 
-  percentChange: number; 
-  breakeven: number; 
-  toBreakevenPercent?: number; 
+  lastPrice?: number;
+  change: number;
+  percentChange: number;
+  breakeven: number;
+  toBreakevenPercent?: number;
   volume?: number;
   openInterest?: number;
-  impliedVolatility?: number; 
+  impliedVolatility?: number;
   delta?: number;
   gamma?: number;
   theta?: number;
@@ -218,10 +218,10 @@ export interface OptionsTickerInfo {
 
 export interface OptionTradeRequest {
   contract: OptionContract;
-  action: OptionOrderActionType; 
-  quantity: number; 
-  orderType: 'Market' | 'Limit'; 
-  limitPrice?: number; 
+  action: OptionOrderActionType;
+  quantity: number;
+  orderType: 'Market' | 'Limit';
+  limitPrice?: number;
   accountId: string;
 }
 
@@ -246,14 +246,16 @@ export type MooAlertSentiment = 'Positive' | 'Negative' | 'Neutral';
 export interface MooAlertItem {
   id: string;
   symbol: string;
-  headline: string; 
-  fullText: string; 
+  headline: string;
+  fullText: string;
   time: string;
   sentiment: MooAlertSentiment;
+  currentPrice: number;
+  premarketChangePercent?: number;
   criteria: {
-    news: boolean; 
-    volume: boolean; 
-    chart: boolean; 
-    shortable: boolean; // New criteria
+    news: boolean;
+    volume: boolean;
+    chart: boolean;
+    shortable: boolean;
   };
 }
