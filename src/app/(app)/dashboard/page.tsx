@@ -1,7 +1,8 @@
 
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -191,8 +192,11 @@ const initialMockMiloIdeas: MiloTradeIdea[] = [
 
 const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX'];
 
+// Wrapper component for Suspense boundary
+function DashboardPageContent() {
+  const searchParams = useSearchParams();
+  const { toast } = useToast();
 
-export default function DashboardPage() {
   const [stocks, setStocks] = useState<Stock[]>(initialMockStocks);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [selectedRuleId, setSelectedRuleId] = useState<string>('all');
@@ -207,7 +211,6 @@ export default function DashboardPage() {
   const [isMiloLoading, setIsMiloLoading] = useState(false);
 
   const { addTradeToHistory } = useTradeHistoryContext();
-  const { toast } = useToast();
 
   const [currentColumnOrder, setCurrentColumnOrder] = useState<(keyof Stock)[]>(() => initialColumnConfiguration.map(c => c.key));
   const [draggedColumnKey, setDraggedColumnKey] = useState<keyof Stock | null>(null);
@@ -334,23 +337,46 @@ export default function DashboardPage() {
       return updatedStocksData;
     });
     setLastRefreshed(new Date());
-  }, [/*setStocks, setLastRefreshed are stable, can be empty if linter allows*/]);
+  }, []);
 
-  // Effect to synchronize local stocks state with OpenPositionsContext
   useEffect(() => {
-    if (stocks && stocks.length > 0) { // Ensure stocks is populated
+    if (stocks && stocks.length > 0) {
       updateAllPositionsPrices(stocks);
     }
-  }, [stocks, updateAllPositionsPrices]); // updateAllPositionsPrices is a stable callback from context
+  }, [stocks, updateAllPositionsPrices]);
 
-  // Effect for setting up the interval
   useEffect(() => {
-    if (lastRefreshed === null) { // Set initial lastRefreshed only once on mount
+    if (lastRefreshed === null) {
         setLastRefreshed(new Date());
     }
     const intervalId = setInterval(handleRefreshData, DASHBOARD_REFRESH_INTERVAL);
     return () => clearInterval(intervalId);
-  }, [handleRefreshData, lastRefreshed]); // Keep lastRefreshed dependency
+  }, [handleRefreshData, lastRefreshed]);
+
+  useEffect(() => {
+    const tickerFromQuery = searchParams.get('ticker');
+    if (tickerFromQuery) {
+      const stockToSelect = initialMockStocks.find(s => s.symbol.toUpperCase() === tickerFromQuery.toUpperCase());
+      if (stockToSelect) {
+        setSelectedStockForOrderCard(stockToSelect);
+        setOrderCardActionType(null); // Default to no action, user can pick
+        setOrderCardInitialTradeMode('manual'); // Default to manual when coming from Moo Alerts
+        setOrderCardMiloActionContext(null); // Clear any Milo context
+         toast({
+          title: "Ticker Loaded from Moo Alerts",
+          description: `${stockToSelect.symbol} loaded into the trade panel.`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Ticker Not Found",
+          description: `The ticker "${tickerFromQuery.toUpperCase()}" from Moo Alerts was not found in the screener list.`,
+        });
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams, toast]); // initialMockStocks is stable, toast is stable. No need for full 'stocks' dependency here if we are only selecting from initialMockStocks.
+
 
   const activeRules = useMemo(() => mockRules.filter(rule => rule.isActive), []);
 
@@ -857,4 +883,12 @@ export default function DashboardPage() {
   );
 }
 
-    
+
+export default function DashboardPage() {
+  return (
+    // Suspense boundary is necessary because DashboardPageContent uses useSearchParams
+    <Suspense fallback={<div>Loading Dashboard...</div>}>
+      <DashboardPageContent />
+    </Suspense>
+  );
+}

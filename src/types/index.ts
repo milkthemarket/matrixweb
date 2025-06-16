@@ -191,7 +191,7 @@ export interface OptionContract {
   strike: number;
   type: OptionType; 
   expirationDate: string; 
-  daysToExpiration: number; // Changed from optional to required
+  daysToExpiration: number;
   ask: number;
   bid: number;
   lastPrice?: number; 
@@ -225,7 +225,6 @@ export interface OptionTradeRequest {
   accountId: string;
 }
 
-// Added for OptionDetailPanel
 export interface OptionContractDetails {
   bidSize: number;
   askSize: number;
@@ -234,10 +233,26 @@ export interface OptionContractDetails {
   low: number;
   previousClose: number;
   lastTrade: number;
-  // Volume, OpenInterest, ImpliedVolatility can come from OptionContract
   delta: number;
   gamma: number;
   theta: number;
   vega: number;
   rho: number;
+}
+
+// Moo Alerts Page Specific Types
+export type MooAlertSentiment = 'Positive' | 'Negative' | 'Neutral';
+
+export interface MooAlertItem {
+  id: string;
+  symbol: string;
+  headline: string; // This will be the main display headline
+  fullText: string; // Original text which might include time and sentiment
+  time: string;
+  sentiment: MooAlertSentiment;
+  criteria: {
+    news: boolean; // Positive News
+    volume: boolean; // High Pre-market Volume
+    chart: boolean; // Clean Chart
+  };
 }
