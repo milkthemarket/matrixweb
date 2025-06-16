@@ -172,9 +172,11 @@ const MooAlertsContent: React.FC = () => {
                           <CriteriaIcon met={alert.criteria.chart} IconComponent={LineChart} label="Clean Chart Structure" />
                         </div>
                         <div className="flex items-center space-x-2 pt-3">
-                           <Link href={`/dashboard?ticker=${alert.symbol}`} passHref legacyBehavior>
+                           <Link href={`/dashboard?ticker=${alert.symbol}`}>
                             <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent">
-                              <a><Send className="mr-2 h-4 w-4" /> Send to Trade Panel</a>
+                              <>
+                                <Send className="mr-2 h-4 w-4" /> Send to Trade Panel
+                              </>
                             </Button>
                           </Link>
                           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
