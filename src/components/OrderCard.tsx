@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
 import { AiAutoTradingWarningModal } from '@/components/AiAutoTradingWarningModal';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
-import { useSettingsContext } from '@/contexts/SettingsContext'; // Import settings context
+import { useSettingsContext } from '@/contexts/SettingsContext';
 
 interface OrderCardProps {
   selectedStock: Stock | null;
@@ -37,7 +37,7 @@ const dummyAutoRules = [
 
 export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear, initialTradeMode, miloActionContextText, onStockSymbolSubmit }: OrderCardProps) {
   const { selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
-  const { notificationSounds, playSound } = useSettingsContext(); // Get sound settings
+  const { notificationSounds, playSound } = useSettingsContext();
 
   const [tradeMode, setTradeMode] = useState<TradeMode>(initialTradeMode || 'manual');
   const [quantityValue, setQuantityValue] = useState('');
@@ -48,6 +48,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const [trailingOffset, setTrailingOffset] = useState('');
   const [currentAction, setCurrentAction] = useState<OrderActionType | null>(null);
   const [timeInForce, setTimeInForce] = useState<string>('Day');
+  const [allowExtendedHours, setAllowExtendedHours] = useState<boolean>(false);
   const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(false);
   const [displayedMiloContext, setDisplayedMiloContext] = useState<string | null>(null);
   const [tickerInputValue, setTickerInputValue] = useState('');
@@ -73,7 +74,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     if (initialTradeMode) {
       setTradeMode(initialTradeMode);
     } else {
-      setTradeMode('manual'); // Default to manual if no initial mode
+      setTradeMode('manual');
     }
   }, [initialTradeMode]);
 
@@ -103,6 +104,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
             setStopPrice('');
             setTrailingOffset('');
             setTimeInForce('Day');
+            setAllowExtendedHours(false);
          }
       }
       if (tradeMode !== 'manual' && initialTradeMode === 'manual' && !miloActionContextText) {
@@ -116,10 +118,17 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       setStopPrice('');
       setTrailingOffset('');
       setTimeInForce('Day');
+      setAllowExtendedHours(false);
       setDisplayedMiloContext(null);
       setIsAutopilotEnabled(false);
     }
   }, [selectedStock, initialActionType, tradeMode, miloActionContextText, initialTradeMode]);
+
+  useEffect(() => {
+    if (orderType !== 'Limit') {
+      setAllowExtendedHours(false);
+    }
+  }, [orderType]);
 
 
   const handleActionSelect = (action: OrderActionType) => {
@@ -221,6 +230,7 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       action: currentAction,
       orderType: orderType,
       TIF: timeInForce,
+      allowExtendedHours: orderType === 'Limit' ? allowExtendedHours : undefined,
       rawQuantityValue: quantityValue,
       rawQuantityMode: quantityMode,
       tradeModeOrigin: origin,
@@ -284,7 +294,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
         setShowAiAutopilotWarningModal(true);
       } else {
         setIsAutopilotEnabled(true);
-        // Simulate autopilot trade placed
         if (notificationSounds.tradePlaced !== 'off') {
             playSound(notificationSounds.tradePlaced);
         }
@@ -300,7 +309,6 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     }
     setIsAutopilotEnabled(true);
     setShowAiAutopilotWarningModal(false);
-    // Simulate autopilot trade placed after confirmation
     if (notificationSounds.tradePlaced !== 'off') {
         playSound(notificationSounds.tradePlaced);
     }
@@ -536,6 +544,24 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
                   </SelectContent>
                 </Select>
               </div>
+
+              {orderType === 'Limit' && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="allowExtendedHours" className="text-sm font-medium text-foreground">
+                     <Clock4 className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Extended Hours
+                  </Label>
+                  <Select
+                    value={allowExtendedHours ? 'yes' : 'no'}
+                    onValueChange={(value) => setAllowExtendedHours(value === 'yes')}
+                  >
+                    <SelectTrigger id="allowExtendedHours"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="no">No (Regular Market Hours Only)</SelectItem>
+                      <SelectItem value="yes">Yes (Allow Pre/Post Market)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               <div className="space-y-1.5">
                 <Label htmlFor="timeInForce" className="text-sm font-medium text-foreground">

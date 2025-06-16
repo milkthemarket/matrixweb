@@ -68,7 +68,7 @@ export type OptionOrderActionType = 'Buy' | 'Sell';
 export type OptionType = 'Call' | 'Put';
 export type OrderSystemType = 'Market' | 'Limit' | 'Stop' | 'Stop Limit' | 'Trailing Stop';
 export type QuantityInputMode = 'Shares' | 'DollarAmount' | 'PercentOfBuyingPower';
-export type TradeMode = 'manual' | 'autopilot'; // Removed 'ai'
+export type TradeMode = 'manual' | 'autopilot';
 export type HistoryTradeMode = 'manual' | 'aiAssist' | 'autopilot';
 export type TickerSpeed = 'slow' | 'medium' | 'fast';
 export type SoundOption = 'default' | 'chime' | 'bell' | 'moo' | 'off';
@@ -88,6 +88,7 @@ export interface TradeRequest {
   TIF?: string;
   tradeModeOrigin?: HistoryTradeMode;
   accountId?: string;
+  allowExtendedHours?: boolean;
 }
 
 export interface AISuggestion {
