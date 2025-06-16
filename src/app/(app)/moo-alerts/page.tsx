@@ -172,13 +172,11 @@ const MooAlertsContent: React.FC = () => {
                           <CriteriaIcon met={alert.criteria.chart} IconComponent={LineChart} label="Clean Chart Structure" />
                         </div>
                         <div className="flex items-center space-x-2 pt-3">
-                           <Link href={`/dashboard?ticker=${alert.symbol}`}>
-                            <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent">
-                              <>
-                                <Send className="mr-2 h-4 w-4" /> Send to Trade Panel
-                              </>
-                            </Button>
-                          </Link>
+                           <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent">
+                            <Link href={`/dashboard?ticker=${alert.symbol}`}>
+                              <Send className="mr-2 h-4 w-4" /> Send to Trade Panel
+                            </Link>
+                          </Button>
                           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
                             <AlertCircle className="mr-2 h-4 w-4" /> Set Alert
                           </Button>
