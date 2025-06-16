@@ -1,8 +1,9 @@
 
 "use client";
 
-import React, { useState, useMemo, Suspense } from 'react';
-import Link from 'next/link';
+import React, { useState, useMemo, Suspense, useEffect } from 'react';
+// Removed Link from 'next/link' as "Send" button now populates local panel
+
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,13 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Newspaper, BarChartBig, LineChart, Megaphone, Send, AlertCircle, Info, TrendingDown } from "lucide-react";
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
-import type { MooAlertItem, MooAlertSentiment } from '@/types';
+import type { MooAlertItem, MooAlertSentiment, Stock, TradeRequest, OrderActionType, TradeMode } from '@/types';
 import { cn } from '@/lib/utils';
+import { OrderCard } from '@/components/OrderCard';
+import { useToast } from "@/hooks/use-toast";
+import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
+import { useOpenPositionsContext } from "@/contexts/OpenPositionsContext";
+
 
 const initialDummyAlerts: MooAlertItem[] = [
   {
@@ -56,7 +62,7 @@ const initialDummyAlerts: MooAlertItem[] = [
     sentiment: "Negative",
     currentPrice: 24.80,
     premarketChangePercent: -1.1,
-    criteria: { news: false, volume: true, chart: true, shortable: true }
+    criteria: { news: true, volume: true, chart: true, shortable: true }
   },
   {
     id: 'ma5',
@@ -89,7 +95,6 @@ const CriteriaIcon: React.FC<{ met: boolean; IconComponent: React.ElementType; l
 );
 
 const TooltipProviderWrapper: React.FC<{ content: string; children: React.ReactNode }> = ({ content, children }) => {
-  // Basic tooltip using title attribute for simplicity, can be replaced with ShadCN Tooltip if needed
   return <div title={content}>{children}</div>;
 };
 
@@ -118,6 +123,103 @@ const criteriaFilterConfig: Array<{ key: keyof SelectedCriteriaState; label: str
 const MooAlertsContent: React.FC = () => {
   const [alerts, setAlerts] = useState<MooAlertItem[]>(initialDummyAlerts);
   const [selectedCriteria, setSelectedCriteria] = useState<SelectedCriteriaState>(initialCriteriaFilterState);
+
+  const { toast } = useToast();
+  const { addTradeToHistory } = useTradeHistoryContext();
+  const { openPositions, addOpenPosition, removeOpenPosition, updateAllPositionsPrices, selectedAccountId } = useOpenPositionsContext();
+
+
+  const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
+  const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
+  const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
+  const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
+
+
+  const handleMooAlertSelectForOrder = (alertItem: MooAlertItem) => {
+    const stockForOrderCard: Stock = {
+      id: alertItem.id,
+      symbol: alertItem.symbol,
+      name: alertItem.symbol, // Using symbol as name as MooAlertItem doesn't have full name
+      price: alertItem.currentPrice,
+      changePercent: alertItem.premarketChangePercent || 0,
+      float: 0, // Placeholder - not available in MooAlertItem
+      volume: 0, // Placeholder - not available in MooAlertItem
+      newsSnippet: alertItem.headline,
+      lastUpdated: new Date().toISOString(),
+      historicalPrices: [alertItem.currentPrice], // Basic historical price
+      // Other stock fields can be undefined or have default values
+    };
+    setSelectedStockForOrderCard(stockForOrderCard);
+    setOrderCardActionType(null); // Let user choose action in panel, or default to 'Buy'
+    setOrderCardInitialTradeMode('manual'); // Default to manual when populating from Moo Alert
+    setOrderCardMiloActionContext(null); // No Milo context from Moo Alerts
+     toast({
+      title: "Ticker Loaded",
+      description: `${alertItem.symbol} sent to trade panel.`,
+    });
+  };
+
+  const handleClearOrderCard = () => {
+    setSelectedStockForOrderCard(null);
+    setOrderCardActionType(null);
+    setOrderCardInitialTradeMode(undefined);
+    setOrderCardMiloActionContext(null);
+  };
+
+  const handleTradeSubmit = (tradeDetails: TradeRequest) => {
+    console.log("Trade Submitted via Order Card on Moo Alerts Page:", tradeDetails);
+    toast({
+      title: "Trade Processing",
+      description: `${tradeDetails.action} ${tradeDetails.quantity} ${tradeDetails.symbol} (${tradeDetails.orderType}) submitted. Origin: ${tradeDetails.tradeModeOrigin || 'manual'}`,
+    });
+
+    if (selectedStockForOrderCard) { // selectedStockForOrderCard should match tradeDetails.symbol
+      addTradeToHistory({
+        id: String(Date.now()),
+        symbol: tradeDetails.symbol,
+        side: tradeDetails.action,
+        totalQty: tradeDetails.quantity,
+        orderType: tradeDetails.orderType,
+        limitPrice: tradeDetails.limitPrice,
+        stopPrice: tradeDetails.stopPrice,
+        trailAmount: tradeDetails.trailingOffset,
+        TIF: tradeDetails.TIF || "Day",
+        tradingHours: "Include Extended Hours",
+        placedTime: new Date().toISOString(),
+        filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(),
+        orderStatus: "Filled",
+        averagePrice: (tradeDetails.orderType === "Limit" && tradeDetails.limitPrice) ? tradeDetails.limitPrice : selectedStockForOrderCard.price,
+        tradeModeOrigin: tradeDetails.tradeModeOrigin || 'manual',
+        accountId: tradeDetails.accountId,
+      });
+    }
+    
+    if (tradeDetails.action === 'Buy' || tradeDetails.action === 'Short') {
+        addOpenPosition({
+            id: `pos${Date.now()}`,
+            symbol: tradeDetails.symbol,
+            entryPrice: selectedStockForOrderCard?.price || 0,
+            shares: tradeDetails.quantity,
+            currentPrice: selectedStockForOrderCard?.price || 0,
+            origin: tradeDetails.tradeModeOrigin || 'manual',
+            accountId: tradeDetails.accountId,
+        });
+    }
+  };
+
+  const handleStockSymbolSubmitFromOrderCard = (symbol: string) => {
+    const alertItem = alerts.find(a => a.symbol.toUpperCase() === symbol.toUpperCase());
+    if (alertItem) {
+      handleMooAlertSelectForOrder(alertItem);
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Ticker Not Found",
+        description: `The ticker "${symbol.toUpperCase()}" was not found in the current Moo Alerts list.`,
+      });
+    }
+  };
+
 
   const filteredAlerts = useMemo(() => {
     const activeFilterKeys = (Object.keys(selectedCriteria) as Array<keyof SelectedCriteriaState>)
@@ -156,119 +258,142 @@ const MooAlertsContent: React.FC = () => {
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Moo Alerts" />
-      <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl font-headline flex items-center">
-              <Megaphone className="mr-2 h-5 w-5 text-primary"/>
-              Real-Time Trade Signals
-            </CardTitle>
-            <CardDescription>
-              Get real-time news catalysts, volume spikes, and instant trade signals—curated for momentum traders.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap items-center gap-2 mb-6">
-              <Button
-                variant={Object.values(selectedCriteria).every(v => !v) ? "default" : "outline"}
-                onClick={handleShowAll}
-                className={cn(
-                  "h-8 px-3 text-xs",
-                  Object.values(selectedCriteria).every(v => !v) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-white/5"
-                )}
-              >
-                Show All
-              </Button>
-              {criteriaFilterConfig.map(({ key, label, Icon }) => (
+      <div className="flex-1 flex flex-col md:flex-row p-4 md:p-6 space-y-6 md:space-y-0 md:space-x-6 overflow-hidden">
+        
+        {/* Left Column: Alerts Grid */}
+        <div className="flex-1 flex flex-col space-y-6 overflow-y-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl font-headline flex items-center">
+                <Megaphone className="mr-2 h-5 w-5 text-primary"/>
+                Real-Time Trade Signals
+              </CardTitle>
+              <CardDescription>
+                Get real-time news catalysts, volume spikes, and instant trade signals—curated for momentum traders.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-wrap items-center gap-2 mb-6">
                 <Button
-                  key={key}
-                  variant={selectedCriteria[key] ? "default" : "outline"}
-                  onClick={() => handleCriteriaToggle(key)}
+                  variant={Object.values(selectedCriteria).every(v => !v) ? "default" : "outline"}
+                  onClick={handleShowAll}
                   className={cn(
-                    "flex items-center gap-1.5 h-8 px-3 text-xs",
-                    selectedCriteria[key] ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-white/5"
+                    "h-8 px-3 text-xs",
+                    Object.values(selectedCriteria).every(v => !v) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-white/5"
                   )}
                 >
-                  {Icon && <Icon className={cn("h-3.5 w-3.5", selectedCriteria[key] ? "text-primary-foreground" : "text-muted-foreground/80")} />}
-                  {label}
+                  Show All
                 </Button>
-              ))}
-            </div>
+                {criteriaFilterConfig.map(({ key, label, Icon }) => (
+                  <Button
+                    key={key}
+                    variant={selectedCriteria[key] ? "default" : "outline"}
+                    onClick={() => handleCriteriaToggle(key)}
+                    className={cn(
+                      "flex items-center gap-1.5 h-8 px-3 text-xs",
+                      selectedCriteria[key] ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-white/5"
+                    )}
+                  >
+                    {Icon && <Icon className={cn("h-3.5 w-3.5", selectedCriteria[key] ? "text-primary-foreground" : "text-muted-foreground/80")} />}
+                    {label}
+                  </Button>
+                ))}
+              </div>
 
-            {filteredAlerts.length > 0 ? (
-              <ScrollArea className="h-[calc(100vh-26rem)]"> {/* Adjusted height slightly */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-3">
-                  {filteredAlerts.map(alert => (
-                    <Card key={alert.id} className="bg-black/20 border border-white/10 shadow-sm flex flex-col">
-                      <CardHeader className="p-3 pb-1.5"> {/* Reduced padding */}
-                        <div className="flex flex-col items-start gap-0.5">
-                           <div className="flex items-baseline gap-2 flex-wrap w-full">
-                               <CardTitle className="text-base font-semibold text-primary">{alert.symbol}</CardTitle>
-                               <span className="text-sm font-mono text-foreground">${alert.currentPrice.toFixed(2)}</span>
-                               {alert.premarketChangePercent !== undefined && (
-                                  <span className={cn("text-xs font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
-                                  Pre: {alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%
-                                  </span>
-                              )}
+              {filteredAlerts.length > 0 ? (
+                <ScrollArea className="h-[calc(100vh-30rem)] md:h-[calc(100vh-28rem)]"> 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-3">
+                    {filteredAlerts.map(alert => (
+                      <Card 
+                        key={alert.id} 
+                        className="bg-black/20 border border-white/10 shadow-sm flex flex-col cursor-pointer hover:border-primary/50"
+                        onClick={() => handleMooAlertSelectForOrder(alert)}
+                      >
+                        <CardHeader className="p-3 pb-1.5">
+                          <div className="flex flex-col items-start gap-0.5">
+                            <div className="flex items-baseline gap-2 flex-wrap w-full">
+                                <CardTitle className="text-base font-semibold text-primary">{alert.symbol}</CardTitle>
+                                <span className="text-sm font-mono text-foreground">${alert.currentPrice.toFixed(2)}</span>
+                                {alert.premarketChangePercent !== undefined && (
+                                    <span className={cn("text-xs font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
+                                    Pre: {alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%
+                                    </span>
+                                )}
                             </div>
-                             <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2">
                                 <Badge variant="outline" className={cn("text-xs py-0.5 px-1.5 h-auto", getSentimentBadgeClass(alert.sentiment))}>
-                                  {alert.sentiment}
+                                {alert.sentiment}
                                 </Badge>
                                 <p className="text-xs text-muted-foreground">{alert.time}</p>
-                              </div>
+                            </div>
                           </div>
-                      </CardHeader>
-                      <CardContent className="p-3 pt-1.5 space-y-1.5 flex-1"> {/* Reduced padding and space */}
-                        <p className="text-sm text-foreground leading-snug line-clamp-2">{alert.headline}</p> {/* line-clamp for consistent height */}
-                        
-                        <div className="flex items-center space-x-2 pt-0.5"> {/* Reduced space, pt */}
-                          <CriteriaIcon met={alert.criteria.news} IconComponent={Newspaper} label="Positive News" />
-                          <CriteriaIcon met={alert.criteria.volume} IconComponent={BarChartBig} label="High Pre-market Volume" />
-                          <CriteriaIcon met={alert.criteria.chart} IconComponent={LineChart} label="Clean Chart Structure" />
-                          <CriteriaIcon met={alert.criteria.shortable} IconComponent={TrendingDown} label="Shortable" activeColorClass="text-yellow-400" />
-                        </div>
-                        
-                        <div className="flex items-center space-x-2 pt-1.5"> {/* Buttons row, reduced pt */}
-                           <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent h-7 px-2 text-xs">
-                            <Link href={`/dashboard?ticker=${alert.symbol}`}>
-                              <Send className="mr-1 h-3 w-3" /> Send
-                            </Link>
-                          </Button>
-                          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-7 px-2 text-xs">
-                            <AlertCircle className="mr-1 h-3 w-3" /> Alert
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardHeader>
+                        <CardContent className="p-3 pt-1.5 space-y-1.5 flex-1">
+                          <p className="text-sm text-foreground leading-snug line-clamp-2">{alert.headline}</p>
+                          
+                          <div className="flex items-center space-x-2 pt-0.5">
+                            <CriteriaIcon met={alert.criteria.news} IconComponent={Newspaper} label="Positive News" />
+                            <CriteriaIcon met={alert.criteria.volume} IconComponent={BarChartBig} label="High Pre-market Volume" />
+                            <CriteriaIcon met={alert.criteria.chart} IconComponent={LineChart} label="Clean Chart Structure" />
+                            <CriteriaIcon met={alert.criteria.shortable} IconComponent={TrendingDown} label="Shortable" activeColorClass="text-yellow-400" />
+                          </div>
+                          
+                          <div className="flex items-center space-x-2 pt-2">
+                            <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="border-accent text-accent hover:bg-accent/10 hover:text-accent h-7 px-2 text-xs"
+                                onClick={(e) => { e.stopPropagation(); handleMooAlertSelectForOrder(alert); }}
+                            >
+                                <Send className="mr-1 h-3 w-3" /> Send
+                            </Button>
+                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-7 px-2 text-xs" onClick={(e) => e.stopPropagation()}>
+                                <AlertCircle className="mr-1 h-3 w-3" /> Alert
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </ScrollArea>
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center py-12 text-muted-foreground">
+                  <MiloAvatarIcon size={60} className="mb-4 opacity-70" />
+                  <p className="text-lg font-medium">No headlines worth moo-ving on yet.</p>
+                  <p className="text-sm">Check back soon for the latest alerts!</p>
                 </div>
-              </ScrollArea>
-            ) : (
-              <div className="flex flex-col items-center justify-center text-center py-12 text-muted-foreground">
-                <MiloAvatarIcon size={60} className="mb-4 opacity-70" />
-                <p className="text-lg font-medium">No headlines worth moo-ving on yet.</p>
-                <p className="text-sm">Check back soon for the latest alerts!</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              )}
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader className="p-3">
-            <CardTitle className="text-sm font-semibold flex items-center">
-              <Info className="mr-2 h-4 w-4 text-muted-foreground"/>
-              Criteria Key
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-xs text-muted-foreground space-y-0.5 p-3 pt-0">
-            <p className="flex items-center"><Newspaper className="mr-1.5 h-3.5 w-3.5 text-green-400"/> Positive News Catalyst</p>
-            <p className="flex items-center"><BarChartBig className="mr-1.5 h-3.5 w-3.5 text-green-400"/> High Pre-market Volume</p>
-            <p className="flex items-center"><LineChart className="mr-1.5 h-3.5 w-3.5 text-green-400"/> Clean Chart Structure</p>
-            <p className="flex items-center"><TrendingDown className="mr-1.5 h-3.5 w-3.5 text-yellow-400"/> Shortable</p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="p-3">
+              <CardTitle className="text-sm font-semibold flex items-center">
+                <Info className="mr-2 h-4 w-4 text-muted-foreground"/>
+                Criteria Key
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-xs text-muted-foreground space-y-0.5 p-3 pt-0">
+              <p className="flex items-center"><Newspaper className="mr-1.5 h-3.5 w-3.5 text-green-400"/> Positive News Catalyst</p>
+              <p className="flex items-center"><BarChartBig className="mr-1.5 h-3.5 w-3.5 text-green-400"/> High Pre-market Volume</p>
+              <p className="flex items-center"><LineChart className="mr-1.5 h-3.5 w-3.5 text-green-400"/> Clean Chart Structure</p>
+              <p className="flex items-center"><TrendingDown className="mr-1.5 h-3.5 w-3.5 text-yellow-400"/> Shortable</p>
+            </CardContent>
+          </Card>
+        </div>
 
+        {/* Right Column: Trade Panel */}
+        <div className="w-full md:w-96 lg:w-[26rem] flex-shrink-0 md:flex flex-col space-y-6 overflow-y-auto">
+           <OrderCard
+            selectedStock={selectedStockForOrderCard}
+            initialActionType={orderCardActionType}
+            initialTradeMode={orderCardInitialTradeMode}
+            miloActionContextText={orderCardMiloActionContext}
+            onSubmit={handleTradeSubmit}
+            onClear={handleClearOrderCard}
+            onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
+          />
+        </div>
       </div>
     </main>
   );
@@ -282,3 +407,4 @@ export default function MooAlertsPage() {
   );
 }
 
+    
