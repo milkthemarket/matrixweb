@@ -89,8 +89,6 @@ const CriteriaIcon: React.FC<{ met: boolean; IconComponent: React.ElementType; l
 );
 
 const TooltipProviderWrapper: React.FC<{ content: string; children: React.ReactNode }> = ({ content, children }) => {
-  // In a real app, you'd use <Tooltip><TooltipTrigger>{children}</TooltipTrigger><TooltipContent>{content}</TooltipContent></Tooltip>
-  // For simplicity in this example, we'll use the native title attribute.
   return <div title={content}>{children}</div>;
 };
 
@@ -196,45 +194,49 @@ const MooAlertsContent: React.FC = () => {
             </div>
 
             {filteredAlerts.length > 0 ? (
-              <ScrollArea className="h-[calc(100vh-22rem)]"> {/* Adjust height as needed */}
-                <div className="space-y-4 pr-3">
+              <ScrollArea className="h-[calc(100vh-24rem)]"> {/* Adjust height as needed */}
+                <div className="space-y-3 pr-3">
                   {filteredAlerts.map(alert => (
-                    <Card key={alert.id} className="bg-black/20 border border-white/10 shadow-md">
-                      <CardHeader className="pb-3">
-                        <div className="flex justify-between items-start">
-                          <div className="flex items-baseline gap-2">
-                             <CardTitle className="text-lg font-semibold text-primary">{alert.symbol}</CardTitle>
-                             <span className="text-base font-mono text-foreground">${alert.currentPrice.toFixed(2)}</span>
+                    <Card key={alert.id} className="bg-black/20 border border-white/10 shadow-sm">
+                      <CardHeader className="p-3 pb-2">
+                        <div className="flex justify-between items-start gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-baseline gap-2 flex-wrap">
+                               <CardTitle className="text-lg font-semibold text-primary">{alert.symbol}</CardTitle>
+                               <span className="text-base font-mono text-foreground">${alert.currentPrice.toFixed(2)}</span>
+                               {alert.premarketChangePercent !== undefined && (
+                                  <span className={cn("text-sm font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
+                                  Pre: {alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%
+                                  </span>
+                              )}
+                            </div>
+                             <div className="flex items-center gap-2 mt-0.5">
+                                <Badge variant="outline" className={cn("text-xs py-0.5 px-1.5 h-auto", getSentimentBadgeClass(alert.sentiment))}>
+                                  {alert.sentiment}
+                                </Badge>
+                                <p className="text-xs text-muted-foreground">{alert.time}</p>
+                              </div>
                           </div>
-                          <Badge variant="outline" className={cn("text-xs", getSentimentBadgeClass(alert.sentiment))}>
-                            {alert.sentiment}
-                          </Badge>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
-                            <p className="text-muted-foreground">{alert.time}</p>
-                            {alert.premarketChangePercent !== undefined && (
-                                <span className={cn("font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
-                                Pre: {alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%
-                                </span>
-                            )}
                         </div>
                       </CardHeader>
-                      <CardContent className="space-y-3">
-                        <p className="text-base text-foreground">{alert.headline}</p>
-                        <div className="flex items-center space-x-3 pt-2">
+                      <CardContent className="p-3 pt-1 space-y-2">
+                        <p className="text-sm text-foreground leading-snug">{alert.headline}</p>
+                        
+                        <div className="flex items-center space-x-2.5 pt-1">
                           <CriteriaIcon met={alert.criteria.news} IconComponent={Newspaper} label="Positive News" />
                           <CriteriaIcon met={alert.criteria.volume} IconComponent={BarChartBig} label="High Pre-market Volume" />
                           <CriteriaIcon met={alert.criteria.chart} IconComponent={LineChart} label="Clean Chart Structure" />
                           <CriteriaIcon met={alert.criteria.shortable} IconComponent={TrendingDown} label="Shortable" activeColorClass="text-yellow-400" />
                         </div>
-                        <div className="flex items-center space-x-2 pt-3">
-                           <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent">
-                             <Link href={`/dashboard?ticker=${alert.symbol}`}>
-                               <Send className="mr-2 h-4 w-4" /> Send to Trade Panel
-                             </Link>
-                           </Button>
-                          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
-                            <AlertCircle className="mr-2 h-4 w-4" /> Set Alert
+
+                        <div className="flex items-center justify-end space-x-2 pt-1">
+                          <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent h-8 px-2.5">
+                            <Link href={`/dashboard?ticker=${alert.symbol}`}>
+                              <Send className="mr-1.5 h-3.5 w-3.5" /> Send
+                            </Link>
+                          </Button>
+                          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-8 px-2.5">
+                            <AlertCircle className="mr-1.5 h-3.5 w-3.5" /> Alert
                           </Button>
                         </div>
                       </CardContent>
@@ -253,17 +255,17 @@ const MooAlertsContent: React.FC = () => {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-md font-semibold flex items-center">
+          <CardHeader className="p-3">
+            <CardTitle className="text-sm font-semibold flex items-center">
               <Info className="mr-2 h-4 w-4 text-muted-foreground"/>
               Criteria Key
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground space-y-1">
-            <p className="flex items-center"><Newspaper className="mr-2 h-4 w-4 text-green-400"/> = Positive News Catalyst</p>
-            <p className="flex items-center"><BarChartBig className="mr-2 h-4 w-4 text-green-400"/> = High Pre-market Volume</p>
-            <p className="flex items-center"><LineChart className="mr-2 h-4 w-4 text-green-400"/> = Clean Chart Structure (e.g. no major overhead resistance)</p>
-            <p className="flex items-center"><TrendingDown className="mr-2 h-4 w-4 text-yellow-400"/> = Shortable (Shares available to short)</p>
+          <CardContent className="text-xs text-muted-foreground space-y-0.5 p-3 pt-0">
+            <p className="flex items-center"><Newspaper className="mr-1.5 h-3.5 w-3.5 text-green-400"/> Positive News Catalyst</p>
+            <p className="flex items-center"><BarChartBig className="mr-1.5 h-3.5 w-3.5 text-green-400"/> High Pre-market Volume</p>
+            <p className="flex items-center"><LineChart className="mr-1.5 h-3.5 w-3.5 text-green-400"/> Clean Chart Structure</p>
+            <p className="flex items-center"><TrendingDown className="mr-1.5 h-3.5 w-3.5 text-yellow-400"/> Shortable</p>
           </CardContent>
         </Card>
 
@@ -272,7 +274,6 @@ const MooAlertsContent: React.FC = () => {
   );
 }
 
-// Wrap the page content with Suspense for useSearchParams
 export default function MooAlertsPage() {
   return (
     <Suspense fallback={<div>Loading Moo Alerts...</div>}>
