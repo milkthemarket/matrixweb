@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Newspaper, BarChartBig, LineChart, Megaphone, Send, AlertCircle, Info } from "lucide-react";
+import { Newspaper, BarChartBig, LineChart, Megaphone, Send, AlertCircle, Info, TrendingDown } from "lucide-react";
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import type { MooAlertItem, MooAlertSentiment } from '@/types';
 import { cn } from '@/lib/utils';
@@ -21,7 +21,7 @@ const initialDummyAlerts: MooAlertItem[] = [
     headline: "TSLA surges after earnings beat",
     time: "7:08am",
     sentiment: "Positive",
-    criteria: { news: true, volume: true, chart: true }
+    criteria: { news: true, volume: true, chart: true, shortable: true }
   },
   {
     id: 'ma2',
@@ -30,7 +30,7 @@ const initialDummyAlerts: MooAlertItem[] = [
     headline: "NVDA announces new AI chip",
     time: "6:51am",
     sentiment: "Positive",
-    criteria: { news: true, volume: false, chart: true }
+    criteria: { news: true, volume: false, chart: true, shortable: false }
   },
   {
     id: 'ma3',
@@ -39,7 +39,7 @@ const initialDummyAlerts: MooAlertItem[] = [
     headline: "AMC in focus on pre-market spike",
     time: "7:12am",
     sentiment: "Neutral",
-    criteria: { news: false, volume: true, chart: false }
+    criteria: { news: false, volume: true, chart: false, shortable: true }
   },
   {
     id: 'ma4',
@@ -48,7 +48,7 @@ const initialDummyAlerts: MooAlertItem[] = [
     headline: "GME showing unusual options activity",
     time: "8:02am",
     sentiment: "Negative",
-    criteria: { news: false, volume: true, chart: true }
+    criteria: { news: false, volume: true, chart: true, shortable: true }
   },
   {
     id: 'ma5',
@@ -57,7 +57,7 @@ const initialDummyAlerts: MooAlertItem[] = [
     headline: "SPY testing key support level",
     time: "8:15am",
     sentiment: "Neutral",
-    criteria: { news: false, volume: false, chart: true }
+    criteria: { news: false, volume: false, chart: true, shortable: false }
   },
   {
     id: 'ma6',
@@ -66,13 +66,13 @@ const initialDummyAlerts: MooAlertItem[] = [
     headline: "AAPL rumored to unveil new product next week",
     time: "8:30am",
     sentiment: "Positive",
-    criteria: { news: true, volume: false, chart: false }
+    criteria: { news: true, volume: false, chart: false, shortable: true }
   }
 ];
 
-const CriteriaIcon: React.FC<{ met: boolean; IconComponent: React.ElementType; label: string }> = ({ met, IconComponent, label }) => (
+const CriteriaIcon: React.FC<{ met: boolean; IconComponent: React.ElementType; label: string; activeColorClass?: string }> = ({ met, IconComponent, label, activeColorClass = "text-green-400" }) => (
   <TooltipProviderWrapper content={label}>
-    <IconComponent className={cn("h-5 w-5", met ? "text-green-400" : "text-muted-foreground/50")} />
+    <IconComponent className={cn("h-5 w-5", met ? activeColorClass : "text-muted-foreground/50")} />
   </TooltipProviderWrapper>
 );
 
@@ -92,10 +92,13 @@ const TooltipProviderWrapper: React.FC<{ content: string; children: React.ReactN
 
 const MooAlertsContent: React.FC = () => {
   const [alerts, setAlerts] = useState<MooAlertItem[]>(initialDummyAlerts);
-  const [filter, setFilter] = useState<'all' | 1 | 2 | 3>('all');
+  const [filter, setFilter] = useState<'all' | 1 | 2 | 3 | 4>('all');
 
   const countMetCriteria = (item: MooAlertItem) => {
-    return (item.criteria.news ? 1 : 0) + (item.criteria.volume ? 1 : 0) + (item.criteria.chart ? 1 : 0);
+    return (item.criteria.news ? 1 : 0) + 
+           (item.criteria.volume ? 1 : 0) + 
+           (item.criteria.chart ? 1 : 0) +
+           (item.criteria.shortable ? 1 : 0);
   };
 
   const filteredAlerts = useMemo(() => {
@@ -115,9 +118,10 @@ const MooAlertsContent: React.FC = () => {
   
   const filterButtons: {label: string, value: typeof filter}[] = [
     {label: "Show All", value: 'all'},
-    {label: "1/3 Met", value: 1},
-    {label: "2/3 Met", value: 2},
-    {label: "3/3 Only", value: 3},
+    {label: "1/4 Met", value: 1},
+    {label: "2/4 Met", value: 2},
+    {label: "3/4 Met", value: 3},
+    {label: "4/4 Only", value: 4},
   ];
 
   return (
@@ -170,12 +174,13 @@ const MooAlertsContent: React.FC = () => {
                           <CriteriaIcon met={alert.criteria.news} IconComponent={Newspaper} label="Positive News" />
                           <CriteriaIcon met={alert.criteria.volume} IconComponent={BarChartBig} label="High Pre-market Volume" />
                           <CriteriaIcon met={alert.criteria.chart} IconComponent={LineChart} label="Clean Chart Structure" />
+                          <CriteriaIcon met={alert.criteria.shortable} IconComponent={TrendingDown} label="Shortable" activeColorClass="text-yellow-400" />
                         </div>
                         <div className="flex items-center space-x-2 pt-3">
-                           <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent">
-                            <Link href={`/dashboard?ticker=${alert.symbol}`}>
+                          <Button asChild variant="outline" size="sm" className="border-accent text-accent hover:bg-accent/10 hover:text-accent">
+                           <Link href={`/dashboard?ticker=${alert.symbol}`}>
                               <Send className="mr-2 h-4 w-4" /> Send to Trade Panel
-                            </Link>
+                           </Link>
                           </Button>
                           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary">
                             <AlertCircle className="mr-2 h-4 w-4" /> Set Alert
@@ -207,6 +212,7 @@ const MooAlertsContent: React.FC = () => {
             <p className="flex items-center"><Newspaper className="mr-2 h-4 w-4 text-green-400"/> = Positive News Catalyst</p>
             <p className="flex items-center"><BarChartBig className="mr-2 h-4 w-4 text-green-400"/> = High Pre-market Volume</p>
             <p className="flex items-center"><LineChart className="mr-2 h-4 w-4 text-green-400"/> = Clean Chart Structure (e.g. no major overhead resistance)</p>
+            <p className="flex items-center"><TrendingDown className="mr-2 h-4 w-4 text-yellow-400"/> = Shortable (Shares available to short)</p>
           </CardContent>
         </Card>
 

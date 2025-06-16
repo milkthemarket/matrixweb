@@ -246,13 +246,14 @@ export type MooAlertSentiment = 'Positive' | 'Negative' | 'Neutral';
 export interface MooAlertItem {
   id: string;
   symbol: string;
-  headline: string; // This will be the main display headline
-  fullText: string; // Original text which might include time and sentiment
+  headline: string; 
+  fullText: string; 
   time: string;
   sentiment: MooAlertSentiment;
   criteria: {
-    news: boolean; // Positive News
-    volume: boolean; // High Pre-market Volume
-    chart: boolean; // Clean Chart
+    news: boolean; 
+    volume: boolean; 
+    chart: boolean; 
+    shortable: boolean; // New criteria
   };
 }
