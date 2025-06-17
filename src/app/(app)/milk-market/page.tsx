@@ -11,7 +11,7 @@ import { OrderCard } from '@/components/OrderCard';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
 import { WatchlistCard } from '@/components/WatchlistCard';
 import { InteractiveChartCard } from '@/components/InteractiveChartCard';
-import { initialMockStocks } from '@/app/(app)/dashboard/page';
+import { initialMockStocks } from '@/app/(app)/dashboard/page'; // For stock lookup in OrderCard
 
 function MilkMarketPageContent() {
   const { toast } = useToast();
@@ -103,7 +103,6 @@ function MilkMarketPageContent() {
         {/* Left Column: Watchlist */}
         <div className="hidden md:flex flex-col h-full min-h-0">
           <WatchlistCard
-            stocks={initialMockStocks.slice(0,15)} 
             selectedStockSymbol={selectedStock?.symbol || null}
             onSelectStock={handleStockSelection}
             className="flex-1 min-h-0" 
