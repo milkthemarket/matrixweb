@@ -1,34 +1,34 @@
 
 "use client";
 
-import React, { useState, useMemo, Suspense } from 'react';
-import Link from 'next/link';
+import React, { useState, useMemo, Suspense, useCallback } from 'react';
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
-import type { Stock, TradeRequest, OrderActionType, TradeMode, TradeHistoryEntry, HistoryTradeMode } from "@/types";
-import { cn } from '@/lib/utils';
+import type { Stock, TradeRequest, OrderActionType, TradeMode, HistoryTradeMode, Account } from "@/types";
+import { useToast } from "@/hooks/use-toast";
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
-import { useToast } from "@/hooks/use-toast";
 import { OrderCard } from '@/components/OrderCard';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
-import { initialMockStocks } from '@/app/(app)/dashboard/page'; // Using mock stocks from dashboard for lookup
-// Removed format, parseISO as they were for RecentTradeActivity
-// Removed CheckCircle, XCircle, Clock, Edit, Activity, DollarSign, MiloAvatarIcon as getStatusIcon/getOriginIcon are removed
+import { WatchlistCard } from '@/components/WatchlistCard';
+import { InteractiveChartCard } from '@/components/InteractiveChartCard';
+import { initialMockStocks } from '@/app/(app)/dashboard/page';
 
 function MilkMarketPageContent() {
   const { toast } = useToast();
-  const { addTradeToHistory } = useTradeHistoryContext(); // tradeHistory itself is no longer directly used on this page
-  const { addOpenPosition, selectedAccountId } = useOpenPositionsContext();
+  const { addTradeToHistory } = useTradeHistoryContext();
+  const { openPositions, addOpenPosition, selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
 
-  const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
+  const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
   const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
   const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
   const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
+
+  const handleStockSelection = useCallback((stock: Stock) => {
+    setSelectedStock(stock);
+    setOrderCardActionType(null); 
+    setOrderCardInitialTradeMode(undefined); 
+    setOrderCardMiloActionContext(null);
+  }, []);
 
   const handleTradeSubmit = (tradeDetails: TradeRequest) => {
     console.log("Trade Submitted via Milk Market Order Card:", tradeDetails);
@@ -37,7 +37,7 @@ function MilkMarketPageContent() {
       description: `${tradeDetails.action} ${tradeDetails.quantity} ${tradeDetails.symbol} (${tradeDetails.orderType}) submitted. Origin: ${tradeDetails.tradeModeOrigin || 'manual'}`,
     });
 
-    const stockInfo = selectedStockForOrderCard || initialMockStocks.find(s => s.symbol === tradeDetails.symbol);
+    const stockInfo = selectedStock || initialMockStocks.find(s => s.symbol === tradeDetails.symbol);
 
     addTradeToHistory({
       id: String(Date.now()),
@@ -51,7 +51,7 @@ function MilkMarketPageContent() {
       TIF: tradeDetails.TIF || "Day",
       tradingHours: tradeDetails.allowExtendedHours ? "Include Extended Hours" : "Regular Market Hours Only",
       placedTime: new Date().toISOString(),
-      filledTime: new Date(Date.now() + Math.random() * 2000 + 500).toISOString(), // Simulate fill delay
+      filledTime: new Date(Date.now() + Math.random() * 2000 + 500).toISOString(),
       orderStatus: "Filled",
       averagePrice: (tradeDetails.orderType === "Limit" && tradeDetails.limitPrice) ? tradeDetails.limitPrice : (stockInfo?.price || 0),
       tradeModeOrigin: tradeDetails.tradeModeOrigin || 'manual',
@@ -72,7 +72,7 @@ function MilkMarketPageContent() {
   };
 
   const handleClearOrderCard = () => {
-    setSelectedStockForOrderCard(null);
+    setSelectedStock(null);
     setOrderCardActionType(null);
     setOrderCardInitialTradeMode(undefined);
     setOrderCardMiloActionContext(null);
@@ -81,21 +81,16 @@ function MilkMarketPageContent() {
   const handleStockSymbolSubmitFromOrderCard = (symbol: string) => {
     const stockToSelect = initialMockStocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
     if (stockToSelect) {
-      setSelectedStockForOrderCard(stockToSelect);
-      setOrderCardActionType(null);
-      setOrderCardInitialTradeMode(undefined);
-      setOrderCardMiloActionContext(null);
+      handleStockSelection(stockToSelect);
     } else {
-      setSelectedStockForOrderCard({ 
-        id: symbol, symbol, name: symbol, price: 0, changePercent: 0, float: 0, volume: 0, lastUpdated: new Date().toISOString() 
-      });
-      setOrderCardActionType(null);
-      setOrderCardInitialTradeMode(undefined);
-      setOrderCardMiloActionContext(null);
+       const newStock: Stock = { 
+        id: symbol, symbol, name: `Info for ${symbol}`, price: 0, changePercent: 0, float:0, volume:0, lastUpdated: new Date().toISOString(), historicalPrices:[]
+      };
+      handleStockSelection(newStock);
       toast({
         variant: "default",
         title: "Ticker Loaded",
-        description: `The ticker "${symbol.toUpperCase()}" was loaded. Price data may not be available.`,
+        description: `The ticker "${symbol.toUpperCase()}" was loaded. Price data may be limited.`,
       });
     }
   };
@@ -103,12 +98,30 @@ function MilkMarketPageContent() {
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Milk Market" />
-      {/* Main content area now uses justify-end to push the single column to the right */}
-      <div className="flex flex-1 p-4 md:p-6 overflow-hidden justify-end">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-4 md:gap-6 p-4 md:p-6 overflow-hidden">
+        
+        {/* Left Column: Watchlist */}
+        <div className="hidden md:flex flex-col h-full min-h-0">
+          <WatchlistCard
+            stocks={initialMockStocks.slice(0,15)} 
+            selectedStockSymbol={selectedStock?.symbol || null}
+            onSelectStock={handleStockSelection}
+            className="flex-1 min-h-0" 
+          />
+        </div>
+
+        {/* Center Column: Interactive Chart */}
+        <div className="flex flex-col h-full min-h-0">
+          <InteractiveChartCard
+            stock={selectedStock}
+            className="flex-1 min-h-0"
+          />
+        </div>
+
         {/* Right Column: Trade Panel + Open Positions */}
-        <div className="w-full md:w-96 lg:w-[26rem] flex flex-col flex-shrink-0 space-y-6 pr-1 overflow-y-auto">
+        <div className="flex flex-col space-y-6 md:h-full md:min-h-0 md:overflow-y-auto pr-0 md:pr-1">
           <OrderCard
-            selectedStock={selectedStockForOrderCard}
+            selectedStock={selectedStock}
             initialActionType={orderCardActionType}
             initialTradeMode={orderCardInitialTradeMode}
             miloActionContextText={orderCardMiloActionContext}
@@ -117,9 +130,7 @@ function MilkMarketPageContent() {
             onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
           />
           <OpenPositionsCard />
-          {/* Recent Trade Activity Card has been removed */}
         </div>
-        {/* Left side is now implicitly empty because the parent uses justify-end and there's only one child group */}
       </div>
     </main>
   );
