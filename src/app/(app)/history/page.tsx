@@ -210,7 +210,7 @@ export default function HistoryPage() {
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <PageHeader title="Trade History & Performance" />
+      <PageHeader title="Trade History" />
       <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
 
         <div className="grid grid-cols-2 sm:grid-cols-4 w-full max-w-xl rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05] mx-auto">

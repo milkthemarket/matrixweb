@@ -22,7 +22,7 @@ const navItems = [
   { href: "/moo-alerts", label: "Moo Alerts", icon: Megaphone },
   { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/rules", label: "Rules", icon: ListFilter },
-  { href: "/history", label: "History", icon: History },
+  { href: "/history", label: "Trade History", icon: History },
   { href: "/options", label: "Options", icon: SlidersHorizontal },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
   { href: "/academy", label: "Milk Academy", icon: GraduationCap },
