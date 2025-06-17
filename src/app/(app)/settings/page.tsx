@@ -1,16 +1,18 @@
 
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Settings as SettingsIcon, TvMinimalPlay, ListFilter, FastForward, Volume2, PlayCircle } from "lucide-react";
+import { Settings as SettingsIcon, TvMinimalPlay, ListFilter, FastForward, Volume2, PlayCircle, MailOpen } from "lucide-react";
 import { useSettingsContext } from "@/contexts/SettingsContext";
 import type { TickerSpeed, SoundOption, NotificationSoundEvent } from '@/types';
+import { Checkbox } from "@/components/ui/checkbox";
+import { AlertMethodsModal } from '@/components/AlertMethodsModal';
 
 const soundOptions: { value: SoundOption; label: string }[] = [
   { value: 'default', label: 'Default System Sound' },
@@ -35,7 +37,14 @@ export default function SettingsPage() {
     notificationSounds, setNotificationSound, playSound
   } = useSettingsContext();
 
+  // State for Alert Delivery Settings
+  const [receiveInAppAlerts, setReceiveInAppAlerts] = useState(true);
+  const [sendSmsAlerts, setSendSmsAlerts] = useState(false);
+  const [sendEmailAlerts, setSendEmailAlerts] = useState(false);
+  const [isAlertMethodsModalOpen, setIsAlertMethodsModalOpen] = useState(false);
+
   return (
+    <>
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Settings" />
       <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
@@ -47,7 +56,77 @@ export default function SettingsPage() {
             </CardTitle>
             <CardDescription>Configure your MILK preferences and integrations. Market Insight. Liquidity. Knowledge.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-8"> {/* Increased spacing between cards */}
+          <CardContent className="space-y-8">
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-headline flex items-center">
+                  <MailOpen className="mr-2 h-5 w-5 text-accent" />
+                  Alert Delivery Settings
+                </CardTitle>
+                <CardDescription>Choose how you want to receive your trade alerts.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
+                  <Checkbox
+                    id="inAppAlerts"
+                    checked={receiveInAppAlerts}
+                    onCheckedChange={(checked) => setReceiveInAppAlerts(Boolean(checked))}
+                  />
+                  <div className="grid gap-1.5 leading-none">
+                    <Label htmlFor="inAppAlerts" className="font-medium text-foreground cursor-pointer">
+                      Receive alerts within MILK
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Notifications will appear in the Alerts Panel on the Alerts page.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
+                  <Checkbox
+                    id="smsAlerts"
+                    checked={sendSmsAlerts}
+                    onCheckedChange={(checked) => setSendSmsAlerts(Boolean(checked))}
+                  />
+                  <div className="grid gap-1.5 leading-none">
+                    <Label htmlFor="smsAlerts" className="font-medium text-foreground cursor-pointer">
+                      Send alerts via text message
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Requires a verified phone number. Standard messaging rates may apply.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
+                  <Checkbox
+                    id="emailAlerts"
+                    checked={sendEmailAlerts}
+                    onCheckedChange={(checked) => setSendEmailAlerts(Boolean(checked))}
+                  />
+                  <div className="grid gap-1.5 leading-none">
+                    <Label htmlFor="emailAlerts" className="font-medium text-foreground cursor-pointer">
+                      Send alerts via email
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      Requires a verified email address. Alerts sent to your primary email.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  variant="outline"
+                  className="text-accent border-accent hover:bg-accent/10 hover:text-accent"
+                  onClick={() => setIsAlertMethodsModalOpen(true)}
+                >
+                  <SettingsIcon className="mr-2 h-4 w-4" />
+                  Manage Alert Methods
+                </Button>
+              </CardFooter>
+            </Card>
+
              <Card>
               <CardHeader>
                 <CardTitle className="text-lg font-headline flex items-center">
@@ -203,5 +282,10 @@ export default function SettingsPage() {
         </Card>
       </div>
     </main>
+    <AlertMethodsModal
+        isOpen={isAlertMethodsModalOpen}
+        onClose={() => setIsAlertMethodsModalOpen(false)}
+    />
+    </>
   );
 }

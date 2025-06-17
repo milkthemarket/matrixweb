@@ -3,17 +3,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import type { TradeAlert } from "@/types";
 import { formatDistanceToNow } from 'date-fns';
-import { BellRing, Info, MailOpen, Settings } from 'lucide-react';
+import { BellRing, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { AlertMethodsModal } from '@/components/AlertMethodsModal';
 import { useSettingsContext } from '@/contexts/SettingsContext'; // Import settings context
 
 const mockAlerts: TradeAlert[] = [
@@ -26,11 +22,6 @@ const mockAlerts: TradeAlert[] = [
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<TradeAlert[]>(mockAlerts);
   const [currentTime, setCurrentTime] = useState<Date | null>(null);
-
-  const [receiveInAppAlerts, setReceiveInAppAlerts] = useState(true);
-  const [sendSmsAlerts, setSendSmsAlerts] = useState(false);
-  const [sendEmailAlerts, setSendEmailAlerts] = useState(false);
-  const [isAlertMethodsModalOpen, setIsAlertMethodsModalOpen] = useState(false);
 
   const { notificationSounds, playSound } = useSettingsContext(); // Get sound settings
 
@@ -64,77 +55,8 @@ export default function AlertsPage() {
   return (
     <>
       <main className="flex flex-col flex-1 h-full overflow-hidden">
-        <PageHeader title="Trade Alerts & Settings" />
+        <PageHeader title="Trade Alerts" />
         <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl font-headline flex items-center">
-                <MailOpen className="mr-2 h-5 w-5 text-primary" />
-                Alert Delivery Settings
-              </CardTitle>
-              <CardDescription>Choose how you want to receive your trade alerts.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
-                <Checkbox
-                  id="inAppAlerts"
-                  checked={receiveInAppAlerts}
-                  onCheckedChange={(checked) => setReceiveInAppAlerts(Boolean(checked))}
-                />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="inAppAlerts" className="font-medium text-foreground cursor-pointer">
-                    Receive alerts within MILK
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Notifications will appear in the Alerts Panel below.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
-                <Checkbox
-                  id="smsAlerts"
-                  checked={sendSmsAlerts}
-                  onCheckedChange={(checked) => setSendSmsAlerts(Boolean(checked))}
-                />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="smsAlerts" className="font-medium text-foreground cursor-pointer">
-                    Send alerts via text message
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Requires a verified phone number. Standard messaging rates may apply.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3 p-3 rounded-lg bg-black/5 border border-white/5">
-                <Checkbox
-                  id="emailAlerts"
-                  checked={sendEmailAlerts}
-                  onCheckedChange={(checked) => setSendEmailAlerts(Boolean(checked))}
-                />
-                <div className="grid gap-1.5 leading-none">
-                  <Label htmlFor="emailAlerts" className="font-medium text-foreground cursor-pointer">
-                    Send alerts via email
-                  </Label>
-                  <p className="text-xs text-muted-foreground">
-                    Requires a verified email address. Alerts sent to your primary email.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button
-                variant="outline"
-                className="text-accent border-accent hover:bg-accent/10 hover:text-accent"
-                onClick={() => setIsAlertMethodsModalOpen(true)}
-              >
-                <Settings className="mr-2 h-4 w-4" />
-                Manage Alert Methods
-              </Button>
-            </CardFooter>
-          </Card>
 
           <Card className="flex-1 flex flex-col min-h-[400px]">
             <CardHeader>
@@ -186,10 +108,6 @@ export default function AlertsPage() {
           </Card>
         </div>
       </main>
-      <AlertMethodsModal
-        isOpen={isAlertMethodsModalOpen}
-        onClose={() => setIsAlertMethodsModalOpen(false)}
-      />
     </>
   );
 }
