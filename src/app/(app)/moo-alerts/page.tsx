@@ -159,6 +159,7 @@ const CriteriaIcon: React.FC<{ met: boolean; IconComponent: React.ElementType; l
 );
 
 const TooltipProviderWrapper: React.FC<{ content: string; children: React.ReactNode }> = ({ content, children }) => {
+  // Simplified Tooltip for brevity. In a real app, use ShadCN Tooltip.
   return <div title={content}>{children}</div>;
 };
 
@@ -201,17 +202,16 @@ const MooAlertsContent: React.FC = () => {
 
   const handleMooAlertSelectForOrder = (alertItem: MooAlertItem) => {
     const stockForOrderCard: Stock = {
-      id: alertItem.id, // Using alert ID for stock ID here, might need adjustment if IDs differ
+      id: alertItem.id,
       symbol: alertItem.symbol,
-      name: alertItem.symbol, // MooAlertItem doesn't have full name, using symbol
+      name: alertItem.symbol, 
       price: alertItem.currentPrice,
       changePercent: alertItem.premarketChangePercent || 0,
-      float: 0, // Placeholder - not available in MooAlertItem
-      volume: 0, // Placeholder - not available in MooAlertItem
+      float: 0, 
+      volume: 0, 
       newsSnippet: alertItem.headline,
       lastUpdated: new Date().toISOString(),
-      historicalPrices: [alertItem.currentPrice], // Basic historical price
-      // Other stock fields from Stock type like marketCap, avgVolume etc. can be undefined or have default values
+      historicalPrices: [alertItem.currentPrice], 
     };
     setSelectedStockForOrderCard(stockForOrderCard);
     setOrderCardActionType(null); 
@@ -248,9 +248,9 @@ const MooAlertsContent: React.FC = () => {
         stopPrice: tradeDetails.stopPrice,
         trailAmount: tradeDetails.trailingOffset,
         TIF: tradeDetails.TIF || "Day",
-        tradingHours: "Include Extended Hours",
+        tradingHours: "Include Extended Hours", // Default or make configurable
         placedTime: new Date().toISOString(),
-        filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(),
+        filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(), // Simulate fill delay
         orderStatus: "Filled",
         averagePrice: (tradeDetails.orderType === "Limit" && tradeDetails.limitPrice) ? tradeDetails.limitPrice : selectedStockForOrderCard.price,
         tradeModeOrigin: tradeDetails.tradeModeOrigin || 'manual',
@@ -365,16 +365,16 @@ const MooAlertsContent: React.FC = () => {
 
               {filteredAlerts.length > 0 ? (
                 <ScrollArea className="h-[calc(100vh-30rem)] md:h-[calc(100vh-28rem)]"> 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pr-3">
+                  <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4">
                     {filteredAlerts.map(alert => (
                       <Card 
                         key={alert.id} 
                         className="bg-black/20 border border-white/10 shadow-sm flex flex-col cursor-pointer hover:border-primary/50"
                         onClick={() => handleMooAlertSelectForOrder(alert)}
                       >
-                        <CardHeader className="p-3 pb-1.5">
-                           <div className="flex flex-col items-start gap-0.5">
-                                <div className="flex items-baseline gap-2 flex-wrap w-full">
+                        <CardHeader className="p-3 pb-2">
+                           <div className="flex items-start justify-between gap-2 flex-wrap w-full">
+                                <div className="flex items-baseline gap-2 flex-wrap">
                                     <CardTitle className="text-base font-semibold text-primary">{alert.symbol}</CardTitle>
                                     <span className="text-sm font-mono text-foreground">${alert.currentPrice.toFixed(2)}</span>
                                     {alert.premarketChangePercent !== undefined && (
@@ -385,13 +385,13 @@ const MooAlertsContent: React.FC = () => {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <Badge variant="outline" className={cn("text-xs py-0.5 px-1.5 h-auto", getSentimentBadgeClass(alert.sentiment))}>
-                                    {alert.sentiment}
+                                      {alert.sentiment}
                                     </Badge>
                                     <p className="text-xs text-muted-foreground">{alert.time}</p>
                                 </div>
                             </div>
                         </CardHeader>
-                        <CardContent className="p-3 pt-1.5 space-y-2 flex-1 flex flex-col justify-between">
+                        <CardContent className="p-3 pt-1 flex-1 flex flex-col justify-between space-y-2">
                           <div>
                             <p className="text-sm text-foreground leading-snug line-clamp-2 mb-2">{alert.headline}</p>
                             <div className="flex items-center space-x-2.5">
@@ -401,7 +401,7 @@ const MooAlertsContent: React.FC = () => {
                                 <CriteriaIcon met={alert.criteria.shortable} IconComponent={TrendingDown} label="Shortable" activeColorClass="text-yellow-400" />
                             </div>
                           </div>
-                          <div className="flex items-center space-x-2 pt-2">
+                          <div className="flex items-center space-x-2 pt-2 justify-start">
                             <Button 
                                 variant="outline" 
                                 size="sm" 
@@ -410,7 +410,7 @@ const MooAlertsContent: React.FC = () => {
                             >
                                 <Send className="mr-1 h-3 w-3" /> Send
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-7 px-2 text-xs" onClick={(e) => e.stopPropagation()}>
+                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-7 px-2 text-xs" onClick={(e) => {e.stopPropagation(); toast({title: "Alert Setting", description:"Alert configuration UI for this specific Moo Alert would go here."})}}>
                                 <AlertCircle className="mr-1 h-3 w-3" /> Alert
                             </Button>
                           </div>
@@ -468,7 +468,3 @@ export default function MooAlertsPage() {
     </Suspense>
   );
 }
-
-    
-
-    
