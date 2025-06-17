@@ -7,9 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Newspaper, BarChartBig, LineChart, Megaphone, Send, AlertCircle, Info, TrendingDown, MousePointerSquareDashed } from "lucide-react";
+import { Newspaper, BarChartBig, LineChart, Megaphone, MousePointerSquareDashed, AlertCircle, Info, TrendingDown, TrafficCone, DollarSign, ShieldCheck, Target, Percent, PackageOpen } from "lucide-react";
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
-import type { MooAlertItem, MooAlertSentiment, Stock, TradeRequest, OrderActionType, TradeMode } from '@/types';
+import type { MooAlertItem, MooAlertSentiment, Stock, TradeRequest, OrderActionType, TradeMode, OrderSystemType } from '@/types';
 import { cn } from '@/lib/utils';
 import { OrderCard } from '@/components/OrderCard';
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +17,45 @@ import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
 import { useOpenPositionsContext } from "@/contexts/OpenPositionsContext";
 
 
-const initialDummyAlerts: MooAlertItem[] = [
+const generateTradePlan = (price: number, sentiment: MooAlertSentiment): Partial<MooAlertItem> => {
+  let action: OrderActionType = 'Buy';
+  if (sentiment === 'Negative') action = 'Short';
+  
+  const orderType: OrderSystemType = Math.random() > 0.5 ? 'Limit' : 'Market';
+  const quantity = Math.floor(Math.random() * 20) + 10; // 10-29 shares
+
+  let entryPrice: number;
+  if (orderType === 'Limit') {
+    entryPrice = action === 'Buy' ? parseFloat((price * 0.995).toFixed(2)) : parseFloat((price * 1.005).toFixed(2));
+  } else {
+    entryPrice = price;
+  }
+
+  const targetGainPercent = parseFloat((Math.random() * 4 + 2).toFixed(1)); // 2-6%
+  const stopLossRiskPercent = parseFloat((Math.random() * 2 + 1).toFixed(1)); // 1-3%
+
+  const targetPrice = action === 'Buy' 
+    ? parseFloat((entryPrice * (1 + targetGainPercent / 100)).toFixed(2))
+    : parseFloat((entryPrice * (1 - targetGainPercent / 100)).toFixed(2));
+  
+  const stopLossPrice = action === 'Buy'
+    ? parseFloat((entryPrice * (1 - stopLossRiskPercent / 100)).toFixed(2))
+    : parseFloat((entryPrice * (1 + stopLossRiskPercent / 100)).toFixed(2));
+    
+  return {
+    suggestedAction: action,
+    suggestedEntryPrice: entryPrice,
+    suggestedTargetPrice: targetPrice,
+    suggestedStopLossPrice: stopLossPrice,
+    targetGainPercent,
+    stopLossRiskPercent,
+    suggestedOrderType: orderType,
+    suggestedQuantity: quantity,
+  };
+};
+
+
+const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedEntryPrice' | 'suggestedTargetPrice' | 'suggestedStopLossPrice' | 'targetGainPercent' | 'stopLossRiskPercent' | 'suggestedOrderType' | 'suggestedQuantity'>[] = [
   {
     id: 'ma1',
     symbol: "TSLA",
@@ -152,14 +190,19 @@ const initialDummyAlerts: MooAlertItem[] = [
   }
 ];
 
+const initialDummyAlerts: MooAlertItem[] = initialDummyAlertsData.map(alert => ({
+  ...alert,
+  ...generateTradePlan(alert.currentPrice, alert.sentiment),
+}));
+
+
 const CriteriaIcon: React.FC<{ met: boolean; IconComponent: React.ElementType; label: string; activeColorClass?: string }> = ({ met, IconComponent, label, activeColorClass = "text-green-400" }) => (
   <TooltipProviderWrapper content={label}>
-    <IconComponent className={cn("h-4 w-4", met ? activeColorClass : "text-muted-foreground/50")} />
+    <IconComponent className={cn("h-3.5 w-3.5", met ? activeColorClass : "text-muted-foreground/50")} />
   </TooltipProviderWrapper>
 );
 
 const TooltipProviderWrapper: React.FC<{ content: string; children: React.ReactNode }> = ({ content, children }) => {
-  // Simplified Tooltip for brevity. In a real app, use ShadCN Tooltip.
   return <div title={content}>{children}</div>;
 };
 
@@ -193,11 +236,15 @@ const MooAlertsContent: React.FC = () => {
   const { addTradeToHistory } = useTradeHistoryContext();
   const { addOpenPosition, selectedAccountId } = useOpenPositionsContext();
 
-
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
   const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
   const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
   const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
+  
+  // New state for pre-filling OrderCard
+  const [orderCardInitialQuantity, setOrderCardInitialQuantity] = useState<string | undefined>(undefined);
+  const [orderCardInitialOrderType, setOrderCardInitialOrderType] = useState<OrderSystemType | undefined>(undefined);
+  const [orderCardInitialLimitPrice, setOrderCardInitialLimitPrice] = useState<string | undefined>(undefined);
 
 
   const handleMooAlertSelectForOrder = (alertItem: MooAlertItem) => {
@@ -214,12 +261,26 @@ const MooAlertsContent: React.FC = () => {
       historicalPrices: [alertItem.currentPrice], 
     };
     setSelectedStockForOrderCard(stockForOrderCard);
-    setOrderCardActionType(null); 
+    setOrderCardActionType(alertItem.suggestedAction || null); 
     setOrderCardInitialTradeMode('manual'); 
-    setOrderCardMiloActionContext(null);
-     toast({
-      title: "Ticker Loaded",
-      description: `${alertItem.symbol} sent to trade panel.`,
+    
+    // Set new initial states for OrderCard
+    setOrderCardInitialQuantity(alertItem.suggestedQuantity !== undefined ? String(alertItem.suggestedQuantity) : undefined);
+    setOrderCardInitialOrderType(alertItem.suggestedOrderType);
+    setOrderCardInitialLimitPrice(
+      (alertItem.suggestedOrderType === 'Limit' || alertItem.suggestedOrderType === 'Stop Limit') && alertItem.suggestedEntryPrice !== undefined
+        ? String(alertItem.suggestedEntryPrice)
+        : undefined
+    );
+
+    let contextSummary = `Moo Alert Plan for ${alertItem.symbol}: ${alertItem.suggestedAction || 'Review'} ${alertItem.suggestedQuantity || ''} shares`;
+    if (alertItem.suggestedOrderType) contextSummary += ` via ${alertItem.suggestedOrderType}`;
+    if (alertItem.suggestedEntryPrice && (alertItem.suggestedOrderType === 'Limit' || alertItem.suggestedOrderType === 'Stop Limit')) contextSummary += ` @ $${alertItem.suggestedEntryPrice.toFixed(2)}`;
+    setOrderCardMiloActionContext(contextSummary);
+    
+    toast({
+      title: "Trade Plan Loaded",
+      description: `${alertItem.symbol} trade plan sent to panel. Review and confirm.`,
     });
   };
 
@@ -228,6 +289,9 @@ const MooAlertsContent: React.FC = () => {
     setOrderCardActionType(null);
     setOrderCardInitialTradeMode(undefined);
     setOrderCardMiloActionContext(null);
+    setOrderCardInitialQuantity(undefined);
+    setOrderCardInitialOrderType(undefined);
+    setOrderCardInitialLimitPrice(undefined);
   };
 
   const handleTradeSubmit = (tradeDetails: TradeRequest) => {
@@ -250,7 +314,7 @@ const MooAlertsContent: React.FC = () => {
         TIF: tradeDetails.TIF || "Day",
         tradingHours: tradeDetails.allowExtendedHours ? "Include Extended Hours" : "Regular Market Hours Only",
         placedTime: new Date().toISOString(),
-        filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(), // Simulate fill delay
+        filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(),
         orderStatus: "Filled",
         averagePrice: (tradeDetails.orderType === "Limit" && tradeDetails.limitPrice) ? tradeDetails.limitPrice : selectedStockForOrderCard.price,
         tradeModeOrigin: tradeDetails.tradeModeOrigin || 'manual',
@@ -269,6 +333,10 @@ const MooAlertsContent: React.FC = () => {
             accountId: tradeDetails.accountId || selectedAccountId,
         });
     }
+    // Optionally clear the specific initial props for the OrderCard after submission
+    // setOrderCardInitialQuantity(undefined);
+    // setOrderCardInitialOrderType(undefined);
+    // setOrderCardInitialLimitPrice(undefined);
   };
 
   const handleStockSymbolSubmitFromOrderCard = (symbol: string) => {
@@ -276,10 +344,18 @@ const MooAlertsContent: React.FC = () => {
     if (alertItem) {
       handleMooAlertSelectForOrder(alertItem);
     } else {
+      setSelectedStockForOrderCard({ // Basic stock object for manual ticker entry
+        id: symbol, symbol, name: symbol, price: 0, changePercent: 0, float:0, volume:0, lastUpdated: new Date().toISOString()
+      });
+      setOrderCardActionType(null);
+      setOrderCardInitialTradeMode('manual');
+      setOrderCardMiloActionContext(null);
+      setOrderCardInitialQuantity(undefined);
+      setOrderCardInitialOrderType(undefined);
+      setOrderCardInitialLimitPrice(undefined);
       toast({
-        variant: "destructive",
-        title: "Ticker Not Found",
-        description: `The ticker "${symbol.toUpperCase()}" was not found in the current Moo Alerts list.`,
+        title: "Ticker Loaded Manually",
+        description: `The ticker "${symbol.toUpperCase()}" was loaded. Please verify details.`,
       });
     }
   };
@@ -332,7 +408,7 @@ const MooAlertsContent: React.FC = () => {
                 Real-Time Trade Signals
               </CardTitle>
               <CardDescription>
-                Get real-time news catalysts, volume spikes, and instant trade signals—curated for momentum traders.
+                Actionable signals with trade plans. Click an alert to populate the trade panel.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -364,53 +440,76 @@ const MooAlertsContent: React.FC = () => {
               </div>
 
               {filteredAlerts.length > 0 ? (
-                <ScrollArea className="h-[calc(100vh-30rem)] md:h-[calc(100vh-28rem)]"> 
+                 <ScrollArea className="h-[calc(100vh-30rem)] md:h-[calc(100vh-28rem)] pr-1"> 
                   <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4">
                     {filteredAlerts.map(alert => (
                       <Card 
                         key={alert.id} 
-                        className="bg-black/20 border border-white/10 shadow-sm flex flex-col cursor-pointer hover:border-primary/50"
-                        onClick={() => handleMooAlertSelectForOrder(alert)}
+                        className="bg-black/20 border border-white/10 shadow-sm flex flex-col hover:border-primary/50 transition-all duration-150 ease-in-out"
                       >
-                        <CardHeader className="p-3 pb-2">
-                           <div className="flex items-start justify-between gap-2 flex-wrap w-full">
+                        <CardHeader className="p-3 pb-2 space-y-1">
+                           <div className="flex items-center justify-between gap-2 flex-wrap w-full">
                                 <div className="flex items-baseline gap-2 flex-wrap">
-                                    <CardTitle className="text-base font-semibold text-primary">{alert.symbol}</CardTitle>
+                                    <button onClick={() => handleMooAlertSelectForOrder(alert)} className="focus:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded-sm">
+                                      <CardTitle className="text-base font-semibold text-primary hover:underline">{alert.symbol}</CardTitle>
+                                    </button>
                                     <span className="text-sm font-mono text-foreground">${alert.currentPrice.toFixed(2)}</span>
                                     {alert.premarketChangePercent !== undefined && (
                                         <span className={cn("text-xs font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
-                                        Pre: {alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%
+                                          Pre: {alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%
                                         </span>
                                     )}
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5">
                                     <Badge variant="outline" className={cn("text-xs py-0.5 px-1.5 h-auto", getSentimentBadgeClass(alert.sentiment))}>
                                       {alert.sentiment}
                                     </Badge>
                                     <p className="text-xs text-muted-foreground">{alert.time}</p>
                                 </div>
                             </div>
-                        </CardHeader>
-                        <CardContent className="p-3 pt-1 flex-1 flex flex-col justify-between space-y-2">
-                          <div>
-                            <p className="text-sm text-foreground leading-snug line-clamp-2 mb-2">{alert.headline}</p>
-                            <div className="flex items-center space-x-2.5">
+                            <p className="text-sm text-foreground leading-snug line-clamp-2 pt-0.5">{alert.headline}</p>
+                            <div className="flex items-center space-x-2.5 pt-1">
                                 <CriteriaIcon met={alert.criteria.news} IconComponent={Newspaper} label="Positive News" />
                                 <CriteriaIcon met={alert.criteria.volume} IconComponent={BarChartBig} label="High Pre-market Volume" />
                                 <CriteriaIcon met={alert.criteria.chart} IconComponent={LineChart} label="Clean Chart Structure" />
                                 <CriteriaIcon met={alert.criteria.shortable} IconComponent={TrendingDown} label="Shortable" activeColorClass="text-yellow-400" />
                             </div>
-                          </div>
-                          <div className="flex items-center space-x-2 pt-2 justify-start">
+                        </CardHeader>
+                        <CardContent className="p-3 pt-1 flex-1 flex flex-col justify-between space-y-2">
+                          {alert.suggestedAction && (
+                            <div className="border-t border-white/5 pt-2 mt-1 space-y-1 text-xs">
+                              <div className="flex items-center font-medium text-primary">
+                                <TrafficCone className="h-3.5 w-3.5 mr-1.5" /> Trade Plan:
+                              </div>
+                              <div className="flex items-center text-foreground/90">
+                                <DollarSign className="h-3 w-3 mr-1 text-muted-foreground" />
+                                Action: <span className="font-semibold ml-1">{alert.suggestedAction}</span>, 
+                                Qty: <span className="font-semibold ml-1">{alert.suggestedQuantity}</span>
+                              </div>
+                              <div className="flex items-center text-foreground/90">
+                                <DollarSign className="h-3 w-3 mr-1 text-muted-foreground" />
+                                Entry: ${alert.suggestedEntryPrice?.toFixed(2)} ({alert.suggestedOrderType})
+                              </div>
+                              <div className="flex items-center text-green-400">
+                                <Target className="h-3 w-3 mr-1" />
+                                Target: ${alert.suggestedTargetPrice?.toFixed(2)} (+{alert.targetGainPercent?.toFixed(1)}%)
+                              </div>
+                              <div className="flex items-center text-red-400">
+                                <ShieldCheck className="h-3 w-3 mr-1" />
+                                Stop: ${alert.suggestedStopLossPrice?.toFixed(2)} (-{alert.stopLossRiskPercent?.toFixed(1)}%)
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex items-center space-x-2 pt-2 justify-start mt-auto">
                             <Button 
                                 variant="outline" 
                                 size="sm" 
                                 className="border-accent text-accent hover:bg-accent/10 hover:text-accent h-7 px-2 text-xs"
-                                onClick={(e) => { e.stopPropagation(); handleMooAlertSelectForOrder(alert); }}
+                                onClick={() => handleMooAlertSelectForOrder(alert)}
                             >
                                 <MousePointerSquareDashed className="mr-1 h-3 w-3" /> Trade
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-7 px-2 text-xs" onClick={(e) => {e.stopPropagation(); toast({title: "Alert Setting", description:"Alert configuration UI for this specific Moo Alert would go here."})}}>
+                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-7 px-2 text-xs" onClick={() => toast({title: "Alert Setting", description:"Alert configuration UI for this specific Moo Alert would go here."})}>
                                 <AlertCircle className="mr-1 h-3 w-3" /> Alert
                             </Button>
                           </div>
@@ -454,6 +553,9 @@ const MooAlertsContent: React.FC = () => {
             onSubmit={handleTradeSubmit}
             onClear={handleClearOrderCard}
             onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
+            initialQuantity={orderCardInitialQuantity}
+            initialOrderType={orderCardInitialOrderType}
+            initialLimitPrice={orderCardInitialLimitPrice}
           />
         </div>
       </div>

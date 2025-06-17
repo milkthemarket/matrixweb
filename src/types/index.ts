@@ -261,4 +261,14 @@ export interface MooAlertItem {
     chart: boolean;
     shortable: boolean;
   };
+  // New fields for trade plan
+  suggestedAction?: OrderActionType;
+  suggestedEntryPrice?: number;
+  suggestedTargetPrice?: number;
+  suggestedStopLossPrice?: number;
+  targetGainPercent?: number;
+  stopLossRiskPercent?: number;
+  suggestedOrderType?: OrderSystemType;
+  suggestedQuantity?: number;
 }
+

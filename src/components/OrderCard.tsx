@@ -27,6 +27,9 @@ interface OrderCardProps {
   initialTradeMode?: TradeMode;
   miloActionContextText?: string | null;
   onStockSymbolSubmit: (symbol: string) => void;
+  initialQuantity?: string; // New prop for pre-filling quantity
+  initialOrderType?: OrderSystemType; // New prop for pre-filling order type
+  initialLimitPrice?: string; // New prop for pre-filling limit price
 }
 
 const dummyAutoRules = [
@@ -35,7 +38,18 @@ const dummyAutoRules = [
 ];
 
 
-export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear, initialTradeMode, miloActionContextText, onStockSymbolSubmit }: OrderCardProps) {
+export function OrderCard({ 
+  selectedStock, 
+  initialActionType, 
+  onSubmit, 
+  onClear, 
+  initialTradeMode, 
+  miloActionContextText, 
+  onStockSymbolSubmit,
+  initialQuantity,
+  initialOrderType,
+  initialLimitPrice 
+}: OrderCardProps) {
   const { selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
   const { notificationSounds, playSound } = useSettingsContext();
 
@@ -69,48 +83,53 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
   const [showAiAutopilotWarningModal, setShowAiAutopilotWarningModal] = useState(false);
   const [aiAutopilotDisclaimerAcknowledged, setAiAutopilotDisclaimerAcknowledged] = useState(false);
 
-
-  useEffect(() => {
-    if (initialTradeMode) {
-      setTradeMode(initialTradeMode);
-    } else {
-      setTradeMode('manual');
-    }
-  }, [initialTradeMode]);
-
-  useEffect(() => {
-     setDisplayedMiloContext(miloActionContextText || null);
-  }, [miloActionContextText]);
-
   useEffect(() => {
     if (selectedStock) {
       if (tickerInputValue.toUpperCase() !== selectedStock.symbol.toUpperCase()) {
         setTickerInputValue(selectedStock.symbol);
       }
-    } else {
-      if (document.activeElement !== document.getElementById('tickerInput')) {
-        setTickerInputValue('');
-      }
-    }
-  }, [selectedStock, tickerInputValue]);
 
-  useEffect(() => {
-    if (selectedStock) {
-      if (tradeMode === 'manual') {
-         setCurrentAction(initialActionType);
-         if (initialTradeMode === 'manual' || !miloActionContextText ) {
-            setOrderType('Market');
-            setLimitPrice('');
-            setStopPrice('');
-            setTrailingOffset('');
-            setTimeInForce('Day');
-            setAllowExtendedHours(false);
-         }
+      // Prioritize initial props from MooAlerts/Milo suggestions for form pre-fill
+      const isPreFillScenario = initialActionType !== undefined || initialQuantity !== undefined || initialOrderType !== undefined || initialLimitPrice !== undefined;
+
+      if (isPreFillScenario) {
+        setCurrentAction(initialActionType || null);
+        setQuantityValue(initialQuantity !== undefined ? String(initialQuantity) : '');
+        setOrderType(initialOrderType || 'Market');
+        
+        if ((initialOrderType === 'Limit' || initialOrderType === 'Stop Limit') && initialLimitPrice !== undefined) {
+          setLimitPrice(String(initialLimitPrice));
+        } else {
+          setLimitPrice('');
+        }
+        
+        // Reset other fields for a fresh alert load, unless also part of initial props (not currently)
+        setStopPrice('');
+        setTrailingOffset('');
+        setTimeInForce('Day');
+        setAllowExtendedHours(false);
+
+      } else if (!miloActionContextText) { 
+        // Fresh manual ticker entry or clearing (not from a Milo context that might imply pre-fill)
+        setCurrentAction(null); // Reset action if it wasn't from a direct prop
+        setQuantityValue('');
+        setOrderType('Market');
+        setLimitPrice('');
+        setStopPrice('');
+        setTrailingOffset('');
+        setTimeInForce('Day');
+        setAllowExtendedHours(false);
       }
-      if (tradeMode !== 'manual' && initialTradeMode === 'manual' && !miloActionContextText) {
-          setDisplayedMiloContext(null);
+      // else if initialActionType is set (e.g. dashboard quick buy/sell), keep current quantity/orderType if user was editing
+
+      if (initialTradeMode) {
+        setTradeMode(initialTradeMode);
+      } else if (!miloActionContextText) {
+        setTradeMode('manual');
       }
-    } else {
+      setDisplayedMiloContext(miloActionContextText || null);
+
+    } else { // No stock selected
       setCurrentAction(null);
       setQuantityValue('');
       setOrderType('Market');
@@ -121,8 +140,20 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       setAllowExtendedHours(false);
       setDisplayedMiloContext(null);
       setIsAutopilotEnabled(false);
+      if (document.activeElement !== document.getElementById('tickerInput')) {
+          setTickerInputValue('');
+      }
     }
-  }, [selectedStock, initialActionType, tradeMode, miloActionContextText, initialTradeMode]);
+  }, [
+    selectedStock,
+    initialActionType,
+    initialTradeMode,
+    miloActionContextText,
+    initialQuantity,
+    initialOrderType,
+    initialLimitPrice,
+  ]);
+
 
   useEffect(() => {
     if (orderType !== 'Limit') {
@@ -238,10 +269,11 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     };
 
     if (orderType === 'Limit' || orderType === 'Stop Limit') {
-      if (!limitPrice || isNaN(parseFloat(limitPrice)) || parseFloat(limitPrice) <= 0) {
+      const numLimitPrice = parseFloat(limitPrice);
+      if (!limitPrice || isNaN(numLimitPrice) || numLimitPrice <= 0) {
         alert("Please enter a valid limit price."); return;
       }
-      tradeDetails.limitPrice = parseFloat(limitPrice);
+      tradeDetails.limitPrice = numLimitPrice;
     }
     if (orderType === 'Stop' || orderType === 'Stop Limit') {
       if (!stopPrice || isNaN(parseFloat(stopPrice)) || parseFloat(stopPrice) <= 0) {
@@ -264,7 +296,10 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       if (notificationSounds.tradePlaced !== 'off') {
         playSound(notificationSounds.tradePlaced);
       }
-      if (tradeDetails.tradeModeOrigin === 'manual' && !miloActionContextText) setQuantityValue('');
+      // Clear quantity only if it wasn't a pre-filled scenario or if it's purely manual without context
+      if (!initialQuantity && !miloActionContextText) {
+         setQuantityValue('');
+      }
     }
   };
 
@@ -277,7 +312,9 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
       if (notificationSounds.tradePlaced !== 'off') {
         playSound(notificationSounds.tradePlaced);
       }
-      if (pendingTradeDetails.tradeModeOrigin === 'manual' && !miloActionContextText) setQuantityValue('');
+      if (!initialQuantity && !miloActionContextText) {
+         setQuantityValue('');
+      }
     }
     setPendingTradeDetails(null);
     setShowManualTradeWarningModal(false);
@@ -713,3 +750,4 @@ export function OrderCard({ selectedStock, initialActionType, onSubmit, onClear,
     </>
   );
 }
+
