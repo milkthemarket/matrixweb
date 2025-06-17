@@ -15,6 +15,7 @@ import { OrderCard } from '@/components/OrderCard';
 import { useToast } from "@/hooks/use-toast";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
 import { useOpenPositionsContext } from "@/contexts/OpenPositionsContext";
+import { useSettingsContext } from '@/contexts/SettingsContext';
 
 
 const generateTradePlan = (price: number, sentiment: MooAlertSentiment): Partial<MooAlertItem> => {
@@ -190,11 +191,6 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
   }
 ];
 
-const initialDummyAlerts: MooAlertItem[] = initialDummyAlertsData.map(alert => ({
-  ...alert,
-  ...generateTradePlan(alert.currentPrice, alert.sentiment),
-}));
-
 
 const CriteriaIcon: React.FC<{ met: boolean; IconComponent: React.ElementType; label: string; activeColorClass?: string }> = ({ met, IconComponent, label, activeColorClass = "text-green-400" }) => (
   <TooltipProviderWrapper content={label}>
@@ -203,7 +199,7 @@ const CriteriaIcon: React.FC<{ met: boolean; IconComponent: React.ElementType; l
 );
 
 const TooltipProviderWrapper: React.FC<{ content: string; children: React.ReactNode }> = ({ content, children }) => {
-  return <div title={content}>{children}</div>;
+  return <div title={content}>{children}</div>; // Simplified for brevity, full Tooltip can be used
 };
 
 interface SelectedCriteriaState {
@@ -229,12 +225,14 @@ const criteriaFilterConfig: Array<{ key: keyof SelectedCriteriaState; label: str
 
 
 const MooAlertsContent: React.FC = () => {
-  const [alerts, setAlerts] = useState<MooAlertItem[]>(initialDummyAlerts);
+  const [alerts, setAlerts] = useState<MooAlertItem[]>([]); // Initialize as empty
   const [selectedCriteria, setSelectedCriteria] = useState<SelectedCriteriaState>(initialCriteriaFilterState);
 
   const { toast } = useToast();
   const { addTradeToHistory } = useTradeHistoryContext();
   const { addOpenPosition, selectedAccountId } = useOpenPositionsContext();
+  const { notificationSounds, playSound } = useSettingsContext();
+
 
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
   const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
@@ -246,6 +244,42 @@ const MooAlertsContent: React.FC = () => {
   const [orderCardInitialLimitPrice, setOrderCardInitialLimitPrice] = useState<string | undefined>(undefined);
 
 
+  useEffect(() => {
+    // Client-side effect to process initial alerts with random trade plans
+    const processedInitialAlerts = initialDummyAlertsData.map(alert => ({
+      ...alert,
+      ...generateTradePlan(alert.currentPrice, alert.sentiment),
+    }));
+    setAlerts(processedInitialAlerts);
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  useEffect(() => {
+    const newAlertInterval = setInterval(() => {
+      const randomBaseAlert = initialDummyAlertsData[Math.floor(Math.random() * initialDummyAlertsData.length)];
+      const newPrice = parseFloat((randomBaseAlert.currentPrice * (1 + (Math.random() - 0.5) * 0.05)).toFixed(2));
+      const newSentiment = ['Positive', 'Negative', 'Neutral'][Math.floor(Math.random() * 3)] as MooAlertSentiment;
+      
+      const newAlert: MooAlertItem = {
+        ...randomBaseAlert,
+        id: String(Date.now()),
+        currentPrice: newPrice,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }),
+        sentiment: newSentiment,
+        premarketChangePercent: parseFloat(((Math.random() - 0.5) * 5).toFixed(2)), // Random premarket change
+        ...generateTradePlan(newPrice, newSentiment), // Generate trade plan with new data
+      };
+
+      setAlerts(prevAlerts => [newAlert, ...prevAlerts].slice(0, 20)); // Keep max 20 alerts
+      
+      if (notificationSounds.mooAlert !== 'off') {
+        playSound(notificationSounds.mooAlert);
+      }
+
+    }, 30000); // Every 30 seconds
+    return () => clearInterval(newAlertInterval);
+  }, [notificationSounds.mooAlert, playSound]);
+
+
   const handleMooAlertSelectForOrder = (alertItem: MooAlertItem) => {
     const stockForOrderCard: Stock = {
       id: alertItem.id,
@@ -253,11 +287,11 @@ const MooAlertsContent: React.FC = () => {
       name: alertItem.symbol, 
       price: alertItem.currentPrice,
       changePercent: alertItem.premarketChangePercent || 0,
-      float: 0, 
+      float: 0, // Assuming float/volume not directly on MooAlertItem, can be fetched if needed
       volume: 0, 
       newsSnippet: alertItem.headline,
       lastUpdated: new Date().toISOString(),
-      historicalPrices: [alertItem.currentPrice], 
+      historicalPrices: [alertItem.currentPrice], // Minimal historical data for now
     };
     setSelectedStockForOrderCard(stockForOrderCard);
     setOrderCardActionType(alertItem.suggestedAction || null); 
@@ -312,10 +346,10 @@ const MooAlertsContent: React.FC = () => {
         TIF: tradeDetails.TIF || "Day",
         tradingHours: tradeDetails.allowExtendedHours ? "Include Extended Hours" : "Regular Market Hours Only",
         placedTime: new Date().toISOString(),
-        filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(),
-        orderStatus: "Filled",
+        filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(), // Simulate fill delay
+        orderStatus: "Filled", // Mock fill
         averagePrice: (tradeDetails.orderType === "Limit" && tradeDetails.limitPrice) ? tradeDetails.limitPrice : selectedStockForOrderCard.price,
-        tradeModeOrigin: tradeDetails.tradeModeOrigin || 'manual',
+        tradeModeOrigin: tradeDetails.tradeModeOrigin || 'manual', // From Moo Alert is considered manual initiation with AI context
         accountId: tradeDetails.accountId || selectedAccountId,
       });
     }
@@ -338,8 +372,9 @@ const MooAlertsContent: React.FC = () => {
     if (alertItem) {
       handleMooAlertSelectForOrder(alertItem);
     } else {
+      // If not found in alerts, create a basic stock object for the order card
       setSelectedStockForOrderCard({ 
-        id: symbol, symbol, name: symbol, price: 0, changePercent: 0, float:0, volume:0, lastUpdated: new Date().toISOString()
+        id: symbol, symbol, name: symbol, price: 0, changePercent: 0, float:0, volume:0, lastUpdated: new Date().toISOString(), historicalPrices: []
       });
       setOrderCardActionType(null);
       setOrderCardInitialTradeMode('manual');
@@ -441,7 +476,23 @@ const MooAlertsContent: React.FC = () => {
                 ))}
               </div>
 
-              {filteredAlerts.length > 0 ? (
+              {alerts.length === 0 && ( // Show loading or initial state if alerts are still empty
+                 <div className="flex flex-col items-center justify-center text-center py-12 text-muted-foreground">
+                  <MiloAvatarIcon size={60} className="mb-4 opacity-70 animate-pulse" />
+                  <p className="text-lg font-medium">Moo-ving data into place...</p>
+                  <p className="text-sm">Loading initial alerts.</p>
+                </div>
+              )}
+
+              {alerts.length > 0 && filteredAlerts.length === 0 && ( // Show no results if filters applied and no match
+                 <div className="flex flex-col items-center justify-center text-center py-12 text-muted-foreground">
+                  <MiloAvatarIcon size={60} className="mb-4 opacity-70" />
+                  <p className="text-lg font-medium">No alerts match your current filter.</p>
+                  <p className="text-sm">Try adjusting the criteria or "Show All".</p>
+                </div>
+              )}
+
+              {filteredAlerts.length > 0 && (
                  <ScrollArea className="h-[calc(100vh-30rem)] md:h-[calc(100vh-28rem)] pr-1"> 
                   <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4">
                     {filteredAlerts.map(alert => (
@@ -485,14 +536,12 @@ const MooAlertsContent: React.FC = () => {
                                 <TrafficCone className="h-3.5 w-3.5 mr-1.5" /> Trade Plan:
                               </div>
                               <div className="flex items-center">
-                                <DollarSign className="h-3 w-3 mr-1 text-muted-foreground" />
                                 <span className="text-foreground">Action:</span>
                                 <span className={cn("font-semibold ml-1", getActionTextColorClass(alert.suggestedAction))}>{alert.suggestedAction}</span>
                                 <span className="text-foreground">, Qty:</span>
                                 <span className="font-semibold ml-1 text-foreground">{alert.suggestedQuantity}</span>
                               </div>
                               <div className="flex items-center">
-                                <DollarSign className="h-3 w-3 mr-1 text-muted-foreground" />
                                 <span className="text-foreground">Entry:</span>
                                 <span className="ml-1 text-foreground">${alert.suggestedEntryPrice?.toFixed(2)} ({alert.suggestedOrderType})</span>
                               </div>
@@ -526,12 +575,6 @@ const MooAlertsContent: React.FC = () => {
                     ))}
                   </div>
                 </ScrollArea>
-              ) : (
-                <div className="flex flex-col items-center justify-center text-center py-12 text-muted-foreground">
-                  <MiloAvatarIcon size={60} className="mb-4 opacity-70" />
-                  <p className="text-lg font-medium">No headlines worth moo-ving on yet.</p>
-                  <p className="text-sm">Check back soon for the latest alerts!</p>
-                </div>
               )}
             </CardContent>
           </Card>
@@ -578,6 +621,3 @@ export default function MooAlertsPage() {
     </Suspense>
   );
 }
-
-
-    
