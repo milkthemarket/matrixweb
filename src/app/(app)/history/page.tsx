@@ -1,21 +1,22 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
 import type { TradeHistoryEntry, HistoryTradeMode, TradeStatsData, ColumnConfig, HistoryFilterMode } from "@/types";
-import { format, parseISO } from 'date-fns';
-import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, User, BarChartHorizontalBig, PackageOpen, Repeat, Award, Layers, Download, PieChart } from "lucide-react";
+import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, User, BarChartHorizontalBig, PackageOpen, Repeat, Award, Layers, Download, PieChart, CalendarDays } from "lucide-react";
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import { cn } from '@/lib/utils';
-import { exportToCSV } from '@/lib/exportCSV'; // Ensure this is correctly imported
+import { exportToCSV } from '@/lib/exportCSV';
 import { useToast } from "@/hooks/use-toast";
+import { Calendar } from "@/components/ui/calendar";
 
 
 const getStatusIcon = (status: TradeHistoryEntry['orderStatus']) => {
@@ -100,8 +101,56 @@ const tradeHistoryColumnConfig: ColumnConfig<TradeHistoryEntry>[] = [
 
 export default function HistoryPage() {
   const { tradeHistory } = useTradeHistoryContext();
-  const [selectedHistoryFilterMode, setSelectedHistoryFilterMode] = useState<HistoryFilterMode>('all'); // Default to 'all'
+  const [selectedHistoryFilterMode, setSelectedHistoryFilterMode] = useState<HistoryFilterMode>('all');
   const { toast } = useToast();
+
+  const [dailyPnlData, setDailyPnlData] = useState<Record<string, number>>({});
+  const [currentCalendarMonth, setCurrentCalendarMonth] = useState<Date>(new Date());
+
+  useEffect(() => {
+    const generatePnlForMonth = (date: Date) => {
+        const pnlMap: Record<string, number> = {};
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const daysInMonthValue = new Date(year, month + 1, 0).getDate();
+
+        for (let i = 1; i <= daysInMonthValue; i++) {
+            const currentDate = new Date(year, month, i);
+            if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) { // Skip Sunday and Saturday
+                if (Math.random() > 0.3) { 
+                    const pnl = (Math.random() - 0.45) * 300; 
+                    pnlMap[format(currentDate, 'yyyy-MM-dd')] = parseFloat(pnl.toFixed(2));
+                }
+            }
+        }
+        return pnlMap;
+    };
+    setDailyPnlData(generatePnlForMonth(currentCalendarMonth));
+  }, [currentCalendarMonth]);
+
+  const pnlDayFormatter = (day: Date): React.ReactNode => {
+      const dateKey = format(day, 'yyyy-MM-dd');
+      const pnl = dailyPnlData[dateKey];
+      const dayOfMonth = format(day, 'd');
+  
+      // Only show P&L if the day is in the currently displayed month
+      if (pnl !== undefined && day.getMonth() === currentCalendarMonth.getMonth()) {
+          return (
+              <div className="flex flex-col items-center justify-center text-center leading-tight h-full w-full">
+                  <span>{dayOfMonth}</span>
+                  <span className={cn(
+                      "text-[10px] font-bold leading-none mt-px",
+                      pnl > 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"
+                  )}>
+                      {pnl > 0 ? '+' : ''}{pnl.toFixed(0)}
+                  </span>
+              </div>
+          );
+      }
+      // For days outside the current month, or days with no P&L, just show the day number
+      // react-day-picker handles styling for `day_outside`
+      return dayOfMonth;
+  };
 
   const formatOptionalPrice = (price?: number) => price?.toFixed(2) ?? 'N/A';
   const formatOptionalNumber = (num?: number) => num?.toString() ?? 'N/A';
@@ -149,10 +198,10 @@ export default function HistoryPage() {
       totalTrades,
       winRate: overallWinRate,
       totalPnL,
-      avgReturn: overallAvgPnlPerTrade, // This is now Avg P&L per trade ($)
+      avgReturn: overallAvgPnlPerTrade,
       largestWin: largestWin === -Infinity ? 0 : largestWin,
       largestLoss: largestLoss === Infinity ? 0 : largestLoss,
-      avgHoldTime: "Multiple", // Cannot aggregate meaningfully
+      avgHoldTime: "Multiple", 
       mostTradedSymbol: overallMostTradedSymbol,
       winStreak: maxWinStreak,
     };
@@ -268,6 +317,40 @@ export default function HistoryPage() {
             <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat size={16}/>} />
             <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award size={16}/>} valueColor={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
           </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl font-headline flex items-center">
+              <CalendarDays className="mr-2 h-5 w-5 text-primary"/>
+              Daily P&L Calendar
+            </CardTitle>
+            <CardDescription>Visual overview of your daily trading performance. Navigable by month.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex justify-center items-center">
+            <Calendar
+              mode="single"
+              month={currentCalendarMonth}
+              onMonthChange={setCurrentCalendarMonth}
+              formatters={{ formatDay: pnlDayFormatter }}
+              className="rounded-md border border-border/[.1] bg-black/10 p-3 shadow-sm"
+              classNames={{
+                day_today: "bg-accent/20 text-accent-foreground font-bold ring-1 ring-accent",
+                day_outside: "text-muted-foreground/40",
+                // The pnlDayFormatter handles specific P&L text color,
+                // so we don't need strong modifiersClassNames for cell background unless desired.
+              }}
+            />
+          </CardContent>
+          <CardFooter className="flex items-center justify-center space-x-6 pt-4 text-xs text-muted-foreground">
+            <span>Legend:</span>
+            <div className="flex items-center">
+                <span className="font-semibold text-[hsl(var(--confirm-green))] mr-1">+100</span> Profit
+            </div>
+            <div className="flex items-center">
+                <span className="font-semibold text-destructive mr-1">-50</span> Loss
+            </div>
+          </CardFooter>
         </Card>
 
         {selectedHistoryFilterMode === 'all' && (
@@ -426,3 +509,4 @@ export default function HistoryPage() {
     </main>
   );
 }
+
