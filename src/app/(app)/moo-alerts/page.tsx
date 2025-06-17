@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Newspaper, BarChartBig, LineChart, Megaphone, Send, AlertCircle, Info, TrendingDown } from "lucide-react";
+import { Newspaper, BarChartBig, LineChart, Megaphone, Send, AlertCircle, Info, TrendingDown, MousePointerSquareDashed } from "lucide-react";
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import type { MooAlertItem, MooAlertSentiment, Stock, TradeRequest, OrderActionType, TradeMode } from '@/types';
 import { cn } from '@/lib/utils';
@@ -248,7 +248,7 @@ const MooAlertsContent: React.FC = () => {
         stopPrice: tradeDetails.stopPrice,
         trailAmount: tradeDetails.trailingOffset,
         TIF: tradeDetails.TIF || "Day",
-        tradingHours: "Include Extended Hours", // Default or make configurable
+        tradingHours: tradeDetails.allowExtendedHours ? "Include Extended Hours" : "Regular Market Hours Only",
         placedTime: new Date().toISOString(),
         filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(), // Simulate fill delay
         orderStatus: "Filled",
@@ -408,7 +408,7 @@ const MooAlertsContent: React.FC = () => {
                                 className="border-accent text-accent hover:bg-accent/10 hover:text-accent h-7 px-2 text-xs"
                                 onClick={(e) => { e.stopPropagation(); handleMooAlertSelectForOrder(alert); }}
                             >
-                                <Send className="mr-1 h-3 w-3" /> Send
+                                <MousePointerSquareDashed className="mr-1 h-3 w-3" /> Trade
                             </Button>
                             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-7 px-2 text-xs" onClick={(e) => {e.stopPropagation(); toast({title: "Alert Setting", description:"Alert configuration UI for this specific Moo Alert would go here."})}}>
                                 <AlertCircle className="mr-1 h-3 w-3" /> Alert
@@ -445,7 +445,7 @@ const MooAlertsContent: React.FC = () => {
           </Card>
         </div>
 
-        <div className="w-full md:w-96 lg:w-[26rem] flex-shrink-0 md:flex flex-col space-y-6 overflow-y-auto">
+        <div className="w-full md:w-96 lg:w-[26rem] flex-shrink-0 md:flex flex-col space-y-6 md:overflow-y-auto">
            <OrderCard
             selectedStock={selectedStockForOrderCard}
             initialActionType={orderCardActionType}
@@ -468,3 +468,4 @@ export default function MooAlertsPage() {
     </Suspense>
   );
 }
+
