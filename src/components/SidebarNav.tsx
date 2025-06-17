@@ -13,12 +13,13 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, ChevronLeft, ChevronRight, GraduationCap, Lightbulb, SlidersHorizontal, Megaphone } from "lucide-react";
+import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, ChevronLeft, ChevronRight, GraduationCap, Lightbulb, SlidersHorizontal, Megaphone, Store } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/dashboard", label: "Screener", icon: LayoutDashboard },
+  { href: "/milk-market", label: "Milk Market", icon: Store },
   { href: "/moo-alerts", label: "Moo Alerts", icon: Megaphone },
   { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/rules", label: "Rules", icon: ListFilter },
