@@ -393,7 +393,7 @@ const MooAlertsContent: React.FC = () => {
     if (action === 'Buy') return 'text-[hsl(var(--confirm-green))]';
     if (action === 'Sell') return 'text-destructive';
     if (action === 'Short') return 'text-yellow-400';
-    return 'text-foreground/90';
+    return 'text-foreground';
   };
 
 
@@ -447,7 +447,7 @@ const MooAlertsContent: React.FC = () => {
                     {filteredAlerts.map(alert => (
                       <Card 
                         key={alert.id} 
-                        className="bg-black/20 border border-white/10 shadow-sm flex flex-col hover:border-primary/50 transition-all duration-150 ease-in-out"
+                        className="bg-black/20 border border-white/10 shadow-sm flex flex-col hover:border-primary/50 transition-all duration-150 ease-in-out cursor-pointer"
                         onClick={() => handleMooAlertSelectForOrder(alert)}
                       >
                         <CardHeader className="p-3 pb-2 space-y-1">
@@ -484,22 +484,27 @@ const MooAlertsContent: React.FC = () => {
                               <div className="flex items-center font-medium text-primary">
                                 <TrafficCone className="h-3.5 w-3.5 mr-1.5" /> Trade Plan:
                               </div>
-                              <div className={cn("flex items-center", getActionTextColorClass(alert.suggestedAction))}>
+                              <div className="flex items-center">
                                 <DollarSign className="h-3 w-3 mr-1 text-muted-foreground" />
-                                Action: <span className="font-semibold ml-1">{alert.suggestedAction}</span>, 
-                                Qty: <span className="font-semibold ml-1">{alert.suggestedQuantity}</span>
+                                <span className="text-foreground">Action:</span>
+                                <span className={cn("font-semibold ml-1", getActionTextColorClass(alert.suggestedAction))}>{alert.suggestedAction}</span>
+                                <span className="text-foreground">, Qty:</span>
+                                <span className="font-semibold ml-1 text-foreground">{alert.suggestedQuantity}</span>
                               </div>
-                              <div className="flex items-center text-foreground/90">
+                              <div className="flex items-center">
                                 <DollarSign className="h-3 w-3 mr-1 text-muted-foreground" />
-                                Entry: ${alert.suggestedEntryPrice?.toFixed(2)} ({alert.suggestedOrderType})
+                                <span className="text-foreground">Entry:</span>
+                                <span className="ml-1 text-foreground">${alert.suggestedEntryPrice?.toFixed(2)} ({alert.suggestedOrderType})</span>
                               </div>
-                              <div className="flex items-center text-green-400">
-                                <Target className="h-3 w-3 mr-1" />
-                                Target: ${alert.suggestedTargetPrice?.toFixed(2)} (+{alert.targetGainPercent?.toFixed(1)}%)
+                              <div className="flex items-center">
+                                <Target className="h-3 w-3 mr-1 text-green-400" />
+                                <span className="text-foreground">Target:</span>
+                                <span className="ml-1 text-green-400">${alert.suggestedTargetPrice?.toFixed(2)} (+{alert.targetGainPercent?.toFixed(1)}%)</span>
                               </div>
-                              <div className="flex items-center text-red-400">
-                                <ShieldCheck className="h-3 w-3 mr-1" />
-                                Stop: ${alert.suggestedStopLossPrice?.toFixed(2)} (-{alert.stopLossRiskPercent?.toFixed(1)}%)
+                              <div className="flex items-center">
+                                <ShieldCheck className="h-3 w-3 mr-1 text-red-400" />
+                                <span className="text-foreground">Stop:</span>
+                                <span className="ml-1 text-red-400">${alert.suggestedStopLossPrice?.toFixed(2)} (-{alert.stopLossRiskPercent?.toFixed(1)}%)</span>
                               </div>
                             </div>
                           )}
@@ -574,3 +579,5 @@ export default function MooAlertsPage() {
   );
 }
 
+
+    
