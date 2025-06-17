@@ -100,28 +100,28 @@ function MilkMarketPageContent() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Milk Market" />
       <ScrollArea className="flex-1"> {/* Main scroll area for page content */}
-        <div className="p-4 md:p-6"> {/* Padding for all content */}
-          <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-4 md:gap-6">
+        <div className="p-4 md:p-6 h-full"> {/* Padding for all content, ensure it fills ScrollArea */}
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-4 md:gap-6 h-full">
             
             {/* Left Column: Watchlist */}
-            <div className="hidden md:flex flex-col min-h-0">
+            <div className="hidden md:flex flex-col min-h-0 h-full">
               <WatchlistCard
                 selectedStockSymbol={selectedStock?.symbol || null}
                 onSelectStock={handleStockSelection}
-                className="flex-1 min-h-0" 
+                className="flex-1 min-h-0 h-full" 
               />
             </div>
 
             {/* Center Column: Interactive Chart */}
-            <div className="flex flex-col min-h-0">
+            <div className="flex flex-col min-h-0 h-full">
               <InteractiveChartCard
                 stock={selectedStock}
-                className="flex-1 min-h-0"
+                className="flex-1 min-h-0 h-full"
               />
             </div>
 
             {/* Right Column: Trade Panel + Open Positions */}
-            <div className="flex flex-col space-y-6 min-h-0 pr-0 md:pr-1">
+            <div className="flex flex-col space-y-6 min-h-0 h-full pr-0 md:pr-1">
               <OrderCard
                 selectedStock={selectedStock}
                 initialActionType={orderCardActionType}
@@ -148,3 +148,4 @@ export default function MilkMarketPage() {
     </Suspense>
   );
 }
+
