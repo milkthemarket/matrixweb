@@ -25,9 +25,9 @@ const navItems = [
   { href: "/rules", label: "Rules", icon: ListFilter },
   { href: "/history", label: "Trade History", icon: History },
   { href: "/options", label: "Options", icon: SlidersHorizontal },
-  { href: "/settings", label: "Settings", icon: SettingsIcon },
   { href: "/academy", label: "Milk Academy", icon: GraduationCap },
   { href: "/suggestions", label: "Suggestions", icon: Lightbulb },
+  { href: "/settings", label: "Settings", icon: SettingsIcon }, // Moved to the bottom
 ];
 
 // Phosphor cow icon (https://phosphoricons.com/) - open source
@@ -120,3 +120,4 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
+
