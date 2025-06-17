@@ -241,7 +241,6 @@ const MooAlertsContent: React.FC = () => {
   const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
   const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
   
-  // New state for pre-filling OrderCard
   const [orderCardInitialQuantity, setOrderCardInitialQuantity] = useState<string | undefined>(undefined);
   const [orderCardInitialOrderType, setOrderCardInitialOrderType] = useState<OrderSystemType | undefined>(undefined);
   const [orderCardInitialLimitPrice, setOrderCardInitialLimitPrice] = useState<string | undefined>(undefined);
@@ -264,7 +263,6 @@ const MooAlertsContent: React.FC = () => {
     setOrderCardActionType(alertItem.suggestedAction || null); 
     setOrderCardInitialTradeMode('manual'); 
     
-    // Set new initial states for OrderCard
     setOrderCardInitialQuantity(alertItem.suggestedQuantity !== undefined ? String(alertItem.suggestedQuantity) : undefined);
     setOrderCardInitialOrderType(alertItem.suggestedOrderType);
     setOrderCardInitialLimitPrice(
@@ -333,10 +331,6 @@ const MooAlertsContent: React.FC = () => {
             accountId: tradeDetails.accountId || selectedAccountId,
         });
     }
-    // Optionally clear the specific initial props for the OrderCard after submission
-    // setOrderCardInitialQuantity(undefined);
-    // setOrderCardInitialOrderType(undefined);
-    // setOrderCardInitialLimitPrice(undefined);
   };
 
   const handleStockSymbolSubmitFromOrderCard = (symbol: string) => {
@@ -344,7 +338,7 @@ const MooAlertsContent: React.FC = () => {
     if (alertItem) {
       handleMooAlertSelectForOrder(alertItem);
     } else {
-      setSelectedStockForOrderCard({ // Basic stock object for manual ticker entry
+      setSelectedStockForOrderCard({ 
         id: symbol, symbol, name: symbol, price: 0, changePercent: 0, float:0, volume:0, lastUpdated: new Date().toISOString()
       });
       setOrderCardActionType(null);
@@ -394,6 +388,14 @@ const MooAlertsContent: React.FC = () => {
   const handleShowAll = () => {
     setSelectedCriteria(initialCriteriaFilterState);
   };
+
+  const getActionTextColorClass = (action?: OrderActionType) => {
+    if (action === 'Buy') return 'text-[hsl(var(--confirm-green))]';
+    if (action === 'Sell') return 'text-destructive';
+    if (action === 'Short') return 'text-yellow-400';
+    return 'text-foreground/90';
+  };
+
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
@@ -446,11 +448,12 @@ const MooAlertsContent: React.FC = () => {
                       <Card 
                         key={alert.id} 
                         className="bg-black/20 border border-white/10 shadow-sm flex flex-col hover:border-primary/50 transition-all duration-150 ease-in-out"
+                        onClick={() => handleMooAlertSelectForOrder(alert)}
                       >
                         <CardHeader className="p-3 pb-2 space-y-1">
                            <div className="flex items-center justify-between gap-2 flex-wrap w-full">
                                 <div className="flex items-baseline gap-2 flex-wrap">
-                                    <button onClick={() => handleMooAlertSelectForOrder(alert)} className="focus:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded-sm">
+                                    <button onClick={(e) => { e.stopPropagation(); handleMooAlertSelectForOrder(alert); }} className="focus:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded-sm">
                                       <CardTitle className="text-base font-semibold text-primary hover:underline">{alert.symbol}</CardTitle>
                                     </button>
                                     <span className="text-sm font-mono text-foreground">${alert.currentPrice.toFixed(2)}</span>
@@ -481,7 +484,7 @@ const MooAlertsContent: React.FC = () => {
                               <div className="flex items-center font-medium text-primary">
                                 <TrafficCone className="h-3.5 w-3.5 mr-1.5" /> Trade Plan:
                               </div>
-                              <div className="flex items-center text-foreground/90">
+                              <div className={cn("flex items-center", getActionTextColorClass(alert.suggestedAction))}>
                                 <DollarSign className="h-3 w-3 mr-1 text-muted-foreground" />
                                 Action: <span className="font-semibold ml-1">{alert.suggestedAction}</span>, 
                                 Qty: <span className="font-semibold ml-1">{alert.suggestedQuantity}</span>
@@ -505,11 +508,11 @@ const MooAlertsContent: React.FC = () => {
                                 variant="outline" 
                                 size="sm" 
                                 className="border-accent text-accent hover:bg-accent/10 hover:text-accent h-7 px-2 text-xs"
-                                onClick={() => handleMooAlertSelectForOrder(alert)}
+                                onClick={(e) => { e.stopPropagation(); handleMooAlertSelectForOrder(alert); }}
                             >
                                 <MousePointerSquareDashed className="mr-1 h-3 w-3" /> Trade
                             </Button>
-                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-7 px-2 text-xs" onClick={() => toast({title: "Alert Setting", description:"Alert configuration UI for this specific Moo Alert would go here."})}>
+                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary h-7 px-2 text-xs" onClick={(e) => {e.stopPropagation(); toast({title: "Alert Setting", description:"Alert configuration UI for this specific Moo Alert would go here."})}}>
                                 <AlertCircle className="mr-1 h-3 w-3" /> Alert
                             </Button>
                           </div>
