@@ -212,17 +212,7 @@ function DashboardPageContent() {
 
   const { addTradeToHistory } = useTradeHistoryContext();
 
-  const [currentColumnOrder, setCurrentColumnOrder] = useState<(keyof Stock)[]>(() => initialColumnConfiguration.map(c => c.key));
-  const [draggedColumnKey, setDraggedColumnKey] = useState<keyof Stock | null>(null);
-  const [draggingOverKey, setDraggingOverKey] = useState<keyof Stock | null>(null);
-
-  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({});
-  const [resizingColumnKey, setResizingColumnKey] = useState<string | null>(null);
-  const [resizeStartX, setResizeStartX] = useState<number>(0);
-  const [initialColumnWidthForResize, setInitialColumnWidthForResize] = useState<number>(0);
-
-
-  useEffect(() => {
+  const [currentColumnOrder, setCurrentColumnOrder] = useState<(keyof Stock)[]>(() => {
     if (typeof window !== 'undefined') {
       const savedOrderJSON = localStorage.getItem(LOCAL_STORAGE_COLUMN_ORDER_KEY);
       if (savedOrderJSON) {
@@ -231,20 +221,28 @@ function DashboardPageContent() {
           const validSavedOrder = savedOrder.filter(key => initialColumnConfiguration.some(c => c.key === key));
           const currentConfigKeys = initialColumnConfiguration.map(c => c.key);
           const newKeys = currentConfigKeys.filter(key => !validSavedOrder.includes(key));
-          setCurrentColumnOrder([...validSavedOrder, ...newKeys]);
+          return [...validSavedOrder, ...newKeys];
         } catch (e) {
-          setCurrentColumnOrder(initialColumnConfiguration.map(c => c.key));
+          return initialColumnConfiguration.map(c => c.key);
         }
       } else {
-        setCurrentColumnOrder(initialColumnConfiguration.map(c => c.key));
+        return initialColumnConfiguration.map(c => c.key);
       }
+    }
+    return initialColumnConfiguration.map(c => c.key);
+  });
 
+  const [draggedColumnKey, setDraggedColumnKey] = useState<keyof Stock | null>(null);
+  const [draggingOverKey, setDraggingOverKey] = useState<keyof Stock | null>(null);
+
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
+    const defaultWidths: Record<string, number> = {};
+    initialColumnConfiguration.forEach(col => {
+      defaultWidths[col.key as string] = col.defaultWidth || 120;
+    });
+
+    if (typeof window !== 'undefined') {
       const savedWidthsJSON = localStorage.getItem(LOCAL_STORAGE_COLUMN_WIDTHS_KEY);
-      const defaultWidths: Record<string, number> = {};
-      initialColumnConfiguration.forEach(col => {
-        defaultWidths[col.key as string] = col.defaultWidth || 120; // Default fallback
-      });
-
       if (savedWidthsJSON) {
         try {
           const savedWidths = JSON.parse(savedWidthsJSON) as Record<string, number>;
@@ -253,15 +251,20 @@ function DashboardPageContent() {
           initialColumnConfiguration.forEach(col => {
              finalWidths[col.key as string] = mergedWidths[col.key as string] || defaultWidths[col.key as string];
           });
-          setColumnWidths(finalWidths);
+          return finalWidths;
         } catch (e) {
-          setColumnWidths(defaultWidths);
+          return defaultWidths; 
         }
       } else {
-        setColumnWidths(defaultWidths);
+        return defaultWidths; 
       }
     }
-  }, []);
+    return defaultWidths;
+  });
+  const [resizingColumnKey, setResizingColumnKey] = useState<string | null>(null);
+  const [resizeStartX, setResizeStartX] = useState<number>(0);
+  const [initialColumnWidthForResize, setInitialColumnWidthForResize] = useState<number>(0);
+
 
   useEffect(() => {
     if (typeof window !== 'undefined' && currentColumnOrder.length > 0) {
@@ -892,3 +895,4 @@ export default function DashboardPage() {
     </Suspense>
   );
 }
+

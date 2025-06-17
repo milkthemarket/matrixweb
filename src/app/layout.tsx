@@ -1,3 +1,4 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
@@ -29,3 +30,4 @@ export default function RootLayout({
     </html>
   );
 }
+
