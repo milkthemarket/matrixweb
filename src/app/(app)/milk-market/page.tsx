@@ -12,7 +12,7 @@ import { OpenPositionsCard } from '@/components/OpenPositionsCard';
 import { WatchlistCard } from '@/components/WatchlistCard';
 import { InteractiveChartCard } from '@/components/InteractiveChartCard';
 import { initialMockStocks } from '@/app/(app)/dashboard/page'; 
-import { ScrollArea } from '@/components/ui/scroll-area'; // Import ScrollArea
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 function MilkMarketPageContent() {
   const { toast } = useToast();
@@ -134,8 +134,6 @@ function MilkMarketPageContent() {
               <OpenPositionsCard />
             </div>
           </div>
-          {/* Example of where future content could go, inside the padding div but outside the grid */}
-          {/* <div className="mt-6 text-center text-muted-foreground p-4 bg-card rounded-lg">Future widgets can go here.</div> */}
         </div>
       </ScrollArea>
     </main>
@@ -150,4 +148,3 @@ export default function MilkMarketPage() {
     </Suspense>
   );
 }
-
