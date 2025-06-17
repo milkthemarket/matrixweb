@@ -192,7 +192,7 @@ const initialMockMiloIdeas: MiloTradeIdea[] = [
 
 const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX'];
 
-// Wrapper component for Suspense boundary
+
 function DashboardPageContent() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -212,71 +212,71 @@ function DashboardPageContent() {
 
   const { addTradeToHistory } = useTradeHistoryContext();
 
-  const [currentColumnOrder, setCurrentColumnOrder] = useState<(keyof Stock)[]>(() => {
-    if (typeof window !== 'undefined') {
-      const savedOrderJSON = localStorage.getItem(LOCAL_STORAGE_COLUMN_ORDER_KEY);
-      if (savedOrderJSON) {
-        try {
-          const savedOrder = JSON.parse(savedOrderJSON) as (keyof Stock)[];
-          const validSavedOrder = savedOrder.filter(key => initialColumnConfiguration.some(c => c.key === key));
-          const currentConfigKeys = initialColumnConfiguration.map(c => c.key);
-          const newKeys = currentConfigKeys.filter(key => !validSavedOrder.includes(key));
-          return [...validSavedOrder, ...newKeys];
-        } catch (e) {
-          return initialColumnConfiguration.map(c => c.key);
-        }
-      } else {
-        return initialColumnConfiguration.map(c => c.key);
-      }
-    }
-    return initialColumnConfiguration.map(c => c.key);
-  });
+  const defaultColumnOrder = useMemo(() => initialColumnConfiguration.map(c => c.key), []);
+  const defaultColumnWidths = useMemo(() => {
+    const widths: Record<string, number> = {};
+    initialColumnConfiguration.forEach(col => {
+      widths[col.key as string] = col.defaultWidth || 120;
+    });
+    return widths;
+  }, []);
 
+  const [currentColumnOrder, setCurrentColumnOrder] = useState<(keyof Stock)[]>(defaultColumnOrder);
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>(defaultColumnWidths);
+  
   const [draggedColumnKey, setDraggedColumnKey] = useState<keyof Stock | null>(null);
   const [draggingOverKey, setDraggingOverKey] = useState<keyof Stock | null>(null);
-
-  const [columnWidths, setColumnWidths] = useState<Record<string, number>>(() => {
-    const defaultWidths: Record<string, number> = {};
-    initialColumnConfiguration.forEach(col => {
-      defaultWidths[col.key as string] = col.defaultWidth || 120;
-    });
-
-    if (typeof window !== 'undefined') {
-      const savedWidthsJSON = localStorage.getItem(LOCAL_STORAGE_COLUMN_WIDTHS_KEY);
-      if (savedWidthsJSON) {
-        try {
-          const savedWidths = JSON.parse(savedWidthsJSON) as Record<string, number>;
-          const mergedWidths = { ...defaultWidths, ...savedWidths };
-          const finalWidths: Record<string, number> = {};
-          initialColumnConfiguration.forEach(col => {
-             finalWidths[col.key as string] = mergedWidths[col.key as string] || defaultWidths[col.key as string];
-          });
-          return finalWidths;
-        } catch (e) {
-          return defaultWidths; 
-        }
-      } else {
-        return defaultWidths; 
-      }
-    }
-    return defaultWidths;
-  });
   const [resizingColumnKey, setResizingColumnKey] = useState<string | null>(null);
   const [resizeStartX, setResizeStartX] = useState<number>(0);
   const [initialColumnWidthForResize, setInitialColumnWidthForResize] = useState<number>(0);
 
+  useEffect(() => {
+    // Client-side only: Load saved column order from localStorage
+    const savedOrderJSON = localStorage.getItem(LOCAL_STORAGE_COLUMN_ORDER_KEY);
+    if (savedOrderJSON) {
+      try {
+        const savedOrder = JSON.parse(savedOrderJSON) as (keyof Stock)[];
+        const validSavedOrder = savedOrder.filter(key => initialColumnConfiguration.some(c => c.key === key));
+        const currentConfigKeys = initialColumnConfiguration.map(c => c.key);
+        const newKeys = currentConfigKeys.filter(key => !validSavedOrder.includes(key));
+        setCurrentColumnOrder([...validSavedOrder, ...newKeys]);
+      } catch (e) {
+        // If parsing fails, stick to default
+        setCurrentColumnOrder(defaultColumnOrder);
+      }
+    }
+
+    // Client-side only: Load saved column widths from localStorage
+    const savedWidthsJSON = localStorage.getItem(LOCAL_STORAGE_COLUMN_WIDTHS_KEY);
+    if (savedWidthsJSON) {
+      try {
+        const savedWidths = JSON.parse(savedWidthsJSON) as Record<string, number>;
+        const mergedWidths = { ...defaultColumnWidths, ...savedWidths };
+        const finalWidths: Record<string, number> = {};
+        initialColumnConfiguration.forEach(col => {
+           finalWidths[col.key as string] = mergedWidths[col.key as string] || defaultColumnWidths[col.key as string];
+        });
+        setColumnWidths(finalWidths);
+      } catch (e) {
+        // If parsing fails, stick to default
+        setColumnWidths(defaultColumnWidths);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array ensures this runs once on mount (client-side)
+
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && currentColumnOrder.length > 0) {
+    if (typeof window !== 'undefined' && currentColumnOrder.length > 0 && currentColumnOrder !== defaultColumnOrder) {
       localStorage.setItem(LOCAL_STORAGE_COLUMN_ORDER_KEY, JSON.stringify(currentColumnOrder));
     }
-  }, [currentColumnOrder]);
+  }, [currentColumnOrder, defaultColumnOrder]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined' && Object.keys(columnWidths).length > 0) {
+    if (typeof window !== 'undefined' && Object.keys(columnWidths).length > 0 && columnWidths !== defaultColumnWidths) {
       localStorage.setItem(LOCAL_STORAGE_COLUMN_WIDTHS_KEY, JSON.stringify(columnWidths));
     }
-  }, [columnWidths]);
+  }, [columnWidths, defaultColumnWidths]);
 
 
   const initialVisibleColumns = useMemo(() => {
@@ -362,9 +362,9 @@ function DashboardPageContent() {
       const stockToSelect = initialMockStocks.find(s => s.symbol.toUpperCase() === tickerFromQuery.toUpperCase());
       if (stockToSelect) {
         setSelectedStockForOrderCard(stockToSelect);
-        setOrderCardActionType(null); // Default to no action, user can pick
-        setOrderCardInitialTradeMode('manual'); // Default to manual when coming from Moo Alerts
-        setOrderCardMiloActionContext(null); // Clear any Milo context
+        setOrderCardActionType(null); 
+        setOrderCardInitialTradeMode('manual'); 
+        setOrderCardMiloActionContext(null); 
          toast({
           title: "Ticker Loaded from Moo Alerts",
           description: `${stockToSelect.symbol} loaded into the trade panel.`,
@@ -378,7 +378,7 @@ function DashboardPageContent() {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams, toast]); // initialMockStocks is stable, toast is stable. No need for full 'stocks' dependency here if we are only selecting from initialMockStocks.
+  }, [searchParams, toast]); 
 
 
   const activeRules = useMemo(() => mockRules.filter(rule => rule.isActive), []);
@@ -889,7 +889,6 @@ function DashboardPageContent() {
 
 export default function DashboardPage() {
   return (
-    // Suspense boundary is necessary because DashboardPageContent uses useSearchParams
     <Suspense fallback={<div>Loading Dashboard...</div>}>
       <DashboardPageContent />
     </Suspense>
