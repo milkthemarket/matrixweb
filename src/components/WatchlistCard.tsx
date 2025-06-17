@@ -8,18 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Stock, AlertRule } from '@/types';
 import { cn } from '@/lib/utils';
-import { Eye, List, Star, TrendingUp, TrendingDown, Activity, CalendarCheck2, Filter as FilterIcon } from 'lucide-react'; // Added FilterIcon
-import { initialMockStocks } from '@/app/(app)/dashboard/page'; // Import all stocks
-import { mockRules } from '@/app/(app)/rules/page'; // Import rules
+import { Eye, List, Star, TrendingUp, TrendingDown, Activity, CalendarCheck2, Filter as FilterIcon } from 'lucide-react';
+import { initialMockStocks } from '@/app/(app)/dashboard/page'; 
+import { mockRules } from '@/app/(app)/rules/page'; 
 
 interface WatchlistCardProps {
-  // stocks prop is removed as the component will filter initialMockStocks internally
   selectedStockSymbol: string | null;
   onSelectStock: (stock: Stock) => void;
   className?: string;
 }
 
-const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX']; // Local or imported
+const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX'];
 
 export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }: WatchlistCardProps) {
   const [selectedFilterId, setSelectedFilterId] = useState<string>('my-watchlist');
@@ -37,7 +36,7 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
   ], [activeRules]);
 
   const filteredStocks = useMemo(() => {
-    let processedStocks = [...initialMockStocks]; // Use all stocks for filtering
+    let processedStocks = [...initialMockStocks]; 
 
     switch (selectedFilterId) {
       case 'all':
@@ -58,7 +57,7 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
       default:
         const rule = activeRules.find(r => r.id === selectedFilterId);
         if (!rule) {
-          return processedStocks.filter(stock => dummyWatchlistSymbols.includes(stock.symbol)); // Default to watchlist if rule not found
+          return processedStocks.filter(stock => dummyWatchlistSymbols.includes(stock.symbol)); 
         }
         return processedStocks.filter(stock => {
           return rule.criteria.every(criterion => {
@@ -93,7 +92,6 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
             <Eye className="mr-2 h-5 w-5 text-primary" />
             Watchlist
           </CardTitle>
-          {/* Add settings/edit button if needed later */}
         </div>
         <Select value={selectedFilterId} onValueChange={setSelectedFilterId}>
           <SelectTrigger className="w-full h-9 text-xs">
