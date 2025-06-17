@@ -112,7 +112,7 @@ const initialColumnConfiguration: ColumnConfig<Stock>[] = [
 ];
 
 
-const initialMockStocks: Stock[] = [
+export const initialMockStocks: Stock[] = [
   { id: '1', symbol: 'AAPL', name: 'Apple Inc.', price: 170.34, changePercent: 2.5, float: 15000, volume: 90.5, newsSnippet: 'New iPhone announced.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', historicalPrices: [168, 169, 170, 171, 170.5, 172, 170.34], marketCap: 170.34 * 15000 * 1e6, avgVolume: 85.2, atr: 3.4, rsi: 60.1, vwap: 170.25, beta: 1.2, high52: 190.5, low52: 150.2, gapPercent: 0.5, shortFloat: 1.5, instOwn: 65.2, premarketChange: 0.3 },
   { id: '2', symbol: 'MSFT', name: 'Microsoft Corp.', price: 420.72, changePercent: -1.2, float: 7000, volume: 60.2, newsSnippet: 'AI partnership.', lastUpdated: MOCK_INITIAL_TIMESTAMP, historicalPrices: [425, 422, 423, 420, 421, 419, 420.72], marketCap: 420.72 * 7000 * 1e6, avgVolume: 55.0, atr: 8.1, rsi: 40.5, vwap: 420.80, beta: 1.1, high52: 450.0, low52: 300.0, gapPercent: -0.2, shortFloat: 0.8, instOwn: 70.1, premarketChange: -0.1 },
   { id: '3', symbol: 'TSLA', name: 'Tesla, Inc.', price: 180.01, changePercent: 5.8, float: 800, volume: 120.1, newsSnippet: 'Cybertruck deliveries ramp up.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', historicalPrices: [170, 172, 175, 173, 178, 181, 180.01], marketCap: 180.01 * 800 * 1e6, avgVolume: 110.5, atr: 5.5, rsi: 75.2, vwap: 179.90, beta: 1.8, high52: 180.01, low52: 150.0, gapPercent: 1.2, shortFloat: 15.3, instOwn: 45.0, premarketChange: 0.8 },
@@ -230,8 +230,8 @@ function DashboardPageContent() {
   const [resizeStartX, setResizeStartX] = useState<number>(0);
   const [initialColumnWidthForResize, setInitialColumnWidthForResize] = useState<number>(0);
 
+
   useEffect(() => {
-    // Client-side only: Load saved column order from localStorage
     const savedOrderJSON = localStorage.getItem(LOCAL_STORAGE_COLUMN_ORDER_KEY);
     if (savedOrderJSON) {
       try {
@@ -241,12 +241,12 @@ function DashboardPageContent() {
         const newKeys = currentConfigKeys.filter(key => !validSavedOrder.includes(key));
         setCurrentColumnOrder([...validSavedOrder, ...newKeys]);
       } catch (e) {
-        // If parsing fails, stick to default
         setCurrentColumnOrder(defaultColumnOrder);
       }
+    } else {
+      setCurrentColumnOrder(defaultColumnOrder);
     }
 
-    // Client-side only: Load saved column widths from localStorage
     const savedWidthsJSON = localStorage.getItem(LOCAL_STORAGE_COLUMN_WIDTHS_KEY);
     if (savedWidthsJSON) {
       try {
@@ -258,12 +258,12 @@ function DashboardPageContent() {
         });
         setColumnWidths(finalWidths);
       } catch (e) {
-        // If parsing fails, stick to default
         setColumnWidths(defaultColumnWidths);
       }
+    } else {
+      setColumnWidths(defaultColumnWidths);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array ensures this runs once on mount (client-side)
+  }, [defaultColumnOrder, defaultColumnWidths]);
 
 
   useEffect(() => {
