@@ -13,7 +13,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, ChevronLeft, ChevronRight, GraduationCap, Lightbulb, SlidersHorizontal, Megaphone, Store } from "lucide-react";
+import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, ChevronLeft, ChevronRight, GraduationCap, Lightbulb, SlidersHorizontal, Megaphone, Store, ArchiveX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -27,7 +27,8 @@ const navItems = [
   { href: "/options", label: "Options", icon: SlidersHorizontal },
   { href: "/academy", label: "Milk Academy", icon: GraduationCap },
   { href: "/suggestions", label: "Suggestions", icon: Lightbulb },
-  { href: "/settings", label: "Settings", icon: SettingsIcon }, // Moved to the bottom
+  { href: "/spilled-milk", label: "Spilled Milk", icon: ArchiveX },
+  { href: "/settings", label: "Settings", icon: SettingsIcon }, 
 ];
 
 // Phosphor cow icon (https://phosphoricons.com/) - open source
