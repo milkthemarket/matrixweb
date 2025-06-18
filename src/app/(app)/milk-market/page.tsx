@@ -9,36 +9,45 @@ import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 import { OrderCard } from '@/components/OrderCard';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
-// import { InteractiveChartCard } from '@/components/InteractiveChartCard'; // InteractiveChartCard import removed
-import { WatchlistCard } from '@/components/WatchlistCard'; // Re-added WatchlistCard import
+import { InteractiveChartCard } from '@/components/InteractiveChartCard'; // Re-added InteractiveChartCard import
+import { WatchlistCard } from '@/components/WatchlistCard';
 import { initialMockStocks } from '@/app/(app)/dashboard/page'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 function MilkMarketPageContent() {
   const { toast } = useToast();
   const { addTradeToHistory } = useTradeHistoryContext();
-  const { openPositions, addOpenPosition, selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
+  const { addOpenPosition, selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
 
-  const [selectedStock, setSelectedStock] = useState<Stock | null>(null);
-  const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
-  const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
-  const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
+  // State for Watchlist selection (passed to Chart)
+  const [leftWatchlistSelectedStock, setLeftWatchlistSelectedStock] = useState<Stock | null>(null);
 
-  const handleStockSelection = useCallback((stock: Stock) => {
-    setSelectedStock(stock);
-    setOrderCardActionType(null); 
-    setOrderCardInitialTradeMode(undefined); 
-    setOrderCardMiloActionContext(null);
+  // State for the right-hand OrderCard
+  const [rightOrderCardSelectedStock, setRightOrderCardSelectedStock] = useState<Stock | null>(null);
+  const [rightOrderCardActionType, setRightOrderCardActionType] = useState<OrderActionType | null>(null);
+  const [rightOrderCardInitialTradeMode, setRightOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
+  const [rightOrderCardMiloActionContext, setRightOrderCardMiloActionContext] = useState<string | null>(null);
+
+
+  const handleWatchlistStockSelection = useCallback((stock: Stock) => {
+    setLeftWatchlistSelectedStock(stock); // Update stock for the chart
+    // Optionally, you can also update the right panel's stock, or keep them separate
+    // For now, clicking watchlist updates the chart primarily.
+    // If you want it to also update the right panel:
+    // setRightOrderCardSelectedStock(stock);
+    // setRightOrderCardActionType(null);
+    // setRightOrderCardInitialTradeMode(undefined);
+    // setRightOrderCardMiloActionContext(null);
   }, []);
 
-  const handleTradeSubmit = (tradeDetails: TradeRequest) => {
-    console.log("Trade Submitted via Milk Market Order Card:", tradeDetails);
+  const handleRightTradeSubmit = (tradeDetails: TradeRequest) => {
+    console.log("Trade Submitted via Right Order Card:", tradeDetails);
     toast({
       title: "Trade Processing",
       description: `${tradeDetails.action} ${tradeDetails.quantity} ${tradeDetails.symbol} (${tradeDetails.orderType}) submitted. Origin: ${tradeDetails.tradeModeOrigin || 'manual'}`,
     });
 
-    const stockInfo = selectedStock || initialMockStocks.find(s => s.symbol === tradeDetails.symbol);
+    const stockInfo = rightOrderCardSelectedStock || initialMockStocks.find(s => s.symbol === tradeDetails.symbol);
 
     addTradeToHistory({
       id: String(Date.now()),
@@ -72,26 +81,32 @@ function MilkMarketPageContent() {
     }
   };
 
-  const handleClearOrderCard = () => {
-    setSelectedStock(null);
-    setOrderCardActionType(null);
-    setOrderCardInitialTradeMode(undefined);
-    setOrderCardMiloActionContext(null);
+  const handleRightClearOrderCard = () => {
+    setRightOrderCardSelectedStock(null);
+    setRightOrderCardActionType(null);
+    setRightOrderCardInitialTradeMode(undefined);
+    setRightOrderCardMiloActionContext(null);
   };
   
-  const handleStockSymbolSubmitFromOrderCard = (symbol: string) => {
+  const handleRightStockSymbolSubmitFromOrderCard = (symbol: string) => {
     const stockToSelect = initialMockStocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
     if (stockToSelect) {
-      handleStockSelection(stockToSelect);
+      setRightOrderCardSelectedStock(stockToSelect);
+      setRightOrderCardActionType(null);
+      setRightOrderCardInitialTradeMode(undefined);
+      setRightOrderCardMiloActionContext(null);
+      // Also update chart if desired
+      // setLeftWatchlistSelectedStock(stockToSelect);
     } else {
        const newStock: Stock = { 
         id: symbol, symbol, name: `Info for ${symbol}`, price: 0, changePercent: 0, float:0, volume:0, lastUpdated: new Date().toISOString(), historicalPrices:[]
       };
-      handleStockSelection(newStock);
+      setRightOrderCardSelectedStock(newStock);
+      // setLeftWatchlistSelectedStock(newStock); 
       toast({
         variant: "default",
         title: "Ticker Loaded",
-        description: `The ticker "${symbol.toUpperCase()}" was loaded. Price data may be limited.`,
+        description: `The ticker "${symbol.toUpperCase()}" was loaded into the trade panel. Price data may be limited.`,
       });
     }
   };
@@ -103,30 +118,30 @@ function MilkMarketPageContent() {
         <div className="p-4 md:p-6 h-full"> 
           <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-4 md:gap-6 h-full">
             
-            {/* Left Column: Watchlist */}
             <div className="hidden md:flex flex-col h-full min-h-0">
               <WatchlistCard 
-                selectedStockSymbol={selectedStock?.symbol || null} 
-                onSelectStock={handleStockSelection} 
+                selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
+                onSelectStock={handleWatchlistStockSelection} 
                 className="flex-1 min-h-0 h-full" 
               />
             </div>
 
-            {/* Center Column: Empty (Interactive Chart was here) */}
             <div className="flex flex-col h-full min-h-0">
-              {/* InteractiveChartCard removed */}
+              <InteractiveChartCard 
+                stock={leftWatchlistSelectedStock} 
+                className="flex-1 min-h-0 h-full" 
+              />
             </div>
 
-            {/* Right Column: Trade Panel + Open Positions */}
             <div className="flex flex-col h-full min-h-0 space-y-6 pr-0 md:pr-1">
               <OrderCard
-                selectedStock={selectedStock}
-                initialActionType={orderCardActionType}
-                initialTradeMode={orderCardInitialTradeMode}
-                miloActionContextText={orderCardMiloActionContext}
-                onSubmit={handleTradeSubmit}
-                onClear={handleClearOrderCard}
-                onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
+                selectedStock={rightOrderCardSelectedStock}
+                initialActionType={rightOrderCardActionType}
+                initialTradeMode={rightOrderCardInitialTradeMode}
+                miloActionContextText={rightOrderCardMiloActionContext}
+                onSubmit={handleRightTradeSubmit}
+                onClear={handleRightClearOrderCard}
+                onStockSymbolSubmit={handleRightStockSymbolSubmitFromOrderCard}
               />
               <OpenPositionsCard />
             </div>
