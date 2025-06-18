@@ -89,6 +89,8 @@ export interface TradeRequest {
   tradeModeOrigin?: HistoryTradeMode;
   accountId?: string;
   allowExtendedHours?: boolean;
+  takeProfit?: number;
+  stopLoss?: number;
 }
 
 export interface AISuggestion {

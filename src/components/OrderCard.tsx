@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode, HistoryTradeMode, Account } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Clock4, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed, Search, Briefcase, Landmark, NotebookText, Percent } from 'lucide-react';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Clock4, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed, Search, Briefcase, Landmark, NotebookText, Percent, ShieldCheck, Target } from 'lucide-react';
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import { cn } from '@/lib/utils';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
@@ -27,9 +27,9 @@ interface OrderCardProps {
   initialTradeMode?: TradeMode;
   miloActionContextText?: string | null;
   onStockSymbolSubmit: (symbol: string) => void;
-  initialQuantity?: string; // New prop for pre-filling quantity
-  initialOrderType?: OrderSystemType; // New prop for pre-filling order type
-  initialLimitPrice?: string; // New prop for pre-filling limit price
+  initialQuantity?: string; 
+  initialOrderType?: OrderSystemType; 
+  initialLimitPrice?: string; 
 }
 
 const dummyAutoRules = [
@@ -58,7 +58,7 @@ export function OrderCard({
   const [quantityMode, setQuantityMode] = useState<QuantityInputMode>('Shares');
   const [orderType, setOrderType] = useState<OrderSystemType>('Market');
   const [limitPrice, setLimitPrice] = useState('');
-  const [stopPrice, setStopPrice] = useState('');
+  const [stopPrice, setStopPrice] = useState(''); // For Stop/Stop Limit orders
   const [trailingOffset, setTrailingOffset] = useState('');
   const [currentAction, setCurrentAction] = useState<OrderActionType | null>(null);
   const [timeInForce, setTimeInForce] = useState<string>('Day');
@@ -66,6 +66,13 @@ export function OrderCard({
   const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(false);
   const [displayedMiloContext, setDisplayedMiloContext] = useState<string | null>(null);
   const [tickerInputValue, setTickerInputValue] = useState('');
+
+  // New state for Take Profit / Stop Loss
+  const [showTakeProfit, setShowTakeProfit] = useState(false);
+  const [takeProfitValue, setTakeProfitValue] = useState('');
+  const [showStopLoss, setShowStopLoss] = useState(false);
+  const [stopLossValue, setStopLossValue] = useState('');
+
 
   const quantityInputRef = useRef<HTMLInputElement>(null);
 
@@ -89,7 +96,6 @@ export function OrderCard({
         setTickerInputValue(selectedStock.symbol);
       }
 
-      // Prioritize initial props from MooAlerts/Milo suggestions for form pre-fill
       const isPreFillScenario = initialActionType !== undefined || initialQuantity !== undefined || initialOrderType !== undefined || initialLimitPrice !== undefined;
 
       if (isPreFillScenario) {
@@ -103,15 +109,17 @@ export function OrderCard({
           setLimitPrice('');
         }
         
-        // Reset other fields for a fresh alert load, unless also part of initial props (not currently)
         setStopPrice('');
         setTrailingOffset('');
         setTimeInForce('Day');
         setAllowExtendedHours(false);
+        setShowTakeProfit(false);
+        setTakeProfitValue('');
+        setShowStopLoss(false);
+        setStopLossValue('');
 
       } else if (!miloActionContextText) { 
-        // Fresh manual ticker entry or clearing (not from a Milo context that might imply pre-fill)
-        setCurrentAction(null); // Reset action if it wasn't from a direct prop
+        setCurrentAction(null); 
         setQuantityValue('');
         setOrderType('Market');
         setLimitPrice('');
@@ -119,8 +127,11 @@ export function OrderCard({
         setTrailingOffset('');
         setTimeInForce('Day');
         setAllowExtendedHours(false);
+        setShowTakeProfit(false);
+        setTakeProfitValue('');
+        setShowStopLoss(false);
+        setStopLossValue('');
       }
-      // else if initialActionType is set (e.g. dashboard quick buy/sell), keep current quantity/orderType if user was editing
 
       if (initialTradeMode) {
         setTradeMode(initialTradeMode);
@@ -129,7 +140,7 @@ export function OrderCard({
       }
       setDisplayedMiloContext(miloActionContextText || null);
 
-    } else { // No stock selected
+    } else { 
       setCurrentAction(null);
       setQuantityValue('');
       setOrderType('Market');
@@ -138,6 +149,10 @@ export function OrderCard({
       setTrailingOffset('');
       setTimeInForce('Day');
       setAllowExtendedHours(false);
+      setShowTakeProfit(false);
+      setTakeProfitValue('');
+      setShowStopLoss(false);
+      setStopLossValue('');
       setDisplayedMiloContext(null);
       setIsAutopilotEnabled(false);
       if (document.activeElement !== document.getElementById('tickerInput')) {
@@ -287,6 +302,13 @@ export function OrderCard({
       }
       tradeDetails.trailingOffset = parseFloat(trailingOffset);
     }
+
+    if (showTakeProfit && takeProfitValue && !isNaN(parseFloat(takeProfitValue)) && parseFloat(takeProfitValue) > 0) {
+      tradeDetails.takeProfit = parseFloat(takeProfitValue);
+    }
+    if (showStopLoss && stopLossValue && !isNaN(parseFloat(stopLossValue)) && parseFloat(stopLossValue) > 0) {
+      tradeDetails.stopLoss = parseFloat(stopLossValue);
+    }
     
     if (selectedAccount?.type !== 'paper' && origin === 'manual' && !manualTradeDisclaimerAcknowledged) {
       setPendingTradeDetails(tradeDetails);
@@ -296,9 +318,10 @@ export function OrderCard({
       if (notificationSounds.tradePlaced !== 'off') {
         playSound(notificationSounds.tradePlaced);
       }
-      // Clear quantity only if it wasn't a pre-filled scenario or if it's purely manual without context
       if (!initialQuantity && !miloActionContextText) {
          setQuantityValue('');
+         setTakeProfitValue('');
+         setStopLossValue('');
       }
     }
   };
@@ -314,6 +337,8 @@ export function OrderCard({
       }
       if (!initialQuantity && !miloActionContextText) {
          setQuantityValue('');
+         setTakeProfitValue('');
+         setStopLossValue('');
       }
     }
     setPendingTradeDetails(null);
@@ -378,6 +403,8 @@ export function OrderCard({
     if ((orderType === 'Limit' || orderType === 'Stop Limit') && (!limitPrice || parseFloat(limitPrice) <= 0)) return true;
     if ((orderType === 'Stop' || orderType === 'Stop Limit') && (!stopPrice || parseFloat(stopPrice) <= 0)) return true;
     if (orderType === 'Trailing Stop' && (!trailingOffset || parseFloat(trailingOffset) <= 0)) return true;
+    if (showTakeProfit && (!takeProfitValue || parseFloat(takeProfitValue) <= 0)) return true;
+    if (showStopLoss && (!stopLossValue || parseFloat(stopLossValue) <= 0)) return true;
     return false;
   };
 
@@ -630,6 +657,66 @@ export function OrderCard({
                 <div className="space-y-1.5">
                   <Label htmlFor="trailingOffset" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Trailing Offset ($ or % points)</Label>
                   <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="e.g., 1.5 (for $1.50 or 1.5%)" className="bg-transparent"/>
+                </div>
+              )}
+
+              <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-3 shadow-sm bg-black/10 mt-3">
+                <div className="space-y-0.5">
+                  <Label htmlFor="takeProfitSwitch" className="font-medium text-foreground cursor-pointer flex items-center">
+                    <Target className="h-4 w-4 mr-2 text-green-400" /> Take Profit
+                  </Label>
+                  <p className="text-xs text-muted-foreground pl-6">Set a target price to secure gains.</p>
+                </div>
+                <Switch
+                  id="takeProfitSwitch"
+                  checked={showTakeProfit}
+                  onCheckedChange={setShowTakeProfit}
+                />
+              </div>
+              {showTakeProfit && (
+                <div className="space-y-1.5 pl-3 mt-2">
+                  <Label htmlFor="takeProfitPriceInput" className="text-sm font-medium text-foreground flex items-center">
+                    <DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Take Profit Price
+                  </Label>
+                  <Input
+                    id="takeProfitPriceInput"
+                    type="number"
+                    step="0.01"
+                    value={takeProfitValue}
+                    onChange={(e) => setTakeProfitValue(e.target.value)}
+                    placeholder="e.g., 155.00"
+                    className="bg-transparent"
+                  />
+                </div>
+              )}
+
+              <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-3 shadow-sm bg-black/10 mt-3">
+                <div className="space-y-0.5">
+                  <Label htmlFor="stopLossSwitch" className="font-medium text-foreground cursor-pointer flex items-center">
+                    <ShieldCheck className="h-4 w-4 mr-2 text-red-400" /> Stop Loss
+                  </Label>
+                  <p className="text-xs text-muted-foreground pl-6">Set a price to limit potential losses.</p>
+                </div>
+                <Switch
+                  id="stopLossSwitch"
+                  checked={showStopLoss}
+                  onCheckedChange={setShowStopLoss}
+                />
+              </div>
+              {showStopLoss && (
+                <div className="space-y-1.5 pl-3 mt-2">
+                  <Label htmlFor="stopLossPriceInput" className="text-sm font-medium text-foreground flex items-center">
+                    <DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Stop Loss Price
+                  </Label>
+                  <Input
+                    id="stopLossPriceInput"
+                    type="number"
+                    step="0.01"
+                    value={stopLossValue}
+                    onChange={(e) => setStopLossValue(e.target.value)}
+                    placeholder="e.g., 145.00"
+                    className="bg-transparent"
+                  />
                 </div>
               )}
               
