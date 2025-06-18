@@ -9,8 +9,7 @@ import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 import { OrderCard } from '@/components/OrderCard';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
-// import { WatchlistCard } from '@/components/WatchlistCard'; // WatchlistCard import removed
-import { InteractiveChartCard } from '@/components/InteractiveChartCard';
+// import { InteractiveChartCard } from '@/components/InteractiveChartCard'; // InteractiveChartCard import removed
 import { initialMockStocks } from '@/app/(app)/dashboard/page'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -108,12 +107,9 @@ function MilkMarketPageContent() {
               {/* WatchlistCard removed */}
             </div>
 
-            {/* Center Column: Interactive Chart */}
+            {/* Center Column: Empty (Interactive Chart was here) */}
             <div className="flex flex-col h-full min-h-0">
-              <InteractiveChartCard
-                stock={selectedStock}
-                className="flex-1 min-h-0 h-full"
-              />
+              {/* InteractiveChartCard removed */}
             </div>
 
             {/* Right Column: Trade Panel + Open Positions */}
