@@ -9,8 +9,9 @@ import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 import { OrderCard } from '@/components/OrderCard';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
-import { InteractiveChartCard } from '@/components/InteractiveChartCard'; // Re-added InteractiveChartCard import
+import { InteractiveChartCard } from '@/components/InteractiveChartCard';
 import { WatchlistCard } from '@/components/WatchlistCard';
+import { NewsCard } from '@/components/NewsCard'; // Import the new NewsCard
 import { initialMockStocks } from '@/app/(app)/dashboard/page'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -19,7 +20,7 @@ function MilkMarketPageContent() {
   const { addTradeToHistory } = useTradeHistoryContext();
   const { addOpenPosition, selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
 
-  // State for Watchlist selection (passed to Chart)
+  // State for Watchlist selection (passed to Chart and potentially center OrderCard)
   const [leftWatchlistSelectedStock, setLeftWatchlistSelectedStock] = useState<Stock | null>(null);
 
   // State for the right-hand OrderCard
@@ -28,16 +29,9 @@ function MilkMarketPageContent() {
   const [rightOrderCardInitialTradeMode, setRightOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
   const [rightOrderCardMiloActionContext, setRightOrderCardMiloActionContext] = useState<string | null>(null);
 
-
   const handleWatchlistStockSelection = useCallback((stock: Stock) => {
     setLeftWatchlistSelectedStock(stock); // Update stock for the chart
-    // Optionally, you can also update the right panel's stock, or keep them separate
-    // For now, clicking watchlist updates the chart primarily.
-    // If you want it to also update the right panel:
-    // setRightOrderCardSelectedStock(stock);
-    // setRightOrderCardActionType(null);
-    // setRightOrderCardInitialTradeMode(undefined);
-    // setRightOrderCardMiloActionContext(null);
+    // Future: Could also update a center trade panel if one exists and is desired
   }, []);
 
   const handleRightTradeSubmit = (tradeDetails: TradeRequest) => {
@@ -91,17 +85,18 @@ function MilkMarketPageContent() {
   const handleRightStockSymbolSubmitFromOrderCard = (symbol: string) => {
     const stockToSelect = initialMockStocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
     if (stockToSelect) {
-      setRightOrderCardSelectedStock(stockToSelect);
+      setRightOrderCardSelectedStock(stockToSelect); // This updates the right order card
       setRightOrderCardActionType(null);
       setRightOrderCardInitialTradeMode(undefined);
       setRightOrderCardMiloActionContext(null);
-      // Also update chart if desired
-      // setLeftWatchlistSelectedStock(stockToSelect);
+      // If you want the chart to also update when typing into the right order card:
+      // setLeftWatchlistSelectedStock(stockToSelect); 
     } else {
        const newStock: Stock = { 
         id: symbol, symbol, name: `Info for ${symbol}`, price: 0, changePercent: 0, float:0, volume:0, lastUpdated: new Date().toISOString(), historicalPrices:[]
       };
-      setRightOrderCardSelectedStock(newStock);
+      setRightOrderCardSelectedStock(newStock); // Update right order card
+      // If chart should also update:
       // setLeftWatchlistSelectedStock(newStock); 
       toast({
         variant: "default",
@@ -118,12 +113,13 @@ function MilkMarketPageContent() {
         <div className="p-4 md:p-6 h-full"> 
           <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-4 md:gap-6 h-full">
             
-            <div className="hidden md:flex flex-col h-full min-h-0">
+            <div className="hidden md:flex flex-col h-full min-h-0 space-y-4 md:space-y-6">
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
-                className="flex-1 min-h-0 h-full" 
+                className="flex-1 min-h-0" 
               />
+              <NewsCard className="h-72 shrink-0" /> {/* Added NewsCard here */}
             </div>
 
             <div className="flex flex-col h-full min-h-0">
