@@ -10,6 +10,7 @@ import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 import { OrderCard } from '@/components/OrderCard';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
 // import { InteractiveChartCard } from '@/components/InteractiveChartCard'; // InteractiveChartCard import removed
+import { WatchlistCard } from '@/components/WatchlistCard'; // Re-added WatchlistCard import
 import { initialMockStocks } from '@/app/(app)/dashboard/page'; 
 import { ScrollArea } from '@/components/ui/scroll-area';
 
@@ -102,9 +103,13 @@ function MilkMarketPageContent() {
         <div className="p-4 md:p-6 h-full"> 
           <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-4 md:gap-6 h-full">
             
-            {/* Left Column: Empty (Watchlist was here) */}
+            {/* Left Column: Watchlist */}
             <div className="hidden md:flex flex-col h-full min-h-0">
-              {/* WatchlistCard removed */}
+              <WatchlistCard 
+                selectedStockSymbol={selectedStock?.symbol || null} 
+                onSelectStock={handleStockSelection} 
+                className="flex-1 min-h-0 h-full" 
+              />
             </div>
 
             {/* Center Column: Empty (Interactive Chart was here) */}
@@ -140,4 +145,3 @@ export default function MilkMarketPage() {
     </Suspense>
   );
 }
-
