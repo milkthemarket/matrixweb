@@ -20,11 +20,8 @@ function MilkMarketPageContent() {
   const { addTradeToHistory } = useTradeHistoryContext();
   const { addOpenPosition, selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
 
-  // State for Watchlist selection (passed to Chart and potentially center OrderCard)
   const [leftWatchlistSelectedStock, setLeftWatchlistSelectedStock] = useState<Stock | null>(initialMockStocks[0] || null);
 
-
-  // State for the right-hand OrderCard
   const [rightOrderCardSelectedStock, setRightOrderCardSelectedStock] = useState<Stock | null>(null);
   const [rightOrderCardActionType, setRightOrderCardActionType] = useState<OrderActionType | null>(null);
   const [rightOrderCardInitialTradeMode, setRightOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
@@ -32,6 +29,8 @@ function MilkMarketPageContent() {
 
   const handleWatchlistStockSelection = useCallback((stock: Stock) => {
     setLeftWatchlistSelectedStock(stock); 
+    // Optionally, you might also want to pre-fill the right order card or center if it existed.
+    // For now, just updating the chart and letting manual input drive order cards.
   }, []);
 
   const handleRightTradeSubmit = (tradeDetails: TradeRequest) => {
@@ -86,20 +85,20 @@ function MilkMarketPageContent() {
     const stockToSelect = initialMockStocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
     if (stockToSelect) {
       setRightOrderCardSelectedStock(stockToSelect); 
+      setLeftWatchlistSelectedStock(stockToSelect); // Update chart when right panel searches
       setRightOrderCardActionType(null);
       setRightOrderCardInitialTradeMode(undefined);
       setRightOrderCardMiloActionContext(null);
-      // setLeftWatchlistSelectedStock(stockToSelect); // Optionally update chart too
     } else {
        const newStock: Stock = { 
         id: symbol, symbol, name: `Info for ${symbol}`, price: 0, changePercent: 0, float:0, volume:0, lastUpdated: new Date().toISOString(), historicalPrices:[]
       };
       setRightOrderCardSelectedStock(newStock); 
-      // setLeftWatchlistSelectedStock(newStock); // Optionally update chart too
+      setLeftWatchlistSelectedStock(newStock); // Update chart with basic info
       toast({
         variant: "default",
         title: "Ticker Loaded",
-        description: `The ticker "${symbol.toUpperCase()}" was loaded into the trade panel. Price data may be limited.`,
+        description: `The ticker "${symbol.toUpperCase()}" was loaded. Price data may be limited.`,
       });
     }
   };
@@ -111,20 +110,20 @@ function MilkMarketPageContent() {
         <div className="p-4 md:p-6 h-full"> 
           <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-4 md:gap-6 h-full">
             
-            <div className="hidden md:flex flex-col h-full min-h-0 space-y-4 md:space-y-6">
+            <div className="hidden md:flex flex-col h-full min-h-0">
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
-                className="flex-1 min-h-0" 
-              />
-              <NewsCard className="flex-1 min-h-0" />
-            </div>
-
-            <div className="flex flex-col h-full min-h-0">
-              <InteractiveChartCard 
-                stock={leftWatchlistSelectedStock} 
                 className="flex-1 min-h-0 h-full" 
               />
+            </div>
+
+            <div className="flex flex-col h-full min-h-0 space-y-4 md:space-y-6">
+              <InteractiveChartCard 
+                stock={leftWatchlistSelectedStock} 
+                className="flex-1 min-h-0" 
+              />
+              <NewsCard className="h-72 shrink-0" />
             </div>
 
             <div className="flex flex-col h-full min-h-0 space-y-6 pr-0 md:pr-1">
@@ -154,3 +153,4 @@ export default function MilkMarketPage() {
     </Suspense>
   );
 }
+
