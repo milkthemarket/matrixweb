@@ -33,9 +33,9 @@ function MilkMarketPageContent() {
 
 
   const handleWatchlistStockSelection = useCallback((stock: Stock) => {
-    setLeftWatchlistSelectedStock(stock);
-    // Primarily update the right order card when a stock is selected.
-    // The center chart will also use leftWatchlistSelectedStock.
+    setLeftWatchlistSelectedStock(stock); // This updates the chart
+    // Update the right order card if needed, or clear it, or make it follow center etc.
+    // For now, let's also update the right order card when watchlist selection changes
     setRightOrderCardSelectedStock(stock);
     setRightOrderCardActionType(null);
     setRightOrderCardInitialTradeMode(undefined);
@@ -113,7 +113,7 @@ function MilkMarketPageContent() {
        const newStock: Stock = { 
         id: symbol, symbol, name: `Info for ${symbol}`, price: 0, changePercent: 0, float:0, volume:0, lastUpdated: new Date().toISOString(), historicalPrices:[]
       };
-      setLeftWatchlistSelectedStock(newStock);
+      setLeftWatchlistSelectedStock(newStock); // Update chart with basic info
       setRightOrderCardSelectedStock(newStock);
       setRightOrderCardInitialQuantity(undefined);
       setRightOrderCardInitialOrderType(undefined);
@@ -131,27 +131,30 @@ function MilkMarketPageContent() {
       <PageHeader title="Milk Market" />
       <ScrollArea className="flex-1"> 
         <div className="p-4 md:p-6">
+          {/* Main Grid: 2 rows on desktop, 3 columns */}
           <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] md:grid-rows-[1fr_auto] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
             
             {/* Row 1, Column 1: Watchlist */}
-            <div className="flex flex-col h-full min-h-0 md:row-start-1 md:col-start-1">
+            <div className="flex flex-col h-full md:row-start-1 md:col-start-1">
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
-                className="flex-1 min-h-0" 
+                className="h-[420px]" // Fixed height for watchlist
               />
             </div>
 
-            {/* Row 1, Column 2: Chart */}
-            <div className="flex flex-col h-full min-h-0 md:row-start-1 md:col-start-2">
+            {/* Row 1, Column 2: Chart (will be above News in this column) */}
+            <div className="flex flex-col h-full md:row-start-1 md:col-start-2 space-y-4 md:space-y-6">
               <InteractiveChartCard 
                 stock={leftWatchlistSelectedStock} 
                 className="flex-1 min-h-0" 
               />
+              {/* Row 2, Column 1&2 (spanned by NewsCard): News - Now below Chart */}
+              <NewsCard className="h-72 shrink-0" /> {/* Fixed height for news, below chart */}
             </div>
 
-            {/* Row 1, Column 3: Order Panel */}
-            <div className="flex flex-col h-full min-h-0 md:row-start-1 md:col-start-3">
+            {/* Row 1 & 2, Column 3: Order Panel & Open Positions */}
+            <div className="flex flex-col h-full space-y-4 md:space-y-6 md:row-span-2 md:col-start-3">
                 <OrderCard
                     selectedStock={rightOrderCardSelectedStock}
                     initialActionType={rightOrderCardActionType}
@@ -163,20 +166,10 @@ function MilkMarketPageContent() {
                     initialQuantity={rightOrderCardInitialQuantity}
                     initialOrderType={rightOrderCardInitialOrderType}
                     initialLimitPrice={rightOrderCardInitialLimitPrice}
-                    className="flex-1 min-h-0"
+                    className="flex-1 min-h-0" 
                 />
+                <OpenPositionsCard className="md:h-96 shrink-0" /> 
             </div>
-            
-            {/* Row 2, Column 1 & 2 (span): News Card */}
-            <div className="md:col-span-2 md:row-start-2 md:col-start-1 flex flex-col md:h-96"> {/* Fixed height for this row's content */}
-              <NewsCard className="flex-1 min-h-0" />
-            </div>
-            
-            {/* Row 2, Column 3: Open Positions */}
-            <div className="flex flex-col md:row-start-2 md:col-start-3 md:h-96"> {/* Fixed height for this row's content */}
-              <OpenPositionsCard className="flex-1 min-h-0" />
-            </div>
-
           </div>
         </div>
       </ScrollArea>
@@ -192,3 +185,4 @@ export default function MilkMarketPage() {
     </Suspense>
   );
 }
+
