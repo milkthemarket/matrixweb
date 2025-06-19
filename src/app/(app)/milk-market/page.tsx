@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState, useMemo, Suspense, useCallback } from 'react';
-// import { PageHeader } from "@/components/PageHeader"; // No longer needed
 import type { Stock, TradeRequest, OrderActionType, TradeMode, Account, OrderSystemType } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
@@ -15,9 +14,8 @@ import { NewsCard } from '@/components/NewsCard';
 import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-// Import new card components
 import { RecentAlertsCard } from '@/components/RecentAlertsCard';
-import { StockDetailsCard } from '@/components/StockDetailsCard';
+import { DayTradingFundamentalsCard } from '@/components/DayTradingFundamentalsCard'; // New Card
 import { AccountSummaryCard } from '@/components/AccountSummaryCard';
 
 function MilkMarketPageContent() {
@@ -27,7 +25,6 @@ function MilkMarketPageContent() {
 
   const [leftWatchlistSelectedStock, setLeftWatchlistSelectedStock] = useState<Stock | null>(initialMockStocks[0] || null);
 
-  // State for the right-hand OrderCard
   const [rightOrderCardSelectedStock, setRightOrderCardSelectedStock] = useState<Stock | null>(null);
   const [rightOrderCardActionType, setRightOrderCardActionType] = useState<OrderActionType | null>(null);
   const [rightOrderCardInitialTradeMode, setRightOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
@@ -132,21 +129,21 @@ function MilkMarketPageContent() {
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
-      {/* <PageHeader title="Milk Market" /> Removed */}
       <ScrollArea className="flex-1"> 
         <div className="p-4 md:p-6">
           {/* Main Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] md:grid-rows-[auto_1fr_auto] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
             
-            {/* Row 1: New Cards */}
+            {/* Row 1: Top Info Cards */}
             <div className="flex flex-col md:col-start-1">
-              <RecentAlertsCard className="h-full" />
+              <RecentAlertsCard className="h-full min-h-[60px]" />
             </div>
             <div className="flex flex-col md:col-start-2">
-              <StockDetailsCard stock={leftWatchlistSelectedStock} className="h-full" />
+              {/* DayTradingFundamentalsCard replaces StockDetailsCard */}
+              <DayTradingFundamentalsCard stock={leftWatchlistSelectedStock} className="h-full min-h-[60px]" />
             </div>
             <div className="flex flex-col md:col-start-3">
-              <AccountSummaryCard className="h-full" />
+              <AccountSummaryCard className="h-full min-h-[60px]" />
             </div>
 
             {/* Row 2: Watchlist, Chart, OrderPanel */}
@@ -154,13 +151,13 @@ function MilkMarketPageContent() {
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
-                className="flex-1 min-h-0"
+                className="flex-1 min-h-[300px] md:min-h-0"
               />
             </div>
             <div className="flex flex-col h-full md:row-start-2 md:col-start-2">
               <InteractiveChartCard 
                 stock={leftWatchlistSelectedStock} 
-                className="flex-1 min-h-0" 
+                className="flex-1 min-h-[300px] md:min-h-0" 
               />
             </div>
             <div className="flex flex-col h-full md:row-start-2 md:col-start-3">
@@ -175,7 +172,7 @@ function MilkMarketPageContent() {
                     initialQuantity={rightOrderCardInitialQuantity}
                     initialOrderType={rightOrderCardInitialOrderType}
                     initialLimitPrice={rightOrderCardInitialLimitPrice}
-                    className="flex-1 min-h-0" 
+                    className="flex-1 min-h-[300px] md:min-h-0" 
                 />
             </div>
             
@@ -202,5 +199,3 @@ export default function MilkMarketPage() {
     </Suspense>
   );
 }
-
-    
