@@ -78,9 +78,9 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
           </div>
         ) : (
           <ScrollArea className="h-full">
-            <div className="grid grid-cols-2 gap-px bg-border/[.1] text-xs">
+            <div className="grid grid-cols-2 gap-px text-xs"> {/* Removed bg-border/[.1] */}
               {/* Bids Column */}
-              <div> {/* Removed bg-card */}
+              <div>
                 <div className="grid grid-cols-[1fr_auto] p-2 border-b border-border/[.1] sticky top-0 bg-card/[.05] backdrop-blur-sm z-10">
                   <span className="font-semibold text-[hsl(var(--confirm-green))] flex items-center"><ArrowDown className="mr-1 h-3 w-3"/>Bids</span>
                   <span className="font-semibold text-right text-[hsl(var(--confirm-green))]">Size</span>
@@ -104,7 +104,7 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
               </div>
 
               {/* Asks Column */}
-              <div> {/* Removed bg-card */}
+              <div>
                 <div className="grid grid-cols-[1fr_auto] p-2 border-b border-border/[.1] sticky top-0 bg-card/[.05] backdrop-blur-sm z-10">
                   <span className="font-semibold text-destructive flex items-center"><ArrowUp className="mr-1 h-3 w-3"/>Asks</span>
                   <span className="font-semibold text-right text-destructive">Size</span>
@@ -133,4 +133,3 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
     </Card>
   );
 }
-
