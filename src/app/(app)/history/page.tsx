@@ -133,7 +133,6 @@ export default function HistoryPage() {
       const pnl = dailyPnlData[dateKey];
       const dayOfMonth = format(day, 'd');
   
-      // Only show P&L if the day is in the currently displayed month
       if (pnl !== undefined && day.getMonth() === currentCalendarMonth.getMonth()) {
           return (
               <div className="flex flex-col items-center justify-center text-center leading-tight h-full w-full">
@@ -147,8 +146,6 @@ export default function HistoryPage() {
               </div>
           );
       }
-      // For days outside the current month, or days with no P&L, just show the day number
-      // react-day-picker handles styling for `day_outside`
       return dayOfMonth;
   };
 
@@ -327,18 +324,16 @@ export default function HistoryPage() {
             </CardTitle>
             <CardDescription>Visual overview of your daily trading performance. Navigable by month.</CardDescription>
           </CardHeader>
-          <CardContent className="flex justify-center items-center">
+          <CardContent className="p-0">
             <Calendar
               mode="single"
               month={currentCalendarMonth}
               onMonthChange={setCurrentCalendarMonth}
               formatters={{ formatDay: pnlDayFormatter }}
-              className="rounded-md border border-border/[.1] bg-black/10 p-3 shadow-sm"
+              className="w-full"
               classNames={{
                 day_today: "bg-accent/20 text-accent-foreground font-bold ring-1 ring-accent",
                 day_outside: "text-muted-foreground/40",
-                // The pnlDayFormatter handles specific P&L text color,
-                // so we don't need strong modifiersClassNames for cell background unless desired.
               }}
             />
           </CardContent>
