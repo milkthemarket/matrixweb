@@ -148,30 +148,29 @@ export default function RulesPage() {
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Alert Rules Engine" />
-      <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
-        <Card> {/* This Card will inherit new global style */}
+      <div className="flex-1 p-1 md:p-1.5 space-y-1.5 overflow-y-auto"> {/* Reduced padding and space */}
+        <Card> 
           <CardHeader>
-            <CardTitle className="text-2xl font-headline flex items-center">
-              <ListFilter className="mr-2 h-6 w-6 text-primary"/>
+            <CardTitle className="text-xl font-headline flex items-center"> {/* Reduced from 2xl */}
+              <ListFilter className="mr-1.5 h-5 w-5 text-primary"/> {/* Reduced icon size */}
               {editingRule ? 'Edit Rule Info' : 'Create New Rule (Basic)'}
             </CardTitle>
             <CardDescription>Define rule name and status. Complex criteria are managed via predefined rules for now.</CardDescription>
           </CardHeader>
-          {/* Reverted to basic form handling without react-hook-form Form provider for simplicity here */}
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-1.5"> {/* Reduced space-y-6 */}
               <div>
                 <Label htmlFor="ruleName">Rule Name</Label>
                 <Input 
                   id="ruleName" 
                   placeholder="e.g., Premarket Spike Low Float" 
                   {...form.register("name")} 
-                  className="bg-transparent"
+                  className="bg-transparent text-sm h-9" // Reduced size
                 />
-                {form.formState.errors.name && <p className="text-xs text-destructive mt-1">{form.formState.errors.name.message}</p>}
+                {form.formState.errors.name && <p className="text-xs text-destructive mt-0.5">{form.formState.errors.name.message}</p>} {/* Reduced margin */}
               </div>
               
-              <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-3 shadow-sm bg-black/10">
+              <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-1 shadow-sm bg-black/10"> {/* Reduced p-3 */}
                 <div className="space-y-0.5">
                     <Label htmlFor="isActiveSwitch" className="font-medium text-foreground cursor-pointer">Activate Rule</Label>
                     <p className="text-xs text-muted-foreground">
@@ -185,42 +184,42 @@ export default function RulesPage() {
                 />
               </div>
             </CardContent>
-            <CardFooter className="flex justify-end gap-2">
-              {editingRule && <Button type="button" variant="outline" onClick={() => { setEditingRule(null); form.reset({name: '', isActive: true }); }}>Cancel Edit</Button>}
-              <Button type="submit" className="text-primary-foreground bg-primary hover:bg-primary/90">
-                <PlusCircle className="mr-2 h-4 w-4" />
+            <CardFooter className="flex justify-end gap-0.5"> {/* Reduced gap */}
+              {editingRule && <Button type="button" variant="outline" size="sm" onClick={() => { setEditingRule(null); form.reset({name: '', isActive: true }); }}>Cancel Edit</Button>}
+              <Button type="submit" size="sm" className="text-primary-foreground bg-primary hover:bg-primary/90"> {/* Made button smaller */}
+                <PlusCircle className="mr-1 h-3.5 w-3.5" /> {/* Reduced icon size */}
                 {editingRule ? 'Save Changes' : 'Add Basic Rule'}
               </Button>
             </CardFooter>
           </form>
         </Card>
 
-        <Separator className="border-white/5"/>
+        <Separator className="border-white/5 my-1.5"/> {/* Added margin */}
 
-        <Card> {/* This Card will inherit new global style */}
+        <Card> 
           <CardHeader>
-            <CardTitle className="text-xl font-headline">Defined Rules</CardTitle>
+            <CardTitle className="text-lg font-headline">Defined Rules</CardTitle> {/* Reduced text-xl */}
             <CardDescription>Manage your existing alert rules. Dashboard filters based on these.</CardDescription>
           </CardHeader>
           <CardContent>
             {rules.length > 0 ? (
-              <ul className="space-y-4">
+              <ul className="space-y-1"> {/* Reduced space-y-4 */}
                 {rules.map((rule) => (
                   <li 
                     key={rule.id} 
                     className={cn(
-                      "flex items-start md:items-center justify-between p-4 rounded-xl shadow-none flex-col md:flex-row border border-white/5", 
+                      "flex items-start md:items-center justify-between p-1 rounded-lg shadow-none flex-col md:flex-row border border-white/5", // Reduced p-4, rounded-xl to rounded-lg
                       "bg-black/10 backdrop-blur-md", 
                       "hover:bg-white/10 transition-colors duration-200"
                     )}
                   >
-                    <div className="flex-1 mb-3 md:mb-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-semibold text-foreground">{rule.name} </p>
+                    <div className="flex-1 mb-1 md:mb-0"> {/* Reduced mb-3 */}
+                      <div className="flex items-center gap-1 mb-0.5"> {/* Reduced gap-2, mb-1 */}
+                        <p className="font-semibold text-foreground text-sm">{rule.name} </p> {/* Reduced text size */}
                         <Badge 
                             variant={rule.isActive ? "default" : "secondary"}
                             className={cn(
-                              "text-xs h-5",
+                              "text-xs h-4 px-1 py-0", // Reduced h-5, px-1.5, py-0.5
                               rule.isActive ? "bg-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green-foreground))]" : "bg-muted text-muted-foreground"
                             )}
                           >
@@ -228,10 +227,10 @@ export default function RulesPage() {
                           </Badge>
                       </div>
                       {rule.criteria.length > 0 ? (
-                        <div className="text-xs text-muted-foreground space-y-0.5">
+                        <div className="text-xs text-muted-foreground space-y-px"> {/* Reduced space-y-0.5 */}
                           {rule.criteria.map((crit, index) => (
                             <div key={index} className="flex items-center">
-                              <Terminal className="h-3 w-3 mr-1.5 text-accent flex-shrink-0"/> 
+                              <Terminal className="h-3 w-3 mr-1 text-accent flex-shrink-0"/> {/* Reduced mr-1.5 */}
                               <span>{formatCriterion(crit)}</span>
                             </div>
                           ))}
@@ -240,24 +239,25 @@ export default function RulesPage() {
                         <p className="text-xs text-muted-foreground italic">No criteria defined for this rule.</p>
                       )}
                     </div>
-                    <div className="flex items-center space-x-2 flex-shrink-0">
+                    <div className="flex items-center space-x-0.5 flex-shrink-0"> {/* Reduced space-x-2 */}
                        <Switch
                           checked={rule.isActive}
                           onCheckedChange={() => toggleRuleStatus(rule.id)}
                           aria-label={rule.isActive ? "Deactivate rule" : "Activate rule"}
+                          className="h-5 w-9 data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0 [&>span]:h-4 [&>span]:w-4" // Made switch smaller
                         />
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(rule)} className="text-accent hover:text-accent-foreground hover:bg-accent/10">
-                        <Edit3 className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(rule)} className="text-accent hover:text-accent-foreground hover:bg-accent/10 h-6 w-6"> {/* Reduced size */}
+                        <Edit3 className="h-3.5 w-3.5" /> {/* Reduced icon size */}
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(rule.id)} className="text-destructive hover:text-destructive-foreground hover:bg-destructive/10">
-                        <Trash2 className="h-4 w-4" />
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(rule.id)} className="text-destructive hover:text-destructive-foreground hover:bg-destructive/10 h-6 w-6"> {/* Reduced size */}
+                        <Trash2 className="h-3.5 w-3.5" /> {/* Reduced icon size */}
                       </Button>
                     </div>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-muted-foreground">No rules defined yet. Create one above or use the predefined ones.</p>
+              <p className="text-muted-foreground text-sm">No rules defined yet. Create one above or use the predefined ones.</p>
             )}
           </CardContent>
         </Card>

@@ -179,8 +179,6 @@ export default function AcademyPage() {
       setSelectedArticle(articleContent);
       setIsModalOpen(true);
     } else {
-      // Fallback for modules without specific content yet, like "Coming Soon" ones.
-      // Or handle this by disabling clicks on "Coming Soon" modules.
       setSelectedArticle({
         title: learningModules.find(m => m.id === moduleId)?.title || "Content Not Available",
         paragraphs: ["Detailed content for this module is coming soon or not yet available."]
@@ -198,27 +196,27 @@ export default function AcademyPage() {
     <>
       <main className="flex flex-col flex-1 h-full overflow-hidden">
         <PageHeader title="Milk Academy" />
-        <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-6">
+        <div className="flex-1 p-1 md:p-1.5 overflow-y-auto space-y-1.5"> {/* Reduced padding and space */}
           
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-semibold text-muted-foreground">
+          <div className="text-center mb-1.5"> {/* Reduced mb-6 */}
+            <h2 className="text-lg font-semibold text-muted-foreground"> {/* Reduced text-xl */}
               Your hub for tutorials, trading tips, and platform walkthroughs.
             </h2>
           </div>
 
-          <div className="mb-8">
-            <div className="flex items-center mb-3">
-              <Tag className="h-5 w-5 mr-2 text-primary" />
-              <h3 className="text-lg font-semibold text-foreground">Popular Topics</h3>
+          <div className="mb-2"> {/* Reduced mb-8 */}
+            <div className="flex items-center mb-1"> {/* Reduced mb-3 */}
+              <Tag className="h-4 w-4 mr-1.5 text-primary" /> {/* Reduced icon size and margin */}
+              <h3 className="text-md font-semibold text-foreground">Popular Topics</h3> {/* Reduced text-lg */}
             </div>
-            <ScrollArea className="w-full whitespace-nowrap pb-2.5">
-              <div className="flex space-x-2">
+            <ScrollArea className="w-full whitespace-nowrap pb-1"> {/* Reduced pb-2.5 */}
+              <div className="flex space-x-0.5"> {/* Reduced space-x-2 */}
                 {popularTopics.map((topic) => (
                   <Button
                     key={topic.id}
                     variant={selectedTopicId === topic.id ? "default" : "outline"}
                     className={cn(
-                      "rounded-full px-4 py-1.5 h-auto text-sm font-medium",
+                      "rounded-full px-2 py-1 h-auto text-xs font-medium", // Reduced px-4, py-1.5, text-sm
                       selectedTopicId === topic.id 
                         ? "bg-primary text-primary-foreground hover:bg-primary/90" 
                         : "border-border text-muted-foreground hover:bg-white/5 hover:text-foreground"
@@ -233,26 +231,26 @@ export default function AcademyPage() {
             </ScrollArea>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5"> {/* Reduced gap-6 */}
             {filteredModules.map((module, index) => (
               <div 
                 key={index} 
                 onClick={() => handleModuleClick(module.id)} 
-                className="cursor-pointer rounded-xl overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background transition-shadow hover:shadow-lg hover:shadow-primary/10"
+                className="cursor-pointer rounded-xl overflow-hidden focus:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:ring-offset-1 focus-visible:ring-offset-background transition-shadow hover:shadow-lg hover:shadow-primary/10" // Adjusted focus ring
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleModuleClick(module.id);}}
               >
                 <Card className="flex flex-col h-full">
-                  <CardHeader>
-                    <div className="flex items-center mb-2">
-                      <module.icon className="h-6 w-6 mr-3 text-primary" />
-                      <CardTitle className="text-lg font-headline">{module.title}</CardTitle>
+                  <CardHeader className="pb-0.5"> {/* Reduced default CardHeader padding */}
+                    <div className="flex items-center mb-0.5"> {/* Reduced mb-2 */}
+                      <module.icon className="h-5 w-5 mr-1.5 text-primary" /> {/* Reduced icon size and margin */}
+                      <CardTitle className="text-md font-headline">{module.title}</CardTitle> {/* Reduced from text-lg */}
                     </div>
-                    <CardDescription>{module.description}</CardDescription>
+                    <CardDescription className="text-xs">{module.description}</CardDescription> {/* Ensure CardDescription is smaller */}
                   </CardHeader>
-                  <CardContent className="flex-1 flex flex-col justify-between">
-                    <div className="relative aspect-video w-full rounded-md overflow-hidden mb-4">
+                  <CardContent className="flex-1 flex flex-col justify-between pt-1"> {/* Reduced default CardContent padding-top */}
+                    <div className="relative aspect-video w-full rounded-md overflow-hidden mb-1"> {/* Reduced mb-4 */}
                       <Image 
                         src={module.image} 
                         alt={module.title} 
@@ -262,12 +260,12 @@ export default function AcademyPage() {
                       />
                     </div>
                     {module.comingSoon && (
-                      <div className="text-center text-sm text-primary font-semibold p-2 bg-primary/10 rounded-md">
+                      <div className="text-center text-xs text-primary font-semibold p-0.5 bg-primary/10 rounded-md"> {/* Reduced text-sm, p-2 */}
                         Coming Soon
                       </div>
                     )}
                     {!module.comingSoon && (
-                       <div className="text-center text-sm text-muted-foreground font-semibold p-2 bg-muted/10 rounded-md">
+                       <div className="text-center text-xs text-muted-foreground font-semibold p-0.5 bg-muted/10 rounded-md"> {/* Reduced text-sm, p-2 */}
                         Available Now
                       </div>
                     )}
@@ -289,4 +287,3 @@ export default function AcademyPage() {
     </>
   );
 }
-

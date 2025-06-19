@@ -88,21 +88,21 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion; onUpvote: (id: string) 
 
   return (
     <Card className="flex flex-col">
-      <CardHeader>
+      <CardHeader className="pb-0.5"> {/* Reduced CardHeader padding */}
         <div className="flex justify-between items-start">
-          <CardTitle className="text-base font-semibold text-foreground">{suggestion.title}</CardTitle>
-          <Badge variant="outline" className={cn("text-xs whitespace-nowrap", getStatusBadgeColor(suggestion.status))}>
+          <CardTitle className="text-sm font-semibold text-foreground">{suggestion.title}</CardTitle> {/* Reduced from text-base */}
+          <Badge variant="outline" className={cn("text-xs whitespace-nowrap py-0 px-1 h-auto", getStatusBadgeColor(suggestion.status))}> {/* Made badge smaller */}
             {suggestion.status}
           </Badge>
         </div>
         {suggestion.category && <CardDescription className="text-xs text-primary">{suggestion.category}</CardDescription>}
       </CardHeader>
-      <CardContent className="flex-1">
-        <p className="text-sm text-muted-foreground mb-3 line-clamp-3">{suggestion.description}</p>
+      <CardContent className="flex-1 pt-1"> {/* Reduced CardContent padding-top */}
+        <p className="text-xs text-muted-foreground mb-1 line-clamp-3">{suggestion.description}</p> {/* Reduced text-sm, mb-3 */}
         {suggestion.status === 'In Progress' && suggestion.progress !== undefined && (
-          <div className="mb-3">
-            <Progress value={suggestion.progress} className="h-2" />
-            <p className="text-xs text-muted-foreground mt-1">{suggestion.progress}% complete</p>
+          <div className="mb-1"> {/* Reduced mb-3 */}
+            <Progress value={suggestion.progress} className="h-1.5" /> {/* Reduced h-2 */}
+            <p className="text-xs text-muted-foreground mt-0.5">{suggestion.progress}% complete</p> {/* Reduced mt-1 */}
           </div>
         )}
       </CardContent>
@@ -111,9 +111,9 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion; onUpvote: (id: string) 
           variant={suggestion.userHasUpvoted ? "default" : "outline"} 
           size="sm" 
           onClick={() => onUpvote(suggestion.id)}
-          className={cn("text-sm", suggestion.userHasUpvoted ? "bg-primary text-primary-foreground hover:bg-primary/90" : "text-accent border-accent hover:bg-accent/10 hover:text-accent")}
+          className={cn("text-xs h-7 px-2", suggestion.userHasUpvoted ? "bg-primary text-primary-foreground hover:bg-primary/90" : "text-accent border-accent hover:bg-accent/10 hover:text-accent")} // Reduced size
         >
-          <ThumbsUp className="mr-1.5 h-4 w-4" /> {suggestion.upvotes} Upvotes
+          <ThumbsUp className="mr-1 h-3.5 w-3.5" /> {suggestion.upvotes} Upvotes {/* Reduced icon size, mr-1.5 */}
         </Button>
         <p className="text-xs text-muted-foreground">
           {new Date(suggestion.createdAt).toLocaleDateString()}
@@ -138,12 +138,12 @@ export default function SuggestionsPage() {
 
   const onSubmitSuggestion: SubmitHandler<SuggestionFormData> = async (data) => {
     setIsLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000)); 
     
     const finalCategory = data.category === 'Other' ? data.customCategory : data.category;
 
     const newSuggestion: Suggestion = {
-      id: `s${Date.now()}`, // More unique ID
+      id: `s${Date.now()}`, 
       title: data.title,
       description: data.description,
       category: finalCategory || 'General',
@@ -156,7 +156,7 @@ export default function SuggestionsPage() {
 
     form.reset();
     setIsLoading(false);
-    setShowSuccessDialog(true); // Show the success dialog
+    setShowSuccessDialog(true); 
   };
 
   const handleUpvote = (id: string) => {
@@ -165,7 +165,7 @@ export default function SuggestionsPage() {
         s.id === id 
           ? { ...s, upvotes: s.userHasUpvoted ? s.upvotes -1 : s.upvotes + 1, userHasUpvoted: !s.userHasUpvoted } 
           : s
-      ).sort((a, b) => b.upvotes - a.upvotes) // Re-sort after upvote
+      ).sort((a, b) => b.upvotes - a.upvotes) 
     );
   };
   
@@ -179,30 +179,30 @@ export default function SuggestionsPage() {
     <>
       <main className="flex flex-col flex-1 h-full overflow-hidden">
         <PageHeader title="Suggestions & Community Upgrades" />
-        <ScrollArea className="flex-1 p-4 md:p-6">
-          <div className="space-y-8">
+        <ScrollArea className="flex-1 p-1 md:p-1.5"> {/* Reduced padding */}
+          <div className="space-y-2"> {/* Reduced space-y-8 */}
             
             <Card>
               <CardHeader>
-                <CardTitle className="text-xl font-headline flex items-center">
-                  <MessageSquare className="mr-2 h-5 w-5 text-primary"/>
+                <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
+                  <MessageSquare className="mr-1.5 h-4 w-4 text-primary"/> {/* Reduced icon size */}
                   Submit Your Idea
                 </CardTitle>
                 <CardDescription>Have a feature request or an improvement idea? Let us know!</CardDescription>
               </CardHeader>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmitSuggestion)}>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-1"> {/* Reduced space-y-4 */}
                     <FormField
                       control={form.control}
                       name="title"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Short Title</FormLabel>
+                          <FormLabel className="text-xs">Short Title</FormLabel> {/* Reduced text size */}
                           <FormControl>
-                            <Input placeholder="e.g., Add Trailing Stop Loss for AI Trades" {...field} disabled={isLoading} />
+                            <Input placeholder="e.g., Add Trailing Stop Loss for AI Trades" {...field} disabled={isLoading} className="h-8 text-xs"/> {/* Reduced height and text */}
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs"/>
                         </FormItem>
                       )}
                     />
@@ -211,11 +211,11 @@ export default function SuggestionsPage() {
                       name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Detailed Description</FormLabel>
+                          <FormLabel className="text-xs">Detailed Description</FormLabel> {/* Reduced text size */}
                           <FormControl>
-                            <Textarea placeholder="Explain your suggestion in detail. What problem does it solve? How would it work?" rows={4} {...field} disabled={isLoading} />
+                            <Textarea placeholder="Explain your suggestion in detail. What problem does it solve? How would it work?" rows={3} {...field} disabled={isLoading} className="text-xs min-h-[60px]"/> {/* Reduced rows and text */}
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-xs"/>
                         </FormItem>
                       )}
                     />
@@ -224,20 +224,20 @@ export default function SuggestionsPage() {
                       name="category"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Category (Optional)</FormLabel>
+                          <FormLabel className="text-xs">Category (Optional)</FormLabel> {/* Reduced text size */}
                           <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className="h-8 text-xs"> {/* Reduced height */}
                                 <SelectValue placeholder="Select a category" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               {suggestionCategories.map(cat => (
-                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                                <SelectItem key={cat} value={cat} className="text-xs">{cat}</SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
-                          <FormMessage />
+                          <FormMessage className="text-xs"/>
                         </FormItem>
                       )}
                     />
@@ -247,19 +247,19 @@ export default function SuggestionsPage() {
                         name="customCategory"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Custom Category Name</FormLabel>
+                            <FormLabel className="text-xs">Custom Category Name</FormLabel> {/* Reduced text size */}
                             <FormControl>
-                              <Input placeholder="Enter your custom category" {...field} disabled={isLoading} />
+                              <Input placeholder="Enter your custom category" {...field} disabled={isLoading} className="h-8 text-xs"/> {/* Reduced height and text */}
                             </FormControl>
-                            <FormMessage />
+                            <FormMessage className="text-xs"/>
                           </FormItem>
                         )}
                       />
                     )}
                   </CardContent>
                   <CardFooter>
-                    <Button type="submit" disabled={isLoading} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                      <Send className="mr-2 h-4 w-4" />
+                    <Button type="submit" disabled={isLoading} size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 px-3 text-xs"> {/* Reduced size */}
+                      <Send className="mr-1 h-3.5 w-3.5" /> {/* Reduced icon size */}
                       {isLoading ? "Submitting..." : "Submit Suggestion"}
                     </Button>
                   </CardFooter>
@@ -270,12 +270,13 @@ export default function SuggestionsPage() {
             {topSuggestions.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl font-headline flex items-center">
-                    <Trophy className="mr-2 h-5 w-5 text-yellow-400"/>Top Suggestions
+                  <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
+                    <Trophy className="mr-1.5 h-4 w-4 text-yellow-400"/> {/* Reduced icon size */}
+                    Top Suggestions
                   </CardTitle>
                   <CardDescription>Most upvoted ideas from the community. Some may be prioritized!</CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1"> {/* Reduced gap-4 */}
                   {topSuggestions.map(suggestion => (
                     <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
                   ))}
@@ -283,35 +284,37 @@ export default function SuggestionsPage() {
               </Card>
             )}
             
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-1.5"> {/* Reduced gap-6 */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl font-headline flex items-center">
-                    <Flame className="mr-2 h-5 w-5 text-destructive"/>Trending & New Ideas
+                  <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
+                    <Flame className="mr-1.5 h-4 w-4 text-destructive"/> {/* Reduced icon size */}
+                    Trending & New Ideas
                   </CardTitle>
                   <CardDescription>Freshly submitted ideas. Upvote your favorites!</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-1"> {/* Reduced space-y-4 */}
                   {trendingSuggestions.length > 0 ? (
                     trendingSuggestions.map(suggestion => (
                       <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
                     ))
                   ) : (
-                    <p className="text-muted-foreground text-sm text-center py-4">No new suggestions right now. Be the first!</p>
+                    <p className="text-muted-foreground text-xs text-center py-1">No new suggestions right now. Be the first!</p> {/* Reduced text-sm, py-4 */}
                   )}
                 </CardContent>
               </Card>
 
-              <div className="space-y-6">
+              <div className="space-y-1.5"> {/* Reduced space-y-6 */}
                 {inProgressSuggestions.length > 0 && (
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-xl font-headline flex items-center">
-                        <Construction className="mr-2 h-5 w-5 text-accent"/>Currently Being Built
+                      <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
+                        <Construction className="mr-1.5 h-4 w-4 text-accent"/> {/* Reduced icon size */}
+                        Currently Being Built
                       </CardTitle>
                       <CardDescription>Features the dev team is actively working on.</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-1"> {/* Reduced space-y-4 */}
                       {inProgressSuggestions.map(suggestion => (
                         <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
                       ))}
@@ -322,12 +325,13 @@ export default function SuggestionsPage() {
                 {recentlyReleasedSuggestions.length > 0 && (
                   <Card>
                     <CardHeader>
-                      <CardTitle className="text-xl font-headline flex items-center">
-                        <CheckCircle className="mr-2 h-5 w-5 text-[hsl(var(--confirm-green))]"/>Recently Released
+                      <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
+                        <CheckCircle className="mr-1.5 h-4 w-4 text-[hsl(var(--confirm-green))]"/> {/* Reduced icon size */}
+                        Recently Released
                       </CardTitle>
                       <CardDescription>Check out what's new in MILK!</CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-1"> {/* Reduced space-y-4 */}
                        {recentlyReleasedSuggestions.map(suggestion => (
                         <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
                       ))}
@@ -336,9 +340,9 @@ export default function SuggestionsPage() {
                 )}
               </div>
             </div>
-            <div className="text-center text-sm text-muted-foreground py-4">
+            <div className="text-center text-xs text-muted-foreground py-1"> {/* Reduced text-sm, py-4 */}
               <p>Your feedback helps shape the future of MILK. Thank you for your contributions!</p>
-              <p className="mt-1">Tip: Suggestions with more community upvotes are more likely to be prioritized.</p>
+              <p className="mt-0.5">Tip: Suggestions with more community upvotes are more likely to be prioritized.</p> {/* Reduced mt-1 */}
             </div>
           </div>
         </ScrollArea>
@@ -360,4 +364,3 @@ export default function SuggestionsPage() {
     </>
   );
 }
-

@@ -661,39 +661,40 @@ function DashboardPageContent() {
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Dashboard" />
-      <div className="flex flex-1 p-4 md:p-6 space-x-0 md:space-x-6 overflow-hidden">
+      <div className="flex flex-1 p-1 md:p-1.5 space-x-0 md:space-x-1.5 overflow-hidden">
 
-        <div className="flex-1 flex flex-col overflow-hidden space-y-6">
+        <div className="flex-1 flex flex-col overflow-hidden space-y-1.5">
           <Card className="shadow-none flex-1 flex flex-col overflow-hidden">
-            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1">
               <div>
                 <CardTitle className="text-2xl font-headline">Real-Time Stock Screener</CardTitle>
                 <CardDescription>Filter and find top market movers based on selected rule.</CardDescription>
               </div>
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1 flex-wrap">
                 {lastRefreshed && <Dot className="h-6 w-6 text-[hsl(var(--confirm-green))] animate-pulse" />}
-                {lastRefreshed && <span className="text-sm text-muted-foreground">Refreshed: {lastRefreshed.toLocaleTimeString()}</span>}
+                {lastRefreshed && <span className="text-xs text-muted-foreground">Refreshed: {lastRefreshed.toLocaleTimeString()}</span>}
                 <Button
                   variant="default"
                   size="sm"
                   onClick={handleRefreshData}
+                  className="h-7 px-2 text-xs"
                 >
-                  <RotateCcw className="mr-2 h-4 w-4" />
+                  <RotateCcw className="mr-1.5 h-3.5 w-3.5" />
                   Refresh
                 </Button>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="default" size="sm">
-                      <Columns className="mr-2 h-4 w-4" /> Columns
+                    <Button variant="default" size="sm" className="h-7 px-2 text-xs">
+                      <Columns className="mr-1.5 h-3.5 w-3.5" /> Columns
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto max-w-xs md:max-w-sm p-0">
-                     <div className="p-3 border-b border-border/[.1]">
-                        <h4 className="font-medium text-sm text-foreground">Customize Columns</h4>
+                     <div className="p-1 border-b border-border/[.1]">
+                        <h4 className="font-medium text-xs text-foreground">Customize Columns</h4>
                      </div>
                      <ScrollArea className="h-[250px] md:h-[350px]">
                       <TooltipProvider>
-                        <div className="p-3 space-y-1">
+                        <div className="p-1 space-y-0.5">
                           {initialColumnConfiguration
                             .filter(col => col.isToggleable)
                             .map(col => (
@@ -702,7 +703,7 @@ function DashboardPageContent() {
                                   <Label
                                     htmlFor={`col-${col.key as string}`}
                                     className={cn(
-                                      "flex items-center space-x-2 p-2 rounded-md hover:bg-white/5 transition-colors w-full",
+                                      "flex items-center space-x-1 p-1 rounded-md hover:bg-white/5 transition-colors w-full",
                                       !visibleColumns[col.key as string] && "opacity-75"
                                     )}
                                   >
@@ -711,8 +712,8 @@ function DashboardPageContent() {
                                       checked={visibleColumns[col.key as string]}
                                       onCheckedChange={() => toggleColumnVisibility(col.key as string)}
                                     />
-                                    <span className="text-sm font-normal text-foreground flex-1">{col.label}</span>
-                                    {col.description && <Info className="h-3.5 w-3.5 text-muted-foreground opacity-50" />}
+                                    <span className="text-xs font-normal text-foreground flex-1">{col.label}</span>
+                                    {col.description && <Info className="h-3 w-3 text-muted-foreground opacity-50" />}
                                   </Label>
                                 </TooltipTrigger>
                                 {col.description && (
@@ -731,56 +732,57 @@ function DashboardPageContent() {
                   variant="default"
                   size="sm"
                   onClick={handleExport}
+                  className="h-7 px-2 text-xs"
                 >
-                  <UploadCloud className="mr-2 h-4 w-4" />
+                  <UploadCloud className="mr-1.5 h-3.5 w-3.5" />
                   Export
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col overflow-hidden space-y-4">
-              <div className="flex items-center gap-3">
-                  <Label htmlFor="ruleSelect" className="text-foreground text-sm font-medium flex items-center">
-                    <ListFilter className="mr-2 h-4 w-4 text-primary" /> Apply Screener / Rule:
+            <CardContent className="flex-1 flex flex-col overflow-hidden space-y-1">
+              <div className="flex items-center gap-1">
+                  <Label htmlFor="ruleSelect" className="text-foreground text-xs font-medium flex items-center">
+                    <ListFilter className="mr-1.5 h-3.5 w-3.5 text-primary" /> Apply Screener / Rule:
                   </Label>
                   <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
-                    <SelectTrigger id="ruleSelect" className="w-auto min-w-[200px] max-w-xs">
+                    <SelectTrigger id="ruleSelect" className="w-auto min-w-[180px] h-8 text-xs">
                         <SelectValue placeholder="Select a screener or rule..." />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="all">
+                        <SelectItem value="all" className="text-xs">
                           <span className="flex items-center">
-                            <List className="mr-2 h-4 w-4 text-muted-foreground" /> Show All Stocks
+                            <List className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" /> Show All Stocks
                           </span>
                         </SelectItem>
-                        <SelectItem value="my-watchlist">
+                        <SelectItem value="my-watchlist" className="text-xs">
                           <span className="flex items-center">
-                            <Star className="mr-2 h-4 w-4 text-yellow-400" /> My Watchlist
+                            <Star className="mr-1.5 h-3.5 w-3.5 text-yellow-400" /> My Watchlist
                           </span>
                         </SelectItem>
-                        <SelectItem value="top-gainers" className="text-[hsl(var(--confirm-green))]">
+                        <SelectItem value="top-gainers" className="text-[hsl(var(--confirm-green))] text-xs">
                           <span className="flex items-center">
-                            <TrendingUp className="mr-2 h-4 w-4" /> Top Gainers
+                            <TrendingUp className="mr-1.5 h-3.5 w-3.5" /> Top Gainers
                           </span>
                         </SelectItem>
-                        <SelectItem value="top-losers" className="text-destructive">
+                        <SelectItem value="top-losers" className="text-destructive text-xs">
                           <span className="flex items-center">
-                            <TrendingDown className="mr-2 h-4 w-4" /> Top Losers
+                            <TrendingDown className="mr-1.5 h-3.5 w-3.5" /> Top Losers
                           </span>
                         </SelectItem>
-                        <SelectItem value="active">
+                        <SelectItem value="active" className="text-xs">
                           <span className="flex items-center">
-                            <Activity className="mr-2 h-4 w-4 text-primary" /> Most Active
+                            <Activity className="mr-1.5 h-3.5 w-3.5 text-primary" /> Most Active
                           </span>
                         </SelectItem>
-                        <SelectItem value="52-week">
+                        <SelectItem value="52-week" className="text-xs">
                           <span className="flex items-center">
-                            <CalendarCheck2 className="mr-2 h-4 w-4 text-accent" /> 52 Week Highs/Lows
+                            <CalendarCheck2 className="mr-1.5 h-3.5 w-3.5 text-accent" /> 52 Week Highs/Lows
                           </span>
                         </SelectItem>
                         {activeRules.map(rule => (
-                          <SelectItem key={rule.id} value={rule.id}>
+                          <SelectItem key={rule.id} value={rule.id} className="text-xs">
                             <span className="flex items-center">
-                              <Filter className="mr-2 h-4 w-4 text-foreground/80" /> {rule.name}
+                              <Filter className="mr-1.5 h-3.5 w-3.5 text-foreground/80" /> {rule.name}
                             </span>
                           </SelectItem>
                         ))}
@@ -810,18 +812,18 @@ function DashboardPageContent() {
                             col.align === 'center' && "text-center",
                             col.isDraggable && "cursor-grab",
                             draggingOverKey === col.key && "bg-primary/20",
-                            "transition-colors duration-150 relative group"
+                            "transition-colors duration-150 relative group h-9" // Reduced height
                           )}
                         >
                           <div className="flex items-center justify-between w-full">
-                             <div className="flex items-center gap-1 overflow-hidden">
-                                {col.isDraggable ? <GripHorizontal className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" /> : <Lock className="h-3 w-3 text-muted-foreground/50 flex-shrink-0" />}
-                                <span className="truncate">{col.label}</span>
+                             <div className="flex items-center gap-0.5 overflow-hidden">
+                                {col.isDraggable ? <GripHorizontal className="h-3.5 w-3.5 text-muted-foreground/50 flex-shrink-0" /> : <Lock className="h-3 w-3 text-muted-foreground/50 flex-shrink-0" />}
+                                <span className="truncate text-xs">{col.label}</span>
                              </div>
                           </div>
                            <div
                               onMouseDown={(e) => handleResizeMouseDown(e, col.key as string)}
-                              className="absolute top-0 right-0 h-full w-1.5 cursor-col-resize opacity-0 group-hover:opacity-100 hover:bg-primary/30 z-20 transition-opacity"
+                              className="absolute top-0 right-0 h-full w-1 cursor-col-resize opacity-0 group-hover:opacity-100 hover:bg-primary/30 z-20 transition-opacity" // Reduced width
                               title={`Resize ${col.label} column`}
                             />
                         </TableHead>
@@ -844,7 +846,7 @@ function DashboardPageContent() {
                             <TableCell
                               key={`${stock.id}-${col.key as string}`}
                               className={cn(
-                                "text-foreground",
+                                "text-foreground text-xs", // Reduced text size
                                 col.align === 'right' && "text-right",
                                 col.align === 'center' && "text-center",
                                 col.key === 'symbol' && "font-medium"
@@ -857,7 +859,7 @@ function DashboardPageContent() {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={displayedColumns.length} className="text-center h-24 text-muted-foreground">
+                        <TableCell colSpan={displayedColumns.length} className="text-center h-24 text-muted-foreground text-xs">
                           No stocks match the selected filter or rule.
                         </TableCell>
                       </TableRow>
@@ -870,7 +872,7 @@ function DashboardPageContent() {
 
         </div>
 
-        <div className="w-full md:w-96 lg:w-[26rem] hidden md:flex flex-col flex-shrink-0 space-y-6 pr-1 overflow-y-auto">
+        <div className="w-full md:w-96 lg:w-[26rem] hidden md:flex flex-col flex-shrink-0 space-y-1 pr-px overflow-y-auto min-h-[600px]"> {/* Added min-h */}
           <OrderCard
             selectedStock={selectedStockForOrderCard}
             initialActionType={orderCardActionType}
@@ -879,13 +881,15 @@ function DashboardPageContent() {
             onSubmit={handleTradeSubmit}
             onClear={handleClearOrderCard}
             onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
+            className="min-h-[350px]"
           />
-          <OpenPositionsCard />
+          <OpenPositionsCard className="min-h-[200px]" />
           <MilosTradeIdeasCard
             ideas={miloIdeas}
             onRefresh={handleRefreshMiloIdeas}
             isLoading={isMiloLoading}
             onIdeaSelect={handleMiloIdeaSelect}
+            className="min-h-[200px]"
           />
         </div>
       </div>

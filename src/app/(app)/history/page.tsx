@@ -22,11 +22,11 @@ import { Calendar } from "@/components/ui/calendar";
 const getStatusIcon = (status: TradeHistoryEntry['orderStatus']) => {
   switch (status) {
     case 'Filled':
-      return <CheckCircle className="h-4 w-4 text-[hsl(var(--confirm-green))]" />;
+      return <CheckCircle className="h-3.5 w-3.5 text-[hsl(var(--confirm-green))]" />; // Reduced size
     case 'Canceled':
-      return <XCircle className="h-4 w-4 text-destructive" />;
+      return <XCircle className="h-3.5 w-3.5 text-destructive" />; // Reduced size
     case 'Pending':
-      return <Clock className="h-4 w-4 text-yellow-500" />;
+      return <Clock className="h-3.5 w-3.5 text-yellow-500" />; // Reduced size
     default:
       return null;
   }
@@ -69,12 +69,12 @@ const mockTradeStats: Record<HistoryTradeMode, TradeStatsData> = {
 };
 
 const StatDisplay: React.FC<{ label: string; value: string | number; unit?: string; valueColor?: string; icon?: React.ReactNode; isCurrency?: boolean }> = ({ label, value, unit, valueColor, icon, isCurrency = false }) => (
-  <div className="bg-transparent backdrop-blur-md p-3 rounded-lg flex flex-col items-start">
-    <div className="flex items-center text-muted-foreground text-sm mb-1">
-      {icon && <span className="mr-1.5">{icon}</span>}
+  <div className="bg-transparent backdrop-blur-md p-1 rounded-md flex flex-col items-start"> {/* Reduced p-3 to p-1, rounded-lg to rounded-md */}
+    <div className="flex items-center text-muted-foreground text-xs mb-0.5"> {/* Reduced text-sm to text-xs, mb-1 to mb-0.5 */}
+      {icon && <span className="mr-1">{React.cloneElement(icon as React.ReactElement, { size: 14 })}</span>} {/* Reduced mr-1.5, icon size */}
       {label}
     </div>
-    <span className={cn("text-xl font-semibold text-foreground", valueColor)}>
+    <span className={cn("text-lg font-semibold text-foreground", valueColor)}> {/* Reduced text-xl to text-lg */}
       {isCurrency && unit === '$' && unit}
       {typeof value === 'number' ? value.toLocaleString(undefined, { minimumFractionDigits: value % 1 === 0 && !isCurrency ? 0 : 2, maximumFractionDigits: 2 }) : value}
       {!isCurrency && unit && unit !== '$' && unit}
@@ -93,8 +93,8 @@ const tradeHistoryColumnConfig: ColumnConfig<TradeHistoryEntry>[] = [
   { key: 'trailAmount', label: 'Trail Amount', align: 'right', format: (val) => val ? String(val) : 'N/A' },
   { key: 'TIF', label: 'TIF' },
   { key: 'tradingHours', label: 'Trading Hours' },
-  { key: 'placedTime', label: 'Placed Time', format: (val) => format(parseISO(val), "MM/dd/yy HH:mm:ss") },
-  { key: 'filledTime', label: 'Filled Time', format: (val) => format(parseISO(val), "MM/dd/yy HH:mm:ss") },
+  { key: 'placedTime', label: 'Placed Time', format: (val) => format(parseISO(val), "MM/dd/yy HH:mm") }, // Shortened format
+  { key: 'filledTime', label: 'Filled Time', format: (val) => format(parseISO(val), "MM/dd/yy HH:mm") }, // Shortened format
   { key: 'orderStatus', label: 'Status' },
 ];
 
@@ -138,7 +138,7 @@ export default function HistoryPage() {
               <div className="flex flex-col items-center justify-center text-center leading-tight h-full w-full">
                   <span>{dayOfMonth}</span>
                   <span className={cn(
-                      "text-[10px] font-bold leading-none mt-px",
+                      "text-[9px] font-bold leading-none mt-px", // Reduced text size
                       pnl > 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"
                   )}>
                       {pnl > 0 ? '+' : ''}{pnl.toFixed(0)}
@@ -154,7 +154,7 @@ export default function HistoryPage() {
   const formatDateTime = (isoString?: string) => {
     if (!isoString) return 'N/A';
     try {
-      return format(parseISO(isoString), "MM/dd/yy HH:mm:ss");
+      return format(parseISO(isoString), "MM/dd HH:mm"); // Shortened format
     } catch (e) {
       return 'Invalid Date';
     }
@@ -249,7 +249,7 @@ export default function HistoryPage() {
   ];
 
 
-  const buttonBaseClass = "flex-1 flex items-center justify-center h-9 py-2 px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50";
+  const buttonBaseClass = "flex-1 flex items-center justify-center h-8 py-1 px-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50"; // Reduced h-9, py-2, px-3, text-sm, ring-2
   const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
   const inactiveModeClass = "bg-transparent text-muted-foreground hover:bg-panel/[.05] hover:text-foreground";
 
@@ -257,69 +257,69 @@ export default function HistoryPage() {
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Trade History" />
-      <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
+      <div className="flex-1 p-1 md:p-1.5 space-y-1.5 overflow-y-auto"> {/* Reduced p-4/p-6, space-y-6 */}
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 w-full max-w-xl rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05] mx-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-4 w-full max-w-lg rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05] mx-auto"> {/* Reduced max-w-xl */}
           <button
             onClick={() => setSelectedHistoryFilterMode('all')}
             className={cn(buttonBaseClass, selectedHistoryFilterMode === 'all' ? activeModeClass : inactiveModeClass)}
           >
-            <Layers className="mr-2 h-4 w-4" /> All
+            <Layers className="mr-1 h-3.5 w-3.5" /> All {/* Reduced mr-2, icon size */}
           </button>
           <button
             onClick={() => setSelectedHistoryFilterMode('manual')}
             className={cn(buttonBaseClass, selectedHistoryFilterMode === 'manual' ? activeModeClass : inactiveModeClass)}
           >
-            <User className="mr-2 h-4 w-4" /> Manual
+            <User className="mr-1 h-3.5 w-3.5" /> Manual {/* Reduced mr-2, icon size */}
           </button>
           <button
             onClick={() => setSelectedHistoryFilterMode('aiAssist')}
             className={cn(buttonBaseClass, selectedHistoryFilterMode === 'aiAssist' ? activeModeClass : inactiveModeClass)}
           >
-            <MiloAvatarIcon size={16} className="mr-2" /> AI Assist
+            <MiloAvatarIcon size={14} className="mr-1" /> AI Assist {/* Reduced size, mr-2 */}
           </button>
           <button
             onClick={() => setSelectedHistoryFilterMode('autopilot')}
             className={cn(buttonBaseClass, selectedHistoryFilterMode === 'autopilot' ? activeModeClass : inactiveModeClass)}
           >
-            <Cpu className="mr-2 h-4 w-4" /> Autopilot
+            <Cpu className="mr-1 h-3.5 w-3.5" /> Autopilot {/* Reduced mr-2, icon size */}
           </button>
         </div>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl font-headline flex items-center">
-              <BarChartHorizontalBig className="mr-2 h-5 w-5 text-primary"/>
+            <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
+              <BarChartHorizontalBig className="mr-1.5 h-4 w-4 text-primary"/> {/* Reduced icon size */}
               {selectedHistoryFilterMode === 'all' ? 'Overall Performance Summary' : 
                selectedHistoryFilterMode === 'manual' ? 'Manual Trade Performance' : 
                selectedHistoryFilterMode === 'aiAssist' ? 'AI Assisted Performance' : 'Autopilot Performance'}
             </CardTitle>
             <CardDescription>Summary of trades for the selected mode.</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen size={16}/>} />
-            <StatDisplay label="Win Rate" value={currentStats.winRate} unit="%" icon={<TrendingUp size={16}/>} valueColor={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
-            <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign size={16}/>} valueColor={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
+          <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1"> {/* Reduced gap-4 */}
+            <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen size={14}/>} /> {/* Reduced icon size */}
+            <StatDisplay label="Win Rate" value={currentStats.winRate} unit="%" icon={<TrendingUp size={14}/>} valueColor={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
+            <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign size={14}/>} valueColor={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
             <StatDisplay 
                 label={selectedHistoryFilterMode === 'all' && currentStats.avgReturn !== undefined ? "Avg P&L / Trade" : "Avg Return / Trade"}
                 value={currentStats.avgReturn} 
                 unit={selectedHistoryFilterMode === 'all' && currentStats.avgReturn !== undefined ? "$" : "%"} 
-                icon={<Percent size={16}/>} 
+                icon={<Percent size={14}/>} 
                 valueColor={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"}
                 isCurrency={selectedHistoryFilterMode === 'all' && currentStats.avgReturn !== undefined}
             />
-            <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp size={16}/>} valueColor="text-[hsl(var(--confirm-green))]" isCurrency/>
-            <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown size={16}/>} valueColor={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
-            <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock size={16}/>} />
-            <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat size={16}/>} />
-            <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award size={16}/>} valueColor={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
+            <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp size={14}/>} valueColor="text-[hsl(var(--confirm-green))]" isCurrency/>
+            <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown size={14}/>} valueColor={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
+            <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock size={14}/>} />
+            <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat size={14}/>} />
+            <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award size={14}/>} valueColor={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl font-headline flex items-center">
-              <CalendarDays className="mr-2 h-5 w-5 text-primary"/>
+            <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
+              <CalendarDays className="mr-1.5 h-4 w-4 text-primary"/> {/* Reduced icon size */}
               Daily P&L Calendar
             </CardTitle>
             <CardDescription>Visual overview of your daily trading performance. Navigable by month.</CardDescription>
@@ -331,19 +331,28 @@ export default function HistoryPage() {
               onMonthChange={setCurrentCalendarMonth}
               formatters={{ formatDay: pnlDayFormatter }}
               className="w-full"
-              classNames={{
-                day_today: "bg-accent/20 text-accent-foreground font-bold ring-1 ring-accent",
+              classNames={{ // Adjusted some calendar internal classes if they imply significant padding/margin by default
+                months: "flex flex-col sm:flex-row space-y-1 sm:space-x-1 sm:space-y-0", // Reduced space
+                month: "space-y-1", // Reduced space
+                caption_label: "text-xs font-medium", // Reduced text size
+                nav_button: cn(buttonVariants({ variant: "outline" }), "h-6 w-6 bg-transparent p-0 opacity-50 hover:opacity-100"), // Reduced size
+                table: "w-full border-collapse space-y-0.5", // Reduced space
+                head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.7rem]", // Reduced size
+                row: "flex w-full mt-0.5", // Reduced margin
+                cell: "h-8 w-8 text-center text-xs p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-sm [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-sm last:[&:has([aria-selected])]:rounded-r-sm focus-within:relative focus-within:z-20", // Reduced size & padding
+                day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 font-normal aria-selected:opacity-100"), // Reduced size
+                day_today: "bg-accent text-accent-foreground font-bold ring-1 ring-accent",
                 day_outside: "text-muted-foreground/40",
               }}
             />
           </CardContent>
-          <CardFooter className="flex items-center justify-center space-x-6 pt-4 text-xs text-muted-foreground">
+          <CardFooter className="flex items-center justify-center space-x-1.5 pt-1 text-[10px] text-muted-foreground"> {/* Reduced space, padding, text size */}
             <span>Legend:</span>
             <div className="flex items-center">
-                <span className="font-semibold text-[hsl(var(--confirm-green))] mr-1">+100</span> Profit
+                <span className="font-semibold text-[hsl(var(--confirm-green))] mr-0.5">+100</span> Profit
             </div>
             <div className="flex items-center">
-                <span className="font-semibold text-destructive mr-1">-50</span> Loss
+                <span className="font-semibold text-destructive mr-0.5">-50</span> Loss
             </div>
           </CardFooter>
         </Card>
@@ -351,29 +360,29 @@ export default function HistoryPage() {
         {selectedHistoryFilterMode === 'all' && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-xl font-headline flex items-center">
-                <PieChart className="mr-2 h-5 w-5 text-primary"/>
+              <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
+                <PieChart className="mr-1.5 h-4 w-4 text-primary"/> {/* Reduced icon size */}
                 Performance Comparison by Mode
               </CardTitle>
               <CardDescription>Side-by-side comparison of key metrics across trading modes.</CardDescription>
             </CardHeader>
             <CardContent>
               <ScrollArea className="max-w-full">
-                <Table className="min-w-[700px]">
+                <Table className="min-w-[600px]"> {/* Reduced min-w */}
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-[200px]">Metric</TableHead>
-                      <TableHead className="text-center w-[150px]">
-                        <div className="flex items-center justify-center"><User className="mr-1.5 h-4 w-4" /> Manual</div>
+                      <TableHead className="w-[150px]">Metric</TableHead> {/* Reduced width */}
+                      <TableHead className="text-center w-[120px]"> {/* Reduced width */}
+                        <div className="flex items-center justify-center"><User className="mr-1 h-3.5 w-3.5" /> Manual</div> {/* Reduced icon size */}
                       </TableHead>
-                      <TableHead className="text-center w-[150px]">
-                        <div className="flex items-center justify-center"><MiloAvatarIcon size={16} className="mr-1.5" /> AI Assist</div>
+                      <TableHead className="text-center w-[120px]"> {/* Reduced width */}
+                        <div className="flex items-center justify-center"><MiloAvatarIcon size={14} className="mr-1" /> AI Assist</div> {/* Reduced icon size */}
                       </TableHead>
-                      <TableHead className="text-center w-[150px]">
-                        <div className="flex items-center justify-center"><Cpu className="mr-1.5 h-4 w-4" /> Autopilot</div>
+                      <TableHead className="text-center w-[120px]"> {/* Reduced width */}
+                        <div className="flex items-center justify-center"><Cpu className="mr-1 h-3.5 w-3.5" /> Autopilot</div> {/* Reduced icon size */}
                       </TableHead>
-                       <TableHead className="text-center w-[150px] font-semibold">
-                        <div className="flex items-center justify-center"><Layers className="mr-1.5 h-4 w-4" /> Overall</div>
+                       <TableHead className="text-center w-[120px] font-semibold"> {/* Reduced width */}
+                        <div className="flex items-center justify-center"><Layers className="mr-1 h-3.5 w-3.5" /> Overall</div> {/* Reduced icon size */}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -398,8 +407,6 @@ export default function HistoryPage() {
                             if ((metric.key === 'avgReturn' || metric.isCurrency)) displayOverallValue = `$${displayOverallValue}`;
                             if (metric.isPercentage && typeof overallValue === 'number') displayOverallValue = `${displayOverallValue}%`;
                              if (metric.key === 'avgReturn' && !metric.isCurrency && !metric.isPercentage) displayOverallValue = `$${Number(overallValue).toFixed(2)}`;
-
-
                             return <TableCell className="text-center text-foreground font-semibold">{displayOverallValue}</TableCell>;
                         })()}
                       </TableRow>
@@ -411,20 +418,20 @@ export default function HistoryPage() {
           </Card>
         )}
 
-        <Card className="flex-1 flex flex-col min-h-[400px]"> 
-          <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-2">
+        <Card className="flex-1 flex flex-col min-h-[300px]"> {/* Reduced min-h */}
+          <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-1"> {/* Reduced gap */}
             <div>
-              <CardTitle className="text-xl font-headline flex items-center">
-                <HistoryIcon className="mr-2 h-6 w-6 text-primary"/>
+              <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-6 */}
+                <HistoryIcon className="mr-1.5 h-5 w-5 text-primary"/> {/* Reduced icon size */}
                 Executed Trades
               </CardTitle>
               <CardDescription>
                 Review your past trade executions for "{selectedHistoryFilterMode}" mode.
               </CardDescription>
             </div>
-            <Button onClick={handleExport} variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              Export to CSV
+            <Button onClick={handleExport} variant="outline" size="sm" className="h-7 px-2 text-xs"> {/* Made button smaller */}
+              <Download className="mr-1 h-3.5 w-3.5" /> {/* Reduced icon size */}
+              Export CSV
             </Button>
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden">
@@ -455,7 +462,7 @@ export default function HistoryPage() {
                         <TableCell>
                           <Badge
                             className={cn(
-                              "border-transparent",
+                              "border-transparent text-[10px] px-1.5 py-px h-auto", // Reduced font size, padding
                               trade.side === 'Buy' && 'bg-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green-foreground))] hover:bg-[hsl(var(--confirm-green))]/90',
                               trade.side === 'Sell' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
                               trade.side === 'Short' && 'bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90'
@@ -474,7 +481,7 @@ export default function HistoryPage() {
                         <TableCell className="text-foreground">{trade.tradingHours}</TableCell>
                         <TableCell className="text-foreground">{formatDateTime(trade.placedTime)}</TableCell>
                         <TableCell className="text-foreground">{formatDateTime(trade.filledTime)}</TableCell>
-                        <TableCell className="flex items-center space-x-1 text-foreground">
+                        <TableCell className="flex items-center space-x-0.5 text-foreground"> {/* Reduced space */}
                           {getStatusIcon(trade.orderStatus)}
                           <span>{trade.orderStatus}</span>
                         </TableCell>
@@ -485,15 +492,15 @@ export default function HistoryPage() {
               </ScrollArea>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                <HistoryIcon className="h-12 w-12 mb-4" />
+                <HistoryIcon className="h-10 w-10 mb-1" /> {/* Reduced icon size and margin */}
                 { selectedHistoryFilterMode === 'aiAssist' || selectedHistoryFilterMode === 'autopilot' ? (
-                  <p className="text-primary text-center"> 
+                  <p className="text-primary text-center text-sm">  {/* Reduced text size */}
                     Milo’s looking for greener pastures—no trades just yet!
                   </p>
                 ) : (
                   <>
-                    <p className="text-lg">No trade history for "{selectedHistoryFilterMode}" mode.</p>
-                    <p>Executed trades will appear here.</p>
+                    <p className="text-md">No trade history for "{selectedHistoryFilterMode}" mode.</p> {/* Reduced text size */}
+                    <p className="text-xs">Executed trades will appear here.</p> {/* Reduced text size */}
                   </>
                 )}
               </div>
@@ -504,4 +511,3 @@ export default function HistoryPage() {
     </main>
   );
 }
-

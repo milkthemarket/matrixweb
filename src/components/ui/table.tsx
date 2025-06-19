@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -9,7 +10,7 @@ const Table = React.forwardRef<
   <div className="relative w-full overflow-auto">
     <table
       ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
+      className={cn("w-full caption-bottom text-xs", className)} // Reduced text-sm to text-xs
       {...props}
     >
       {children}
@@ -75,7 +76,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+      "h-9 px-1 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0", // Reduced h-12 to h-9, px-4 to px-1
       className
     )}
     {...props}
@@ -89,7 +90,7 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
+    className={cn("p-1 align-middle [&:has([role=checkbox])]:pr-0", className)} // Reduced p-4 to p-1
     {...props}
   />
 ))
@@ -101,7 +102,7 @@ const TableCaption = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cn("mt-4 text-sm text-muted-foreground", className)}
+    className={cn("mt-1 text-xs text-muted-foreground", className)} // Reduced mt-4 to mt-1, text-sm to text-xs
     {...props}
   />
 ))

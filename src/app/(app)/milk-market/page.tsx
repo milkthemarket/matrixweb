@@ -32,9 +32,6 @@ function MilkMarketPageContent() {
 
   const handleWatchlistStockSelection = useCallback((stock: Stock) => {
     setLeftWatchlistSelectedStock(stock); 
-
-    // Also update the OrderCard's selected stock, but reset other fields unless specifically set by another interaction
-    // This ensures the OrderCard reflects the selected stock from the watchlist.
     setRightOrderCardActionType(null);
     setRightOrderCardInitialTradeMode(undefined);
     setRightOrderCardMiloActionContext(null);
@@ -87,7 +84,7 @@ function MilkMarketPageContent() {
   };
 
   const handleRightClearOrderCard = () => {
-    setLeftWatchlistSelectedStock(null); // Clearing order card also clears primary stock selection
+    setLeftWatchlistSelectedStock(null); 
     setRightOrderCardActionType(null);
     setRightOrderCardInitialTradeMode(undefined);
     setRightOrderCardMiloActionContext(null);
@@ -100,7 +97,6 @@ function MilkMarketPageContent() {
     const stockToSelect = initialMockStocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
     if (stockToSelect) {
       setLeftWatchlistSelectedStock(stockToSelect); 
-      // OrderCard will pick up leftWatchlistSelectedStock
       setRightOrderCardActionType(null);
       setRightOrderCardInitialTradeMode(undefined);
       setRightOrderCardMiloActionContext(null);
@@ -126,17 +122,17 @@ function MilkMarketPageContent() {
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <ScrollArea className="flex-1"> 
-        <div className="p-4 md:p-6">
+        <div className="p-1 md:p-1.5"> {/* Reduced padding */}
           {/* Main Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-x-1 md:gap-x-1.5 gap-y-1 md:gap-y-1.5"> {/* Reduced gaps */}
             
             {/* === COLUMN 1: Watchlist === */}
-            <div className="flex flex-col gap-4 md:gap-6 md:col-start-1 md:row-start-1 md:row-span-2">
-                <div className="flex-1 flex flex-col"> {/* Wrapper for WatchlistCard to take remaining space */}
+             <div className="flex flex-col gap-1 md:gap-1.5 md:col-start-1 md:row-start-1 md:row-span-2"> {/* Reduced gap */}
+                <div className="flex-1 flex flex-col min-h-[300px]">
                     <WatchlistCard
                         selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null}
                         onSelectStock={handleWatchlistStockSelection}
-                        className="flex-1 min-h-[300px]" 
+                        className="flex-1" 
                     />
                 </div>
             </div>
@@ -147,9 +143,9 @@ function MilkMarketPageContent() {
             </div>
 
             {/* === COLUMN 3: Order Panel === */}
-            <div className="flex flex-col md:col-start-3 md:row-start-1 md:row-span-2">
+            <div className="flex flex-col md:col-start-3 md:row-start-1 md:row-span-2 min-h-[300px]">
                 <OrderCard
-                    selectedStock={leftWatchlistSelectedStock} // OrderCard driven by leftWatchlistSelectedStock
+                    selectedStock={leftWatchlistSelectedStock} 
                     initialActionType={rightOrderCardActionType}
                     initialTradeMode={rightOrderCardInitialTradeMode}
                     miloActionContextText={rightOrderCardMiloActionContext}
@@ -159,19 +155,19 @@ function MilkMarketPageContent() {
                     initialQuantity={rightOrderCardInitialQuantity}
                     initialOrderType={rightOrderCardInitialOrderType}
                     initialLimitPrice={rightOrderCardInitialLimitPrice}
-                    className="flex-1 min-h-[300px] md:min-h-0" 
+                    className="flex-1" 
                 />
             </div>
             
             {/* === ROW 3 (Full Width Items) === */}
             <div className="flex flex-col md:row-start-3 md:col-start-1">
-              <NewsCard className="h-full md:h-96" />
+              <NewsCard className="h-full md:h-72" /> {/* Reduced height */}
             </div>
             <div className="flex flex-col md:row-start-3 md:col-start-2">
-                <OrderBookCard stock={leftWatchlistSelectedStock} className="h-full md:h-96" />
+                <OrderBookCard stock={leftWatchlistSelectedStock} className="h-full md:h-72" /> {/* Reduced height */}
             </div>
             <div className="flex flex-col md:row-start-3 md:col-start-3">
-                <OpenPositionsCard className="h-full md:h-96" /> 
+                <OpenPositionsCard className="h-full md:h-72" />  {/* Reduced height */}
             </div>
 
           </div>
