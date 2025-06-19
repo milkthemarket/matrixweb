@@ -14,7 +14,6 @@ import { NewsCard } from '@/components/NewsCard';
 import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { OrderBookCard } from '@/components/OrderBookCard'; 
-import { AccountSummaryCard } from '@/components/AccountSummaryCard';
 
 function MilkMarketPageContent() {
   const { toast } = useToast();
@@ -23,7 +22,6 @@ function MilkMarketPageContent() {
 
   const [leftWatchlistSelectedStock, setLeftWatchlistSelectedStock] = useState<Stock | null>(initialMockStocks[0] || null);
 
-  const [rightOrderCardSelectedStock, setRightOrderCardSelectedStock] = useState<Stock | null>(null);
   const [rightOrderCardActionType, setRightOrderCardActionType] = useState<OrderActionType | null>(null);
   const [rightOrderCardInitialTradeMode, setRightOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
   const [rightOrderCardMiloActionContext, setRightOrderCardMiloActionContext] = useState<string | null>(null);
@@ -35,7 +33,8 @@ function MilkMarketPageContent() {
   const handleWatchlistStockSelection = useCallback((stock: Stock) => {
     setLeftWatchlistSelectedStock(stock); 
 
-    setRightOrderCardSelectedStock(stock);
+    // Also update the OrderCard's selected stock, but reset other fields unless specifically set by another interaction
+    // This ensures the OrderCard reflects the selected stock from the watchlist.
     setRightOrderCardActionType(null);
     setRightOrderCardInitialTradeMode(undefined);
     setRightOrderCardMiloActionContext(null);
@@ -51,7 +50,7 @@ function MilkMarketPageContent() {
       description: `${tradeDetails.action} ${tradeDetails.quantity} ${tradeDetails.symbol} (${tradeDetails.orderType}) submitted. Origin: ${tradeDetails.tradeModeOrigin || 'manual'} for account ${tradeDetails.accountId}`,
     });
 
-    const stockInfo = rightOrderCardSelectedStock || initialMockStocks.find(s => s.symbol === tradeDetails.symbol);
+    const stockInfo = leftWatchlistSelectedStock?.symbol === tradeDetails.symbol ? leftWatchlistSelectedStock : initialMockStocks.find(s => s.symbol === tradeDetails.symbol);
 
     addTradeToHistory({
       id: String(Date.now()),
@@ -88,7 +87,7 @@ function MilkMarketPageContent() {
   };
 
   const handleRightClearOrderCard = () => {
-    setRightOrderCardSelectedStock(null);
+    setLeftWatchlistSelectedStock(null); // Clearing order card also clears primary stock selection
     setRightOrderCardActionType(null);
     setRightOrderCardInitialTradeMode(undefined);
     setRightOrderCardMiloActionContext(null);
@@ -101,7 +100,7 @@ function MilkMarketPageContent() {
     const stockToSelect = initialMockStocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
     if (stockToSelect) {
       setLeftWatchlistSelectedStock(stockToSelect); 
-      setRightOrderCardSelectedStock(stockToSelect);
+      // OrderCard will pick up leftWatchlistSelectedStock
       setRightOrderCardActionType(null);
       setRightOrderCardInitialTradeMode(undefined);
       setRightOrderCardMiloActionContext(null);
@@ -113,7 +112,6 @@ function MilkMarketPageContent() {
         id: symbol, symbol, name: `Info for ${symbol}`, price: 0, changePercent: 0, float:0, volume:0, lastUpdated: new Date().toISOString(), historicalPrices:[]
       };
       setLeftWatchlistSelectedStock(newStock); 
-      setRightOrderCardSelectedStock(newStock);
       setRightOrderCardInitialQuantity(undefined);
       setRightOrderCardInitialOrderType(undefined);
       setRightOrderCardInitialLimitPrice(undefined);
@@ -134,7 +132,6 @@ function MilkMarketPageContent() {
             
             {/* === COLUMN 1: Watchlist === */}
             <div className="flex flex-col gap-4 md:gap-6 md:col-start-1 md:row-start-1 md:row-span-2">
-                {/* RecentAlertsCard was here, removed */}
                 <div className="flex-1 flex flex-col"> {/* Wrapper for WatchlistCard to take remaining space */}
                     <WatchlistCard
                         selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null}
@@ -145,20 +142,14 @@ function MilkMarketPageContent() {
             </div>
 
             {/* === COLUMN 2: Chart === */}
-            {/* DayTradingFundamentalsCard was here, removed. InteractiveChartCard now takes full space. */}
             <div className="flex flex-col h-full md:col-start-2 md:row-start-1 md:row-span-2">
               <InteractiveChartCard stock={leftWatchlistSelectedStock} className="flex-1 min-h-[300px] md:min-h-0" />
             </div>
 
-            {/* === COLUMN 3: Account & Order Panel === */}
-            {/* AccountSummaryCard (Row 1 of Col 3) */}
-            <div className="flex flex-col md:col-start-3 md:row-start-1 h-[72px]">
-              <AccountSummaryCard className="flex-1" />
-            </div>
-            {/* OrderCard (Row 2 of Col 3) */}
-            <div className="flex flex-col h-full md:row-start-2 md:col-start-3">
+            {/* === COLUMN 3: Order Panel === */}
+            <div className="flex flex-col md:col-start-3 md:row-start-1 md:row-span-2">
                 <OrderCard
-                    selectedStock={rightOrderCardSelectedStock}
+                    selectedStock={leftWatchlistSelectedStock} // OrderCard driven by leftWatchlistSelectedStock
                     initialActionType={rightOrderCardActionType}
                     initialTradeMode={rightOrderCardInitialTradeMode}
                     miloActionContextText={rightOrderCardMiloActionContext}
@@ -172,16 +163,13 @@ function MilkMarketPageContent() {
                 />
             </div>
             
-            {/* === ROW 3 (Full Width Items, handled by main grid's implicit row creation and column assignments) === */}
-            {/* NewsCard (Col 1 of Row 3) */}
+            {/* === ROW 3 (Full Width Items) === */}
             <div className="flex flex-col md:row-start-3 md:col-start-1">
               <NewsCard className="h-full md:h-96" />
             </div>
-            {/* OrderBookCard (Col 2 of Row 3) */}
             <div className="flex flex-col md:row-start-3 md:col-start-2">
                 <OrderBookCard stock={leftWatchlistSelectedStock} className="h-full md:h-96" />
             </div>
-            {/* OpenPositionsCard (Col 3 of Row 3) */}
             <div className="flex flex-col md:row-start-3 md:col-start-3">
                 <OpenPositionsCard className="h-full md:h-96" /> 
             </div>

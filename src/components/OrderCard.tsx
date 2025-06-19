@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode, HistoryTradeMode, Account } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Clock4, User, Cog, ListChecks, Lightbulb, Search, Percent, ShieldCheck, Target } from 'lucide-react';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Clock4, User, Cog, ListChecks, Lightbulb, Search, Percent, ShieldCheck, Target, Wallet, Briefcase, Landmark, NotebookText } from 'lucide-react';
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import { cn } from '@/lib/utils';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
@@ -38,6 +38,14 @@ const dummyAutoRules = [
   { id: 'ar2', name: 'Low Float Breakout', description: 'Enter on breakout above key resistance for low float stocks.' },
 ];
 
+const getAccountIcon = (type?: Account['type']) => {
+    if (!type) return <Wallet className="h-4 w-4 text-primary mr-2 flex-shrink-0" />;
+    if (type === 'margin') return <Briefcase className="h-4 w-4 text-primary mr-2 flex-shrink-0" />;
+    if (type === 'ira') return <Landmark className="h-4 w-4 text-primary mr-2 flex-shrink-0" />;
+    if (type === 'paper') return <NotebookText className="h-4 w-4 text-primary mr-2 flex-shrink-0" />;
+    return <Wallet className="h-4 w-4 text-primary mr-2 flex-shrink-0" />;
+};
+
 
 export function OrderCard({
   selectedStock,
@@ -52,7 +60,7 @@ export function OrderCard({
   initialLimitPrice,
   className,
 }: OrderCardProps) {
-  const { selectedAccountId, accounts } = useOpenPositionsContext();
+  const { selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
   const { notificationSounds, playSound } = useSettingsContext();
 
   const [tradeMode, setTradeMode] = useState<TradeMode>(initialTradeMode || 'manual');
@@ -324,14 +332,14 @@ export function OrderCard({
           calculatedTpPrice = tpValue;
         } else if (takeProfitMode === 'DollarAmount') {
           if (currentAction === 'Buy') {
-            calculatedTpPrice = entryPriceForCalc + (tpValue / finalSharesToSubmit); // Profit per share
-          } else { // Sell or Short
-            calculatedTpPrice = entryPriceForCalc - (tpValue / finalSharesToSubmit); // Profit per share
+            calculatedTpPrice = entryPriceForCalc + (tpValue / finalSharesToSubmit);
+          } else {
+            calculatedTpPrice = entryPriceForCalc - (tpValue / finalSharesToSubmit);
           }
         } else if (takeProfitMode === 'Percentage') {
           if (currentAction === 'Buy') {
             calculatedTpPrice = entryPriceForCalc * (1 + tpValue / 100);
-          } else { // Sell or Short
+          } else {
             calculatedTpPrice = entryPriceForCalc * (1 - tpValue / 100);
           }
         }
@@ -466,15 +474,35 @@ export function OrderCard({
   return (
     <>
       <Card className={cn("shadow-none flex flex-col h-full", className)}>
-        <CardHeader className="relative pb-2 pt-4">
-          <CardTitle className="text-xl font-headline text-foreground mb-0">
-            Trade Panel
-          </CardTitle>
-          {selectedStock && (
-            <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={handleClearSelection} title="Clear Selection">
-              <XCircle className="h-5 w-5 text-muted-foreground hover:text-foreground" />
-            </Button>
-          )}
+        <CardHeader className="relative pb-2 pt-4 flex flex-row justify-between items-center">
+          <div className="flex items-center">
+            <CardTitle className="text-xl font-headline text-foreground mb-0">
+              Trade Panel
+            </CardTitle>
+            {selectedStock && (
+              <Button variant="ghost" size="icon" className="ml-2 h-7 w-7" onClick={handleClearSelection} title="Clear Selection">
+                <XCircle className="h-5 w-5 text-muted-foreground hover:text-foreground" />
+              </Button>
+            )}
+          </div>
+          <div className="w-auto max-w-[200px] shrink"> {/* Adjusted width and added shrink */}
+            <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+              <SelectTrigger id="accountSelectOrderCard" className="h-9 text-xs truncate">
+                {selectedAccount && getAccountIcon(selectedAccount.type)}
+                <SelectValue placeholder="Select account..." />
+              </SelectTrigger>
+              <SelectContent>
+                {accounts.map(acc => (
+                  <SelectItem key={acc.id} value={acc.id} className="text-xs">
+                    <div className="flex items-center gap-2">
+                      {getAccountIcon(acc.type)}
+                      <span>{acc.label} ({acc.number})</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4 py-4 overflow-y-auto flex-1">
           <div className="flex items-center space-x-2">
