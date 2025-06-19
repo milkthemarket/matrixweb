@@ -135,31 +135,38 @@ function MilkMarketPageContent() {
           {/* Main Grid */}
           <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
             
-            {/* Row 1: Top Info Cards */}
-            <div className="flex flex-col md:col-start-1 h-[72px]"> {/* Added fixed height */}
-              <RecentAlertsCard className="flex-1" /> {/* Changed to flex-1 to fill parent */}
-            </div>
-            <div className="flex flex-col md:col-start-2 h-[72px]"> {/* Added fixed height */}
-              <DayTradingFundamentalsCard stock={leftWatchlistSelectedStock} className="flex-1" /> {/* Changed to flex-1 */}
-            </div>
-            <div className="flex flex-col md:col-start-3 h-[72px]"> {/* Added fixed height */}
-              <AccountSummaryCard className="flex-1" /> {/* Changed to flex-1 */}
+            {/* === COLUMN 1: Recent Alerts & Watchlist === */}
+            <div className="flex flex-col gap-4 md:gap-6 md:col-start-1 md:row-start-1 md:row-span-2">
+              {/* RecentAlertsCard wrapper (maintains its fixed height) */}
+              <div className="h-[72px] flex flex-col">
+                <RecentAlertsCard className="flex-1" />
+              </div>
+              {/* WatchlistCard wrapper (takes remaining space) */}
+              <div className="flex-1 flex flex-col">
+                <WatchlistCard
+                  selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null}
+                  onSelectStock={handleWatchlistStockSelection}
+                  className="flex-1 min-h-[300px]" 
+                />
+              </div>
             </div>
 
-            {/* Row 2: Watchlist, Chart, OrderPanel */}
-            <div className="flex flex-col h-full md:row-start-2 md:col-start-1">
-              <WatchlistCard 
-                selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
-                onSelectStock={handleWatchlistStockSelection} 
-                className="flex-1 min-h-[300px] md:min-h-0"
-              />
+            {/* === COLUMN 2: Fundamentals & Chart === */}
+            {/* DayTradingFundamentalsCard (Row 1 of Col 2) */}
+            <div className="flex flex-col md:col-start-2 md:row-start-1 h-[72px]">
+              <DayTradingFundamentalsCard stock={leftWatchlistSelectedStock} className="flex-1" />
             </div>
+            {/* InteractiveChartCard (Row 2 of Col 2) */}
             <div className="flex flex-col h-full md:row-start-2 md:col-start-2">
-              <InteractiveChartCard 
-                stock={leftWatchlistSelectedStock} 
-                className="flex-1 min-h-[300px] md:min-h-0" 
-              />
+              <InteractiveChartCard stock={leftWatchlistSelectedStock} className="flex-1 min-h-[300px] md:min-h-0" />
             </div>
+
+            {/* === COLUMN 3: Account & Order Panel === */}
+            {/* AccountSummaryCard (Row 1 of Col 3) */}
+            <div className="flex flex-col md:col-start-3 md:row-start-1 h-[72px]">
+              <AccountSummaryCard className="flex-1" />
+            </div>
+            {/* OrderCard (Row 2 of Col 3) */}
             <div className="flex flex-col h-full md:row-start-2 md:col-start-3">
                 <OrderCard
                     selectedStock={rightOrderCardSelectedStock}
@@ -176,13 +183,16 @@ function MilkMarketPageContent() {
                 />
             </div>
             
-            {/* Row 3: News Card, OpenPositions */}
+            {/* === ROW 3 (Full Width Items, handled by main grid's implicit row creation and column assignments) === */}
+            {/* NewsCard (Col 1 of Row 3) */}
             <div className="flex flex-col md:row-start-3 md:col-start-1">
               <NewsCard className="h-full md:h-96" />
             </div>
+            {/* OrderBookCard (Col 2 of Row 3) */}
             <div className="flex flex-col md:row-start-3 md:col-start-2">
                 <OrderBookCard stock={leftWatchlistSelectedStock} className="h-full md:h-96" />
             </div>
+            {/* OpenPositionsCard (Col 3 of Row 3) */}
             <div className="flex flex-col md:row-start-3 md:col-start-3">
                 <OpenPositionsCard className="h-full md:h-96" /> 
             </div>
