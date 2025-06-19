@@ -138,20 +138,20 @@ function MilkMarketPageContent() {
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
-                className="h-[420px]"
+                className="h-[420px] shrink-0"
               />
             </div>
 
-            {/* Col 2, Row 1 & 2: Chart (will take full height of its column) */}
-            <div className="flex flex-col h-full md:row-span-2 md:col-start-2">
+            {/* Col 2, Row 1: Chart */}
+            <div className="flex flex-col h-full md:row-start-1 md:col-start-2">
               <InteractiveChartCard 
                 stock={leftWatchlistSelectedStock} 
-                className="flex-1 min-h-0 h-full" 
+                className="flex-1 min-h-0" 
               />
             </div>
 
-            {/* Col 3, Row 1 & 2: Order Panel & Open Positions */}
-            <div className="flex flex-col h-full space-y-4 md:space-y-6 md:row-span-2 md:col-start-3">
+            {/* Col 3, Row 1: Order Panel (Right) */}
+            <div className="flex flex-col h-full md:row-start-1 md:col-start-3">
                 <OrderCard
                     selectedStock={rightOrderCardSelectedStock}
                     initialActionType={rightOrderCardActionType}
@@ -165,13 +165,23 @@ function MilkMarketPageContent() {
                     initialLimitPrice={rightOrderCardInitialLimitPrice}
                     className="flex-1 min-h-0" 
                 />
-                <OpenPositionsCard className="md:h-96 shrink-0" /> 
             </div>
             
-            {/* Col 1, Row 2: News (now only under watchlist) */}
-            <div className="md:row-start-2 md:col-start-1 flex flex-col">
-              <NewsCard className="h-72 shrink-0" />
+            {/* Col 1, Row 2: Empty (News card moved to center column) */}
+            <div className="md:row-start-2 md:col-start-1">
+              {/* This cell can be left empty or used for other content if needed later */}
             </div>
+
+            {/* Col 2, Row 2: News Card */}
+            <div className="flex flex-col h-full md:row-start-2 md:col-start-2">
+              <NewsCard className="h-full md:h-96" /> {/* Match OpenPositions height */}
+            </div>
+
+            {/* Col 3, Row 2: Open Positions */}
+            <div className="flex flex-col h-full md:row-start-2 md:col-start-3">
+                <OpenPositionsCard className="md:h-96 shrink-0" /> 
+            </div>
+
           </div>
         </div>
       </ScrollArea>
