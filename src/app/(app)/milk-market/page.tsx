@@ -14,8 +14,6 @@ import { NewsCard } from '@/components/NewsCard';
 import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { OrderBookCard } from '@/components/OrderBookCard'; 
-
-import { DayTradingFundamentalsCard } from '@/components/DayTradingFundamentalsCard'; 
 import { AccountSummaryCard } from '@/components/AccountSummaryCard';
 
 function MilkMarketPageContent() {
@@ -136,23 +134,19 @@ function MilkMarketPageContent() {
             
             {/* === COLUMN 1: Watchlist === */}
             <div className="flex flex-col gap-4 md:gap-6 md:col-start-1 md:row-start-1 md:row-span-2">
-              {/* WatchlistCard wrapper (takes remaining space) */}
-              <div className="flex-1 flex flex-col">
-                <WatchlistCard
-                  selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null}
-                  onSelectStock={handleWatchlistStockSelection}
-                  className="flex-1 min-h-[300px]" 
-                />
-              </div>
+                {/* RecentAlertsCard was here, removed */}
+                <div className="flex-1 flex flex-col"> {/* Wrapper for WatchlistCard to take remaining space */}
+                    <WatchlistCard
+                        selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null}
+                        onSelectStock={handleWatchlistStockSelection}
+                        className="flex-1 min-h-[300px]" 
+                    />
+                </div>
             </div>
 
-            {/* === COLUMN 2: Fundamentals & Chart === */}
-            {/* DayTradingFundamentalsCard (Row 1 of Col 2) */}
-            <div className="flex flex-col md:col-start-2 md:row-start-1 h-[72px]">
-              <DayTradingFundamentalsCard stock={leftWatchlistSelectedStock} className="flex-1" />
-            </div>
-            {/* InteractiveChartCard (Row 2 of Col 2) */}
-            <div className="flex flex-col h-full md:row-start-2 md:col-start-2">
+            {/* === COLUMN 2: Chart === */}
+            {/* DayTradingFundamentalsCard was here, removed. InteractiveChartCard now takes full space. */}
+            <div className="flex flex-col h-full md:col-start-2 md:row-start-1 md:row-span-2">
               <InteractiveChartCard stock={leftWatchlistSelectedStock} className="flex-1 min-h-[300px] md:min-h-0" />
             </div>
 
