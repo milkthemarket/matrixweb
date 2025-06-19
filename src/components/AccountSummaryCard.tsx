@@ -39,22 +39,20 @@ export function AccountSummaryCard({ className }: AccountSummaryCardProps) {
 
   return (
     <Card className={cn("shadow-none h-full", className)}>
-      <CardHeader className="py-3 px-4 space-y-2">
-        <CardTitle className="text-base font-headline flex items-center text-foreground">
-            {getAccountIcon(selectedAccount?.type)}
-            <span className="ml-2">Active Account</span>
-        </CardTitle>
+      <CardHeader className="py-3 px-4">
+        {/* Removed CardTitle and icon for "Active Account" */}
         <div className="flex items-center gap-2">
             <Label htmlFor="accountSelectGlobal" className="text-xs font-medium text-muted-foreground shrink-0 sr-only">
-                Select Active Account:
+                Select Account:
             </Label>
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-            <SelectTrigger id="accountSelectGlobal" className="flex-1 h-9 text-xs" aria-label="Select active account">
+            <SelectTrigger id="accountSelectGlobal" className="flex-1 h-9 text-sm" aria-label="Select active account"> {/* Increased text size slightly */}
+                {selectedAccount && getAccountIcon(selectedAccount.type)}
                 <SelectValue placeholder="Select account..." />
             </SelectTrigger>
             <SelectContent>
                 {accounts.map(acc => (
-                <SelectItem key={acc.id} value={acc.id} className="text-xs">
+                <SelectItem key={acc.id} value={acc.id} className="text-sm"> {/* Increased text size slightly */}
                     <div className="flex items-center gap-2">
                     {getAccountIcon(acc.type)}
                     <span>{acc.label} ({acc.number})</span>
@@ -65,7 +63,7 @@ export function AccountSummaryCard({ className }: AccountSummaryCardProps) {
             </Select>
         </div>
       </CardHeader>
-      <CardContent className="p-4 pt-1">
+      <CardContent className="p-4 pt-2"> {/* Adjusted pt slightly */}
         {selectedAccount ? (
           <div className="space-y-2">
             <DetailItem
