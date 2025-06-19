@@ -132,13 +132,6 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
           </div>
         )}
       </CardContent>
-      {filteredPositions.length > 0 && (
-        <CardFooter className="pt-3 pb-4">
-            <p className="text-xs text-muted-foreground">
-                Current prices are simulated and P&amp;L is indicative for the selected account.
-            </p>
-        </CardFooter>
-      )}
     </Card>
   );
 }
