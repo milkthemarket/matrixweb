@@ -18,7 +18,7 @@ const learningModules = [
     description: "Learn the basics of navigating the MILK platform and setting up your workspace.",
     icon: BookOpen,
     image: "https://placehold.co/600x400.png",
-    aiHint: "onboarding platform",
+    aiHint: "animated cow",
     comingSoon: false,
     tags: ["getting-started", "platform-tips"]
   },
@@ -28,7 +28,7 @@ const learningModules = [
     description: "Dive deep into technical analysis and charting tools available in MILK.",
     icon: Film,
     image: "https://placehold.co/600x400.png",
-    aiHint: "stock chart",
+    aiHint: "cartoon cow",
     comingSoon: true,
     tags: ["charting", "trade-strategies"]
   },
@@ -38,7 +38,7 @@ const learningModules = [
     description: "Master the rule engine to create powerful, custom trade alerts.",
     icon: HelpCircle,
     image: "https://placehold.co/600x400.png",
-    aiHint: "notification bell",
+    aiHint: "happy cow",
     comingSoon: true,
     tags: ["alerts-rules", "platform-tips"]
   },
@@ -48,7 +48,7 @@ const learningModules = [
     description: "Leverage Milo, your AI assistant, for smarter trading decisions and automation.",
     icon: GraduationCap,
     image: "https://placehold.co/600x400.png",
-    aiHint: "ai robot",
+    aiHint: "dancing cow",
     comingSoon: true,
     tags: ["ai-assist", "autopilot", "milo-ai"]
   },
@@ -58,7 +58,7 @@ const learningModules = [
     description: "Take full control. Learn to execute and manage your trades with precision using MILK's manual trading tools.",
     icon: Hand,
     image: "https://placehold.co/600x400.png",
-    aiHint: "manual control",
+    aiHint: "jumping cow",
     comingSoon: true,
     tags: ["manual-trading", "trade-strategies", "order-types"]
   },
@@ -68,7 +68,7 @@ const learningModules = [
     description: "Combine your insights with Milo's AI-generated trade ideas. You review, AI helps, you decide.",
     icon: Handshake,
     image: "https://placehold.co/600x400.png",
-    aiHint: "ai collaboration",
+    aiHint: "funny cow",
     comingSoon: true,
     tags: ["ai-assist", "milo-ai", "trade-strategies"]
   },
@@ -78,7 +78,7 @@ const learningModules = [
     description: "Set your strategy and let Milo manage trades automatically based on your risk parameters and predefined rules.",
     icon: Rocket,
     image: "https://placehold.co/600x400.png",
-    aiHint: "autopilot rocket",
+    aiHint: "cute cow",
     comingSoon: true,
     tags: ["autopilot", "milo-ai", "trade-strategies"]
   }
@@ -289,3 +289,4 @@ export default function AcademyPage() {
     </>
   );
 }
+
