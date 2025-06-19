@@ -33,9 +33,8 @@ function MilkMarketPageContent() {
 
 
   const handleWatchlistStockSelection = useCallback((stock: Stock) => {
-    setLeftWatchlistSelectedStock(stock); // This updates the chart
+    setLeftWatchlistSelectedStock(stock); 
 
-    // Also update the right order card when watchlist selection changes
     setRightOrderCardSelectedStock(stock);
     setRightOrderCardActionType(null);
     setRightOrderCardInitialTradeMode(undefined);
@@ -131,6 +130,7 @@ function MilkMarketPageContent() {
       <PageHeader title="Milk Market" />
       <ScrollArea className="flex-1"> 
         <div className="p-4 md:p-6">
+          {/* Main Grid */}
           <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] md:grid-rows-[1fr_auto] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
             
             {/* Col 1, Row 1: Watchlist */}
@@ -167,19 +167,14 @@ function MilkMarketPageContent() {
                 />
             </div>
             
-            {/* Col 1, Row 2: Empty (News card moved to center column) */}
-            <div className="md:row-start-2 md:col-start-1">
-              {/* This cell can be left empty or used for other content if needed later */}
-            </div>
-
-            {/* Col 2, Row 2: News Card */}
-            <div className="flex flex-col h-full md:row-start-2 md:col-start-2">
-              <NewsCard className="h-full md:h-96" /> {/* Match OpenPositions height */}
+            {/* Col 1 & 2, Row 2: News Card */}
+            <div className="flex flex-col h-full md:row-start-2 md:col-start-1 md:col-span-2">
+              <NewsCard className="h-full md:h-96" />
             </div>
 
             {/* Col 3, Row 2: Open Positions */}
             <div className="flex flex-col h-full md:row-start-2 md:col-start-3">
-                <OpenPositionsCard className="md:h-96 shrink-0" /> 
+                <OpenPositionsCard className="h-full md:h-96" /> 
             </div>
 
           </div>
