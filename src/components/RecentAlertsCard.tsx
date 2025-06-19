@@ -77,8 +77,11 @@ export function RecentAlertsCard({ className }: RecentAlertsCardProps) {
                   key={alert.id}
                   className="px-4 py-2.5 border-b border-border/[.08] last:border-b-0 hover:bg-white/5 transition-colors"
                 >
-                  <Link href={`/dashboard?ticker=${alert.symbol}`} passHref>
-                    <a className="block cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded-sm">
+                  <Link
+                    href={`/dashboard?ticker=${alert.symbol}`}
+                    className="block cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-primary rounded-sm"
+                  >
+                    <>
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center space-x-2">
                           {getAlertIcon(alert.alertType)}
@@ -93,7 +96,7 @@ export function RecentAlertsCard({ className }: RecentAlertsCardProps) {
                         </p>
                         {alert.source && <Badge variant="outline" className="text-xs py-0 px-1.5 h-auto border-accent/50 text-accent">{alert.source}</Badge>}
                       </div>
-                    </a>
+                    </>
                   </Link>
                 </li>
               ))}
@@ -108,4 +111,3 @@ export function RecentAlertsCard({ className }: RecentAlertsCardProps) {
     </Card>
   );
 }
-
