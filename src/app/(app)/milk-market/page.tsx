@@ -34,7 +34,8 @@ function MilkMarketPageContent() {
 
   const handleWatchlistStockSelection = useCallback((stock: Stock) => {
     setLeftWatchlistSelectedStock(stock);
-    // Update the right order card when a stock is selected from the left watchlist.
+    // Primarily update the right order card when a stock is selected.
+    // The center chart will also use leftWatchlistSelectedStock.
     setRightOrderCardSelectedStock(stock);
     setRightOrderCardActionType(null);
     setRightOrderCardInitialTradeMode(undefined);
@@ -129,52 +130,52 @@ function MilkMarketPageContent() {
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Milk Market" />
       <ScrollArea className="flex-1"> 
-        <div className="p-4 md:p-6"> {/* Removed h-full to let content define height */}
-          <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
+        <div className="p-4 md:p-6">
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] md:grid-rows-[1fr_auto] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
             
-            {/* Left Column (Watchlist) - Row 1, Col 1 */}
-            <div className="hidden md:flex flex-col min-h-0">
+            {/* Row 1, Column 1: Watchlist */}
+            <div className="flex flex-col h-full min-h-0 md:row-start-1 md:col-start-1">
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
-                className="h-full" 
+                className="flex-1 min-h-0" 
               />
             </div>
 
-            {/* Center Column (Chart) - Row 1, Col 2 */}
-            <div className="flex flex-col min-h-0">
+            {/* Row 1, Column 2: Chart */}
+            <div className="flex flex-col h-full min-h-0 md:row-start-1 md:col-start-2">
               <InteractiveChartCard 
                 stock={leftWatchlistSelectedStock} 
-                className="h-full" 
+                className="flex-1 min-h-0" 
               />
             </div>
 
-            {/* Right Column (OrderPanel + OpenPositions) - Row 1, Col 3, Spans 2 Rows */}
-            <div className="md:row-span-2 flex flex-col min-h-0 space-y-6 pr-0 md:pr-1">
-              <OrderCard
-                selectedStock={rightOrderCardSelectedStock}
-                initialActionType={rightOrderCardActionType}
-                initialTradeMode={rightOrderCardInitialTradeMode}
-                miloActionContextText={rightOrderCardMiloActionContext}
-                onSubmit={handleRightTradeSubmit}
-                onClear={handleRightClearOrderCard}
-                onStockSymbolSubmit={handleRightStockSymbolSubmitFromOrderCard}
-                initialQuantity={rightOrderCardInitialQuantity}
-                initialOrderType={rightOrderCardInitialOrderType}
-                initialLimitPrice={rightOrderCardInitialLimitPrice}
-              />
-              <OpenPositionsCard />
-            </div>
-
-            {/* News Card - Row 2, Col 1, Spans 2 Columns */}
-            <div className="md:col-span-2">
-              <NewsCard className="h-72" /> {/* Fixed height for NewsCard */}
+            {/* Row 1, Column 3: Order Panel */}
+            <div className="flex flex-col h-full min-h-0 md:row-start-1 md:col-start-3">
+                <OrderCard
+                    selectedStock={rightOrderCardSelectedStock}
+                    initialActionType={rightOrderCardActionType}
+                    initialTradeMode={rightOrderCardInitialTradeMode}
+                    miloActionContextText={rightOrderCardMiloActionContext}
+                    onSubmit={handleRightTradeSubmit}
+                    onClear={handleRightClearOrderCard}
+                    onStockSymbolSubmit={handleRightStockSymbolSubmitFromOrderCard}
+                    initialQuantity={rightOrderCardInitialQuantity}
+                    initialOrderType={rightOrderCardInitialOrderType}
+                    initialLimitPrice={rightOrderCardInitialLimitPrice}
+                    className="flex-1 min-h-0"
+                />
             </div>
             
-            {/* Empty placeholder for Row 2, Col 3 to maintain grid balance if NewsCard doesn't take full available space, or if an element was there */}
-            {/* This can be omitted if col-span on NewsCard and row-span on RightPanel is enough */}
-             <div className="hidden md:block"></div>
-
+            {/* Row 2, Column 1 & 2 (span): News Card */}
+            <div className="md:col-span-2 md:row-start-2 md:col-start-1 flex flex-col md:h-96"> {/* Fixed height for this row's content */}
+              <NewsCard className="flex-1 min-h-0" />
+            </div>
+            
+            {/* Row 2, Column 3: Open Positions */}
+            <div className="flex flex-col md:row-start-2 md:col-start-3 md:h-96"> {/* Fixed height for this row's content */}
+              <OpenPositionsCard className="flex-1 min-h-0" />
+            </div>
 
           </div>
         </div>
@@ -191,4 +192,3 @@ export default function MilkMarketPage() {
     </Suspense>
   );
 }
-

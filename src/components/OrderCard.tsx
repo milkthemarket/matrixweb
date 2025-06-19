@@ -30,6 +30,7 @@ interface OrderCardProps {
   initialQuantity?: string; 
   initialOrderType?: OrderSystemType; 
   initialLimitPrice?: string; 
+  className?: string; // Added className prop
 }
 
 const dummyAutoRules = [
@@ -48,7 +49,8 @@ export function OrderCard({
   onStockSymbolSubmit,
   initialQuantity,
   initialOrderType,
-  initialLimitPrice 
+  initialLimitPrice,
+  className, // Added className to props
 }: OrderCardProps) {
   const { selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
   const { notificationSounds, playSound } = useSettingsContext();
@@ -167,6 +169,7 @@ export function OrderCard({
     initialQuantity,
     initialOrderType,
     initialLimitPrice,
+    tickerInputValue, // Added tickerInputValue
   ]);
 
 
@@ -432,7 +435,7 @@ export function OrderCard({
 
   return (
     <>
-      <Card className="shadow-none flex flex-col h-full">
+      <Card className={cn("shadow-none flex flex-col h-full", className)}> {/* Added className */}
         <CardHeader className="relative pb-2 pt-4">
           <CardTitle className="text-xl font-headline text-foreground mb-0">
             Trade Panel
@@ -837,4 +840,3 @@ export function OrderCard({
     </>
   );
 }
-

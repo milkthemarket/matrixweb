@@ -14,11 +14,12 @@ import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 import { useSettingsContext } from '@/contexts/SettingsContext'; // Import settings context
 
 interface OpenPositionsCardProps {
+  className?: string; // Added className prop
 }
 
 type OpenPositionFilterMode = HistoryTradeMode | 'all';
 
-export function OpenPositionsCard({}: OpenPositionsCardProps) {
+export function OpenPositionsCard({ className }: OpenPositionsCardProps) { // Added className to props
   const { openPositions, removeOpenPosition, selectedAccountId } = useOpenPositionsContext();
   const { notificationSounds, playSound } = useSettingsContext(); // Get sound settings
   const [selectedOriginFilter, setSelectedOriginFilter] = useState<OpenPositionFilterMode>('all');
@@ -49,13 +50,13 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
   const inactiveModeClass = "bg-transparent text-muted-foreground hover:bg-panel/[.05] hover:text-foreground";
 
   return (
-    <Card className="shadow-md mt-6">
-      <CardHeader>
+    <Card className={cn("shadow-none flex flex-col", className)}> {/* Updated shadow and added className */}
+      <CardHeader className="pt-4 pb-3">
         <CardTitle className="text-xl font-headline flex items-center text-foreground">
           <Briefcase className="mr-2 h-5 w-5 text-primary" />
           Open Positions
         </CardTitle>
-        <CardDescription>Your currently active trades for the selected account. Filter by origin below.</CardDescription>
+        <CardDescription>Your currently active trades for the selected account.</CardDescription>
 
         <div className="grid grid-cols-4 w-full max-w-md rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05] mt-3">
           <button
@@ -88,9 +89,9 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
           </button>
         </div>
       </CardHeader>
-      <CardContent className="p-0">
+      <CardContent className="p-0 flex-1 overflow-hidden">
         {filteredPositions.length > 0 ? (
-          <ScrollArea className="h-[380px]">
+          <ScrollArea className="h-full"> {/* Changed from h-[380px] to h-full */}
             <Table>
               <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                 <TableRow>
@@ -136,22 +137,22 @@ export function OpenPositionsCard({}: OpenPositionsCardProps) {
             </Table>
           </ScrollArea>
         ) : (
-          <div className="text-center text-sm py-10 px-6">
+          <div className="flex flex-col items-center justify-center h-full text-sm py-10 px-6"> {/* Added h-full */}
             <Briefcase className="mx-auto h-10 w-10 mb-3 opacity-50 text-muted-foreground" />
             { (selectedOriginFilter === 'aiAssist' || selectedOriginFilter === 'autopilot') ? (
-              <p className="text-primary">
+              <p className="text-primary text-center">
                 Milo’s looking for greener pastures—no trades just yet for this filter!
               </p>
             ) : selectedOriginFilter === 'all' ? (
-              <p className="text-muted-foreground">No open positions for this account.</p>
+              <p className="text-muted-foreground text-center">No open positions for this account.</p>
             ) : (
-              <p className="text-muted-foreground">{`No open positions matching "${selectedOriginFilter}" filter for this account.`}</p>
+              <p className="text-muted-foreground text-center">{`No open positions matching "${selectedOriginFilter}" filter for this account.`}</p>
             )}
           </div>
         )}
       </CardContent>
       {filteredPositions.length > 0 && (
-        <CardFooter className="pt-4">
+        <CardFooter className="pt-3 pb-4">
             <p className="text-xs text-muted-foreground">
                 Current prices are simulated and P&amp;L is indicative for the selected account.
             </p>
