@@ -15,7 +15,6 @@ import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { OrderBookCard } from '@/components/OrderBookCard'; 
 
-import { RecentAlertsCard } from '@/components/RecentAlertsCard';
 import { DayTradingFundamentalsCard } from '@/components/DayTradingFundamentalsCard'; 
 import { AccountSummaryCard } from '@/components/AccountSummaryCard';
 
@@ -135,12 +134,8 @@ function MilkMarketPageContent() {
           {/* Main Grid */}
           <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
             
-            {/* === COLUMN 1: Recent Alerts & Watchlist === */}
+            {/* === COLUMN 1: Watchlist === */}
             <div className="flex flex-col gap-4 md:gap-6 md:col-start-1 md:row-start-1 md:row-span-2">
-              {/* RecentAlertsCard wrapper (maintains its fixed height) */}
-              <div className="h-[72px] flex flex-col">
-                <RecentAlertsCard className="flex-1" />
-              </div>
               {/* WatchlistCard wrapper (takes remaining space) */}
               <div className="flex-1 flex flex-col">
                 <WatchlistCard
