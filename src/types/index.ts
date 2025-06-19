@@ -26,6 +26,12 @@ export interface Stock {
   shortFloat?: number;
   instOwn?: number;
   premarketChange?: number;
+
+  // New fields for StockDetailsCard
+  peRatio?: number;
+  dividendYield?: number; // As a percentage, e.g., 1.5 for 1.5%
+  sector?: string;
+  earningsDate?: string; // Could be a Date object or ISO string, e.g., "2024-07-25T00:00:00.000Z"
 }
 
 export type RuleOperator = '>' | '<' | '>=' | '<=' | '==' | '!=' | 'between' | 'contains';
@@ -50,6 +56,7 @@ export interface TradeAlert {
   message: string;
   timestamp: string;
   source?: string;
+  alertType?: 'Price' | 'Volume' | 'News' | 'Technical'; // Added alertType for RecentAlertsCard
 }
 
 export interface TradeLogEntry {
@@ -144,6 +151,8 @@ export interface TradeHistoryEntry {
   averagePrice: number;
   tradeModeOrigin?: HistoryTradeMode;
   accountId?: string;
+  takeProfit?: number; // Added for consistency
+  stopLoss?: number; // Added for consistency
 }
 
 export interface ColumnConfig<T = Stock | TradeHistoryEntry> {

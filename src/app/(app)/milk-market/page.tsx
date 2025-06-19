@@ -15,6 +15,11 @@ import { NewsCard } from '@/components/NewsCard';
 import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
+// Import new card components
+import { RecentAlertsCard } from '@/components/RecentAlertsCard';
+import { StockDetailsCard } from '@/components/StockDetailsCard';
+import { AccountSummaryCard } from '@/components/AccountSummaryCard';
+
 function MilkMarketPageContent() {
   const { toast } = useToast();
   const { addTradeToHistory } = useTradeHistoryContext();
@@ -130,28 +135,35 @@ function MilkMarketPageContent() {
       <PageHeader title="Milk Market" />
       <ScrollArea className="flex-1"> 
         <div className="p-4 md:p-6">
-          {/* Main Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] md:grid-rows-[1fr_auto] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
+          {/* Main Grid - Updated rows to [auto_1fr_auto] */}
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] md:grid-rows-[auto_1fr_auto] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
             
-            {/* Col 1, Row 1: Watchlist */}
-            <div className="flex flex-col h-full md:row-start-1 md:col-start-1">
+            {/* Row 1: New Cards */}
+            <div className="flex flex-col md:col-start-1">
+              <RecentAlertsCard className="h-full" />
+            </div>
+            <div className="flex flex-col md:col-start-2">
+              <StockDetailsCard stock={leftWatchlistSelectedStock} className="h-full" />
+            </div>
+            <div className="flex flex-col md:col-start-3">
+              <AccountSummaryCard className="h-full" />
+            </div>
+
+            {/* Row 2: Watchlist, Chart, OrderPanel */}
+            <div className="flex flex-col h-full md:row-start-2 md:col-start-1">
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
-                className="flex-1 min-h-0" // Changed from h-[420px] shrink-0
+                className="flex-1 min-h-0" 
               />
             </div>
-
-            {/* Col 2, Row 1: Chart */}
-            <div className="flex flex-col h-full md:row-start-1 md:col-start-2">
+            <div className="flex flex-col h-full md:row-start-2 md:col-start-2">
               <InteractiveChartCard 
                 stock={leftWatchlistSelectedStock} 
                 className="flex-1 min-h-0" 
               />
             </div>
-            
-            {/* Col 3, Row 1 & 2: Right Panel (OrderCard, OpenPositionsCard) */}
-            <div className="flex flex-col h-full md:row-span-2 md:col-start-3 space-y-4 md:space-y-6">
+            <div className="flex flex-col h-full md:row-start-2 md:col-start-3">
                 <OrderCard
                     selectedStock={rightOrderCardSelectedStock}
                     initialActionType={rightOrderCardActionType}
@@ -165,12 +177,14 @@ function MilkMarketPageContent() {
                     initialLimitPrice={rightOrderCardInitialLimitPrice}
                     className="flex-1 min-h-0" 
                 />
-                <OpenPositionsCard className="h-96 shrink-0" /> 
             </div>
             
-            {/* Col 1 & 2, Row 2: News Card (Spanning under Watchlist and Chart) */}
-            <div className="flex flex-col md:row-start-2 md:col-start-1 md:col-span-2">
+            {/* Row 3: News Card, OpenPositions */}
+            <div className="flex flex-col md:row-start-3 md:col-start-1 md:col-span-2">
               <NewsCard className="h-full md:h-96" />
+            </div>
+            <div className="flex flex-col md:row-start-3 md:col-start-3">
+                <OpenPositionsCard className="h-full md:h-96" /> 
             </div>
 
           </div>
@@ -190,3 +204,4 @@ export default function MilkMarketPage() {
 }
 
     
+
