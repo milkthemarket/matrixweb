@@ -43,28 +43,28 @@ export function OptionsChainTable({ chainData, underlyingPrice, underlyingTicker
 
   if (!chainData || chainData.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8 text-center">
-        <SlidersHorizontal className="h-12 w-12 mb-4 opacity-50" />
-        <p>No options data to display.</p>
-        <p>Please check your filters or try again later.</p>
+      <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-4 text-center">
+        <SlidersHorizontal className="h-10 w-10 mb-2 opacity-50" />
+        <p className="text-xs">No options data to display.</p>
+        <p className="text-xs">Please check your filters or try again later.</p>
       </div>
     );
   }
 
   return (
-    <ScrollArea className="h-full w-full">
+    <ScrollArea className="h-full w-full overflow-auto">
       <Table className="min-w-max table-fixed">
         <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
           <TableRow>
-            <TableHead className="w-[70px] text-center">Add</TableHead>
-            <TableHead className="w-[90px] text-right">Strike</TableHead>
-            <TableHead className="w-[90px] text-right">Bid</TableHead>
-            <TableHead className="w-[90px] text-right">Ask</TableHead>
-            <TableHead className="w-[90px] text-right">Last</TableHead>
-            <TableHead className="w-[100px] text-right">% Change</TableHead>
-            <TableHead className="w-[90px] text-right">Volume</TableHead>
-            <TableHead className="w-[90px] text-right">OI</TableHead>
-            <TableHead className="w-[90px] text-right">IV (%)</TableHead>
+            <TableHead className="w-[60px] text-center">Add</TableHead>
+            <TableHead className="w-[80px] text-right">Strike</TableHead>
+            <TableHead className="w-[80px] text-right">Bid</TableHead>
+            <TableHead className="w-[80px] text-right">Ask</TableHead>
+            <TableHead className="w-[80px] text-right">Last</TableHead>
+            <TableHead className="w-[90px] text-right">% Change</TableHead>
+            <TableHead className="w-[80px] text-right">Volume</TableHead>
+            <TableHead className="w-[80px] text-right">OI</TableHead>
+            <TableHead className="w-[80px] text-right">IV (%)</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -81,8 +81,8 @@ export function OptionsChainTable({ chainData, underlyingPrice, underlyingTicker
                     "hover:bg-white/10 transition-colors duration-150 cursor-pointer",
                     isExpanded && "bg-primary/15",
                     !isExpanded && isATM ? "bg-primary/10" : 
-                    !isExpanded && isITM ? "bg-[hsl(var(--confirm-green))]/5" : // Using confirm-green for ITM
-                    !isExpanded && isOTM ? "bg-destructive/5" : "" // Using destructive for OTM
+                    !isExpanded && isITM ? "bg-[hsl(var(--confirm-green))]/5" : 
+                    !isExpanded && isOTM ? "bg-destructive/5" : ""
                   )}
                   onClick={() => handleRowClick(contract.id)}
                 >
@@ -90,24 +90,24 @@ export function OptionsChainTable({ chainData, underlyingPrice, underlyingTicker
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-primary hover:bg-primary/10"
+                      className="h-6 w-6 text-primary hover:bg-primary/10"
                       onClick={(e) => { e.stopPropagation(); onSelectContract(contract); }}
                       title={`Select ${contract.type} @ ${contract.strike} for trade`}
                     >
-                      <PlusCircle className="h-4 w-4" />
+                      <PlusCircle className="h-3.5 w-3.5" />
                     </Button>
                   </TableCell>
-                  <TableCell className={cn("text-right font-mono", isATM && "text-primary font-bold")}>
+                  <TableCell className={cn("text-right font-mono text-[10px]", isATM && "text-primary font-bold")}>
                     {contract.strike.toFixed(2)}
                   </TableCell>
-                  <TableCell className="text-right font-mono">{contract.bid.toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-mono text-[10px]">{contract.bid.toFixed(2)}</TableCell>
                   <TableCell className="text-right">
                      <Button
                       variant="ghost"
                       size="sm"
                       className={cn(
-                          "h-7 px-2 font-mono",
-                           "text-orange-400 hover:bg-orange-400/10 hover:text-orange-300", // Orange for Ask
+                          "h-6 px-1.5 font-mono text-[10px]",
+                           "text-orange-400 hover:bg-orange-400/10 hover:text-orange-300", 
                           "focus-visible:ring-orange-500 focus-visible:ring-offset-card"
                       )}
                       onClick={(e) => { e.stopPropagation(); onSelectContract(contract); }}
@@ -116,17 +116,17 @@ export function OptionsChainTable({ chainData, underlyingPrice, underlyingTicker
                       {contract.ask.toFixed(2)}
                      </Button>
                   </TableCell>
-                  <TableCell className="text-right font-mono">{contract.lastPrice?.toFixed(2) || '-'}</TableCell>
-                  <TableCell className={cn("text-right font-mono", contract.percentChange >= 0 ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
+                  <TableCell className="text-right font-mono text-[10px]">{contract.lastPrice?.toFixed(2) || '-'}</TableCell>
+                  <TableCell className={cn("text-right font-mono text-[10px]", contract.percentChange >= 0 ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
                     {contract.percentChange >= 0 ? '+' : ''}{contract.percentChange.toFixed(2)}%
                   </TableCell>
-                  <TableCell className="text-right font-mono">{contract.volume?.toLocaleString() || '-'}</TableCell>
-                  <TableCell className="text-right font-mono">{contract.openInterest?.toLocaleString() || '-'}</TableCell>
-                  <TableCell className="text-right font-mono">{contract.impliedVolatility?.toFixed(1) || '-'}%</TableCell>
+                  <TableCell className="text-right font-mono text-[10px]">{contract.volume?.toLocaleString() || '-'}</TableCell>
+                  <TableCell className="text-right font-mono text-[10px]">{contract.openInterest?.toLocaleString() || '-'}</TableCell>
+                  <TableCell className="text-right font-mono text-[10px]">{contract.impliedVolatility?.toFixed(1) || '-'}%</TableCell>
                 </TableRow>
                 {isExpanded && (
                   <TableRow className="bg-black/20 hover:bg-black/25">
-                    <TableCell colSpan={9} className="p-0"> {/* Updated colSpan */}
+                    <TableCell colSpan={9} className="p-0"> 
                       <OptionDetailPanel contract={contract} underlyingTicker={underlyingTicker} />
                     </TableCell>
                   </TableRow>

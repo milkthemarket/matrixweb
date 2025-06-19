@@ -171,58 +171,54 @@ export default function OptionsPage() {
   }, [isChainDataReady]);
 
 
-  const buttonBaseClass = "h-10 px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-background rounded-md";
+  const buttonBaseClass = "h-9 px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-background rounded-md";
   const activeTradeButtonClass = "bg-primary text-primary-foreground shadow-sm";
   const inactiveTradeButtonClass = "bg-muted/50 text-muted-foreground hover:bg-muted/70";
 
 
   return (
     <>
-      <main className="flex flex-col flex-1 h-full overflow-hidden">
+      <main className="flex flex-col flex-1 h-full overflow-auto">
         <PageHeader title="Options Trading" />
         
-        <div className="flex-1 p-4 md:p-6 space-y-4 flex flex-col overflow-hidden">
+        <div className="flex-1 p-1 md:p-1.5 space-y-1 flex flex-col overflow-auto">
           {/* Header Section */}
           <Card>
-            <CardContent className="p-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-              <div className="flex items-center gap-3">
+            <CardContent className="p-1 flex flex-col sm:flex-row justify-between items-center gap-1.5">
+              <div className="flex items-center gap-1.5">
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground">
+                  <h2 className="text-lg font-bold text-foreground">
                     {tickerInfo.symbol}{' '}
-                    <span className={cn("text-xl", tickerInfo.priceChange >= 0 ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
+                    <span className={cn("text-md", tickerInfo.priceChange >= 0 ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
                       ${tickerInfo.lastPrice.toFixed(2)}
                     </span>
                   </h2>
-                  <p className={cn("text-sm", tickerInfo.priceChange >= 0 ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
+                  <p className={cn("text-xs", tickerInfo.priceChange >= 0 ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
                     {tickerInfo.priceChange >= 0 ? '+' : ''}{tickerInfo.priceChange.toFixed(2)} ({tickerInfo.priceChangePercent.toFixed(2)}%)
                   </p>
                 </div>
-                {/* Removed Market Status Badge */}
               </div>
-              {/* Removed SlidersHorizontal icon from Price History Button */}
-              <Button variant="outline" className="border-accent text-accent hover:bg-accent/10">
-                <AreaChart className="mr-2 h-4 w-4" /> Price History
+              <Button variant="outline" className="border-accent text-accent hover:bg-accent/10 h-7 px-2 text-[10px]">
+                <AreaChart className="mr-1 h-3 w-3" /> Price History
               </Button>
             </CardContent>
           </Card>
 
           {/* Order Mode Controls */}
           <Card>
-            <CardContent className="p-4 flex flex-wrap items-center gap-3 md:gap-4">
+            <CardContent className="p-1 flex flex-wrap items-center gap-1.5 md:gap-2">
               <div className="flex rounded-md border border-input overflow-hidden">
                 <Button
                   onClick={() => setTradeAction('Buy')}
                   variant={tradeAction === 'Buy' ? 'default' : 'ghost'}
-                  className={cn("rounded-none border-r border-input", tradeAction === 'Buy' ? "bg-green-500 hover:bg-green-600 text-white" : "hover:bg-muted/50")}
-                  size="sm"
+                  className={cn("rounded-none border-r border-input h-7 px-2 text-[10px]", tradeAction === 'Buy' ? "bg-green-500 hover:bg-green-600 text-white" : "hover:bg-muted/50")}
                 >
                   Buy
                 </Button>
                 <Button
                   onClick={() => setTradeAction('Sell')}
                   variant={tradeAction === 'Sell' ? 'default' : 'ghost'}
-                  className={cn("rounded-none", tradeAction === 'Sell' ? "bg-red-500 hover:bg-red-600 text-white" : "hover:bg-muted/50")}
-                  size="sm"
+                  className={cn("rounded-none h-7 px-2 text-[10px]", tradeAction === 'Sell' ? "bg-red-500 hover:bg-red-600 text-white" : "hover:bg-muted/50")}
                 >
                   Sell
                 </Button>
@@ -232,48 +228,46 @@ export default function OptionsPage() {
                 <Button
                   onClick={() => setOptionType('Call')}
                   variant={optionType === 'Call' ? 'default' : 'ghost'}
-                  className={cn("rounded-none border-r border-input", optionType === 'Call' ? activeTradeButtonClass : inactiveTradeButtonClass)}
-                  size="sm"
+                  className={cn("rounded-none border-r border-input h-7 px-2 text-[10px]", optionType === 'Call' ? activeTradeButtonClass : inactiveTradeButtonClass)}
                 >
                   Calls
                 </Button>
                 <Button
                   onClick={() => setOptionType('Put')}
                   variant={optionType === 'Put' ? 'default' : 'ghost'}
-                  className={cn("rounded-none", optionType === 'Put' ? activeTradeButtonClass : inactiveTradeButtonClass)}
-                  size="sm"
+                  className={cn("rounded-none h-7 px-2 text-[10px]", optionType === 'Put' ? activeTradeButtonClass : inactiveTradeButtonClass)}
                 >
                   Puts
                 </Button>
               </div>
               
               <Select value={selectedExpiration} onValueChange={setSelectedExpiration}>
-                <SelectTrigger className="w-auto min-w-[180px] h-9 text-sm">
+                <SelectTrigger className="w-auto min-w-[150px] h-7 text-[10px]">
                   <SelectValue placeholder="Select Expiration" />
                 </SelectTrigger>
                 <SelectContent>
                   {mockExpirations.map(exp => (
-                    <SelectItem key={exp.value} value={exp.value}>{exp.label}</SelectItem>
+                    <SelectItem key={exp.value} value={exp.value} className="text-[10px]">{exp.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
               
-              <Button variant="outline" size="sm" className="border-dashed text-muted-foreground hover:text-foreground">
-                <PlusCircle className="mr-2 h-4 w-4" /> Builder
+              <Button variant="outline" size="sm" className="border-dashed text-muted-foreground hover:text-foreground h-7 px-2 text-[10px]">
+                <PlusCircle className="mr-1 h-3 w-3" /> Builder
               </Button>
-               <Button variant="outline" size="sm" className="text-muted-foreground hover:text-foreground">
-                <Eye className="mr-2 h-4 w-4" /> View Mode
+               <Button variant="outline" size="sm" className="text-muted-foreground hover:text-foreground h-7 px-2 text-[10px]">
+                <Eye className="mr-1 h-3 w-3" /> View Mode
               </Button>
             </CardContent>
           </Card>
 
           {/* Options Chain Table */}
-          <div className="flex-1 relative overflow-hidden" ref={tableContainerRef}>
+          <div className="flex-1 relative overflow-auto" ref={tableContainerRef}>
              {isChainDataReady && stickyPricePillVisible && (
-                <div className="sticky top-0 z-20 flex justify-center py-1 mb-1">
+                <div className="sticky top-0 z-20 flex justify-center py-0.5 mb-0.5">
                     <Badge
                     variant="outline"
-                    className="bg-card/80 backdrop-blur-sm text-sm font-semibold text-primary border-primary shadow-lg px-3 py-1.5"
+                    className="bg-card/80 backdrop-blur-sm text-xs font-semibold text-primary border-primary shadow-lg px-2 py-1"
                     >
                     {tickerInfo.symbol} Underlying: ${tickerInfo.lastPrice.toFixed(2)}
                     </Badge>
@@ -281,10 +275,10 @@ export default function OptionsPage() {
             )}
             {!isChainDataReady ? (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                    <Loader2 className="h-10 w-10 animate-spin mb-4 text-primary" />
-                    <p>Loading options data for {optionType}s...</p>
+                    <Loader2 className="h-8 w-8 animate-spin mb-2 text-primary" />
+                    <p className="text-xs">Loading options data for {optionType}s...</p>
                 </div>
-            ) : ( // Data is ready, now check if optionsChain is empty or not
+            ) : ( 
                 <OptionsChainTable
                   chainData={optionsChain}
                   underlyingPrice={tickerInfo.lastPrice}

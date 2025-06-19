@@ -1,5 +1,4 @@
 
-
 "use client"; // This layout uses client-side context providers
 
 import { SidebarNav } from "@/components/SidebarNav";
@@ -23,9 +22,9 @@ export default function AppLayout({
           <OpenPositionsProvider>
             <div className="flex min-h-screen w-full flex-col"> {/* Outer flex-col for ticker, REMOVED pt-7 */}
               <ManualTradeTicker /> {/* Render ticker at the top, it will stick to top of this box */}
-              <div className="flex flex-1 pt-1.5"> {/* Inner flex for sidebar and content, CHANGED to pt-1.5 */}
+              <div className="flex flex-1 pt-0.5"> {/* Inner flex for sidebar and content, CHANGED to pt-0.5 */}
                 <SidebarNav />
-                <SidebarInset className="flex flex-col flex-1 overflow-hidden">
+                <SidebarInset className="flex flex-col flex-1 overflow-auto">
                   {children}
                 </SidebarInset>
               </div>
