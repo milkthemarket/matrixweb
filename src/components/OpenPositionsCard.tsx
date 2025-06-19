@@ -56,7 +56,7 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) { // Ad
           <Briefcase className="mr-2 h-5 w-5 text-primary" />
           Open Positions
         </CardTitle>
-        <CardDescription>Your currently active trades for the selected account.</CardDescription>
+        {/* Removed CardDescription here */}
 
         <div className="grid grid-cols-4 w-full max-w-md rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05] mt-3">
           <button
@@ -161,3 +161,4 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) { // Ad
     </Card>
   );
 }
+
