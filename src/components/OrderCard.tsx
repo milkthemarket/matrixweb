@@ -553,11 +553,16 @@ export function OrderCard({
                 <p className="text-xs text-destructive mt-1">{validationMessage}</p>
               )}
 
-              {selectedStock && quantityValue && isValidQuantity && (
-                <div className="text-xs text-muted-foreground space-y-0.5 mt-1.5">
-                  {quantityMode !== 'Shares' && finalSharesToSubmit > 0 && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Shares: {finalSharesToSubmit}</p>}
-                  {(quantityMode === 'Shares' || finalSharesToSubmit > 0) && <p><Info className="inline-block mr-1 h-3 w-3" />Est. Cost: ${estimatedCost.toFixed(2)}</p>}
-                    {quantityMode === 'PercentOfBuyingPower' && <p><Info className="inline-block mr-1 h-3 w-3" />Using ~{quantityValue}% of ${currentBuyingPower.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} buying power.</p>}
+              {selectedStock && quantityValue && isValidQuantity && estimatedCost > 0 && (
+                <div className="text-sm text-foreground space-y-0.5 mt-3 p-3 bg-black/10 rounded-md border border-white/5">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Estimated amount:</span>
+                    <span className="font-semibold">${estimatedCost.toFixed(2)}</span>
+                  </div>
+                  {quantityMode !== 'Shares' && finalSharesToSubmit > 0 && 
+                    <p className="text-xs text-muted-foreground"><Info className="inline-block mr-1 h-3 w-3" />Est. Shares: {finalSharesToSubmit}</p>}
+                  {quantityMode === 'PercentOfBuyingPower' && 
+                    <p className="text-xs text-muted-foreground"><Info className="inline-block mr-1 h-3 w-3" />Using ~{quantityValue}% of BP</p>}
                 </div>
               )}
 
@@ -685,34 +690,6 @@ export function OrderCard({
                 </div>
               )}
 
-              <Separator className="my-6 border-white/5" />
-              <div className="space-y-2 text-sm">
-                  <h4 className="font-medium text-muted-foreground">Stock Info for {selectedStock ? selectedStock.symbol : '—'}</h4>
-                  <div className="flex justify-between text-foreground">
-                    <span>Last Price:</span>
-                    <span>{selectedStock ? `$${selectedStock.price.toFixed(2)}` : '—'}</span>
-                  </div>
-                  <div className="flex justify-between text-foreground">
-                    <span>Float:</span>
-                    <span>{selectedStock ? `${selectedStock.float}M` : '—'}</span>
-                  </div>
-                  <div className="flex justify-between text-foreground">
-                    <span>Volume:</span>
-                    <span>{selectedStock ? `${selectedStock.volume.toFixed(1)}M` : '—'}</span>
-                  </div>
-                  <div className="pt-1">
-                      <p className="text-muted-foreground">Catalyst:</p>
-                      {selectedStock?.newsSnippet ? (
-                        <p className="text-xs leading-tight text-foreground" title={selectedStock.newsSnippet}>
-                          {selectedStock.newsSnippet.substring(0,100)}{selectedStock.newsSnippet.length > 100 ? '...' : ''}
-                        </p>
-                      ) : (
-                        <p className="text-xs leading-tight text-muted-foreground italic">
-                          {selectedStock ? (selectedStock.newsSnippet || 'No specific news snippet.') : 'Enter a ticker to see stock info.'}
-                        </p>
-                      )}
-                  </div>
-              </div>
             </>
           )}
           {tradeMode === 'autopilot' && (
