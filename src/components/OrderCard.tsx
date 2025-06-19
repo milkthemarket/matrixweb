@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import type { Stock, TradeRequest, OrderActionType, OrderSystemType, QuantityInputMode, TradeMode, HistoryTradeMode, Account } from '@/types';
-import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Clock4, User, Cog, ListChecks, Lightbulb, MousePointerSquareDashed, Search, Briefcase, Landmark, NotebookText, Percent, ShieldCheck, Target } from 'lucide-react';
+import { DollarSign, PackageOpen, TrendingUp, TrendingDown, CircleSlash, XCircle, Info, Clock4, User, Cog, ListChecks, Lightbulb, Search, Percent, ShieldCheck, Target } from 'lucide-react';
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import { cn } from '@/lib/utils';
 import { ManualTradeWarningModal } from '@/components/ManualTradeWarningModal';
@@ -27,10 +27,10 @@ interface OrderCardProps {
   initialTradeMode?: TradeMode;
   miloActionContextText?: string | null;
   onStockSymbolSubmit: (symbol: string) => void;
-  initialQuantity?: string; 
-  initialOrderType?: OrderSystemType; 
-  initialLimitPrice?: string; 
-  className?: string; // Added className prop
+  initialQuantity?: string;
+  initialOrderType?: OrderSystemType;
+  initialLimitPrice?: string;
+  className?: string;
 }
 
 const dummyAutoRules = [
@@ -39,20 +39,20 @@ const dummyAutoRules = [
 ];
 
 
-export function OrderCard({ 
-  selectedStock, 
-  initialActionType, 
-  onSubmit, 
-  onClear, 
-  initialTradeMode, 
-  miloActionContextText, 
+export function OrderCard({
+  selectedStock,
+  initialActionType,
+  onSubmit,
+  onClear,
+  initialTradeMode,
+  miloActionContextText,
   onStockSymbolSubmit,
   initialQuantity,
   initialOrderType,
   initialLimitPrice,
-  className, // Added className to props
+  className,
 }: OrderCardProps) {
-  const { selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
+  const { selectedAccountId, accounts } = useOpenPositionsContext(); // Removed setSelectedAccountId
   const { notificationSounds, playSound } = useSettingsContext();
 
   const [tradeMode, setTradeMode] = useState<TradeMode>(initialTradeMode || 'manual');
@@ -60,7 +60,7 @@ export function OrderCard({
   const [quantityMode, setQuantityMode] = useState<QuantityInputMode>('Shares');
   const [orderType, setOrderType] = useState<OrderSystemType>('Market');
   const [limitPrice, setLimitPrice] = useState('');
-  const [stopPrice, setStopPrice] = useState(''); // For Stop/Stop Limit orders
+  const [stopPrice, setStopPrice] = useState('');
   const [trailingOffset, setTrailingOffset] = useState('');
   const [currentAction, setCurrentAction] = useState<OrderActionType | null>(null);
   const [timeInForce, setTimeInForce] = useState<string>('Day');
@@ -68,13 +68,10 @@ export function OrderCard({
   const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(false);
   const [displayedMiloContext, setDisplayedMiloContext] = useState<string | null>(null);
   const [tickerInputValue, setTickerInputValue] = useState('');
-
-  // New state for Take Profit / Stop Loss
   const [showTakeProfit, setShowTakeProfit] = useState(false);
   const [takeProfitValue, setTakeProfitValue] = useState('');
   const [showStopLoss, setShowStopLoss] = useState(false);
   const [stopLossValue, setStopLossValue] = useState('');
-
 
   const quantityInputRef = useRef<HTMLInputElement>(null);
 
@@ -86,7 +83,7 @@ export function OrderCard({
 
   const [showManualTradeWarningModal, setShowManualTradeWarningModal] = useState(false);
   const [manualTradeDisclaimerAcknowledged, setManualTradeDisclaimerAcknowledged] = useState(false);
-  
+
   const [pendingTradeDetails, setPendingTradeDetails] = useState<TradeRequest | null>(null);
 
   const [showAiAutopilotWarningModal, setShowAiAutopilotWarningModal] = useState(false);
@@ -104,13 +101,13 @@ export function OrderCard({
         setCurrentAction(initialActionType || null);
         setQuantityValue(initialQuantity !== undefined ? String(initialQuantity) : '');
         setOrderType(initialOrderType || 'Market');
-        
+
         if ((initialOrderType === 'Limit' || initialOrderType === 'Stop Limit') && initialLimitPrice !== undefined) {
           setLimitPrice(String(initialLimitPrice));
         } else {
           setLimitPrice('');
         }
-        
+
         setStopPrice('');
         setTrailingOffset('');
         setTimeInForce('Day');
@@ -120,8 +117,8 @@ export function OrderCard({
         setShowStopLoss(false);
         setStopLossValue('');
 
-      } else if (!miloActionContextText) { 
-        setCurrentAction(null); 
+      } else if (!miloActionContextText) {
+        setCurrentAction(null);
         setQuantityValue('');
         setOrderType('Market');
         setLimitPrice('');
@@ -142,7 +139,7 @@ export function OrderCard({
       }
       setDisplayedMiloContext(miloActionContextText || null);
 
-    } else { 
+    } else {
       setCurrentAction(null);
       setQuantityValue('');
       setOrderType('Market');
@@ -169,7 +166,7 @@ export function OrderCard({
     initialQuantity,
     initialOrderType,
     initialLimitPrice,
-    tickerInputValue, // Added tickerInputValue
+    tickerInputValue,
   ]);
 
 
@@ -254,14 +251,13 @@ export function OrderCard({
         }
       }
     }
-    
+
     if (valid && shares <= 0 && stockPrice > 0) {
         if (quantityMode === 'Shares') {
            message = "Quantity must result in at least 1 share.";
         }
         valid = false;
     }
-
 
     return { finalSharesToSubmit: shares, estimatedCost: cost, isValidQuantity: valid, validationMessage: message };
   }, [quantityValue, quantityMode, selectedStock, currentBuyingPower]);
@@ -272,7 +268,7 @@ export function OrderCard({
     }
 
     let origin: HistoryTradeMode = miloActionContextText ? 'aiAssist' : 'manual';
-    
+
     const tradeDetails: TradeRequest = {
       symbol: selectedStock.symbol,
       quantity: finalSharesToSubmit,
@@ -312,7 +308,7 @@ export function OrderCard({
     if (showStopLoss && stopLossValue && !isNaN(parseFloat(stopLossValue)) && parseFloat(stopLossValue) > 0) {
       tradeDetails.stopLoss = parseFloat(stopLossValue);
     }
-    
+
     if (selectedAccount?.type !== 'paper' && origin === 'manual' && !manualTradeDisclaimerAcknowledged) {
       setPendingTradeDetails(tradeDetails);
       setShowManualTradeWarningModal(true);
@@ -352,7 +348,7 @@ export function OrderCard({
     setPendingTradeDetails(null);
     setShowManualTradeWarningModal(false);
   };
-  
+
   const handleAutopilotSwitchChange = (checked: boolean) => {
     if (checked) {
       if (selectedAccount?.type !== 'paper' && !aiAutopilotDisclaimerAcknowledged) {
@@ -424,48 +420,14 @@ export function OrderCard({
   const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
   const inactiveModeClass = "bg-transparent text-muted-foreground hover:bg-white/5";
 
-  const getAccountIcon = (type?: Account['type']) => {
-    if (!type) return null;
-    if (type === 'margin') return <Briefcase className="h-4 w-4 text-muted-foreground" />;
-    if (type === 'ira') return <Landmark className="h-4 w-4 text-muted-foreground" />;
-    if (type === 'paper') return <NotebookText className="h-4 w-4 text-muted-foreground" />;
-    return null;
-  };
-
 
   return (
     <>
-      <Card className={cn("shadow-none flex flex-col h-full", className)}> {/* Added className */}
+      <Card className={cn("shadow-none flex flex-col h-full", className)}>
         <CardHeader className="relative pb-2 pt-4">
           <CardTitle className="text-xl font-headline text-foreground mb-0">
             Trade Panel
           </CardTitle>
-          <div className="space-y-3 p-3 rounded-lg border border-white/5 bg-black/5 mt-2">
-            <div className="flex items-center gap-2">
-              <Label htmlFor="accountSelect" className="text-sm font-medium text-muted-foreground shrink-0">Account:</Label>
-              <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-                <SelectTrigger id="accountSelect" className="flex-1 min-w-[180px] h-9">
-                  <SelectValue placeholder="Select account" />
-                </SelectTrigger>
-                <SelectContent>
-                  {accounts.map(acc => (
-                    <SelectItem key={acc.id} value={acc.id}>
-                      <div className="flex items-center gap-2">
-                        {getAccountIcon(acc.type)}
-                        <span>{acc.label} ({acc.number})</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-              <div className="text-muted-foreground">Available to Trade:</div>
-              <div className="text-right font-medium text-foreground">${(selectedAccount?.balance || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-              <div className="text-muted-foreground">Buying Power:</div>
-              <div className="text-right font-medium text-foreground">${(selectedAccount?.buyingPower || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-            </div>
-          </div>
           {selectedStock && (
             <Button variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={handleClearSelection} title="Clear Selection">
               <XCircle className="h-5 w-5 text-muted-foreground hover:text-foreground" />
@@ -586,7 +548,7 @@ export function OrderCard({
                   </Button>
                 </div>
               </div>
-              
+
               {validationMessage && !isValidQuantity && quantityValue && (
                 <p className="text-xs text-destructive mt-1">{validationMessage}</p>
               )}
@@ -722,7 +684,7 @@ export function OrderCard({
                   />
                 </div>
               )}
-              
+
               <Separator className="my-6 border-white/5" />
               <div className="space-y-2 text-sm">
                   <h4 className="font-medium text-muted-foreground">Stock Info for {selectedStock ? selectedStock.symbol : '—'}</h4>

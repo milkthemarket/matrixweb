@@ -4,8 +4,11 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
-import { DollarSign, Briefcase, Landmark, NotebookText, Wallet } from "lucide-react";
+import { DollarSign, Briefcase, Landmark, NotebookText, Wallet, Settings } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { cn } from '@/lib/utils';
+import type { Account } from '@/types';
 
 interface AccountSummaryCardProps {
   className?: string;
@@ -22,42 +25,62 @@ const DetailItem: React.FC<{ label: string; value: string | number; icon?: React
 );
 
 const getAccountIcon = (type?: Account['type']) => {
-    if (!type) return <Briefcase className="h-4 w-4 text-primary" />;
+    if (!type) return <Wallet className="h-4 w-4 text-primary" />; // Fallback icon
     if (type === 'margin') return <Briefcase className="h-4 w-4 text-primary" />;
     if (type === 'ira') return <Landmark className="h-4 w-4 text-primary" />;
     if (type === 'paper') return <NotebookText className="h-4 w-4 text-primary" />;
-    return <Briefcase className="h-4 w-4 text-primary" />;
+    return <Wallet className="h-4 w-4 text-primary" />;
 };
 
 
 export function AccountSummaryCard({ className }: AccountSummaryCardProps) {
-  const { selectedAccountId, accounts } = useOpenPositionsContext();
+  const { selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
   const selectedAccount = accounts.find(acc => acc.id === selectedAccountId);
 
   return (
     <Card className={cn("shadow-none", className)}>
-      <CardHeader className="py-3 px-4">
+      <CardHeader className="py-3 px-4 space-y-2">
         <CardTitle className="text-base font-headline flex items-center text-foreground">
-            {selectedAccount ? getAccountIcon(selectedAccount.type) : <Wallet className="h-4 w-4 text-primary" />}
+            {getAccountIcon(selectedAccount?.type)}
             <span className="ml-2">{selectedAccount ? `${selectedAccount.label} (${selectedAccount.number})` : "Account Summary"}</span>
         </CardTitle>
+        <div className="flex items-center gap-2">
+            <Label htmlFor="accountSelectGlobal" className="text-xs font-medium text-muted-foreground shrink-0 sr-only">
+                Active Account:
+            </Label>
+            <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+            <SelectTrigger id="accountSelectGlobal" className="flex-1 h-9 text-xs" aria-label="Select active account">
+                <SelectValue placeholder="Select account..." />
+            </SelectTrigger>
+            <SelectContent>
+                {accounts.map(acc => (
+                <SelectItem key={acc.id} value={acc.id} className="text-xs">
+                    <div className="flex items-center gap-2">
+                    {getAccountIcon(acc.type)}
+                    <span>{acc.label} ({acc.number})</span>
+                    </div>
+                </SelectItem>
+                ))}
+            </SelectContent>
+            </Select>
+        </div>
       </CardHeader>
       <CardContent className="p-4 pt-1">
         {selectedAccount ? (
           <div className="space-y-2">
-            <DetailItem 
-              label="Available to Trade" 
+            <DetailItem
+              label="Available to Trade"
               value={`$${selectedAccount.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               icon={<DollarSign />}
             />
-            <DetailItem 
-              label="Buying Power" 
+            <DetailItem
+              label="Buying Power"
               value={`$${selectedAccount.buyingPower.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               icon={<DollarSign />}
             />
           </div>
         ) : (
-          <div className="h-[68px] flex items-center justify-center text-sm text-muted-foreground"> {/* Adjusted height to match approx 2 lines of detail */}
+          <div className="h-[68px] flex items-center justify-center text-sm text-muted-foreground">
             No account selected or found.
           </div>
         )}
