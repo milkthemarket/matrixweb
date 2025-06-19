@@ -513,7 +513,7 @@ export function OrderCard({
                   </Button>
               </div>
 
-              <div className="grid grid-cols-[minmax(0,1.2fr)_minmax(0,1.8fr)_auto] gap-2 items-end">
+              <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_auto] gap-2 items-end">
                 <div className="space-y-1.5">
                   <Label htmlFor="orderType" className="text-xs font-medium text-foreground">Order Type</Label>
                   <Select value={orderType} onValueChange={(value) => setOrderType(value as OrderSystemType)}>
@@ -541,7 +541,7 @@ export function OrderCard({
                     className="h-9 bg-transparent px-3 py-2 focus-visible:ring-ring text-xs"
                   />
                 </div>
-                <div className="space-y-1.5">
+                 <div className="space-y-1.5">
                     <Label className="text-xs font-medium text-transparent select-none">Mode</Label> {/* Spacer label */}
                     <Button
                         variant="outline"
@@ -556,7 +556,7 @@ export function OrderCard({
                {validationMessage && !isValidQuantity && quantityValue && (
                 <p className="text-xs text-destructive mt-1">{validationMessage}</p>
               )}
-
+              
               {selectedStock && quantityValue && isValidQuantity && estimatedCost > 0 && (
                 <div className="text-sm text-foreground space-y-0.5 mt-3 p-3 bg-black/10 rounded-md border border-white/5">
                   <div className="flex justify-between items-center">
@@ -607,19 +607,19 @@ export function OrderCard({
               {(orderType === 'Limit' || orderType === 'Stop Limit') && (
                 <div className="space-y-1.5 mt-3">
                   <Label htmlFor="limitPrice" className="text-xs font-medium text-foreground">Limit Price</Label>
-                  <Input id="limitPrice" type="number" step="0.01" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} placeholder="e.g., 150.50" className="bg-transparent text-xs h-9" />
+                  <Input id="limitPrice" type="number" step="0.01" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} placeholder="" className="bg-transparent text-xs h-9" />
                 </div>
               )}
               {(orderType === 'Stop' || orderType === 'Stop Limit') && (
                 <div className="space-y-1.5 mt-3">
                   <Label htmlFor="stopPrice" className="text-xs font-medium text-foreground">Stop Price</Label>
-                  <Input id="stopPrice" type="number" step="0.01" value={stopPrice} onChange={(e) => setStopPrice(e.target.value)} placeholder="e.g., 149.00" className="bg-transparent text-xs h-9"/>
+                  <Input id="stopPrice" type="number" step="0.01" value={stopPrice} onChange={(e) => setStopPrice(e.target.value)} placeholder="" className="bg-transparent text-xs h-9"/>
                 </div>
               )}
               {orderType === 'Trailing Stop' && (
                 <div className="space-y-1.5 mt-3">
                   <Label htmlFor="trailingOffset" className="text-xs font-medium text-foreground">Trailing Offset ($ or %)</Label>
-                  <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="e.g., 1.5" className="bg-transparent text-xs h-9"/>
+                  <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="" className="bg-transparent text-xs h-9"/>
                 </div>
               )}
 
@@ -647,7 +647,7 @@ export function OrderCard({
                     step="0.01"
                     value={takeProfitValue}
                     onChange={(e) => setTakeProfitValue(e.target.value)}
-                    placeholder="e.g., 155.00"
+                    placeholder=""
                     className="bg-transparent h-9 text-xs"
                   />
                 </div>
@@ -677,13 +677,11 @@ export function OrderCard({
                     step="0.01"
                     value={stopLossValue}
                     onChange={(e) => setStopLossValue(e.target.value)}
-                    placeholder="e.g., 145.00"
+                    placeholder=""
                     className="bg-transparent h-9 text-xs"
                   />
                 </div>
               )}
-
-
             </>
           )}
           {tradeMode === 'autopilot' && (
@@ -773,4 +771,3 @@ export function OrderCard({
     </>
   );
 }
-
