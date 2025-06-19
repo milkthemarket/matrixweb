@@ -138,7 +138,7 @@ function MilkMarketPageContent() {
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
-                className="h-[420px] shrink-0"
+                className="flex-1 min-h-0" 
               />
             </div>
 
@@ -193,3 +193,4 @@ export default function MilkMarketPage() {
   );
 }
 
+    
