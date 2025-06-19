@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // Added useState, useEffect
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import type { Stock } from '@/types';
 import { Info, TrendingUp, TrendingDown, CalendarDays, Briefcase, Percent, DollarSign, Maximize2, Minimize2, BarChartHorizontal } from "lucide-react";
@@ -26,6 +26,22 @@ const DetailItem: React.FC<{ label: string; value?: string | number; icon?: Reac
 );
 
 export function StockDetailsCard({ stock, className }: StockDetailsCardProps) {
+  const [clientFormattedEarningsDate, setClientFormattedEarningsDate] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (stock?.earningsDate) {
+      try {
+        // Perform date formatting only on the client side
+        setClientFormattedEarningsDate(format(new Date(stock.earningsDate), 'MMM dd, yyyy'));
+      } catch (error) {
+        console.error("Error formatting earnings date:", error);
+        setClientFormattedEarningsDate("Invalid Date");
+      }
+    } else {
+      setClientFormattedEarningsDate(undefined);
+    }
+  }, [stock?.earningsDate]);
+
   const formatMarketCap = (value?: number) => {
     if (value === undefined || value === null) return 'N/A';
     if (value >= 1e12) return `${(value / 1e12).toFixed(2)}T`;
@@ -68,10 +84,10 @@ export function StockDetailsCard({ stock, className }: StockDetailsCardProps) {
             <DetailItem label="Div Yield" value={stock.dividendYield?.toFixed(2)} icon={<Percent />} unit="%" />
             <DetailItem label="52W High" value={stock.high52?.toFixed(2)} icon={<Maximize2 />} unit="$" />
             <DetailItem label="52W Low" value={stock.low52?.toFixed(2)} icon={<Minimize2 />} unit="$" />
-            <DetailItem 
-              label="Earnings" 
-              value={stock.earningsDate ? format(new Date(stock.earningsDate), 'MMM dd, yyyy') : undefined} 
-              icon={<CalendarDays />} 
+            <DetailItem
+              label="Earnings"
+              value={clientFormattedEarningsDate} // Use the state variable here
+              icon={<CalendarDays />}
             />
           </div>
         )}
@@ -79,4 +95,3 @@ export function StockDetailsCard({ stock, className }: StockDetailsCardProps) {
     </Card>
   );
 }
-
