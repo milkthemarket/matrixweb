@@ -13,9 +13,10 @@ import { WatchlistCard } from '@/components/WatchlistCard';
 import { NewsCard } from '@/components/NewsCard';
 import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { OrderBookCard } from '@/components/OrderBookCard'; // Import new OrderBookCard
 
 import { RecentAlertsCard } from '@/components/RecentAlertsCard';
-import { DayTradingFundamentalsCard } from '@/components/DayTradingFundamentalsCard'; // New Card
+import { DayTradingFundamentalsCard } from '@/components/DayTradingFundamentalsCard'; 
 import { AccountSummaryCard } from '@/components/AccountSummaryCard';
 
 function MilkMarketPageContent() {
@@ -139,7 +140,6 @@ function MilkMarketPageContent() {
               <RecentAlertsCard className="h-full min-h-[60px]" />
             </div>
             <div className="flex flex-col md:col-start-2">
-              {/* DayTradingFundamentalsCard replaces StockDetailsCard */}
               <DayTradingFundamentalsCard stock={leftWatchlistSelectedStock} className="h-full min-h-[60px]" />
             </div>
             <div className="flex flex-col md:col-start-3">
@@ -177,8 +177,11 @@ function MilkMarketPageContent() {
             </div>
             
             {/* Row 3: News Card, OpenPositions */}
-            <div className="flex flex-col md:row-start-3 md:col-start-1 md:col-span-2">
+            <div className="flex flex-col md:row-start-3 md:col-start-1">
               <NewsCard className="h-full md:h-96" />
+            </div>
+            <div className="flex flex-col md:row-start-3 md:col-start-2">
+                <OrderBookCard stock={leftWatchlistSelectedStock} className="h-full md:h-96" />
             </div>
             <div className="flex flex-col md:row-start-3 md:col-start-3">
                 <OpenPositionsCard className="h-full md:h-96" /> 
@@ -199,3 +202,4 @@ export default function MilkMarketPage() {
     </Suspense>
   );
 }
+
