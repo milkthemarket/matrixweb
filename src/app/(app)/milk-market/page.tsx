@@ -138,7 +138,7 @@ function MilkMarketPageContent() {
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
-                className="h-[420px] shrink-0" 
+                className="flex-1 min-h-0" // Changed from h-[420px] shrink-0
               />
             </div>
 
@@ -149,9 +149,8 @@ function MilkMarketPageContent() {
                 className="flex-1 min-h-0" 
               />
             </div>
-
+            
             {/* Col 3, Row 1 & 2: Right Panel (OrderCard, OpenPositionsCard) */}
-            {/* This div needs to span two rows to match the conceptual height of Chart+News */}
             <div className="flex flex-col h-full md:row-span-2 md:col-start-3 space-y-4 md:space-y-6">
                 <OrderCard
                     selectedStock={rightOrderCardSelectedStock}
@@ -170,7 +169,7 @@ function MilkMarketPageContent() {
             </div>
             
             {/* Col 1 & 2, Row 2: News Card (Spanning under Watchlist and Chart) */}
-            <div className="flex flex-col h-full md:row-start-2 md:col-start-1 md:col-span-2">
+            <div className="flex flex-col md:row-start-2 md:col-start-1 md:col-span-2">
               <NewsCard className="h-full md:h-96" />
             </div>
 
