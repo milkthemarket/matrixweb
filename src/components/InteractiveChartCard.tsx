@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Stock } from '@/types';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart as RechartsAreaChart, Area } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart as RechartsAreaChart, Area, BarChart, Bar, Cell } from 'recharts';
 import { AreaChart as AreaIcon, CandlestickChart, Minus, Plus, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -56,8 +56,6 @@ export function InteractiveChartCard({ stock, className }: InteractiveChartCardP
   }, [stock, timeframe]);
 
   const dynamicStrokeColor = stock && stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))";
-  // const dynamicFillColor = stock && stock.changePercent >= 0 ? "hsla(var(--chart-2), 0.2)" : "hsla(var(--chart-5), 0.2)"; // Not directly used anymore for area chart
-
   const neonPurpleColor = "hsl(var(--primary))";
 
 
@@ -131,9 +129,38 @@ export function InteractiveChartCard({ stock, className }: InteractiveChartCardP
                 </RechartsAreaChart>
             )}
             {chartType === 'candle' && (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
-                Candlestick chart type coming soon for {stock.symbol}.
-              </div>
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.2)" }} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.2)" }} domain={['auto', 'auto']} />
+                <Tooltip
+                  cursor={{ fill: 'hsla(var(--primary), 0.1)' }}
+                  contentStyle={{
+                    backgroundColor: 'hsla(var(--popover), 0.9)',
+                    borderColor: 'hsla(var(--border), 0.2)',
+                    borderRadius: 'var(--radius)',
+                    backdropFilter: 'blur(4px)',
+                    boxShadow: '0 4px 12px hsla(var(--background), 0.1)',
+                  }}
+                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', marginBottom: '4px' }}
+                  formatter={(value: number, name: string, props: any) => {
+                    const itemColor = props.payload.fill;
+                    return [<span style={{ color: itemColor }}>${value.toFixed(2)}</span>, 'Price'];
+                  }}
+                />
+                <Bar dataKey="price" barSize={10}>
+                  {chartData.map((entry, index) => {
+                    const previousPrice = index > 0 ? chartData[index - 1].price : entry.price - 0.01; // Handle first bar
+                    let fillColor = 'hsl(var(--muted-foreground))'; // Neutral
+                    if (entry.price > previousPrice) {
+                      fillColor = 'hsl(var(--chart-2))'; // Green
+                    } else if (entry.price < previousPrice) {
+                      fillColor = 'hsl(var(--chart-5))'; // Red
+                    }
+                    return <Cell key={`cell-${index}`} fill={fillColor} />;
+                  })}
+                </Bar>
+              </BarChart>
             )}
           </ResponsiveContainer>
         ) : (
@@ -151,7 +178,7 @@ export function InteractiveChartCard({ stock, className }: InteractiveChartCardP
         ))}
         <div className="w-full sm:w-auto border-l border-border/[.1] h-6 sm:h-auto sm:mx-2 my-1 sm:my-0 hidden sm:block"></div>
         {[
-          { type: 'line', label: 'Line', Icon: AreaIcon }, // Using AreaIcon for Line as well for visual consistency
+          { type: 'line', label: 'Line', Icon: AreaIcon }, 
           { type: 'area', label: 'Area', Icon: AreaIcon },
           { type: 'candle', label: 'Candle', Icon: CandlestickChart },
         ].map(({ type, label, Icon }) => (
@@ -163,3 +190,4 @@ export function InteractiveChartCard({ stock, className }: InteractiveChartCardP
     </Card>
   );
 }
+
