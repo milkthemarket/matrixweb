@@ -20,6 +20,17 @@ interface WatchlistCardProps {
 
 const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX'];
 
+const formatVolumeDisplay = (volumeInMillions?: number): string => {
+  if (volumeInMillions === undefined || volumeInMillions === null) {
+    return 'N/A';
+  }
+  if (volumeInMillions >= 1) {
+    return `${volumeInMillions.toFixed(1)}M`;
+  }
+  // If volumeInMillions < 1 (e.g., 0.182 for 182K)
+  return `${(volumeInMillions * 1000).toFixed(0)}K`;
+};
+
 export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }: WatchlistCardProps) {
   const [selectedFilterId, setSelectedFilterId] = useState<string>('my-watchlist');
 
@@ -125,17 +136,22 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
                 )}
                 onClick={() => onSelectStock(stock)}
               >
-                <div className="flex flex-col w-full">
-                  <div className="flex justify-between items-center">
+                <div className="flex justify-between items-start w-full">
+                  {/* Left part: Symbol and Name */}
+                  <div className="flex flex-col text-left mr-2">
                     <span className="text-sm font-semibold text-foreground">{stock.symbol}</span>
+                    <span className="text-xs text-muted-foreground truncate max-w-[150px] sm:max-w-[180px]">{stock.name || 'N/A'}</span>
+                  </div>
+                  {/* Right part: Price, % Change, Volume */}
+                  <div className="flex flex-col items-end flex-shrink-0">
                     <span className={cn("text-sm font-semibold", stock.price >= 0 ? "text-foreground" : "text-destructive")}>
                       ${stock.price.toFixed(2)}
                     </span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-muted-foreground truncate max-w-[70%]">{stock.name}</span>
-                    <span className={cn(stock.changePercent >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
+                    <span className={cn("text-xs", stock.changePercent >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
                       {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                    </span>
+                    <span className="text-xs text-muted-foreground/80">
+                      Vol: {formatVolumeDisplay(stock.volume)}
                     </span>
                   </div>
                 </div>
