@@ -26,18 +26,30 @@ function MilkMarketPageContent() {
   const [rightOrderCardActionType, setRightOrderCardActionType] = useState<OrderActionType | null>(null);
   const [rightOrderCardInitialTradeMode, setRightOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
   const [rightOrderCardMiloActionContext, setRightOrderCardMiloActionContext] = useState<string | null>(null);
+  
+  const [rightOrderCardInitialQuantity, setRightOrderCardInitialQuantity] = useState<string | undefined>(undefined);
+  const [rightOrderCardInitialOrderType, setRightOrderCardInitialOrderType] = useState<OrderActionType | undefined>(undefined);
+  const [rightOrderCardInitialLimitPrice, setRightOrderCardInitialLimitPrice] = useState<string | undefined>(undefined);
+
 
   const handleWatchlistStockSelection = useCallback((stock: Stock) => {
-    setLeftWatchlistSelectedStock(stock); 
-    // Optionally, you might also want to pre-fill the right order card or center if it existed.
-    // For now, just updating the chart and letting manual input drive order cards.
+    setLeftWatchlistSelectedStock(stock);
+    // When a stock is selected from the left watchlist, also update the right order card.
+    setRightOrderCardSelectedStock(stock);
+    setRightOrderCardActionType(null);
+    setRightOrderCardInitialTradeMode(undefined);
+    setRightOrderCardMiloActionContext(null);
+    setRightOrderCardInitialQuantity(undefined);
+    setRightOrderCardInitialOrderType(undefined);
+    setRightOrderCardInitialLimitPrice(undefined);
+
   }, []);
 
   const handleRightTradeSubmit = (tradeDetails: TradeRequest) => {
     console.log("Trade Submitted via Right Order Card:", tradeDetails);
     toast({
       title: "Trade Processing",
-      description: `${tradeDetails.action} ${tradeDetails.quantity} ${tradeDetails.symbol} (${tradeDetails.orderType}) submitted. Origin: ${tradeDetails.tradeModeOrigin || 'manual'}`,
+      description: `${tradeDetails.action} ${tradeDetails.quantity} ${tradeDetails.symbol} (${tradeDetails.orderType}) submitted. Origin: ${tradeDetails.tradeModeOrigin || 'manual'} for account ${tradeDetails.accountId}`,
     });
 
     const stockInfo = rightOrderCardSelectedStock || initialMockStocks.find(s => s.symbol === tradeDetails.symbol);
@@ -59,6 +71,8 @@ function MilkMarketPageContent() {
       averagePrice: (tradeDetails.orderType === "Limit" && tradeDetails.limitPrice) ? tradeDetails.limitPrice : (stockInfo?.price || 0),
       tradeModeOrigin: tradeDetails.tradeModeOrigin || 'manual',
       accountId: tradeDetails.accountId || selectedAccountId,
+      takeProfit: tradeDetails.takeProfit,
+      stopLoss: tradeDetails.stopLoss,
     });
     
     if (tradeDetails.action === 'Buy' || tradeDetails.action === 'Short') {
@@ -79,22 +93,31 @@ function MilkMarketPageContent() {
     setRightOrderCardActionType(null);
     setRightOrderCardInitialTradeMode(undefined);
     setRightOrderCardMiloActionContext(null);
+    setRightOrderCardInitialQuantity(undefined);
+    setRightOrderCardInitialOrderType(undefined);
+    setRightOrderCardInitialLimitPrice(undefined);
   };
   
   const handleRightStockSymbolSubmitFromOrderCard = (symbol: string) => {
     const stockToSelect = initialMockStocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
     if (stockToSelect) {
-      setRightOrderCardSelectedStock(stockToSelect); 
-      setLeftWatchlistSelectedStock(stockToSelect); // Update chart when right panel searches
+      setLeftWatchlistSelectedStock(stockToSelect); 
+      setRightOrderCardSelectedStock(stockToSelect);
       setRightOrderCardActionType(null);
       setRightOrderCardInitialTradeMode(undefined);
       setRightOrderCardMiloActionContext(null);
+      setRightOrderCardInitialQuantity(undefined);
+      setRightOrderCardInitialOrderType(undefined);
+      setRightOrderCardInitialLimitPrice(undefined);
     } else {
        const newStock: Stock = { 
         id: symbol, symbol, name: `Info for ${symbol}`, price: 0, changePercent: 0, float:0, volume:0, lastUpdated: new Date().toISOString(), historicalPrices:[]
       };
-      setRightOrderCardSelectedStock(newStock); 
-      setLeftWatchlistSelectedStock(newStock); // Update chart with basic info
+      setLeftWatchlistSelectedStock(newStock);
+      setRightOrderCardSelectedStock(newStock);
+      setRightOrderCardInitialQuantity(undefined);
+      setRightOrderCardInitialOrderType(undefined);
+      setRightOrderCardInitialLimitPrice(undefined);
       toast({
         variant: "default",
         title: "Ticker Loaded",
@@ -103,6 +126,7 @@ function MilkMarketPageContent() {
     }
   };
 
+
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Milk Market" />
@@ -110,14 +134,16 @@ function MilkMarketPageContent() {
         <div className="p-4 md:p-6 h-full"> 
           <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-4 md:gap-6 h-full">
             
+            {/* Left Column */}
             <div className="hidden md:flex flex-col h-full min-h-0">
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
-                className="flex-1 min-h-0 h-full" 
+                className="h-full" 
               />
             </div>
 
+            {/* Center Column */}
             <div className="flex flex-col h-full min-h-0 space-y-4 md:space-y-6">
               <InteractiveChartCard 
                 stock={leftWatchlistSelectedStock} 
@@ -126,6 +152,7 @@ function MilkMarketPageContent() {
               <NewsCard className="h-72 shrink-0" />
             </div>
 
+            {/* Right Column */}
             <div className="flex flex-col h-full min-h-0 space-y-6 pr-0 md:pr-1">
               <OrderCard
                 selectedStock={rightOrderCardSelectedStock}
@@ -135,6 +162,9 @@ function MilkMarketPageContent() {
                 onSubmit={handleRightTradeSubmit}
                 onClear={handleRightClearOrderCard}
                 onStockSymbolSubmit={handleRightStockSymbolSubmitFromOrderCard}
+                initialQuantity={rightOrderCardInitialQuantity}
+                initialOrderType={rightOrderCardInitialOrderType as any} // Cast as any if type mismatch
+                initialLimitPrice={rightOrderCardInitialLimitPrice}
               />
               <OpenPositionsCard />
             </div>
