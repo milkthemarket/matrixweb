@@ -52,7 +52,7 @@ export function OrderCard({
   initialLimitPrice,
   className,
 }: OrderCardProps) {
-  const { selectedAccountId, accounts } = useOpenPositionsContext(); 
+  const { selectedAccountId, accounts } = useOpenPositionsContext();
   const { notificationSounds, playSound } = useSettingsContext();
 
   const [tradeMode, setTradeMode] = useState<TradeMode>(initialTradeMode || 'manual');
@@ -68,8 +68,11 @@ export function OrderCard({
   const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(false);
   const [displayedMiloContext, setDisplayedMiloContext] = useState<string | null>(null);
   const [tickerInputValue, setTickerInputValue] = useState('');
+
   const [showTakeProfit, setShowTakeProfit] = useState(false);
   const [takeProfitValue, setTakeProfitValue] = useState('');
+  const [takeProfitMode, setTakeProfitMode] = useState<'Price' | 'DollarAmount' | 'Percentage'>('Price');
+
   const [showStopLoss, setShowStopLoss] = useState(false);
   const [stopLossValue, setStopLossValue] = useState('');
 
@@ -114,6 +117,7 @@ export function OrderCard({
         setAllowExtendedHours(false);
         setShowTakeProfit(false);
         setTakeProfitValue('');
+        setTakeProfitMode('Price');
         setShowStopLoss(false);
         setStopLossValue('');
 
@@ -128,6 +132,7 @@ export function OrderCard({
         setAllowExtendedHours(false);
         setShowTakeProfit(false);
         setTakeProfitValue('');
+        setTakeProfitMode('Price');
         setShowStopLoss(false);
         setStopLossValue('');
       }
@@ -150,6 +155,7 @@ export function OrderCard({
       setAllowExtendedHours(false);
       setShowTakeProfit(false);
       setTakeProfitValue('');
+      setTakeProfitMode('Price');
       setShowStopLoss(false);
       setStopLossValue('');
       setDisplayedMiloContext(null);
@@ -306,9 +312,35 @@ export function OrderCard({
       tradeDetails.trailingOffset = parseFloat(trailingOffset);
     }
 
-    if (showTakeProfit && takeProfitValue && !isNaN(parseFloat(takeProfitValue)) && parseFloat(takeProfitValue) > 0) {
-      tradeDetails.takeProfit = parseFloat(takeProfitValue);
+    if (showTakeProfit && takeProfitValue && !isNaN(parseFloat(takeProfitValue))) {
+      const tpValue = parseFloat(takeProfitValue);
+      if (tpValue > 0) {
+        let calculatedTpPrice: number | undefined = undefined;
+        const entryPriceForCalc = (orderType === 'Limit' && limitPrice && !isNaN(parseFloat(limitPrice)))
+          ? parseFloat(limitPrice)
+          : selectedStock.price;
+
+        if (takeProfitMode === 'Price') {
+          calculatedTpPrice = tpValue;
+        } else if (takeProfitMode === 'DollarAmount') {
+          if (currentAction === 'Buy') {
+            calculatedTpPrice = entryPriceForCalc + (tpValue / finalSharesToSubmit); // Profit per share
+          } else { // Sell or Short
+            calculatedTpPrice = entryPriceForCalc - (tpValue / finalSharesToSubmit); // Profit per share
+          }
+        } else if (takeProfitMode === 'Percentage') {
+          if (currentAction === 'Buy') {
+            calculatedTpPrice = entryPriceForCalc * (1 + tpValue / 100);
+          } else { // Sell or Short
+            calculatedTpPrice = entryPriceForCalc * (1 - tpValue / 100);
+          }
+        }
+        if (calculatedTpPrice !== undefined && calculatedTpPrice > 0) {
+            tradeDetails.takeProfit = parseFloat(calculatedTpPrice.toFixed(2));
+        }
+      }
     }
+
     if (showStopLoss && stopLossValue && !isNaN(parseFloat(stopLossValue)) && parseFloat(stopLossValue) > 0) {
       tradeDetails.stopLoss = parseFloat(stopLossValue);
     }
@@ -325,6 +357,7 @@ export function OrderCard({
          setQuantityValue('');
          setTakeProfitValue('');
          setStopLossValue('');
+         setTakeProfitMode('Price');
       }
     }
   };
@@ -342,6 +375,7 @@ export function OrderCard({
          setQuantityValue('');
          setTakeProfitValue('');
          setStopLossValue('');
+         setTakeProfitMode('Price');
       }
     }
     setPendingTradeDetails(null);
@@ -512,8 +546,8 @@ export function OrderCard({
                     <TrendingDown className="mr-2 h-4 w-4" /> Short
                   </Button>
               </div>
-
-              <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_auto] gap-2 items-end">
+              
+              <div className="grid grid-cols-[1fr_1.2fr_auto] gap-2 items-end">
                 <div className="space-y-1.5">
                   <Label htmlFor="orderType" className="text-xs font-medium text-foreground">Order Type</Label>
                   <Select value={orderType} onValueChange={(value) => setOrderType(value as OrderSystemType)}>
@@ -542,7 +576,7 @@ export function OrderCard({
                   />
                 </div>
                  <div className="space-y-1.5">
-                    <Label className="text-xs font-medium text-transparent select-none">Mode</Label> {/* Spacer label */}
+                    <Label className="text-xs font-medium text-transparent select-none">Mode</Label>
                     <Button
                         variant="outline"
                         onClick={handleQuantityModeToggle}
@@ -628,7 +662,7 @@ export function OrderCard({
                   <Label htmlFor="takeProfitSwitch" className="font-medium text-foreground cursor-pointer flex items-center">
                     <Target className="h-4 w-4 mr-2 text-green-400" /> Take Profit
                   </Label>
-                  <p className="text-xs text-muted-foreground pl-6">Set a target price to secure gains.</p>
+                  <p className="text-xs text-muted-foreground pl-6">Set a target profit level.</p>
                 </div>
                 <Switch
                   id="takeProfitSwitch"
@@ -637,19 +671,39 @@ export function OrderCard({
                 />
               </div>
               {showTakeProfit && (
-                <div className="space-y-1.5 pl-3 mt-2">
-                  <Label htmlFor="takeProfitPriceInput" className="text-xs font-medium text-foreground flex items-center">
-                    Take Profit Price
-                  </Label>
-                  <Input
-                    id="takeProfitPriceInput"
-                    type="number"
-                    step="0.01"
-                    value={takeProfitValue}
-                    onChange={(e) => setTakeProfitValue(e.target.value)}
-                    placeholder=""
-                    className="bg-transparent h-9 text-xs"
-                  />
+                <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-2 items-end pl-3 mt-2">
+                  <div>
+                    <Label htmlFor="takeProfitModeSelect" className="text-xs font-medium text-foreground">
+                      Mode
+                    </Label>
+                    <Select
+                      value={takeProfitMode}
+                      onValueChange={(value) => setTakeProfitMode(value as 'Price' | 'DollarAmount' | 'Percentage')}
+                    >
+                      <SelectTrigger id="takeProfitModeSelect" className="h-9 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Price">Price</SelectItem>
+                        <SelectItem value="DollarAmount">$ Amount</SelectItem>
+                        <SelectItem value="Percentage">% Gain</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="takeProfitValueInput" className="text-xs font-medium text-foreground">
+                      {takeProfitMode === 'Price' ? 'Target Price' : takeProfitMode === 'DollarAmount' ? 'Profit Amount ($)' : 'Gain (%)'}
+                    </Label>
+                    <Input
+                      id="takeProfitValueInput"
+                      type="number"
+                      step={takeProfitMode === 'Price' ? '0.01' : takeProfitMode === 'DollarAmount' ? '0.01' : '0.1'}
+                      value={takeProfitValue}
+                      onChange={(e) => setTakeProfitValue(e.target.value)}
+                      placeholder=""
+                      className="bg-transparent h-9 text-xs"
+                    />
+                  </div>
                 </div>
               )}
 
