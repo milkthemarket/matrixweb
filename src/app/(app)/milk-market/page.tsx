@@ -138,7 +138,7 @@ function MilkMarketPageContent() {
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
-                className="flex-1 min-h-0" 
+                className="h-[420px] shrink-0" 
               />
             </div>
 
@@ -150,8 +150,9 @@ function MilkMarketPageContent() {
               />
             </div>
 
-            {/* Col 3, Row 1: Order Panel (Right) */}
-            <div className="flex flex-col h-full md:row-start-1 md:col-start-3">
+            {/* Col 3, Row 1 & 2: Right Panel (OrderCard, OpenPositionsCard) */}
+            {/* This div needs to span two rows to match the conceptual height of Chart+News */}
+            <div className="flex flex-col h-full md:row-span-2 md:col-start-3 space-y-4 md:space-y-6">
                 <OrderCard
                     selectedStock={rightOrderCardSelectedStock}
                     initialActionType={rightOrderCardActionType}
@@ -165,16 +166,12 @@ function MilkMarketPageContent() {
                     initialLimitPrice={rightOrderCardInitialLimitPrice}
                     className="flex-1 min-h-0" 
                 />
+                <OpenPositionsCard className="h-96 shrink-0" /> 
             </div>
             
-            {/* Col 1 & 2, Row 2: News Card */}
+            {/* Col 1 & 2, Row 2: News Card (Spanning under Watchlist and Chart) */}
             <div className="flex flex-col h-full md:row-start-2 md:col-start-1 md:col-span-2">
               <NewsCard className="h-full md:h-96" />
-            </div>
-
-            {/* Col 3, Row 2: Open Positions */}
-            <div className="flex flex-col h-full md:row-start-2 md:col-start-3">
-                <OpenPositionsCard className="h-full md:h-96" /> 
             </div>
 
           </div>
