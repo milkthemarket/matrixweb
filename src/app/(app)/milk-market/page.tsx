@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo, Suspense, useCallback } from 'react';
-import { PageHeader } from "@/components/PageHeader";
+// import { PageHeader } from "@/components/PageHeader"; // No longer needed
 import type { Stock, TradeRequest, OrderActionType, TradeMode, Account, OrderSystemType } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
@@ -132,10 +132,10 @@ function MilkMarketPageContent() {
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <PageHeader title="Milk Market" />
+      {/* <PageHeader title="Milk Market" /> Removed */}
       <ScrollArea className="flex-1"> 
         <div className="p-4 md:p-6">
-          {/* Main Grid - Updated rows to [auto_1fr_auto] */}
+          {/* Main Grid */}
           <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] md:grid-rows-[auto_1fr_auto] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
             
             {/* Row 1: New Cards */}
@@ -154,7 +154,7 @@ function MilkMarketPageContent() {
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
-                className="flex-1 min-h-0" 
+                className="flex-1 min-h-0"
               />
             </div>
             <div className="flex flex-col h-full md:row-start-2 md:col-start-2">
@@ -204,4 +204,3 @@ export default function MilkMarketPage() {
 }
 
     
-
