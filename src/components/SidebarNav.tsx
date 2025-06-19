@@ -13,9 +13,9 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, ChevronLeft, ChevronRight, GraduationCap, Lightbulb, SlidersHorizontal, Megaphone, Store, ArchiveX } from "lucide-react";
+import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, GraduationCap, Lightbulb, SlidersHorizontal, Megaphone, Store, ArchiveX } from "lucide-react"; // Removed ChevronLeft, ChevronRight
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button"; // Button is not needed if toggle is removed
 
 const navItems = [
   { href: "/dashboard", label: "Screener", icon: LayoutDashboard },
@@ -52,37 +52,19 @@ const CowIcon = ({ size = 28, color = "currentColor", ...props }) => {
 
 export function SidebarNav() {
   const pathname = usePathname();
-  const { open, toggleSidebar, isMobile, state } = useSidebar();
+  const { open, state } = useSidebar(); // Removed toggleSidebar and isMobile as desktop toggle is gone
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon"> {/* collapsible="icon" ensures it can be in icon mode */}
       <SidebarHeader className="p-3">
         <div className={cn(
-          "flex w-full",
-          "group-data-[state=expanded]:flex-row group-data-[state=expanded]:items-center group-data-[state=expanded]:justify-between",
-          "group-data-[state=collapsed]:flex-col group-data-[state=collapsed]:items-center group-data-[state=collapsed]:gap-2"
+          "flex w-full items-center justify-center" // Always center for icon-only
         )}>
-          <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 group-data-[state=collapsed]:justify-center hover:opacity-80 transition-opacity duration-150">
+          <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 justify-center hover:opacity-80 transition-opacity duration-150">
             <CowIcon size={28} className="text-white flex-shrink-0" />
-            {open && state === 'expanded' && (
-              <span className="text-2xl font-bold text-[#E5E5E5] tracking-widest font-headline truncate">M.I.L.K.</span>
-            )}
+            {/* Text label is removed as sidebar is always icon-only on desktop */}
           </Link>
-          {!isMobile && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className={cn(
-                "h-7 w-7 text-muted-foreground hover:text-primary shrink-0",
-                "hover:shadow-[0_0_4px_hsla(var(--primary),0.5)] focus-visible:shadow-[0_0_4px_hsla(var(--primary),0.5)] focus-visible:outline-none transition-shadow duration-150"
-              )}
-              aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
-              tabIndex={0}
-            >
-              {open ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
-            </Button>
-          )}
+          {/* Desktop expand/collapse button removed */}
         </div>
       </SidebarHeader>
 
@@ -96,9 +78,11 @@ export function SidebarNav() {
                   <SidebarMenuButton
                     variant="default"
                     isActive={isActive}
-                    tooltip={{ children: item.label }}
+                    tooltip={{ children: item.label }} // Tooltip will show on hover
                   >
                     <item.icon className={cn("h-5 w-5", isActive ? "text-sidebar-primary" : "text-muted-foreground group-hover:text-sidebar-accent-foreground")} />
+                    {/* Text label below is conditional on 'open && state === "expanded"' */}
+                    {/* Since 'open' will be false and 'state' will be 'collapsed' on desktop from context, this won't render */}
                     {open && state === 'expanded' && (
                       <span className="text-base font-semibold tracking-wide">{item.label}</span>
                     )}
@@ -110,6 +94,8 @@ export function SidebarNav() {
         </SidebarMenu>
       </SidebarContent>
 
+      {/* Footer is also conditional on 'open && state === "expanded"' or a similar check in SidebarFooter component */}
+      {/* If SidebarFooter hides itself when collapsed, this will also not show */}
       {open && state ==='expanded' && (
         <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden flex flex-col space-y-1 items-start">
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} M.I.L.K.</p>
@@ -121,4 +107,3 @@ export function SidebarNav() {
     </Sidebar>
   );
 }
-
