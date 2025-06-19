@@ -5,8 +5,8 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import type { Stock } from '@/types';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart as RechartsAreaChart, Area, BarChart as RechartsBarChart, Bar } from 'recharts';
-import { AreaChart as AreaIcon, CandlestickChart, Minus, Plus, Activity } from 'lucide-react'; // Removed BarChart3
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart as RechartsAreaChart, Area } from 'recharts';
+import { AreaChart as AreaIcon, CandlestickChart, Minus, Plus, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface InteractiveChartCardProps {
@@ -34,16 +34,16 @@ const generateMockPriceData = (basePrice: number, numPoints = 50) => {
 };
 
 export function InteractiveChartCard({ stock, className }: InteractiveChartCardProps) {
-  const [chartType, setChartType] = useState<'line' | 'area' | 'candle'>('line'); // Removed 'bar'
+  const [chartType, setChartType] = useState<'line' | 'area' | 'candle'>('line');
   const [timeframe, setTimeframe] = useState<'1D' | '5D' | '1M' | '6M' | '1Y' | 'MAX'>('1M');
 
   const chartData = React.useMemo(() => {
     const basePrice = stock?.price || 50 + Math.random() * 200;
     let numPoints = 30; // Default for 1M
-    if (timeframe === '1D') numPoints = 10; // Fewer points for 1D for distinctness
+    if (timeframe === '1D') numPoints = 10; 
     if (timeframe === '5D') numPoints = 20;
     if (timeframe === '6M') numPoints = 180;
-    if (timeframe === '1Y') numPoints = 252; // Trading days
+    if (timeframe === '1Y') numPoints = 252; 
     if (timeframe === 'MAX') numPoints = 500;
 
     if (stock?.historicalPrices && stock.historicalPrices.length >= numPoints) {
@@ -55,8 +55,10 @@ export function InteractiveChartCard({ stock, className }: InteractiveChartCardP
     return generateMockPriceData(basePrice, numPoints);
   }, [stock, timeframe]);
 
-  const strokeColor = stock && stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))";
-  const fillColor = stock && stock.changePercent >= 0 ? "hsla(var(--chart-2), 0.2)" : "hsla(var(--chart-5), 0.2)";
+  const dynamicStrokeColor = stock && stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))";
+  // const dynamicFillColor = stock && stock.changePercent >= 0 ? "hsla(var(--chart-2), 0.2)" : "hsla(var(--chart-5), 0.2)"; // Not directly used anymore for area chart
+
+  const neonPurpleColor = "hsl(var(--primary))";
 
 
   return (
@@ -77,7 +79,7 @@ export function InteractiveChartCard({ stock, className }: InteractiveChartCardP
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-1 p-2 pr-4 min-h-[300px]"> {/* Ensure content can grow */}
+      <CardContent className="flex-1 p-2 pr-4 min-h-[300px]">
         {stock ? (
           <ResponsiveContainer width="100%" height="100%">
             {chartType === 'line' && (
@@ -95,18 +97,18 @@ export function InteractiveChartCard({ stock, className }: InteractiveChartCardP
                     boxShadow: '0 4px 12px hsla(var(--background), 0.1)',
                   }}
                   labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', marginBottom: '4px' }}
-                  itemStyle={{ color: strokeColor }}
+                  itemStyle={{ color: dynamicStrokeColor }}
                   formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
                 />
-                <Line type="monotone" dataKey="price" stroke={strokeColor} strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="price" stroke={dynamicStrokeColor} strokeWidth={2} dot={false} />
               </LineChart>
             )}
             {chartType === 'area' && (
                  <RechartsAreaChart data={chartData}>
                     <defs>
-                        <linearGradient id={`colorPrice-${stock.id}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor={strokeColor} stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor={strokeColor} stopOpacity={0.05}/>
+                        <linearGradient id={`colorPriceAreaPurple-${stock.id}`} x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor={neonPurpleColor} stopOpacity={0.65}/>
+                          <stop offset="95%" stopColor={neonPurpleColor} stopOpacity={0.05}/>
                         </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
@@ -122,13 +124,12 @@ export function InteractiveChartCard({ stock, className }: InteractiveChartCardP
                             boxShadow: '0 4px 12px hsla(var(--background), 0.1)',
                         }}
                         labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', marginBottom: '4px' }}
-                        itemStyle={{ color: strokeColor }}
+                        itemStyle={{ color: neonPurpleColor }}
                         formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
                     />
-                    <Area type="monotone" dataKey="price" stroke={strokeColor} strokeWidth={2} fillOpacity={1} fill={`url(#colorPrice-${stock.id})`} dot={false}/>
+                    <Area type="monotone" dataKey="price" stroke={neonPurpleColor} strokeWidth={2} fillOpacity={1} fill={`url(#colorPriceAreaPurple-${stock.id})`} dot={false}/>
                 </RechartsAreaChart>
             )}
-            {/* Bar chart option removed */}
             {chartType === 'candle' && (
               <div className="flex items-center justify-center h-full text-muted-foreground">
                 Candlestick chart type coming soon for {stock.symbol}.
@@ -150,9 +151,8 @@ export function InteractiveChartCard({ stock, className }: InteractiveChartCardP
         ))}
         <div className="w-full sm:w-auto border-l border-border/[.1] h-6 sm:h-auto sm:mx-2 my-1 sm:my-0 hidden sm:block"></div>
         {[
-          { type: 'line', label: 'Line', Icon: AreaIcon },
+          { type: 'line', label: 'Line', Icon: AreaIcon }, // Using AreaIcon for Line as well for visual consistency
           { type: 'area', label: 'Area', Icon: AreaIcon },
-          // { type: 'bar', label: 'Bar', Icon: BarChart3 }, // Bar option removed
           { type: 'candle', label: 'Candle', Icon: CandlestickChart },
         ].map(({ type, label, Icon }) => (
           <Button key={type} variant={chartType === type ? "default" : "outline"} size="sm" onClick={() => setChartType(type as any)} className="h-7 text-xs px-2.5">
