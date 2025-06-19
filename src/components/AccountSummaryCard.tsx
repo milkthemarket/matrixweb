@@ -25,7 +25,7 @@ const DetailItem: React.FC<{ label: string; value: string | number; icon?: React
 );
 
 const getAccountIcon = (type?: Account['type']) => {
-    if (!type) return <Wallet className="h-4 w-4 text-primary" />; // Fallback icon
+    if (!type) return <Wallet className="h-4 w-4 text-primary" />; 
     if (type === 'margin') return <Briefcase className="h-4 w-4 text-primary" />;
     if (type === 'ira') return <Landmark className="h-4 w-4 text-primary" />;
     if (type === 'paper') return <NotebookText className="h-4 w-4 text-primary" />;
@@ -38,21 +38,20 @@ export function AccountSummaryCard({ className }: AccountSummaryCardProps) {
   const selectedAccount = accounts.find(acc => acc.id === selectedAccountId);
 
   return (
-    <Card className={cn("shadow-none h-full", className)}>
+    <Card className={cn("shadow-none flex flex-col", className)}> {/* Added flex flex-col */}
       <CardHeader className="py-3 px-4">
-        {/* Removed CardTitle and icon for "Active Account" */}
         <div className="flex items-center gap-2">
             <Label htmlFor="accountSelectGlobal" className="text-xs font-medium text-muted-foreground shrink-0 sr-only">
                 Select Account:
             </Label>
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-            <SelectTrigger id="accountSelectGlobal" className="flex-1 h-9 text-sm" aria-label="Select active account"> {/* Increased text size slightly */}
+            <SelectTrigger id="accountSelectGlobal" className="flex-1 h-9 text-sm" aria-label="Select active account">
                 {selectedAccount && getAccountIcon(selectedAccount.type)}
                 <SelectValue placeholder="Select account..." />
             </SelectTrigger>
             <SelectContent>
                 {accounts.map(acc => (
-                <SelectItem key={acc.id} value={acc.id} className="text-sm"> {/* Increased text size slightly */}
+                <SelectItem key={acc.id} value={acc.id} className="text-sm">
                     <div className="flex items-center gap-2">
                     {getAccountIcon(acc.type)}
                     <span>{acc.label} ({acc.number})</span>
@@ -63,11 +62,11 @@ export function AccountSummaryCard({ className }: AccountSummaryCardProps) {
             </Select>
         </div>
       </CardHeader>
-      <CardContent className="p-4 pt-2"> {/* Adjusted pt slightly */}
+      <CardContent className="p-4 pt-2 flex-1 overflow-y-auto"> {/* Added flex-1 and overflow-y-auto */}
         {selectedAccount ? (
-          <div className="space-y-2">
+          <div className="space-y-1"> {/* Reduced space-y */}
             <DetailItem
-              label="Available to Trade"
+              label="Available" // Shortened label
               value={`$${selectedAccount.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
               icon={<DollarSign />}
             />
@@ -78,7 +77,7 @@ export function AccountSummaryCard({ className }: AccountSummaryCardProps) {
             />
           </div>
         ) : (
-          <div className="h-[68px] flex items-center justify-center text-sm text-muted-foreground">
+          <div className="h-full flex items-center justify-center text-sm text-muted-foreground"> {/* Ensure it fills height */}
             No account selected or found.
           </div>
         )}
@@ -86,4 +85,3 @@ export function AccountSummaryCard({ className }: AccountSummaryCardProps) {
     </Card>
   );
 }
-

@@ -13,7 +13,7 @@ import { WatchlistCard } from '@/components/WatchlistCard';
 import { NewsCard } from '@/components/NewsCard';
 import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { OrderBookCard } from '@/components/OrderBookCard'; // Import new OrderBookCard
+import { OrderBookCard } from '@/components/OrderBookCard'; 
 
 import { RecentAlertsCard } from '@/components/RecentAlertsCard';
 import { DayTradingFundamentalsCard } from '@/components/DayTradingFundamentalsCard'; 
@@ -136,14 +136,14 @@ function MilkMarketPageContent() {
           <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
             
             {/* Row 1: Top Info Cards */}
-            <div className="flex flex-col md:col-start-1">
-              <RecentAlertsCard className="h-full min-h-[60px]" />
+            <div className="flex flex-col md:col-start-1 h-[72px]"> {/* Added fixed height */}
+              <RecentAlertsCard className="flex-1" /> {/* Changed to flex-1 to fill parent */}
             </div>
-            <div className="flex flex-col md:col-start-2">
-              <DayTradingFundamentalsCard stock={leftWatchlistSelectedStock} className="h-full min-h-[60px]" />
+            <div className="flex flex-col md:col-start-2 h-[72px]"> {/* Added fixed height */}
+              <DayTradingFundamentalsCard stock={leftWatchlistSelectedStock} className="flex-1" /> {/* Changed to flex-1 */}
             </div>
-            <div className="flex flex-col md:col-start-3">
-              <AccountSummaryCard className="h-full min-h-[60px]" />
+            <div className="flex flex-col md:col-start-3 h-[72px]"> {/* Added fixed height */}
+              <AccountSummaryCard className="flex-1" /> {/* Changed to flex-1 */}
             </div>
 
             {/* Row 2: Watchlist, Chart, OrderPanel */}

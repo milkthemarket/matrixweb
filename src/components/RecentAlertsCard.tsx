@@ -61,16 +61,16 @@ export function RecentAlertsCard({ className }: RecentAlertsCardProps) {
   };
 
   return (
-    <Card className={cn("shadow-none", className)}>
+    <Card className={cn("shadow-none flex flex-col", className)}>
       <CardHeader className="py-3 px-4">
         <CardTitle className="text-base font-headline flex items-center text-foreground">
           <BellRing className="mr-2 h-4 w-4 text-primary" />
           Recent Alerts
         </CardTitle>
       </CardHeader>
-      <CardContent className="p-0">
+      <CardContent className="p-0 flex-1 overflow-hidden">
         {recentAlerts.length > 0 ? (
-          <ScrollArea className="h-[160px]"> {/* Fixed height for ~5 items */}
+          <ScrollArea className="h-[48px]"> {/* Reduced height for approx 1 item */}
             <ul className="space-y-0">
               {recentAlerts.map((alert) => (
                 <li
@@ -103,7 +103,7 @@ export function RecentAlertsCard({ className }: RecentAlertsCardProps) {
             </ul>
           </ScrollArea>
         ) : (
-          <div className="h-[160px] flex items-center justify-center text-sm text-muted-foreground p-4 text-center">
+          <div className="h-[48px] flex items-center justify-center text-sm text-muted-foreground p-4 text-center">
             No recent alerts for your watchlist.
           </div>
         )}

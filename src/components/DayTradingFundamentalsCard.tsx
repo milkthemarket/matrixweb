@@ -57,17 +57,17 @@ export function DayTradingFundamentalsCard({ stock, className }: DayTradingFunda
 
   if (!stock) {
     return (
-      <Card className={cn("shadow-none", className)}>
-        <CardContent className="p-3 h-[60px] flex items-center justify-center">
-          <p className="text-xs text-muted-foreground text-center">Select a stock to view day trading fundamentals.</p>
+      <Card className={cn("shadow-none flex flex-col justify-center", className)}> {/* Added flex flex-col justify-center */}
+        <CardContent className="p-3 text-center"> {/* Ensure content is centered */}
+          <p className="text-xs text-muted-foreground">Select a stock to view day trading fundamentals.</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className={cn("shadow-none", className)}>
-      <CardContent className="p-2">
+    <Card className={cn("shadow-none flex flex-col", className)}> {/* Added flex flex-col */}
+      <CardContent className="p-2 flex-1 overflow-y-auto"> {/* Added flex-1 and overflow-y-auto to content */}
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-9 gap-x-2 gap-y-1.5 items-start">
           <MetricItem
             label="Price"
@@ -126,7 +126,6 @@ export function DayTradingFundamentalsCard({ stock, className }: DayTradingFunda
             valueClass={isEarningsDateSoon ? "text-yellow-400 font-bold" : ""}
             description="Next Earnings Date"
           />
-          {/* VWAP could be here */}
            <MetricItem
             label="VWAP"
             icon={<Zap />}
