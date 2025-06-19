@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo, Suspense, useCallback } from 'react';
 import { PageHeader } from "@/components/PageHeader";
-import type { Stock, TradeRequest, OrderActionType, TradeMode, Account } from "@/types";
+import type { Stock, TradeRequest, OrderActionType, TradeMode, Account, OrderSystemType } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
@@ -11,8 +11,8 @@ import { OrderCard } from '@/components/OrderCard';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
 import { InteractiveChartCard } from '@/components/InteractiveChartCard';
 import { WatchlistCard } from '@/components/WatchlistCard';
-import { NewsCard } from '@/components/NewsCard'; 
-import { initialMockStocks } from '@/app/(app)/dashboard/page'; 
+import { NewsCard } from '@/components/NewsCard';
+import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 function MilkMarketPageContent() {
@@ -28,13 +28,13 @@ function MilkMarketPageContent() {
   const [rightOrderCardMiloActionContext, setRightOrderCardMiloActionContext] = useState<string | null>(null);
   
   const [rightOrderCardInitialQuantity, setRightOrderCardInitialQuantity] = useState<string | undefined>(undefined);
-  const [rightOrderCardInitialOrderType, setRightOrderCardInitialOrderType] = useState<OrderActionType | undefined>(undefined);
+  const [rightOrderCardInitialOrderType, setRightOrderCardInitialOrderType] = useState<OrderSystemType | undefined>(undefined);
   const [rightOrderCardInitialLimitPrice, setRightOrderCardInitialLimitPrice] = useState<string | undefined>(undefined);
 
 
   const handleWatchlistStockSelection = useCallback((stock: Stock) => {
     setLeftWatchlistSelectedStock(stock);
-    // When a stock is selected from the left watchlist, also update the right order card.
+    // Update the right order card when a stock is selected from the left watchlist.
     setRightOrderCardSelectedStock(stock);
     setRightOrderCardActionType(null);
     setRightOrderCardInitialTradeMode(undefined);
@@ -42,7 +42,6 @@ function MilkMarketPageContent() {
     setRightOrderCardInitialQuantity(undefined);
     setRightOrderCardInitialOrderType(undefined);
     setRightOrderCardInitialLimitPrice(undefined);
-
   }, []);
 
   const handleRightTradeSubmit = (tradeDetails: TradeRequest) => {
@@ -126,16 +125,15 @@ function MilkMarketPageContent() {
     }
   };
 
-
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Milk Market" />
       <ScrollArea className="flex-1"> 
-        <div className="p-4 md:p-6 h-full"> 
-          <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-4 md:gap-6 h-full">
+        <div className="p-4 md:p-6"> {/* Removed h-full to let content define height */}
+          <div className="grid grid-cols-1 md:grid-cols-[minmax(280px,20rem)_1fr_minmax(280px,26rem)] gap-x-4 md:gap-x-6 gap-y-4 md:gap-y-6">
             
-            {/* Left Column */}
-            <div className="hidden md:flex flex-col h-full min-h-0">
+            {/* Left Column (Watchlist) - Row 1, Col 1 */}
+            <div className="hidden md:flex flex-col min-h-0">
               <WatchlistCard 
                 selectedStockSymbol={leftWatchlistSelectedStock?.symbol || null} 
                 onSelectStock={handleWatchlistStockSelection} 
@@ -143,17 +141,16 @@ function MilkMarketPageContent() {
               />
             </div>
 
-            {/* Center Column */}
-            <div className="flex flex-col h-full min-h-0 space-y-4 md:space-y-6">
+            {/* Center Column (Chart) - Row 1, Col 2 */}
+            <div className="flex flex-col min-h-0">
               <InteractiveChartCard 
                 stock={leftWatchlistSelectedStock} 
-                className="flex-1 min-h-0" 
+                className="h-full" 
               />
-              <NewsCard className="h-72 shrink-0" />
             </div>
 
-            {/* Right Column */}
-            <div className="flex flex-col h-full min-h-0 space-y-6 pr-0 md:pr-1">
+            {/* Right Column (OrderPanel + OpenPositions) - Row 1, Col 3, Spans 2 Rows */}
+            <div className="md:row-span-2 flex flex-col min-h-0 space-y-6 pr-0 md:pr-1">
               <OrderCard
                 selectedStock={rightOrderCardSelectedStock}
                 initialActionType={rightOrderCardActionType}
@@ -163,11 +160,22 @@ function MilkMarketPageContent() {
                 onClear={handleRightClearOrderCard}
                 onStockSymbolSubmit={handleRightStockSymbolSubmitFromOrderCard}
                 initialQuantity={rightOrderCardInitialQuantity}
-                initialOrderType={rightOrderCardInitialOrderType as any} // Cast as any if type mismatch
+                initialOrderType={rightOrderCardInitialOrderType}
                 initialLimitPrice={rightOrderCardInitialLimitPrice}
               />
               <OpenPositionsCard />
             </div>
+
+            {/* News Card - Row 2, Col 1, Spans 2 Columns */}
+            <div className="md:col-span-2">
+              <NewsCard className="h-72" /> {/* Fixed height for NewsCard */}
+            </div>
+            
+            {/* Empty placeholder for Row 2, Col 3 to maintain grid balance if NewsCard doesn't take full available space, or if an element was there */}
+            {/* This can be omitted if col-span on NewsCard and row-span on RightPanel is enough */}
+             <div className="hidden md:block"></div>
+
+
           </div>
         </div>
       </ScrollArea>
