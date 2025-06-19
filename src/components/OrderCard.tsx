@@ -181,16 +181,20 @@ export function OrderCard({
     setCurrentAction(action);
   };
 
-  const handleQuantityModeChange = (mode: QuantityInputMode) => {
-    setQuantityMode(mode);
+  const handleQuantityModeToggle = () => {
+    setQuantityMode(prevMode => {
+      if (prevMode === 'Shares') return 'DollarAmount';
+      if (prevMode === 'DollarAmount') return 'PercentOfBuyingPower';
+      return 'Shares';
+    });
     setQuantityValue('');
     quantityInputRef.current?.focus();
   };
 
   const getQuantityInputPlaceholder = () => {
     if (quantityMode === 'Shares') return "e.g., 100";
-    if (quantityMode === 'DollarAmount') return "e.g., $200";
-    if (quantityMode === 'PercentOfBuyingPower') return "e.g., 10";
+    if (quantityMode === 'DollarAmount') return "$ e.g., 200";
+    if (quantityMode === 'PercentOfBuyingPower') return "% e.g., 10";
     return "";
   };
 
@@ -420,6 +424,10 @@ export function OrderCard({
   const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
   const inactiveModeClass = "bg-transparent text-muted-foreground hover:bg-white/5";
 
+  let quantityToggleText = 'Shares';
+  if (quantityMode === 'DollarAmount') quantityToggleText = '$';
+  else if (quantityMode === 'PercentOfBuyingPower') quantityToggleText = '%';
+
 
   return (
     <>
@@ -505,51 +513,47 @@ export function OrderCard({
                   </Button>
               </div>
 
-              <div className="space-y-1.5">
-                <Label htmlFor="quantityValue" className="text-sm font-medium text-foreground">
-                  Quantity
-                </Label>
-                <div className="flex items-stretch space-x-1">
-                  <Input
+              <div className="grid grid-cols-[minmax(0,1.2fr)_minmax(0,1.8fr)_auto] gap-2 items-end">
+                <div className="space-y-1.5">
+                  <Label htmlFor="orderType" className="text-xs font-medium text-foreground">Order Type</Label>
+                  <Select value={orderType} onValueChange={(value) => setOrderType(value as OrderSystemType)}>
+                    <SelectTrigger id="orderType" className="h-9 text-xs">
+                      <SelectValue placeholder="Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Market">Market</SelectItem>
+                      <SelectItem value="Limit">Limit</SelectItem>
+                      <SelectItem value="Stop">Stop</SelectItem>
+                      <SelectItem value="Stop Limit">Stop Limit</SelectItem>
+                      <SelectItem value="Trailing Stop">Trailing Stop</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                   <Label htmlFor="quantityValue" className="text-xs font-medium text-foreground">Quantity</Label>
+                   <Input
                     ref={quantityInputRef}
                     id="quantityValue"
                     type="number"
                     value={quantityValue}
                     onChange={(e) => setQuantityValue(e.target.value)}
                     placeholder={getQuantityInputPlaceholder()}
-                    className="flex-1 h-9 bg-transparent px-3 py-2 focus-visible:ring-ring"
+                    className="h-9 bg-transparent px-3 py-2 focus-visible:ring-ring text-xs"
                   />
-                  <Button
-                    variant={quantityMode === 'Shares' ? 'default' : 'outline'}
-                    onClick={() => handleQuantityModeChange('Shares')}
-                    className="h-9 px-3 text-xs"
-                    size="sm"
-                    title="Enter number of shares"
-                  >
-                    Shares
-                  </Button>
-                  <Button
-                    variant={quantityMode === 'DollarAmount' ? 'default' : 'outline'}
-                    onClick={() => handleQuantityModeChange('DollarAmount')}
-                    className="h-9 px-3 text-xs"
-                    size="sm"
-                    title="Enter total dollar amount for trade"
-                  >
-                    <DollarSign className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant={quantityMode === 'PercentOfBuyingPower' ? 'default' : 'outline'}
-                    onClick={() => handleQuantityModeChange('PercentOfBuyingPower')}
-                    className="h-9 px-3 text-xs"
-                    size="sm"
-                    title="Enter percent of buying power to use"
-                  >
-                    <Percent className="h-3 w-3" />
-                  </Button>
+                </div>
+                <div className="space-y-1.5">
+                    <Label className="text-xs font-medium text-transparent select-none">Mode</Label> {/* Spacer label */}
+                    <Button
+                        variant="outline"
+                        onClick={handleQuantityModeToggle}
+                        className="h-9 px-3 text-xs w-full"
+                        title={`Current mode: ${quantityMode}. Click to change.`}
+                    >
+                        {quantityToggleText}
+                    </Button>
                 </div>
               </div>
-
-              {validationMessage && !isValidQuantity && quantityValue && (
+               {validationMessage && !isValidQuantity && quantityValue && (
                 <p className="text-xs text-destructive mt-1">{validationMessage}</p>
               )}
 
@@ -566,67 +570,56 @@ export function OrderCard({
                 </div>
               )}
 
-
-              <div className="space-y-1.5">
-                <Label htmlFor="orderType" className="text-sm font-medium text-foreground">Order Type</Label>
-                <Select value={orderType} onValueChange={(value) => setOrderType(value as OrderSystemType)}>
-                  <SelectTrigger id="orderType"><SelectValue placeholder="Select order type" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Market">Market</SelectItem><SelectItem value="Limit">Limit</SelectItem>
-                    <SelectItem value="Stop">Stop</SelectItem><SelectItem value="Stop Limit">Stop Limit</SelectItem>
-                    <SelectItem value="Trailing Stop">Trailing Stop</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {orderType === 'Limit' && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="allowExtendedHours" className="text-sm font-medium text-foreground">
-                     <Clock4 className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Extended Hours
+              <div className="grid grid-cols-2 gap-2 mt-3">
+                {orderType === 'Limit' && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="allowExtendedHours" className="text-xs font-medium text-foreground">
+                      Extended Hours
+                    </Label>
+                    <Select
+                      value={allowExtendedHours ? 'yes' : 'no'}
+                      onValueChange={(value) => setAllowExtendedHours(value === 'yes')}
+                    >
+                      <SelectTrigger id="allowExtendedHours" className="h-9 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="no">No</SelectItem>
+                        <SelectItem value="yes">Yes</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                <div className={cn("space-y-1.5", orderType !== 'Limit' && "col-span-2")}>
+                  <Label htmlFor="timeInForce" className="text-xs font-medium text-foreground">
+                    Time-in-Force
                   </Label>
-                  <Select
-                    value={allowExtendedHours ? 'yes' : 'no'}
-                    onValueChange={(value) => setAllowExtendedHours(value === 'yes')}
-                  >
-                    <SelectTrigger id="allowExtendedHours"><SelectValue /></SelectTrigger>
+                  <Select value={timeInForce} onValueChange={(value) => setTimeInForce(value)}>
+                    <SelectTrigger id="timeInForce" className="h-9 text-xs"><SelectValue placeholder="Select TIF" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="no">No</SelectItem>
-                      <SelectItem value="yes">Yes</SelectItem>
+                      <SelectItem value="Day">Day</SelectItem>
+                      <SelectItem value="GTC">Good-Til-Canceled (GTC)</SelectItem>
+                      <SelectItem value="IOC">Immediate or Cancel (IOC)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-              )}
-
-              <div className="space-y-1.5">
-                <Label htmlFor="timeInForce" className="text-sm font-medium text-foreground">
-                  <Clock4 className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Time-in-Force
-                </Label>
-                <Select value={timeInForce} onValueChange={(value) => setTimeInForce(value)}>
-                  <SelectTrigger id="timeInForce"><SelectValue placeholder="Select TIF" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Day">Day</SelectItem>
-                    <SelectItem value="GTC">Good-Til-Canceled (GTC)</SelectItem>
-                    <SelectItem value="IOC">Immediate or Cancel (IOC)</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
 
+
               {(orderType === 'Limit' || orderType === 'Stop Limit') && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="limitPrice" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Limit Price</Label>
-                  <Input id="limitPrice" type="number" step="0.01" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} placeholder="e.g., 150.50" className="bg-transparent" />
+                <div className="space-y-1.5 mt-3">
+                  <Label htmlFor="limitPrice" className="text-xs font-medium text-foreground">Limit Price</Label>
+                  <Input id="limitPrice" type="number" step="0.01" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} placeholder="e.g., 150.50" className="bg-transparent text-xs h-9" />
                 </div>
               )}
               {(orderType === 'Stop' || orderType === 'Stop Limit') && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="stopPrice" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Stop Price</Label>
-                  <Input id="stopPrice" type="number" step="0.01" value={stopPrice} onChange={(e) => setStopPrice(e.target.value)} placeholder="e.g., 149.00" className="bg-transparent"/>
+                <div className="space-y-1.5 mt-3">
+                  <Label htmlFor="stopPrice" className="text-xs font-medium text-foreground">Stop Price</Label>
+                  <Input id="stopPrice" type="number" step="0.01" value={stopPrice} onChange={(e) => setStopPrice(e.target.value)} placeholder="e.g., 149.00" className="bg-transparent text-xs h-9"/>
                 </div>
               )}
               {orderType === 'Trailing Stop' && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="trailingOffset" className="text-sm font-medium text-foreground"><DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Trailing Offset ($ or % points)</Label>
-                  <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="e.g., 1.5 (for $1.50 or 1.5%)" className="bg-transparent"/>
+                <div className="space-y-1.5 mt-3">
+                  <Label htmlFor="trailingOffset" className="text-xs font-medium text-foreground">Trailing Offset ($ or %)</Label>
+                  <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="e.g., 1.5" className="bg-transparent text-xs h-9"/>
                 </div>
               )}
 
@@ -645,8 +638,8 @@ export function OrderCard({
               </div>
               {showTakeProfit && (
                 <div className="space-y-1.5 pl-3 mt-2">
-                  <Label htmlFor="takeProfitPriceInput" className="text-sm font-medium text-foreground flex items-center">
-                    <DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Take Profit Price
+                  <Label htmlFor="takeProfitPriceInput" className="text-xs font-medium text-foreground flex items-center">
+                    Take Profit Price
                   </Label>
                   <Input
                     id="takeProfitPriceInput"
@@ -655,7 +648,7 @@ export function OrderCard({
                     value={takeProfitValue}
                     onChange={(e) => setTakeProfitValue(e.target.value)}
                     placeholder="e.g., 155.00"
-                    className="bg-transparent"
+                    className="bg-transparent h-9 text-xs"
                   />
                 </div>
               )}
@@ -675,8 +668,8 @@ export function OrderCard({
               </div>
               {showStopLoss && (
                 <div className="space-y-1.5 pl-3 mt-2">
-                  <Label htmlFor="stopLossPriceInput" className="text-sm font-medium text-foreground flex items-center">
-                    <DollarSign className="inline-block mr-1 h-4 w-4 text-muted-foreground" /> Stop Loss Price
+                  <Label htmlFor="stopLossPriceInput" className="text-xs font-medium text-foreground flex items-center">
+                    Stop Loss Price
                   </Label>
                   <Input
                     id="stopLossPriceInput"
@@ -685,10 +678,11 @@ export function OrderCard({
                     value={stopLossValue}
                     onChange={(e) => setStopLossValue(e.target.value)}
                     placeholder="e.g., 145.00"
-                    className="bg-transparent"
+                    className="bg-transparent h-9 text-xs"
                   />
                 </div>
               )}
+
 
             </>
           )}
@@ -779,3 +773,4 @@ export function OrderCard({
     </>
   );
 }
+
