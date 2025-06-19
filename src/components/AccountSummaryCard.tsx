@@ -38,15 +38,15 @@ export function AccountSummaryCard({ className }: AccountSummaryCardProps) {
   const selectedAccount = accounts.find(acc => acc.id === selectedAccountId);
 
   return (
-    <Card className={cn("shadow-none", className)}>
+    <Card className={cn("shadow-none h-full", className)}>
       <CardHeader className="py-3 px-4 space-y-2">
         <CardTitle className="text-base font-headline flex items-center text-foreground">
             {getAccountIcon(selectedAccount?.type)}
-            <span className="ml-2">{selectedAccount ? `${selectedAccount.label} (${selectedAccount.number})` : "Account Summary"}</span>
+            <span className="ml-2">Active Account</span>
         </CardTitle>
         <div className="flex items-center gap-2">
             <Label htmlFor="accountSelectGlobal" className="text-xs font-medium text-muted-foreground shrink-0 sr-only">
-                Active Account:
+                Select Active Account:
             </Label>
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
             <SelectTrigger id="accountSelectGlobal" className="flex-1 h-9 text-xs" aria-label="Select active account">
@@ -88,3 +88,4 @@ export function AccountSummaryCard({ className }: AccountSummaryCardProps) {
     </Card>
   );
 }
+
