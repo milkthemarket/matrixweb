@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import type { Stock } from '@/types';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart as RechartsAreaChart, Area, BarChart as RechartsBarChart, Bar } from 'recharts';
-import { AreaChart as AreaIcon, BarChart3, CandlestickChart, Minus, Plus, Activity } from 'lucide-react';
+import { AreaChart as AreaIcon, CandlestickChart, Minus, Plus, Activity } from 'lucide-react'; // Removed BarChart3
 import { cn } from '@/lib/utils';
 
 interface InteractiveChartCardProps {
@@ -34,7 +34,7 @@ const generateMockPriceData = (basePrice: number, numPoints = 50) => {
 };
 
 export function InteractiveChartCard({ stock, className }: InteractiveChartCardProps) {
-  const [chartType, setChartType] = useState<'line' | 'area' | 'bar' | 'candle'>('line');
+  const [chartType, setChartType] = useState<'line' | 'area' | 'candle'>('line'); // Removed 'bar'
   const [timeframe, setTimeframe] = useState<'1D' | '5D' | '1M' | '6M' | '1Y' | 'MAX'>('1M');
 
   const chartData = React.useMemo(() => {
@@ -128,27 +128,7 @@ export function InteractiveChartCard({ stock, className }: InteractiveChartCardP
                     <Area type="monotone" dataKey="price" stroke={strokeColor} strokeWidth={2} fillOpacity={1} fill={`url(#colorPrice-${stock.id})`} dot={false}/>
                 </RechartsAreaChart>
             )}
-             {chartType === 'bar' && (
-                <RechartsBarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
-                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.2)" }} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.2)" }} domain={['auto', 'auto']} />
-                    <Tooltip
-                         cursor={{ fill: 'hsla(var(--primary), 0.1)' }}
-                        contentStyle={{
-                            backgroundColor: 'hsla(var(--popover), 0.9)',
-                            borderColor: 'hsla(var(--border), 0.2)',
-                            borderRadius: 'var(--radius)',
-                            backdropFilter: 'blur(4px)',
-                            boxShadow: '0 4px 12px hsla(var(--background), 0.1)',
-                        }}
-                        labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', marginBottom: '4px' }}
-                        itemStyle={{ color: strokeColor }}
-                        formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
-                    />
-                    <Bar dataKey="price" fill={strokeColor} radius={[2, 2, 0, 0]} barSize={10} />
-                </RechartsBarChart>
-            )}
+            {/* Bar chart option removed */}
             {chartType === 'candle' && (
               <div className="flex items-center justify-center h-full text-muted-foreground">
                 Candlestick chart type coming soon for {stock.symbol}.
@@ -172,7 +152,7 @@ export function InteractiveChartCard({ stock, className }: InteractiveChartCardP
         {[
           { type: 'line', label: 'Line', Icon: AreaIcon },
           { type: 'area', label: 'Area', Icon: AreaIcon },
-          { type: 'bar', label: 'Bar', Icon: BarChart3 },
+          // { type: 'bar', label: 'Bar', Icon: BarChart3 }, // Bar option removed
           { type: 'candle', label: 'Candle', Icon: CandlestickChart },
         ].map(({ type, label, Icon }) => (
           <Button key={type} variant={chartType === type ? "default" : "outline"} size="sm" onClick={() => setChartType(type as any)} className="h-7 text-xs px-2.5">
