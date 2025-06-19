@@ -52,7 +52,7 @@ export function OrderCard({
   initialLimitPrice,
   className,
 }: OrderCardProps) {
-  const { selectedAccountId, accounts } = useOpenPositionsContext(); // Removed setSelectedAccountId
+  const { selectedAccountId, accounts } = useOpenPositionsContext(); 
   const { notificationSounds, playSound } = useSettingsContext();
 
   const [tradeMode, setTradeMode] = useState<TradeMode>(initialTradeMode || 'manual');
@@ -585,8 +585,8 @@ export function OrderCard({
                   >
                     <SelectTrigger id="allowExtendedHours"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="no">No (Regular Market Hours Only)</SelectItem>
-                      <SelectItem value="yes">Yes (Allow Pre/Post Market)</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                      <SelectItem value="yes">Yes</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
