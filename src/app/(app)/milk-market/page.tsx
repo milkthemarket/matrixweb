@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrdersTable } from '@/components/market/OrdersTable';
 import { TradeHistoryTable } from '@/components/market/TradeHistoryTable';
 
-import { initialMockStocks } from '@/app/(app)/dashboard/page'; 
+import { initialMockStocks } from '@/app/(app)/dashboard/page';
 
 function MilkMarketPageContent() {
   const { toast } = useToast();
@@ -106,7 +106,7 @@ function MilkMarketPageContent() {
     setOrderCardInitialOrderType(undefined);
     setOrderCardInitialLimitPrice(undefined);
     // Optionally reset syncedTickerSymbol if desired:
-    // handleSyncedTickerChange('AAPL'); 
+    // handleSyncedTickerChange('AAPL');
   };
   
   const handleStockSymbolSubmitFromOrderCard = (symbol: string) => {
@@ -122,27 +122,19 @@ function MilkMarketPageContent() {
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <div className="flex flex-col h-full p-1.5 gap-1.5">
-        {/* Top 3-column section */}
-        <div className="grid grid-cols-[minmax(280px,300px)_minmax(0,1fr)_minmax(280px,350px)] gap-1.5 flex-1 overflow-hidden">
-          {/* Left Column */}
-          <div className="flex flex-col gap-1.5 overflow-hidden">
-            <WatchlistCard
-              selectedStockSymbol={syncedTickerSymbol}
-              onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
-              className="flex-1 min-h-0" 
-            />
-            {/* OrderBookCard removed from here */}
-          </div>
-          {/* Center Column */}
-          <div className="overflow-hidden">
+        {/* Top section: Chart on left, TradePanel+Watchlist on right */}
+        <div className="grid grid-cols-[minmax(0,1fr)_minmax(280px,350px)] gap-1.5 flex-1 overflow-hidden">
+          {/* Left Column for Chart */}
+          <div className="overflow-hidden h-full">
             <InteractiveChartCard
               stock={stockForSyncedComps}
               onManualTickerSubmit={handleSyncedTickerChange}
               className="h-full"
             />
           </div>
-          {/* Right Column */}
-          <div className="overflow-hidden">
+
+          {/* Right Column for Trade Panel & Watchlist */}
+          <div className="flex flex-col gap-1.5 overflow-hidden h-full">
             <OrderCard
               selectedStock={stockForSyncedComps}
               initialActionType={orderCardActionType}
@@ -154,12 +146,17 @@ function MilkMarketPageContent() {
               initialQuantity={orderCardInitialQuantity}
               initialOrderType={orderCardInitialOrderType}
               initialLimitPrice={orderCardInitialLimitPrice}
-              className="h-full"
+              className="flex-1 min-h-0" // Takes up available space, min-h-0 allows shrinking
+            />
+            <WatchlistCard
+              selectedStockSymbol={syncedTickerSymbol}
+              onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
+              className="h-[250px] flex-shrink-0" // Fixed height for watchlist
             />
           </div>
         </div>
 
-        {/* Bottom Tab Panel */}
+        {/* Bottom Tab Panel (spans full width under the grid above) */}
         <div className="h-[280px] flex-shrink-0">
           <Tabs defaultValue="positions" className="h-full flex flex-col">
             <TabsList className="shrink-0">
