@@ -118,45 +118,18 @@ function MilkMarketPageContent() {
   };
 
   return (
-    <main className="grid grid-rows-[1fr_auto] grid-cols-[minmax(280px,300px)_minmax(0,1fr)_minmax(280px,350px)] gap-1.5 p-1.5 h-full overflow-hidden">
+    <main className="grid grid-cols-[1fr_minmax(300px,350px)] gap-1.5 p-1.5 h-full overflow-hidden">
       
-      {/* Left Column (Top) */}
-      <div className="flex flex-col gap-1.5 overflow-hidden h-full row-start-1 col-start-1">
-          <WatchlistCard
-              selectedStockSymbol={syncedTickerSymbol}
-              onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
-              className="h-full"
-          />
-      </div>
-
-      {/* Center Column (Top) */}
-      <div className="flex flex-col gap-1.5 overflow-hidden h-full row-start-1 col-start-2">
+      {/* Left Column: Chart and Tabs */}
+      <div className="flex flex-col gap-1.5 overflow-hidden">
+        <div className="flex-1 min-h-0">
           <InteractiveChartCard
               stock={stockForSyncedComps}
               onManualTickerSubmit={handleSyncedTickerChange}
               className="h-full"
           />
-      </div>
-
-      {/* Right Column (Spans both rows) */}
-      <div className="overflow-hidden h-full row-start-1 col-start-3 row-span-2">
-          <OrderCard
-            selectedStock={stockForSyncedComps}
-            initialActionType={orderCardActionType}
-            initialTradeMode={orderCardInitialTradeMode}
-            miloActionContextText={orderCardMiloActionContext}
-            onSubmit={handleTradeSubmit}
-            onClear={handleClearOrderCard}
-            onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
-            initialQuantity={orderCardInitialQuantity}
-            initialOrderType={orderCardInitialOrderType}
-            initialLimitPrice={orderCardInitialLimitPrice}
-            className="h-full"
-          />
-      </div>
-
-      {/* Bottom Panel (Tabs, spans first two columns) */}
-      <div className="h-[280px] flex-shrink-0 row-start-2 col-start-1 col-span-2">
+        </div>
+        <div className="h-[280px] flex-shrink-0">
           <Tabs defaultValue="positions" className="h-full flex flex-col">
               <TabsList className="shrink-0">
                   <TabsTrigger value="positions" className="text-xs px-3 py-1.5 h-auto">Positions</TabsTrigger>
@@ -188,8 +161,34 @@ function MilkMarketPageContent() {
                   />
               </TabsContent>
           </Tabs>
+        </div>
       </div>
 
+      {/* Right Column: Trade Panel and Watchlist */}
+      <div className="flex flex-col gap-1.5 overflow-hidden">
+          <div className="flex-1 min-h-0">
+            <OrderCard
+              selectedStock={stockForSyncedComps}
+              initialActionType={orderCardActionType}
+              initialTradeMode={orderCardInitialTradeMode}
+              miloActionContextText={orderCardMiloActionContext}
+              onSubmit={handleTradeSubmit}
+              onClear={handleClearOrderCard}
+              onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
+              initialQuantity={orderCardInitialQuantity}
+              initialOrderType={orderCardInitialOrderType}
+              initialLimitPrice={orderCardInitialLimitPrice}
+              className="h-full"
+            />
+          </div>
+          <div className="h-[400px] flex-shrink-0">
+            <WatchlistCard
+                selectedStockSymbol={syncedTickerSymbol}
+                onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
+                className="h-full"
+            />
+          </div>
+      </div>
     </main>
   );
 }
