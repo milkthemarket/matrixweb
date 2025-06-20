@@ -54,9 +54,9 @@ export interface TradeAlert {
   id: string;
   symbol: string;
   message: string;
-  timestamp: string;
+  timestamp: string; // ISO string format
   source?: string;
-  alertType?: 'Price' | 'Volume' | 'News' | 'Technical'; // Added alertType for RecentAlertsCard
+  alertType?: 'Price' | 'Volume' | 'News' | 'Technical';
 }
 
 export interface TradeLogEntry {
@@ -128,7 +128,7 @@ export interface NewsArticle {
   id: string;
   symbol: string;
   headline: string;
-  timestamp: string;
+  timestamp: string; // Ensure this is an ISO string
   source: string;
   preview: string;
   link: string;
@@ -145,14 +145,14 @@ export interface TradeHistoryEntry {
   trailAmount?: number;
   TIF: string;
   tradingHours: string;
-  placedTime: string;
-  filledTime: string;
+  placedTime: string; // ISO string format
+  filledTime: string; // ISO string format
   orderStatus: 'Filled' | 'Pending' | 'Canceled' | 'Partially Filled';
   averagePrice: number;
   tradeModeOrigin?: HistoryTradeMode;
   accountId?: string;
-  takeProfit?: number; // Added for consistency
-  stopLoss?: number; // Added for consistency
+  takeProfit?: number;
+  stopLoss?: number;
 }
 
 export interface ColumnConfig<T = Stock | TradeHistoryEntry> {
@@ -185,7 +185,7 @@ export interface MiloTradeIdea {
   ticker: string;
   reason: string;
   action: string;
-  timestamp: string;
+  timestamp: string; // ISO string format
 }
 
 export type HistoryFilterMode = HistoryTradeMode | 'all';
@@ -204,7 +204,7 @@ export interface OptionContract {
   id: string;
   strike: number;
   type: OptionType;
-  expirationDate: string;
+  expirationDate: string; // ISO string format or YYYY-MM-DD
   daysToExpiration: number;
   ask: number;
   bid: number;
@@ -262,7 +262,8 @@ export interface MooAlertItem {
   symbol: string;
   headline: string;
   fullText: string;
-  time: string;
+  time: string; // Could be "HH:mm" or relative like "Now"
+  timestamp?: string; // Optional ISO string for precise timing for formatDistanceToNow
   sentiment: MooAlertSentiment;
   currentPrice: number;
   premarketChangePercent?: number;
@@ -272,7 +273,6 @@ export interface MooAlertItem {
     chart: boolean;
     shortable: boolean;
   };
-  // New fields for trade plan
   suggestedAction?: OrderActionType;
   suggestedEntryPrice?: number;
   suggestedTargetPrice?: number;
@@ -282,4 +282,3 @@ export interface MooAlertItem {
   suggestedOrderType?: OrderSystemType;
   suggestedQuantity?: number;
 }
-
