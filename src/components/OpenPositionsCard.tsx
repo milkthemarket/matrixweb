@@ -1,13 +1,13 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
-import type { OpenPosition, HistoryTradeMode } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import React, { useMemo } from 'react';
+import type { OpenPosition } from '@/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { XSquare, Briefcase, User, Layers, Cpu } from 'lucide-react';
+import { XSquare, Briefcase, User, Cpu } from 'lucide-react';
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
@@ -38,43 +38,27 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
     return openPositions.filter(pos => pos.accountId === selectedAccountId);
   }, [openPositions, selectedAccountId]);
 
-  const getOriginDisplay = (origin?: HistoryTradeMode) => {
-    const mode = origin || 'manual';
-    switch (mode) {
-      case 'manual':
-        return (
-          <Badge variant="outline" className="text-muted-foreground border-muted-foreground/40 bg-muted/20 hover:bg-muted/30 text-xs whitespace-nowrap">
-            <User className="mr-1.5 h-3 w-3" />
-            Manual
-          </Badge>
-        );
-      case 'aiAssist':
-        return (
-          <Badge variant="outline" className="text-primary border-primary/40 bg-primary/10 hover:bg-primary/20 text-xs whitespace-nowrap">
-            <MiloAvatarIcon size={12} className="mr-1.5 h-3 w-3" />
-            AI Assist
-          </Badge>
-        );
-      case 'autopilot':
-        return (
-          <Badge variant="outline" className="text-[hsl(var(--confirm-green))] border-[hsl(var(--confirm-green))]/40 bg-[hsl(var(--confirm-green))]/10 hover:bg-[hsl(var(--confirm-green))]/20 text-xs whitespace-nowrap">
-            <Cpu className="mr-1.5 h-3 w-3" />
-            Autopilot
-          </Badge>
-        );
-      default:
-        return <span className="text-xs">{mode}</span>;
-    }
-  };
-
-
   return (
     <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardHeader className="pt-4 pb-3">
+      <CardHeader className="flex flex-row items-center justify-between pt-4 pb-3 px-4">
         <CardTitle className="text-xl font-headline flex items-center text-foreground">
           <Briefcase className="mr-2 h-5 w-5 text-primary" />
           Open Positions
         </CardTitle>
+        <div className="flex items-center gap-1.5">
+          <Badge variant="outline" className="text-muted-foreground border-muted-foreground/40 bg-muted/20 hover:bg-muted/30 text-[10px] px-1.5 py-px h-auto whitespace-nowrap">
+            <User className="mr-1 h-2.5 w-2.5" />
+            Manual
+          </Badge>
+          <Badge variant="outline" className="text-primary border-primary/40 bg-primary/10 hover:bg-primary/20 text-[10px] px-1.5 py-px h-auto whitespace-nowrap">
+            <MiloAvatarIcon size={10} className="mr-1 h-2.5 w-2.5" />
+            AI Assist
+          </Badge>
+          <Badge variant="outline" className="text-[hsl(var(--confirm-green))] border-[hsl(var(--confirm-green))]/40 bg-[hsl(var(--confirm-green))]/10 hover:bg-[hsl(var(--confirm-green))]/20 text-[10px] px-1.5 py-px h-auto whitespace-nowrap">
+            <Cpu className="mr-1 h-2.5 w-2.5" />
+            Autopilot
+          </Badge>
+        </div>
       </CardHeader>
       <CardContent className="p-0 flex-1 overflow-hidden">
         {filteredPositions.length > 0 ? (
@@ -82,7 +66,6 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
             <Table>
               <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                 <TableRow>
-                  <TableHead className="w-[120px]">Origin</TableHead>
                   <TableHead>Symbol</TableHead>
                   <TableHead className="text-right">Shares</TableHead>
                   <TableHead className="text-right">Entry</TableHead>
@@ -96,7 +79,6 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
                   const pnl = calculatePnl(pos);
                   return (
                     <TableRow key={pos.id} className="hover:bg-muted/5">
-                      <TableCell>{getOriginDisplay(pos.origin)}</TableCell>
                       <TableCell className="font-medium text-foreground">{pos.symbol}</TableCell>
                       <TableCell className="text-right text-foreground">{pos.shares}</TableCell>
                       <TableCell className="text-right text-foreground">${pos.entryPrice.toFixed(2)}</TableCell>
