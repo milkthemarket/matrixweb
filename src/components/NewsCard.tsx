@@ -7,8 +7,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Rss } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { formatDistanceToNow, parseISO } from 'date-fns'; // Import date-fns functions
-import type { Stock } from '@/types'; // For selectedTickerSymbol type
+import { formatDistanceToNow, parseISO } from 'date-fns';
+import type { Stock } from '@/types';
 
 interface NewsItem {
   id: string;
@@ -42,7 +42,7 @@ export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: Ne
 
   const filteredNews = React.useMemo(() => {
     if (!selectedTickerSymbol) {
-      return dummyNewsData.sort((a,b) => parseISO(b.timestamp).getTime() - parseISO(a.timestamp).getTime()).slice(0, 8); // Show latest 8 if no ticker
+      return dummyNewsData.sort((a,b) => parseISO(b.timestamp).getTime() - parseISO(a.timestamp).getTime()).slice(0, 10); // Show latest 10 if no ticker
     }
     return dummyNewsData.filter(item => item.symbol.toUpperCase() === selectedTickerSymbol.toUpperCase())
                        .sort((a,b) => parseISO(b.timestamp).getTime() - parseISO(a.timestamp).getTime());
@@ -73,41 +73,41 @@ export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: Ne
   };
 
   return (
-    <Card className={cn("shadow-lg flex flex-col", className)}>
-      <CardHeader className="py-3 px-4">
-        <CardTitle className="text-base font-headline flex items-center text-foreground">
-          <Rss className="mr-2 h-4 w-4 text-primary" />
-          Latest News {selectedTickerSymbol ? `for ${selectedTickerSymbol}` : '(All)'}
+    <Card className={cn("shadow-none flex flex-col", className)}>
+      <CardHeader className="py-2 px-3 border-b border-border/[.08]">
+        <CardTitle className="text-sm font-headline flex items-center text-foreground">
+          <Rss className="mr-1.5 h-3.5 w-3.5 text-primary" />
+          News {selectedTickerSymbol ? `for ${selectedTickerSymbol}` : '(All Market)'}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0 flex-1 overflow-hidden">
-        <ScrollArea className="h-full p-4 pt-0">
+        <ScrollArea className="h-full p-2">
           {filteredNews.length > 0 ? (
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {filteredNews.map(item => (
-                <li key={item.id} className="pb-2 border-b border-border/[.08] last:border-b-0">
+                <li key={item.id} className="pb-1.5 border-b border-border/[.05] last:border-b-0">
                   <button
                     onClick={() => onTickerSelect(item.symbol)}
                     className="w-full text-left hover:bg-white/5 p-1 rounded-md transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                     aria-label={`View news for ${item.symbol}: ${item.headline}`}
                   >
-                    <div className="flex justify-between items-start gap-2 mb-0.5">
+                    <div className="flex justify-between items-start gap-1.5 mb-0.5">
                       <div className="flex-1">
-                        <span className="font-semibold text-primary mr-1.5">{item.symbol}:</span>
-                        <span className="text-sm text-foreground leading-snug">{item.headline}</span>
+                        <span className="font-semibold text-primary text-xs mr-1">{item.symbol}:</span>
+                        <span className="text-xs text-foreground leading-tight">{item.headline}</span>
                       </div>
-                      <Badge variant="outline" className={cn("text-xs py-0.5 px-1.5 h-auto whitespace-nowrap", getSentimentBadgeClass(item.sentiment))}>
+                      <Badge variant="outline" className={cn("text-[10px] py-0 px-1 h-auto whitespace-nowrap", getSentimentBadgeClass(item.sentiment))}>
                         {item.sentiment}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">{clientTimestamps[item.id] || 'Calculating...'}</p>
+                    <p className="text-[10px] text-muted-foreground">{clientTimestamps[item.id] || 'Calculating...'}</p>
                   </button>
                 </li>
               ))}
             </ul>
           ) : (
             <div className="flex items-center justify-center h-full">
-              <p className="text-sm text-muted-foreground text-center">
+              <p className="text-xs text-muted-foreground text-center">
                 No news found {selectedTickerSymbol ? `for ${selectedTickerSymbol}` : 'at the moment'}.
               </p>
             </div>
@@ -117,3 +117,5 @@ export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: Ne
     </Card>
   );
 }
+
+    

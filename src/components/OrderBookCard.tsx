@@ -9,7 +9,7 @@ import { AlignVerticalSpaceAround, ArrowDown, ArrowUp, BookOpen } from "lucide-r
 import { cn } from '@/lib/utils';
 
 interface OrderBookCardProps {
-  stock: Stock | null; // Changed from selectedTickerSymbol to full stock object
+  stock: Stock | null;
   className?: string;
 }
 
@@ -56,43 +56,43 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
 
   return (
     <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardHeader className="py-3 px-4">
-        <CardTitle className="text-base font-headline flex items-center text-foreground">
-          <BookOpen className="mr-2 h-4 w-4 text-primary" />
-          Order Book (L2) {stock?.symbol ? `- ${stock.symbol}` : ''}
+      <CardHeader className="py-2 px-3">
+        <CardTitle className="text-sm font-headline flex items-center text-foreground">
+          <BookOpen className="mr-1.5 h-3.5 w-3.5 text-primary" />
+          L2 {stock?.symbol ? `- ${stock.symbol}` : ''}
         </CardTitle>
         {stock && stock.price > 0 && bestBid && bestAsk && spread !== undefined ? (
-            <CardDescription className="text-xs">
+            <CardDescription className="text-xs mt-0.5">
                 Bid: <span className="text-[hsl(var(--confirm-green))] font-medium">${bestBid.toFixed(2)}</span> |
                 Ask: <span className="text-destructive font-medium">${bestAsk.toFixed(2)}</span> |
                 Spread: <span className="text-primary font-medium">${spread.toFixed(2)}</span>
             </CardDescription>
         ) : stock && stock.price <= 0 ? (
-            <CardDescription className="text-xs text-muted-foreground">Order book unavailable (invalid price).</CardDescription>
+            <CardDescription className="text-xs text-muted-foreground mt-0.5">Unavailable (invalid price).</CardDescription>
         ) : null}
       </CardHeader>
       <CardContent className="p-0 flex-1 overflow-hidden">
         {!stock || stock.price <= 0 || !orderBookData ? (
-          <div className="h-full flex items-center justify-center text-sm text-muted-foreground p-4 text-center">
-            {stock && stock.price <=0 ? `Order book unavailable for ${stock.symbol}.` : "Select a stock to view its order book."}
+          <div className="h-full flex items-center justify-center text-xs text-muted-foreground p-2 text-center">
+            {stock && stock.price <=0 ? `L2 unavailable for ${stock.symbol}.` : "Select a stock."}
           </div>
         ) : (
           <ScrollArea className="h-full">
-            <div className="grid grid-cols-2 gap-px text-xs">
+            <div className="grid grid-cols-2 gap-px text-[10px]">
               <div>
-                <div className="grid grid-cols-[1fr_auto] p-2 border-b border-border/[.1] sticky top-0 bg-card/[.05] backdrop-blur-sm z-10">
-                  <span className="font-semibold text-[hsl(var(--confirm-green))] flex items-center"><ArrowDown className="mr-1 h-3 w-3"/>Bids</span>
+                <div className="grid grid-cols-[1fr_auto] p-1.5 border-b border-border/[.08] sticky top-0 bg-card/[.05] backdrop-blur-sm z-[1]">
+                  <span className="font-semibold text-[hsl(var(--confirm-green))] flex items-center"><ArrowDown className="mr-1 h-2.5 w-2.5"/>Bids</span>
                   <span className="font-semibold text-right text-muted-foreground">Size</span>
                 </div>
                 {orderBookData.bids.map((bid, index) => (
                   <div
                     key={`bid-${index}`}
                     className={cn(
-                      "grid grid-cols-[1fr_auto] p-1.5 items-center border-t border-border/[.05]",
-                      index === 0 ? "bg-[hsl(var(--confirm-green))]/10" : "hover:bg-[hsl(var(--confirm-green))]/5"
+                      "grid grid-cols-[1fr_auto] p-1 items-center border-t border-border/[.05]",
+                       "hover:bg-[hsl(var(--confirm-green))]/5"
                     )}
                   >
-                    <span className="text-[hsl(var(--confirm-green))] font-mono font-semibold">
+                    <span className={cn("font-mono font-semibold", index === 0 ? "text-[hsl(var(--confirm-green))]" : "text-foreground/90")}>
                       ${bid.price.toFixed(2)}
                     </span>
                     <span className="text-right font-mono text-muted-foreground">
@@ -103,19 +103,19 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
               </div>
 
               <div>
-                <div className="grid grid-cols-[1fr_auto] p-2 border-b border-border/[.1] sticky top-0 bg-card/[.05] backdrop-blur-sm z-10">
-                  <span className="font-semibold text-destructive flex items-center"><ArrowUp className="mr-1 h-3 w-3"/>Asks</span>
+                <div className="grid grid-cols-[1fr_auto] p-1.5 border-b border-border/[.08] sticky top-0 bg-card/[.05] backdrop-blur-sm z-[1]">
+                  <span className="font-semibold text-destructive flex items-center"><ArrowUp className="mr-1 h-2.5 w-2.5"/>Asks</span>
                   <span className="font-semibold text-right text-muted-foreground">Size</span>
                 </div>
                 {orderBookData.asks.map((ask, index) => (
                   <div
                     key={`ask-${index}`}
                     className={cn(
-                      "grid grid-cols-[1fr_auto] p-1.5 items-center border-t border-border/[.05]",
-                      index === 0 ? "bg-destructive/10" : "hover:bg-destructive/5"
+                      "grid grid-cols-[1fr_auto] p-1 items-center border-t border-border/[.05]",
+                      "hover:bg-destructive/5"
                     )}
                   >
-                    <span className="text-destructive font-mono font-semibold">
+                    <span className={cn("font-mono font-semibold", index === 0 ? "text-destructive" : "text-foreground/90")}>
                       ${ask.price.toFixed(2)}
                     </span>
                     <span className="text-right font-mono text-muted-foreground">
@@ -131,3 +131,5 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
     </Card>
   );
 }
+
+    

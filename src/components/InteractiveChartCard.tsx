@@ -4,14 +4,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input"; // For manual ticker input
+import { Input } from "@/components/ui/input";
 import type { Stock } from '@/types';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart as RechartsAreaChart, Area, BarChart, Bar, Cell } from 'recharts';
 import { AreaChart as AreaIcon, CandlestickChart, Minus, Plus, Activity, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface InteractiveChartCardProps {
-  stock: Stock | null; // Changed from selectedTickerSymbol to full stock object
+  stock: Stock | null;
   onManualTickerSubmit: (symbol: string) => void;
   className?: string;
 }
@@ -42,15 +42,15 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // If a stock is passed (likely from synced state), update the input field
-    // but don't clear it if the user is typing.
     if (stock && document.activeElement !== inputRef.current) {
       setManualTickerInput(stock.symbol);
+    } else if (!stock && document.activeElement !== inputRef.current) {
+      setManualTickerInput(''); // Clear if no stock is selected externally
     }
   }, [stock]);
 
   const chartData = React.useMemo(() => {
-    const basePrice = stock?.price || 0; // Use 0 if no stock.price, or handle more gracefully
+    const basePrice = stock?.price || 0;
     let numPoints = 30;
     if (timeframe === '1D') numPoints = 10;
     if (timeframe === '5D') numPoints = 20;
@@ -58,17 +58,16 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
     if (timeframe === '1Y') numPoints = 252;
     if (timeframe === 'MAX') numPoints = 500;
 
-    // Use historicalPrices if available and sufficient, otherwise generate mock data
     if (stock?.historicalPrices && stock.historicalPrices.length >= numPoints && stock.price > 0) {
       return stock.historicalPrices.slice(-numPoints).map((price, index, arr) => ({
         date: `P${arr.length - numPoints + index + 1}`,
         price
       }));
     }
-    if (basePrice > 0) { // Only generate mock if we have a base price
+    if (basePrice > 0) {
         return generateMockPriceData(basePrice, numPoints);
     }
-    return []; // Return empty if no data can be shown
+    return [];
   }, [stock, timeframe]);
 
   const dynamicStrokeColor = stock && stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))";
@@ -82,104 +81,101 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
 
   return (
     <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardHeader className="pb-3 pt-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+      <CardHeader className="pb-2 pt-3 px-3">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
           <div className="flex-1">
-            <CardTitle className="text-xl font-headline text-foreground">
+            <CardTitle className="text-lg font-headline text-foreground">
               {stock?.symbol ? `${stock.symbol} Chart` : "Trading Chart"}
             </CardTitle>
             <CardDescription className="text-xs">
-              {stock?.name ? `${stock.name} - Current: $${stock.price > 0 ? stock.price.toFixed(2) : 'N/A'}` : "Enter a ticker or select from Watchlist/News."}
+              {stock?.name ? `${stock.name} - Current: $${stock.price > 0 ? stock.price.toFixed(2) : 'N/A'}` : "Enter ticker or select from Watchlist."}
             </CardDescription>
           </div>
           <div className="flex items-center gap-1 w-full sm:w-auto">
             <Input
               ref={inputRef}
               type="text"
-              placeholder="Symbol (e.g. AAPL)"
+              placeholder="Symbol"
               value={manualTickerInput}
               onChange={(e) => setManualTickerInput(e.target.value.toUpperCase())}
               onKeyDown={(e) => e.key === 'Enter' && handleManualSubmit()}
-              className="h-8 text-xs flex-1 sm:flex-initial sm:w-32 bg-transparent"
+              className="h-7 text-xs flex-1 sm:flex-initial sm:w-28 bg-transparent"
             />
-            <Button variant="ghost" size="icon" onClick={handleManualSubmit} className="h-8 w-8 text-primary hover:bg-primary/10">
-              <Search className="h-4 w-4" />
+            <Button variant="ghost" size="icon" onClick={handleManualSubmit} className="h-7 w-7 text-primary hover:bg-primary/10">
+              <Search className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex-1 p-2 pr-4 min-h-[300px]">
+      <CardContent className="flex-1 p-1 pr-2 min-h-[250px]">
         {chartData.length > 0 ? (
           <ResponsiveContainer width="100%" height="100%">
             {chartType === 'line' && (
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
-                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.2)" }} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.2)" }} domain={['auto', 'auto']} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.05)" />
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
                 <Tooltip
                   cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '3 3' }}
                   contentStyle={{
                     backgroundColor: 'hsla(var(--popover), 0.9)',
-                    borderColor: 'hsla(var(--border), 0.2)',
+                    borderColor: 'hsla(var(--border), 0.1)',
                     borderRadius: 'var(--radius)',
                     backdropFilter: 'blur(4px)',
-                    boxShadow: '0 4px 12px hsla(var(--background), 0.1)',
                   }}
-                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', marginBottom: '4px' }}
-                  itemStyle={{ color: dynamicStrokeColor }}
+                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', fontSize:'10px', marginBottom: '2px' }}
+                  itemStyle={{ color: dynamicStrokeColor, fontSize:'10px' }}
                   formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
                 />
-                <Line type="monotone" dataKey="price" stroke={dynamicStrokeColor} strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="price" stroke={dynamicStrokeColor} strokeWidth={1.5} dot={false} />
               </LineChart>
             )}
             {chartType === 'area' && (
                  <RechartsAreaChart data={chartData}>
                     <defs>
                         <linearGradient id={`colorPriceAreaPurple-${stock?.id || 'default'}`} x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor={neonPurpleColor} stopOpacity={0.65}/>
+                          <stop offset="5%" stopColor={neonPurpleColor} stopOpacity={0.5}/>
                           <stop offset="95%" stopColor={neonPurpleColor} stopOpacity={0.05}/>
                         </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
-                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.2)" }} />
-                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.2)" }} domain={['auto', 'auto']} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.05)" />
+                    <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
+                    <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
                     <Tooltip
                         cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '3 3' }}
                         contentStyle={{
                             backgroundColor: 'hsla(var(--popover), 0.9)',
-                            borderColor: 'hsla(var(--border), 0.2)',
+                            borderColor: 'hsla(var(--border), 0.1)',
                             borderRadius: 'var(--radius)',
                             backdropFilter: 'blur(4px)',
-                            boxShadow: '0 4px 12px hsla(var(--background), 0.1)',
                         }}
-                        labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', marginBottom: '4px' }}
-                        itemStyle={{ color: neonPurpleColor }}
+                        labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', fontSize:'10px', marginBottom: '2px' }}
+                        itemStyle={{ color: neonPurpleColor, fontSize:'10px' }}
                         formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
                     />
-                    <Area type="monotone" dataKey="price" stroke={neonPurpleColor} strokeWidth={2} fillOpacity={1} fill={`url(#colorPriceAreaPurple-${stock?.id || 'default'})`} dot={false}/>
+                    <Area type="monotone" dataKey="price" stroke={neonPurpleColor} strokeWidth={1.5} fillOpacity={1} fill={`url(#colorPriceAreaPurple-${stock?.id || 'default'})`} dot={false}/>
                 </RechartsAreaChart>
             )}
-            {chartType === 'candle' && (
+            {chartType === 'candle' && ( // Simplified candle as BarChart
               <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
-                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.2)" }} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.2)" }} domain={['auto', 'auto']} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.05)" />
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
                 <Tooltip
-                  cursor={{ fill: 'hsla(var(--primary), 0.1)' }}
+                  cursor={{ fill: 'hsla(var(--primary), 0.05)' }}
                   contentStyle={{
                     backgroundColor: 'hsla(var(--popover), 0.9)',
-                    borderColor: 'hsla(var(--border), 0.2)',
+                    borderColor: 'hsla(var(--border), 0.1)',
                     borderRadius: 'var(--radius)',
                     backdropFilter: 'blur(4px)',
-                    boxShadow: '0 4px 12px hsla(var(--background), 0.1)',
                   }}
-                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', marginBottom: '4px' }}
+                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', fontSize:'10px', marginBottom: '2px' }}
                   formatter={(value: number, name: string, props: any) => {
                     const itemColor = props.payload.fill;
-                    return [<span style={{ color: itemColor }}>${value.toFixed(2)}</span>, 'Price'];
+                    return [<span style={{ color: itemColor, fontSize:'10px' }}>${value.toFixed(2)}</span>, 'Price'];
                   }}
                 />
-                <Bar dataKey="price" barSize={10}>
+                <Bar dataKey="price" barSize={8}>
                   {chartData.map((entry, index) => {
                     const previousPrice = index > 0 ? chartData[index - 1].price : entry.price - 0.01;
                     let fillColor = 'hsl(var(--muted-foreground))';
@@ -196,30 +192,32 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
           </ResponsiveContainer>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-            <Activity className="h-12 w-12 mb-4 opacity-30" />
-            <p className="text-sm text-center">
-              {stock?.symbol ? `No chart data available for ${stock.symbol}.` : "Enter a ticker or select from Watchlist/News."}
+            <Activity className="h-10 w-10 mb-3 opacity-30" />
+            <p className="text-xs text-center">
+              {stock?.symbol ? `No chart data for ${stock.symbol}.` : "Enter ticker or select from Watchlist."}
             </p>
           </div>
         )}
       </CardContent>
-      <CardFooter className="flex flex-wrap justify-center items-center gap-1 pt-3">
+      <CardFooter className="flex flex-wrap justify-center items-center gap-1 pt-2 pb-2 px-1">
         {['1D', '5D', '1M', '6M', '1Y', 'MAX'].map((tf) => (
-          <Button key={tf} variant={timeframe === tf ? "default" : "outline"} size="sm" onClick={() => setTimeframe(tf as any)} className="h-7 text-xs px-2.5">
+          <Button key={tf} variant={timeframe === tf ? "default" : "outline"} size="sm" onClick={() => setTimeframe(tf as any)} className="h-6 text-[10px] px-2">
             {tf}
           </Button>
         ))}
-        <div className="w-full sm:w-auto border-l border-border/[.1] h-6 sm:h-auto sm:mx-2 my-1 sm:my-0 hidden sm:block"></div>
+        <div className="w-px bg-border/[.1] h-5 mx-1 hidden sm:block"></div>
         {[
           { type: 'line', label: 'Line', Icon: AreaIcon },
           { type: 'area', label: 'Area', Icon: AreaIcon },
           { type: 'candle', label: 'Candle', Icon: CandlestickChart },
         ].map(({ type, label, Icon }) => (
-          <Button key={type} variant={chartType === type ? "default" : "outline"} size="sm" onClick={() => setChartType(type as any)} className="h-7 text-xs px-2.5">
-            <Icon className="h-3.5 w-3.5 mr-1" /> {label}
+          <Button key={type} variant={chartType === type ? "default" : "outline"} size="sm" onClick={() => setChartType(type as any)} className="h-6 text-[10px] px-2">
+            <Icon className="h-3 w-3 mr-0.5" /> {label}
           </Button>
         ))}
       </CardFooter>
     </Card>
   );
 }
+
+    

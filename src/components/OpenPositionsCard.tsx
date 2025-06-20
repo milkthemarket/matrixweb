@@ -35,27 +35,28 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
   };
 
   const filteredPositions = useMemo(() => {
-    return openPositions.filter(pos => pos.accountId === selectedAccountId);
+    return openPositions.filter(pos => pos.accountId === selectedAccountId)
+                        .sort((a, b) => new Date(b.id.replace('pos','')).getTime() - new Date(a.id.replace('pos','')).getTime());
   }, [openPositions, selectedAccountId]);
 
   return (
     <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardHeader className="flex flex-row items-center justify-between pt-4 pb-3 px-4">
-        <CardTitle className="text-xl font-headline flex items-center text-foreground">
-          <Briefcase className="mr-2 h-5 w-5 text-primary" />
+      <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1.5 px-2 border-b border-border/[.08]">
+        <CardTitle className="text-sm font-medium text-foreground flex items-center">
+          <Briefcase className="mr-1.5 h-3.5 w-3.5 text-primary" />
           Open Positions
         </CardTitle>
-        <div className="flex items-center gap-1.5">
-          <Badge variant="outline" className="text-muted-foreground border-muted-foreground/40 bg-muted/20 hover:bg-muted/30 text-[10px] px-1.5 py-px h-auto whitespace-nowrap">
-            <User className="mr-1 h-2.5 w-2.5" />
+        <div className="flex items-center gap-1">
+          <Badge variant="outline" className="text-muted-foreground border-muted-foreground/30 bg-muted/10 text-[10px] px-1 py-0 h-auto whitespace-nowrap">
+            <User className="mr-0.5 h-2.5 w-2.5" />
             Manual
           </Badge>
-          <Badge variant="outline" className="text-primary border-primary/40 bg-primary/10 hover:bg-primary/20 text-[10px] px-1.5 py-px h-auto whitespace-nowrap">
-            <MiloAvatarIcon size={10} className="mr-1 h-2.5 w-2.5" />
+          <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 text-[10px] px-1 py-0 h-auto whitespace-nowrap">
+            <MiloAvatarIcon size={10} className="mr-0.5 h-2.5 w-2.5" />
             AI Assist
           </Badge>
-          <Badge variant="outline" className="text-[hsl(var(--confirm-green))] border-[hsl(var(--confirm-green))]/40 bg-[hsl(var(--confirm-green))]/10 hover:bg-[hsl(var(--confirm-green))]/20 text-[10px] px-1.5 py-px h-auto whitespace-nowrap">
-            <Cpu className="mr-1 h-2.5 w-2.5" />
+          <Badge variant="outline" className="text-[hsl(var(--confirm-green))] border-[hsl(var(--confirm-green))]/30 bg-[hsl(var(--confirm-green))]/5 text-[10px] px-1 py-0 h-auto whitespace-nowrap">
+            <Cpu className="mr-0.5 h-2.5 w-2.5" />
             Autopilot
           </Badge>
         </div>
@@ -64,41 +65,41 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
         {filteredPositions.length > 0 ? (
           <ScrollArea className="h-full">
             <Table>
-              <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
+              <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-[1]">
                 <TableRow>
-                  <TableHead>Symbol</TableHead>
-                  <TableHead className="text-right">Shares</TableHead>
-                  <TableHead className="text-right">Entry</TableHead>
-                  <TableHead className="text-right">Current</TableHead>
-                  <TableHead className="text-right">P&amp;L</TableHead>
-                  <TableHead className="text-center">Action</TableHead>
+                  <TableHead className="h-7 px-2 text-xs">Symbol</TableHead>
+                  <TableHead className="h-7 px-2 text-xs text-right">Shares</TableHead>
+                  <TableHead className="h-7 px-2 text-xs text-right">Entry</TableHead>
+                  <TableHead className="h-7 px-2 text-xs text-right">Current</TableHead>
+                  <TableHead className="h-7 px-2 text-xs text-right">P&amp;L</TableHead>
+                  <TableHead className="h-7 px-2 text-xs text-center">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredPositions.map((pos) => {
                   const pnl = calculatePnl(pos);
                   return (
-                    <TableRow key={pos.id} className="hover:bg-muted/5">
-                      <TableCell className="font-medium text-foreground">{pos.symbol}</TableCell>
-                      <TableCell className="text-right text-foreground">{pos.shares}</TableCell>
-                      <TableCell className="text-right text-foreground">${pos.entryPrice.toFixed(2)}</TableCell>
-                      <TableCell className="text-right text-foreground">${pos.currentPrice.toFixed(2)}</TableCell>
+                    <TableRow key={pos.id} className="text-xs hover:bg-white/5">
+                      <TableCell className="font-medium text-foreground px-2 py-1.5">{pos.symbol}</TableCell>
+                      <TableCell className="text-right text-foreground px-2 py-1.5">{pos.shares}</TableCell>
+                      <TableCell className="text-right text-foreground px-2 py-1.5">${pos.entryPrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right text-foreground px-2 py-1.5">${pos.currentPrice.toFixed(2)}</TableCell>
                       <TableCell
                         className={cn(
-                          "text-right font-semibold",
+                          "text-right font-semibold px-2 py-1.5",
                           pnl >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"
                         )}
                       >
                         {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
                       </TableCell>
-                      <TableCell className="text-center">
+                      <TableCell className="text-center px-2 py-1.5">
                         <Button
                           variant="outline"
                           size="sm"
-                          className="h-7 px-2 border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive-foreground"
+                          className="h-6 px-1.5 border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive-foreground text-[10px]"
                           onClick={() => handleClose(pos)}
                         >
-                          <XSquare className="mr-1 h-3.5 w-3.5" /> Close
+                          <XSquare className="mr-0.5 h-3 w-3" /> Close
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -108,8 +109,8 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
             </Table>
           </ScrollArea>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full text-sm py-10 px-6">
-            <Briefcase className="mx-auto h-10 w-10 mb-3 opacity-50 text-muted-foreground" />
+          <div className="flex flex-col items-center justify-center h-full text-xs py-8 px-3">
+            <Briefcase className="mx-auto h-8 w-8 mb-2 opacity-50 text-muted-foreground" />
             <p className="text-muted-foreground text-center">No open positions for this account.</p>
           </div>
         )}
@@ -117,3 +118,5 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
     </Card>
   );
 }
+
+    
