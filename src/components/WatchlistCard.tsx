@@ -2,15 +2,18 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Removed CardDescription as it's not used
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Stock, AlertRule } from '@/types';
 import { cn } from '@/lib/utils';
 import { Eye, List, Star, TrendingUp, TrendingDown, Activity, CalendarCheck2, Filter as FilterIcon } from 'lucide-react';
-import { initialMockStocks } from '@/app/(app)/dashboard/page'; 
-import { mockRules } from '@/app/(app)/rules/page'; 
+import { initialMockStocks } from '@/app/(app)/dashboard/page';
+import { mockRules } from '@/app/(app)/rules/page';
+
+// Define dummyWatchlistSymbols directly in this file
+const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY'];
 
 interface WatchlistCardProps {
   selectedStockSymbol: string | null;
@@ -25,7 +28,6 @@ const formatVolumeDisplay = (volumeInMillions?: number): string => {
   if (volumeInMillions >= 1) {
     return `${volumeInMillions.toFixed(1)}M`;
   }
-  // If volumeInMillions < 1 (e.g., 0.182 for 182K)
   return `${(volumeInMillions * 1000).toFixed(0)}K`;
 };
 
@@ -45,7 +47,7 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
   ], [activeRules]);
 
   const filteredStocks = useMemo(() => {
-    let processedStocks = [...initialMockStocks]; 
+    let processedStocks = [...initialMockStocks];
 
     switch (selectedFilterId) {
       case 'all':
@@ -66,7 +68,7 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
       default:
         const rule = activeRules.find(r => r.id === selectedFilterId);
         if (!rule) {
-          return processedStocks.filter(stock => dummyWatchlistSymbols.includes(stock.symbol)); 
+          return processedStocks.filter(stock => dummyWatchlistSymbols.includes(stock.symbol));
         }
         return processedStocks.filter(stock => {
           return rule.criteria.every(criterion => {
@@ -95,15 +97,15 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
 
   return (
     <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardHeader className="pb-2 pt-3 px-3 space-y-2">
+      <CardHeader className="pb-0.5 pt-3 px-3 space-y-0.5">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-headline text-foreground flex items-center">
-            <Eye className="mr-1.5 h-4 w-4 text-primary" />
+          <CardTitle className="text-md font-headline text-foreground flex items-center">
+            <Eye className="mr-1.5 h-3.5 w-3.5 text-primary" />
             Watchlist
           </CardTitle>
         </div>
         <Select value={selectedFilterId} onValueChange={setSelectedFilterId}>
-          <SelectTrigger className="w-full h-8 text-xs">
+          <SelectTrigger className="w-full h-7 text-xs">
             <SelectValue placeholder="Select a view..." />
           </SelectTrigger>
           <SelectContent>
@@ -111,8 +113,8 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
               const IconComponent = opt.icon;
               return (
                 <SelectItem key={opt.id} value={opt.id} className="text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <IconComponent className={cn("h-3.5 w-3.5", opt.iconColor)} />
+                  <div className="flex items-center gap-1">
+                    <IconComponent className={cn("h-3 w-3", opt.iconColor)} />
                     <span>{opt.label}</span>
                   </div>
                 </SelectItem>
@@ -123,37 +125,37 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0">
         <ScrollArea className="h-full">
-          <div className="space-y-0.5 p-2">
+          <div className="space-y-px p-0.5">
             {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
               <Button
                 key={stock.id}
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start h-auto py-2 px-2 text-left rounded-md",
+                  "w-full justify-start h-auto py-1.5 px-1.5 text-left rounded-sm",
                   selectedStockSymbol === stock.symbol ? "bg-primary/10 text-primary" : "hover:bg-white/5"
                 )}
                 onClick={() => onSelectStock(stock)}
               >
                 <div className="flex justify-between items-start w-full">
-                  <div className="flex flex-col text-left mr-1.5">
-                    <span className="text-xs font-semibold text-foreground">{stock.symbol}</span>
-                    <span className="text-[10px] text-muted-foreground truncate max-w-[120px] sm:max-w-[150px]">{stock.name || 'N/A'}</span>
+                  <div className="flex flex-col text-left mr-1">
+                    <span className="text-[10px] font-semibold text-foreground">{stock.symbol}</span>
+                    <span className="text-[9px] text-muted-foreground truncate max-w-[100px] sm:max-w-[120px]">{stock.name || 'N/A'}</span>
                   </div>
                   <div className="flex flex-col items-end flex-shrink-0">
-                    <span className={cn("text-xs font-semibold", stock.price >= 0 ? "text-foreground" : "text-destructive")}>
+                    <span className={cn("text-[10px] font-semibold", stock.price >= 0 ? "text-foreground" : "text-destructive")}>
                       ${stock.price.toFixed(2)}
                     </span>
-                    <span className={cn("text-[10px]", stock.changePercent >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
+                    <span className={cn("text-[9px]", stock.changePercent >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
                       {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
                     </span>
-                    <span className="text-[10px] text-muted-foreground/80">
+                    <span className="text-[9px] text-muted-foreground/80">
                       Vol: {formatVolumeDisplay(stock.volume)}
                     </span>
                   </div>
                 </div>
               </Button>
             )) : (
-              <p className="text-xs text-muted-foreground text-center py-3">No stocks match filter.</p>
+              <p className="text-[10px] text-muted-foreground text-center py-1.5">No stocks match filter.</p>
             )}
           </div>
         </ScrollArea>
@@ -161,5 +163,3 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
     </Card>
   );
 }
-
-    
