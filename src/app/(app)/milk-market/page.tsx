@@ -17,7 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OrdersTable } from '@/components/market/OrdersTable';
 import { TradeHistoryTable } from '@/components/market/TradeHistoryTable';
 
-import { initialMockStocks } from '@/app/(app)/dashboard/page'; // Using this for mock data
+import { initialMockStocks } from '@/app/(app)/dashboard/page'; 
 
 function MilkMarketPageContent() {
   const { toast } = useToast();
@@ -131,10 +131,7 @@ function MilkMarketPageContent() {
               onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
               className="flex-1 min-h-0" 
             />
-            <OrderBookCard
-              stock={stockForSyncedComps}
-              className="h-[250px] flex-shrink-0" 
-            />
+            {/* OrderBookCard removed from here */}
           </div>
           {/* Center Column */}
           <div className="overflow-hidden">
@@ -170,6 +167,7 @@ function MilkMarketPageContent() {
               <TabsTrigger value="orders" className="text-xs px-3 py-1.5 h-auto">Orders</TabsTrigger>
               <TabsTrigger value="history" className="text-xs px-3 py-1.5 h-auto">History</TabsTrigger>
               <TabsTrigger value="news" className="text-xs px-3 py-1.5 h-auto">News</TabsTrigger>
+              <TabsTrigger value="level2" className="text-xs px-3 py-1.5 h-auto">Level 2</TabsTrigger>
             </TabsList>
             <TabsContent value="positions" className="flex-1 overflow-hidden mt-1.5">
               <OpenPositionsCard className="h-full" />
@@ -187,6 +185,12 @@ function MilkMarketPageContent() {
                 onTickerSelect={handleSyncedTickerChange}
               />
             </TabsContent>
+            <TabsContent value="level2" className="flex-1 overflow-hidden mt-1.5">
+              <OrderBookCard
+                stock={stockForSyncedComps}
+                className="h-full"
+              />
+            </TabsContent>
           </Tabs>
         </div>
       </div>
@@ -201,5 +205,3 @@ export default function MilkMarketPage() {
     </Suspense>
   );
 }
-
-    
