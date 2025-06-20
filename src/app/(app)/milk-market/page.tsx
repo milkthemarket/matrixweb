@@ -121,27 +121,18 @@ function MilkMarketPageContent() {
     <main className="flex flex-col h-full overflow-hidden p-1.5 gap-1.5">
       
       {/* Top Section */}
-      <div className="grid grid-cols-[minmax(280px,300px)_1fr_minmax(280px,350px)] gap-1.5 flex-1 overflow-hidden">
+      <div className="grid grid-cols-[minmax(0,1fr)_minmax(280px,350px)_minmax(280px,300px)] gap-1.5 flex-1 overflow-hidden">
         
-        {/* Left Column */}
-        <div className="flex flex-col gap-1.5 min-h-0">
-          <WatchlistCard
-            selectedStockSymbol={syncedTickerSymbol}
-            onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
-            className="flex-1 min-h-0"
-          />
-        </div>
-
-        {/* Center Column */}
-        <div className="min-h-0">
+        {/* Main/Center Column */}
+        <div className="min-h-0 flex flex-col">
           <InteractiveChartCard
             stock={stockForSyncedComps}
             onManualTickerSubmit={handleSyncedTickerChange}
-            className="h-full"
+            className="flex-1"
           />
         </div>
 
-        {/* Right Column */}
+        {/* Right Column (Trade Panel) */}
         <div className="min-h-0">
           <OrderCard
             selectedStock={stockForSyncedComps}
@@ -158,10 +149,19 @@ function MilkMarketPageContent() {
           />
         </div>
 
+        {/* Far Right Column (Watchlist) */}
+        <div className="min-h-0">
+          <WatchlistCard
+            selectedStockSymbol={syncedTickerSymbol}
+            onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
+            className="h-full"
+          />
+        </div>
+
       </div>
 
       {/* Bottom Panel: Tabs */}
-      <div className="h-[420px] flex-shrink-0">
+      <div className="h-[280px] flex-shrink-0">
         <Tabs defaultValue="positions" className="h-full flex flex-col">
           <TabsList className="shrink-0">
               <TabsTrigger value="positions" className="text-xs px-3 py-1.5 h-auto">Positions</TabsTrigger>
