@@ -21,9 +21,10 @@ import type { RefreshInterval } from '@/contexts/AlertContext';
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 import { useToast } from "@/hooks/use-toast";
-import { OrderCard } from '@/components/OrderCard';
-import { OpenPositionsCard } from '@/components/OpenPositionsCard';
-import { MilosTradeIdeasCard } from '@/components/MilosTradeIdeasCard';
+// OrderCard, OpenPositionsCard, and MilosTradeIdeasCard are removed from this specific view
+// import { OrderCard } from '@/components/OrderCard';
+// import { OpenPositionsCard } from '@/components/OpenPositionsCard';
+// import { MilosTradeIdeasCard } from '@/components/MilosTradeIdeasCard';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { mockRules } from '@/app/(app)/rules/page';
 import { format } from 'date-fns';
@@ -170,31 +171,6 @@ export const initialMockStocks: Stock[] = [
   { id: '50', symbol: 'SPY', name: 'SPDR S&P 500 ETF Trust', price: 547.80, changePercent: 0.22, float: 0, volume: 45.1, newsSnippet: 'S&P 500 ETF tracks broad market movement.', lastUpdated: MOCK_INITIAL_TIMESTAMP, marketCap: 503.01 * 10^9, avgVolume: 50.0, atr: 4.205, rsi: 65.3, vwap: 547.70, beta: 1.0, high52: 550.10, low52: 400.50, gapPercent: 0.05, shortFloat: 1.0, instOwn: 50.0, premarketChange: 0.03, peRatio: 25.0, dividendYield: 1.3, sector: 'ETF', earningsDate: undefined },
 ];
 
-
-const initialMockMiloIdeas: MiloTradeIdea[] = [
-  {
-    id: 'milo1',
-    ticker: 'NVDA',
-    reason: 'RSI is nearing oversold (currently 32) and float is relatively low (2500M). Possible bounce setup if broader market holds.',
-    action: 'Consider buying if volume spikes above 1.5x average (current avg: 70.1M) and price breaks above $905.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString()
-  },
-  {
-    id: 'milo2',
-    ticker: 'AMD',
-    reason: 'Recent breakout above $160 resistance, confirmed by strong earnings catalyst and sector strength.',
-    action: 'Watch for entry on a minor pullback to the $158–$159 support zone. Set stop-loss below $155.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString()
-  },
-  {
-    id: 'milo3',
-    ticker: 'BCTX',
-    reason: 'Significant price increase (+15.2%) on high relative volume (22.5M vs 5.0M avg). Positive trial news catalyst.',
-    action: 'Potential momentum play. Monitor for continuation above $5.25. High risk due to volatility.',
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString()
-  },
-];
-
 const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX'];
 
 
@@ -207,15 +183,16 @@ function DashboardPageContent() {
   const [selectedRuleId, setSelectedRuleId] = useState<string>('all');
 
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
-  const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
-  const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
-  const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
+  // Removed OrderCard specific state as it's not part of this view anymore
+  // const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
+  // const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
+  // const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
 
-  const { openPositions, addOpenPosition, removeOpenPosition, updateAllPositionsPrices } = useOpenPositionsContext();
-  const [miloIdeas, setMiloIdeas] = useState<MiloTradeIdea[]>(initialMockMiloIdeas);
-  const [isMiloLoading, setIsMiloLoading] = useState(false);
+  // const { openPositions, addOpenPosition, removeOpenPosition, updateAllPositionsPrices } = useOpenPositionsContext();
+  // const [miloIdeas, setMiloIdeas] = useState<MiloTradeIdea[]>(initialMockMiloIdeas);
+  // const [isMiloLoading, setIsMiloLoading] = useState(false);
 
-  const { addTradeToHistory } = useTradeHistoryContext();
+  // const { addTradeToHistory } = useTradeHistoryContext();
 
   const defaultColumnOrder = useMemo(() => initialColumnConfiguration.map(c => c.key), []);
   const defaultColumnWidths = useMemo(() => {
@@ -347,11 +324,12 @@ function DashboardPageContent() {
     setLastRefreshed(new Date());
   }, []);
 
-  useEffect(() => {
-    if (stocks && stocks.length > 0) {
-      updateAllPositionsPrices(stocks);
-    }
-  }, [stocks, updateAllPositionsPrices]);
+  // Removed effect for updating open positions as OpenPositionsCard is not in this view.
+  // useEffect(() => {
+  //   if (stocks && stocks.length > 0) {
+  //     updateAllPositionsPrices(stocks);
+  //   }
+  // }, [stocks, updateAllPositionsPrices]);
 
   useEffect(() => {
     if (lastRefreshed === null) {
@@ -366,13 +344,13 @@ function DashboardPageContent() {
     if (tickerFromQuery) {
       const stockToSelect = initialMockStocks.find(s => s.symbol.toUpperCase() === tickerFromQuery.toUpperCase());
       if (stockToSelect) {
-        setSelectedStockForOrderCard(stockToSelect);
-        setOrderCardActionType(null); 
-        setOrderCardInitialTradeMode('manual'); 
-        setOrderCardMiloActionContext(null); 
+        // setSelectedStockForOrderCard(stockToSelect); // OrderCard removed
+        // setOrderCardActionType(null); 
+        // setOrderCardInitialTradeMode('manual'); 
+        // setOrderCardMiloActionContext(null); 
          toast({
           title: "Ticker Loaded from Moo Alerts",
-          description: `${stockToSelect.symbol} loaded into the trade panel.`,
+          description: `${stockToSelect.symbol} loaded. (Trade panel not available in screener view)`,
         });
       } else {
         toast({
@@ -437,108 +415,16 @@ function DashboardPageContent() {
   }, [stocks, selectedRuleId, activeRules]);
 
   const handleSelectStockForOrder = (stock: Stock, action: OrderActionType | null) => {
-    setSelectedStockForOrderCard(stock);
-    setOrderCardActionType(action);
-    setOrderCardInitialTradeMode(undefined);
-    setOrderCardMiloActionContext(null);
+    // Logic for handling stock selection (e.g., for chart preview or other interactions)
+    // Since OrderCard is removed, this might just set a "selected stock" for other purposes
+    // For now, if only for popover, it's handled by Popover itself.
+    // If you need a global "selected stock on dashboard" for other reasons, set it here.
+    console.log("Stock selected for details/preview (no trade panel):", stock.symbol, action);
+    setSelectedStockForOrderCard(stock); // Keep this if popover or other elements use it
   };
 
-  const handleClearOrderCard = () => {
-    setSelectedStockForOrderCard(null);
-    setOrderCardActionType(null);
-    setOrderCardInitialTradeMode(undefined);
-    setOrderCardMiloActionContext(null);
-  };
-
-  const handleMiloIdeaSelect = (idea: MiloTradeIdea) => {
-    const stock = stocks.find(s => s.symbol === idea.ticker);
-    if (stock) {
-        setSelectedStockForOrderCard(stock);
-
-        let parsedActionType: OrderActionType = 'Buy';
-        const actionLower = idea.action.toLowerCase();
-        if (actionLower.includes('sell') || actionLower.includes('exit') || actionLower.includes('take profit')) {
-            parsedActionType = 'Sell';
-        } else if (actionLower.includes('short')) {
-            parsedActionType = 'Short';
-        } else if (actionLower.includes('buy') || actionLower.includes('entry') || actionLower.includes('acquire')) {
-            parsedActionType = 'Buy';
-        }
-        setOrderCardActionType(parsedActionType);
-        setOrderCardInitialTradeMode('manual');
-        setOrderCardMiloActionContext(idea.action);
-         toast({
-          title: "Milo Idea Loaded",
-          description: `${idea.ticker} details populated in the trade panel.`,
-        });
-    } else {
-        toast({
-            variant: "destructive",
-            title: "Stock Not Found",
-            description: `Could not find ${idea.ticker} in the current screener list.`,
-        });
-    }
-  };
-
-  const handleStockSymbolSubmitFromOrderCard = (symbol: string) => {
-    const stockToSelect = stocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
-    if (stockToSelect) {
-      setSelectedStockForOrderCard(stockToSelect);
-      setOrderCardActionType(null);
-      setOrderCardInitialTradeMode(undefined);
-      setOrderCardMiloActionContext(null);
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Ticker Not Found",
-        description: `The ticker "${symbol.toUpperCase()}" was not found in the screener list.`,
-      });
-    }
-  };
-
-
-  const handleTradeSubmit = (tradeDetails: TradeRequest) => {
-    console.log("Trade Submitted via Order Card:", tradeDetails);
-    toast({
-      title: "Trade Processing",
-      description: `${tradeDetails.action} ${tradeDetails.quantity} ${tradeDetails.symbol} (${tradeDetails.orderType}) submitted. Origin: ${tradeDetails.tradeModeOrigin || 'manual'}`,
-    });
-
-    if (selectedStockForOrderCard) {
-      const newHistoryEntry: TradeHistoryEntry = {
-        id: String(Date.now()),
-        symbol: tradeDetails.symbol,
-        side: tradeDetails.action,
-        totalQty: tradeDetails.quantity,
-        orderType: tradeDetails.orderType,
-        limitPrice: tradeDetails.limitPrice,
-        stopPrice: tradeDetails.stopPrice,
-        trailAmount: tradeDetails.trailingOffset,
-        TIF: tradeDetails.TIF || "Day",
-        tradingHours: "Include Extended Hours",
-        placedTime: new Date().toISOString(),
-        filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(),
-        orderStatus: "Filled",
-        averagePrice: (tradeDetails.orderType === "Limit" && tradeDetails.limitPrice) ? tradeDetails.limitPrice : selectedStockForOrderCard.price,
-        tradeModeOrigin: tradeDetails.tradeModeOrigin || 'manual',
-        takeProfit: tradeDetails.takeProfit,
-        stopLoss: tradeDetails.stopLoss,
-      };
-      addTradeToHistory(newHistoryEntry);
-    }
-
-    if (tradeDetails.action === 'Buy' || tradeDetails.action === 'Short') {
-        const newPosition: OpenPosition = {
-            id: `pos${Date.now()}`,
-            symbol: tradeDetails.symbol,
-            entryPrice: selectedStockForOrderCard?.price || 0,
-            shares: tradeDetails.quantity,
-            currentPrice: selectedStockForOrderCard?.price || 0,
-            origin: tradeDetails.tradeModeOrigin || 'manual',
-        };
-        addOpenPosition(newPosition);
-    }
-  };
+  // Removed handleMiloIdeaSelect, handleTradeSubmit as they relate to removed OrderCard/MiloIdeasCard
+  // Removed handleStockSymbolSubmitFromOrderCard
 
   const handleExport = () => {
     if (filteredStocks.length === 0) {
@@ -563,19 +449,7 @@ function DashboardPageContent() {
     return '';
   };
 
-  const handleRefreshMiloIdeas = useCallback(() => {
-    setIsMiloLoading(true);
-    setTimeout(() => {
-      const shuffledIdeas = [...initialMockMiloIdeas].sort(() => Math.random() - 0.5);
-      const updatedIdeas = shuffledIdeas.map(idea => ({
-        ...idea,
-        id: `${idea.id}_${Date.now()}`,
-        timestamp: new Date().toISOString()
-      }));
-      setMiloIdeas(updatedIdeas.slice(0, 3 + Math.floor(Math.random()*2)));
-      setIsMiloLoading(false);
-    }, 1500);
-  }, []);
+  // Removed handleRefreshMiloIdeas as MiloIdeasCard is not in this view
 
   const handleDragStart = (e: React.DragEvent<HTMLTableCellElement>, columnKey: keyof Stock) => {
     e.dataTransfer.setData('draggedColumnKey', columnKey as string);
@@ -661,8 +535,8 @@ function DashboardPageContent() {
   return (
     <main className="flex flex-col flex-1 h-full overflow-auto">
       <PageHeader title="Dashboard" />
-      <div className="flex flex-1 p-0.5 md:p-1 space-x-0 md:space-x-1 overflow-auto">
-
+      {/* The main flex container will now only contain the screener section */}
+      <div className="flex flex-1 p-0.5 md:p-1 overflow-auto">
         <div className="flex-1 flex flex-col overflow-auto space-y-1">
           <Card className="shadow-none flex-1 flex flex-col overflow-hidden min-h-[400px]">
             <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-0.5">
@@ -870,29 +744,10 @@ function DashboardPageContent() {
               </div>
             </CardContent>
           </Card>
-
         </div>
 
-        <div className="w-full md:w-80 lg:w-[22rem] hidden md:flex flex-col flex-shrink-0 space-y-1 pr-px overflow-auto min-h-[500px]">
-          <OrderCard
-            selectedStock={selectedStockForOrderCard}
-            initialActionType={orderCardActionType}
-            initialTradeMode={orderCardInitialTradeMode}
-            miloActionContextText={orderCardMiloActionContext}
-            onSubmit={handleTradeSubmit}
-            onClear={handleClearOrderCard}
-            onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
-            className="min-h-[300px]"
-          />
-          <OpenPositionsCard className="min-h-[150px]" />
-          <MilosTradeIdeasCard
-            ideas={miloIdeas}
-            onRefresh={handleRefreshMiloIdeas}
-            isLoading={isMiloLoading}
-            onIdeaSelect={handleMiloIdeaSelect}
-            className="min-h-[150px]"
-          />
-        </div>
+        {/* The right-hand column for Trade Panel, Open Positions, etc. is now removed from this view */}
+
       </div>
     </main>
   );
@@ -906,4 +761,3 @@ export default function DashboardPage() {
     </Suspense>
   );
 }
-
