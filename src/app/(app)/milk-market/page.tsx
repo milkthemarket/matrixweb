@@ -118,77 +118,83 @@ function MilkMarketPageContent() {
   };
 
   return (
-    <main className="grid grid-cols-[1fr_minmax(300px,350px)] gap-1.5 p-1.5 h-full overflow-hidden">
+    <main className="flex flex-col h-full overflow-hidden p-1.5 gap-1.5">
       
-      {/* Left Column: Chart and Tabs */}
-      <div className="flex flex-col gap-1.5 overflow-hidden">
-        <div className="flex-1 min-h-0">
-          <InteractiveChartCard
-              stock={stockForSyncedComps}
-              onManualTickerSubmit={handleSyncedTickerChange}
-              className="h-full"
+      {/* Top Section */}
+      <div className="grid grid-cols-[minmax(280px,300px)_1fr_minmax(280px,350px)] gap-1.5 flex-1 overflow-hidden">
+        
+        {/* Left Column */}
+        <div className="flex flex-col gap-1.5 min-h-0">
+          <WatchlistCard
+            selectedStockSymbol={syncedTickerSymbol}
+            onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
+            className="flex-1 min-h-0"
           />
         </div>
-        <div className="h-[280px] flex-shrink-0">
-          <Tabs defaultValue="positions" className="h-full flex flex-col">
-              <TabsList className="shrink-0">
-                  <TabsTrigger value="positions" className="text-xs px-3 py-1.5 h-auto">Positions</TabsTrigger>
-                  <TabsTrigger value="orders" className="text-xs px-3 py-1.5 h-auto">Orders</TabsTrigger>
-                  <TabsTrigger value="history" className="text-xs px-3 py-1.5 h-auto">History</TabsTrigger>
-                  <TabsTrigger value="news" className="text-xs px-3 py-1.5 h-auto">News</TabsTrigger>
-                  <TabsTrigger value="level2" className="text-xs px-3 py-1.5 h-auto">Level 2</TabsTrigger>
-              </TabsList>
-              <TabsContent value="positions" className="flex-1 overflow-hidden mt-1.5">
-                  <OpenPositionsCard className="h-full" />
-              </TabsContent>
-              <TabsContent value="orders" className="flex-1 overflow-hidden mt-1.5">
-                  <OrdersTable className="h-full" />
-              </TabsContent>
-              <TabsContent value="history" className="flex-1 overflow-hidden mt-1.5">
-                  <TradeHistoryTable className="h-full" syncedTickerSymbol={syncedTickerSymbol} />
-              </TabsContent>
-              <TabsContent value="news" className="flex-1 overflow-hidden mt-1.5">
-                  <NewsCard
-                      className="h-full"
-                      selectedTickerSymbol={syncedTickerSymbol}
-                      onTickerSelect={handleSyncedTickerChange}
-                  />
-              </TabsContent>
-              <TabsContent value="level2" className="flex-1 overflow-hidden mt-1.5">
-                  <OrderBookCard
-                      stock={stockForSyncedComps}
-                      className="h-full"
-                  />
-              </TabsContent>
-          </Tabs>
+
+        {/* Center Column */}
+        <div className="min-h-0">
+          <InteractiveChartCard
+            stock={stockForSyncedComps}
+            onManualTickerSubmit={handleSyncedTickerChange}
+            className="h-full"
+          />
         </div>
+
+        {/* Right Column */}
+        <div className="min-h-0">
+          <OrderCard
+            selectedStock={stockForSyncedComps}
+            initialActionType={orderCardActionType}
+            initialTradeMode={orderCardInitialTradeMode}
+            miloActionContextText={orderCardMiloActionContext}
+            onSubmit={handleTradeSubmit}
+            onClear={handleClearOrderCard}
+            onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
+            initialQuantity={orderCardInitialQuantity}
+            initialOrderType={orderCardInitialOrderType}
+            initialLimitPrice={orderCardInitialLimitPrice}
+            className="h-full"
+          />
+        </div>
+
       </div>
 
-      {/* Right Column: Trade Panel and Watchlist */}
-      <div className="flex flex-col gap-1.5 overflow-hidden">
-          <div className="flex-1 min-h-0">
-            <OrderCard
-              selectedStock={stockForSyncedComps}
-              initialActionType={orderCardActionType}
-              initialTradeMode={orderCardInitialTradeMode}
-              miloActionContextText={orderCardMiloActionContext}
-              onSubmit={handleTradeSubmit}
-              onClear={handleClearOrderCard}
-              onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
-              initialQuantity={orderCardInitialQuantity}
-              initialOrderType={orderCardInitialOrderType}
-              initialLimitPrice={orderCardInitialLimitPrice}
-              className="h-full"
-            />
-          </div>
-          <div className="h-[400px] flex-shrink-0">
-            <WatchlistCard
-                selectedStockSymbol={syncedTickerSymbol}
-                onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
-                className="h-full"
-            />
-          </div>
+      {/* Bottom Panel: Tabs */}
+      <div className="h-[420px] flex-shrink-0">
+        <Tabs defaultValue="positions" className="h-full flex flex-col">
+          <TabsList className="shrink-0">
+              <TabsTrigger value="positions" className="text-xs px-3 py-1.5 h-auto">Positions</TabsTrigger>
+              <TabsTrigger value="orders" className="text-xs px-3 py-1.5 h-auto">Orders</TabsTrigger>
+              <TabsTrigger value="history" className="text-xs px-3 py-1.5 h-auto">History</TabsTrigger>
+              <TabsTrigger value="news" className="text-xs px-3 py-1.5 h-auto">News</TabsTrigger>
+              <TabsTrigger value="level2" className="text-xs px-3 py-1.5 h-auto">Level 2</TabsTrigger>
+          </TabsList>
+          <TabsContent value="positions" className="flex-1 overflow-hidden mt-1.5">
+              <OpenPositionsCard className="h-full" />
+          </TabsContent>
+          <TabsContent value="orders" className="flex-1 overflow-hidden mt-1.5">
+              <OrdersTable className="h-full" />
+          </TabsContent>
+          <TabsContent value="history" className="flex-1 overflow-hidden mt-1.5">
+              <TradeHistoryTable className="h-full" syncedTickerSymbol={syncedTickerSymbol} />
+          </TabsContent>
+          <TabsContent value="news" className="flex-1 overflow-hidden mt-1.5">
+              <NewsCard
+                  className="h-full"
+                  selectedTickerSymbol={syncedTickerSymbol}
+                  onTickerSelect={handleSyncedTickerChange}
+              />
+          </TabsContent>
+          <TabsContent value="level2" className="flex-1 overflow-hidden mt-1.5">
+              <OrderBookCard
+                  stock={stockForSyncedComps}
+                  className="h-full"
+              />
+          </TabsContent>
+        </Tabs>
       </div>
+
     </main>
   );
 }
