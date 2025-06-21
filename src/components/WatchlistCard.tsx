@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"; // Removed CardDescription as it's not used
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,7 +13,8 @@ import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { mockRules } from '@/app/(app)/rules/page';
 
 // Define dummyWatchlistSymbols directly in this file
-const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY'];
+// Added 5 new tickers as requested
+const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM'];
 
 interface WatchlistCardProps {
   selectedStockSymbol: string | null;
@@ -23,7 +24,7 @@ interface WatchlistCardProps {
 
 const formatVolumeDisplay = (volumeInMillions?: number): string => {
   if (volumeInMillions === undefined || volumeInMillions === null) {
-    return 'N/A';
+    return '-';
   }
   if (volumeInMillions >= 1) {
     return `${volumeInMillions.toFixed(1)}M`;
@@ -124,33 +125,34 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0">
         <ScrollArea className="h-full">
-          <div className="space-y-px p-0.5">
+          <div className="space-y-px p-1">
             {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
               <Button
                 key={stock.id}
                 variant="ghost"
                 className={cn(
-                  "w-full justify-start h-auto py-1.5 px-1.5 text-left rounded-sm",
-                  selectedStockSymbol === stock.symbol ? "bg-primary/10 text-primary" : "hover:bg-white/5"
+                  "w-full justify-start h-auto py-1 px-2 text-left rounded-sm",
+                  selectedStockSymbol === stock.symbol ? "bg-primary/10" : "hover:bg-white/5"
                 )}
                 onClick={() => onSelectStock(stock)}
               >
-                <div className="flex justify-between items-start w-full">
-                  <div className="flex flex-col text-left mr-1 min-w-0 flex-1">
-                    <span className="text-[11px] font-bold text-foreground truncate">{stock.symbol}</span>
-                    <span className="text-[10px] text-foreground/80 font-medium truncate">{stock.name || 'N/A'}</span>
-                  </div>
-                  <div className="flex flex-col items-end flex-shrink-0">
-                    <span className="text-[11px] font-bold text-foreground">
-                      ${stock.price.toFixed(2)}
-                    </span>
-                    <span className={cn("text-[10px] font-bold", stock.changePercent >= 0 ? "text-[#22C55E]" : "text-[#EF4444]")}>
-                      {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                    </span>
-                    <span className="text-[10px] text-[#A3A3A3]">
-                      Vol: {formatVolumeDisplay(stock.volume)}
-                    </span>
-                  </div>
+                <div className="grid grid-cols-4 w-full items-baseline text-[11px] gap-2">
+                  <span className="font-bold text-foreground truncate text-left">{stock.symbol}</span>
+                  
+                  <span className="font-bold text-foreground text-right">
+                    ${stock.price.toFixed(2)}
+                  </span>
+
+                  <span className={cn(
+                      "font-bold text-right",
+                      stock.changePercent >= 0 ? "text-[#22C55E]" : "text-[#EF4444]"
+                  )}>
+                    {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                  </span>
+
+                  <span className="font-medium text-[#A3A3A3] text-right truncate">
+                    {formatVolumeDisplay(stock.volume)}
+                  </span>
                 </div>
               </Button>
             )) : (
