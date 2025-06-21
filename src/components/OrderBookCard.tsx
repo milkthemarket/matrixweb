@@ -2,10 +2,9 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Stock } from '@/types';
-import { BookOpen } from "lucide-react";
 import { cn } from '@/lib/utils';
 
 interface OrderBookCardProps {
@@ -57,9 +56,9 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
 
   return (
     <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardHeader className="py-2.5 px-3.5">
-        <CardTitle className="text-base font-bold text-neutral-50 flex items-center">
-            <BookOpen className="h-4 w-4 mr-2" /> Level 2 Order Book
+      <CardHeader className="pt-2 px-3.5 pb-0">
+        <CardTitle className="text-xs font-normal text-muted-foreground text-center">
+          Level 2 Order Book
         </CardTitle>
       </CardHeader>
 
