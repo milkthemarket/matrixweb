@@ -127,10 +127,10 @@ function MilkMarketPageContent() {
               <InteractiveChartCard
                 stock={stockForSyncedComps}
                 onManualTickerSubmit={handleSyncedTickerChange}
-                className="flex-1"
+                className="flex-1 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
               />
               <div className="h-[490px] flex-shrink-0">
-                <Card className="h-full flex flex-col overflow-hidden">
+                <Card className="h-full flex flex-col overflow-hidden transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
                     <Tabs defaultValue="positions" className="flex flex-col h-full">
                         <TabsList className="shrink-0 px-3 pt-2">
                             <TabsTrigger value="positions">Positions</TabsTrigger>
@@ -172,7 +172,7 @@ function MilkMarketPageContent() {
                 initialQuantity={orderCardInitialQuantity}
                 initialOrderType={orderCardInitialOrderType}
                 initialLimitPrice={orderCardInitialLimitPrice}
-                className="h-full"
+                className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
               />
             </div>
 
@@ -181,7 +181,7 @@ function MilkMarketPageContent() {
                 <WatchlistCard
                     selectedStockSymbol={syncedTickerSymbol}
                     onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
-                    className="h-full"
+                    className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
                 />
             </div>
         </div>
