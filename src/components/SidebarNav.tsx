@@ -24,7 +24,6 @@ const navItems = [
   { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/rules", label: "Rules", icon: ListFilter },
   { href: "/history", label: "Trade History", icon: History },
-  { href: "/options", label: "Options", icon: SlidersHorizontal },
   { href: "/academy", label: "Milk Academy", icon: GraduationCap },
   { href: "/suggestions", label: "Suggestions", icon: Lightbulb },
   { href: "/spilled-milk", label: "Spilled Milk", icon: ArchiveX },
