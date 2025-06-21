@@ -3,7 +3,6 @@
 
 import React, { useState, useMemo, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation'; // Import useSearchParams
-import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -12,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { RotateCcw, UploadCloud, Flame, Megaphone, Dot, Columns, Info, ListFilter, Bot, Cog, TrendingUp, TrendingDown, Activity, CalendarCheck2, GripHorizontal, Lock, Star, List, Filter } from "lucide-react";
+import { UploadCloud, Flame, Megaphone, Columns, Info, ListFilter, Bot, Cog, TrendingUp, TrendingDown, Activity, CalendarCheck2, GripHorizontal, Lock, Star, List, Filter } from "lucide-react";
 import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule, MiloTradeIdea, HistoryTradeMode, TradeMode } from "@/types";
 import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
@@ -568,7 +567,6 @@ function DashboardPageContent() {
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-auto">
-      <PageHeader title="Dashboard" />
       {/* The main flex container will now only contain the screener section */}
       <div className="flex flex-1 p-4 md:p-6 overflow-auto">
         <div className="flex-1 flex flex-col overflow-auto space-y-6">
@@ -579,16 +577,6 @@ function DashboardPageContent() {
                 <CardDescription>Filter and find top market movers based on selected rule.</CardDescription>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                {lastRefreshed && <Dot className="h-5 w-5 text-[hsl(var(--confirm-green))] animate-pulse" />}
-                {lastRefreshed && <span className="text-sm text-muted-foreground">Refreshed: {lastRefreshed.toLocaleTimeString()}</span>}
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleRefreshData}
-                >
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Refresh
-                </Button>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button variant="outline" size="sm">
