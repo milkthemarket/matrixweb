@@ -18,8 +18,8 @@ import { cn } from "@/lib/utils";
 // import { Button } from "@/components/ui/button"; // Button is not needed if toggle is removed
 
 const navItems = [
-  { href: "/dashboard", label: "Screener", icon: LayoutDashboard },
   { href: "/milk-market", label: "Milk Market", icon: Store },
+  { href: "/dashboard", label: "Screener", icon: LayoutDashboard },
   { href: "/moo-alerts", label: "Moo Alerts", icon: Megaphone },
   { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/rules", label: "Rules", icon: ListFilter },
