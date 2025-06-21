@@ -118,6 +118,32 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
                     </div>
                 </div>
 
+                <Separator className="my-2 bg-white/10" />
+                
+                <h4 className="text-xs font-semibold text-neutral-300 mb-1.5">Technical Indicators</h4>
+                <div className="grid grid-cols-2 gap-x-4">
+                    <div className="space-y-0">
+                        <DetailItem label="RSI" value="62.1" description="Relative Strength Index (14)" />
+                        <DetailItem label="50-Day MA" value="$169.02" description="50-Day Moving Average" />
+                        <DetailItem label="MACD" value="Bullish Crossover" valueClass="text-green-400" description="Moving Average Convergence Divergence" />
+                        <DetailItem label="Support" value="$168.00" description="Key Support Level" />
+                    </div>
+                    <div className="space-y-0">
+                        <DetailItem label="Trend" value="Neutral" description="Overall Trend" />
+                        <DetailItem label="200-Day MA" value="$165.33" description="200-Day Moving Average" />
+                        <DetailItem label="Signal Line" value="1.23" description="MACD Signal Line" />
+                        <DetailItem label="Resistance" value="$172.50" description="Key Resistance Level" />
+                    </div>
+                </div>
+
+                <div className="mt-4 text-center">
+                    <div className="inline-block px-6 py-2 rounded-full bg-gradient-to-t from-green-500/10 to-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+                        <span className="text-lg font-bold text-green-400 tracking-wider uppercase">
+                        Bullish
+                        </span>
+                    </div>
+                </div>
+
             </CardContent>
         </Card>
     );
