@@ -58,7 +58,7 @@ export function SidebarNav() {
         <div className={cn(
           "flex w-full items-center justify-center" // Always center for icon-only
         )}>
-          <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 justify-center hover:opacity-80 transition-opacity duration-150">
+          <Link href="/milk-market" className="group flex items-center gap-2 min-w-0 justify-center hover:opacity-80 transition-opacity duration-150">
             <CowIcon size={28} className="text-white flex-shrink-0" />
             {/* Text label is removed as sidebar is always icon-only on desktop */}
           </Link>
