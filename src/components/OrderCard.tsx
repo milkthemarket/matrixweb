@@ -79,7 +79,6 @@ export function OrderCard({
 
   const [showTakeProfit, setShowTakeProfit] = useState(false);
   const [takeProfitValue, setTakeProfitValue] = useState('');
-  const [takeProfitMode, setTakeProfitMode] = useState<'Price' | 'DollarAmount' | 'Percentage'>('Price');
 
   const [showStopLoss, setShowStopLoss] = useState(false);
   const [stopLossValue, setStopLossValue] = useState('');
@@ -124,7 +123,6 @@ export function OrderCard({
         setAllowExtendedHours(false);
         setShowTakeProfit(false);
         setTakeProfitValue('');
-        setTakeProfitMode('Price');
         setShowStopLoss(false);
         setStopLossValue('');
 
@@ -157,7 +155,6 @@ export function OrderCard({
       setAllowExtendedHours(false);
       setShowTakeProfit(false);
       setTakeProfitValue('');
-      setTakeProfitMode('Price');
       setShowStopLoss(false);
       setStopLossValue('');
       setDisplayedMiloContext(null);
@@ -190,20 +187,10 @@ export function OrderCard({
     setCurrentAction(action);
   };
 
-  const handleQuantityModeToggle = () => {
-    setQuantityMode(prevMode => {
-      if (prevMode === 'Shares') return 'DollarAmount';
-      if (prevMode === 'DollarAmount') return 'PercentOfBuyingPower';
-      return 'Shares';
-    });
-    setQuantityValue('');
-    quantityInputRef.current?.focus();
-  };
-
   const getQuantityInputPlaceholder = () => {
     if (quantityMode === 'Shares') return "e.g., 100";
-    if (quantityMode === 'DollarAmount') return "$ e.g., 200";
-    if (quantityMode === 'PercentOfBuyingPower') return "% e.g., 10";
+    if (quantityMode === 'DollarAmount') return "e.g., $1000";
+    if (quantityMode === 'PercentOfBuyingPower') return "e.g., 10%";
     return "";
   };
 
@@ -323,30 +310,48 @@ export function OrderCard({
           ? parseFloat(limitPrice)
           : selectedStock.price;
 
-        if (takeProfitMode === 'Price') {
+        if (quantityMode === 'Shares') { // TP input is a price
           calculatedTpPrice = tpValue;
-        } else if (takeProfitMode === 'DollarAmount') {
-          if (currentAction === 'Buy') {
-            calculatedTpPrice = entryPriceForCalc + (tpValue / finalSharesToSubmit);
-          } else {
-            calculatedTpPrice = entryPriceForCalc - (tpValue / finalSharesToSubmit);
+        } else if (quantityMode === 'DollarAmount') { // TP input is total profit $
+          if (finalSharesToSubmit > 0) {
+            const profitPerShare = tpValue / finalSharesToSubmit;
+            calculatedTpPrice = currentAction === 'Buy' ? entryPriceForCalc + profitPerShare : entryPriceForCalc - profitPerShare;
           }
-        } else if (takeProfitMode === 'Percentage') {
-          if (currentAction === 'Buy') {
-            calculatedTpPrice = entryPriceForCalc * (1 + tpValue / 100);
-          } else {
-            calculatedTpPrice = entryPriceForCalc * (1 - tpValue / 100);
-          }
+        } else if (quantityMode === 'PercentOfBuyingPower') { // TP input is % gain
+          calculatedTpPrice = currentAction === 'Buy' ? entryPriceForCalc * (1 + tpValue / 100) : entryPriceForCalc * (1 - tpValue / 100);
         }
+
         if (calculatedTpPrice !== undefined && calculatedTpPrice > 0) {
-            tradeDetails.takeProfit = parseFloat(calculatedTpPrice.toFixed(2));
+          tradeDetails.takeProfit = parseFloat(calculatedTpPrice.toFixed(2));
+        }
+      }
+    }
+    
+    if (showStopLoss && stopLossValue && !isNaN(parseFloat(stopLossValue))) {
+      const slValue = parseFloat(stopLossValue);
+      if (slValue > 0) {
+        let calculatedSlPrice: number | undefined = undefined;
+        const entryPriceForCalc = (orderType === 'Limit' && limitPrice && !isNaN(parseFloat(limitPrice)))
+          ? parseFloat(limitPrice)
+          : selectedStock.price;
+
+        if (quantityMode === 'Shares') { // SL input is a price
+          calculatedSlPrice = slValue;
+        } else if (quantityMode === 'DollarAmount') { // SL input is total loss $
+          if (finalSharesToSubmit > 0) {
+            const lossPerShare = slValue / finalSharesToSubmit;
+            calculatedSlPrice = currentAction === 'Buy' ? entryPriceForCalc - lossPerShare : entryPriceForCalc + lossPerShare;
+          }
+        } else if (quantityMode === 'PercentOfBuyingPower') { // SL input is % loss
+          calculatedSlPrice = currentAction === 'Buy' ? entryPriceForCalc * (1 - slValue / 100) : entryPriceForCalc * (1 + slValue / 100);
+        }
+
+        if (calculatedSlPrice !== undefined && calculatedSlPrice > 0) {
+          tradeDetails.stopLoss = parseFloat(calculatedSlPrice.toFixed(2));
         }
       }
     }
 
-    if (showStopLoss && stopLossValue && !isNaN(parseFloat(stopLossValue)) && parseFloat(stopLossValue) > 0) {
-      tradeDetails.stopLoss = parseFloat(stopLossValue);
-    }
 
     if (selectedAccount?.type !== 'paper' && origin === 'manual' && !manualTradeDisclaimerAcknowledged) {
       setPendingTradeDetails(tradeDetails);
@@ -360,7 +365,6 @@ export function OrderCard({
          setQuantityValue('');
          setTakeProfitValue('');
          setStopLossValue('');
-         setTakeProfitMode('Price');
       }
     }
   };
@@ -378,7 +382,6 @@ export function OrderCard({
          setQuantityValue('');
          setTakeProfitValue('');
          setStopLossValue('');
-         setTakeProfitMode('Price');
       }
     }
     setPendingTradeDetails(null);
@@ -447,6 +450,20 @@ export function OrderCard({
     if (showStopLoss && (!stopLossValue || parseFloat(stopLossValue) <= 0)) return true;
     return false;
   };
+  
+  const getTakeProfitLabel = () => {
+    if (quantityMode === 'Shares') return 'Target Price';
+    if (quantityMode === 'DollarAmount') return 'Profit Amount ($)';
+    if (quantityMode === 'PercentOfBuyingPower') return 'Gain (%)';
+    return 'Target Price';
+  };
+
+  const getStopLossLabel = () => {
+    if (quantityMode === 'Shares') return 'Stop Price';
+    if (quantityMode === 'DollarAmount') return 'Max Loss ($)';
+    if (quantityMode === 'PercentOfBuyingPower') return 'Max Loss (%)';
+    return 'Stop Price';
+  };
 
   const buyButtonBase = "border-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green))] hover:bg-[hsl(var(--confirm-green))]/.10";
   const buyButtonSelected = "bg-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green-foreground))] hover:bg-[hsl(var(--confirm-green))]/90";
@@ -461,18 +478,16 @@ export function OrderCard({
   const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
   const inactiveModeClass = "bg-transparent text-muted-foreground hover:bg-white/5";
 
-  let quantityToggleText = 'Shares';
-  if (quantityMode === 'DollarAmount') quantityToggleText = '$';
-  else if (quantityMode === 'PercentOfBuyingPower') quantityToggleText = '%';
-
-
   return (
     <>
       <Card className={cn("shadow-none flex flex-col h-full", className)}>
         <CardHeader className="pb-0.5 pt-3 px-3 space-y-0.5">
           <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-            <SelectTrigger id="accountSelectOrderCard" className="w-full h-7 text-xs">
-              <SelectValue placeholder="Select an account..." />
+            <SelectTrigger id="accountSelectOrderCard" className="w-full h-8 text-xs truncate">
+              <div className="flex items-center gap-1.5 truncate">
+                {getAccountIcon(selectedAccount?.type)}
+                <span className="truncate">{selectedAccount?.label} ({selectedAccount?.number})</span>
+              </div>
             </SelectTrigger>
             <SelectContent>
               {accounts.map(acc => (
@@ -551,45 +566,65 @@ export function OrderCard({
                   </Button>
               </div>
               
-              <div className="grid grid-cols-[1fr_1.2fr_auto] gap-1.5 items-end">
-                <div className="space-y-1">
-                  <Label htmlFor="orderType" className="text-[10px] font-medium text-foreground">Order Type</Label>
-                  <Select value={orderType} onValueChange={(value) => setOrderType(value as OrderSystemType)}>
-                    <SelectTrigger id="orderType" className="h-8 text-xs">
-                      <SelectValue placeholder="Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Market" className="text-xs">Market</SelectItem>
-                      <SelectItem value="Limit" className="text-xs">Limit</SelectItem>
-                      <SelectItem value="Stop" className="text-xs">Stop</SelectItem>
-                      <SelectItem value="Stop Limit" className="text-xs">Stop Limit</SelectItem>
-                      <SelectItem value="Trailing Stop" className="text-xs">Trailing Stop</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                   <Label htmlFor="quantityValue" className="text-[10px] font-medium text-foreground">Quantity</Label>
-                   <Input
-                    ref={quantityInputRef}
-                    id="quantityValue"
-                    type="number"
-                    value={quantityValue}
-                    onChange={(e) => setQuantityValue(e.target.value)}
-                    placeholder={getQuantityInputPlaceholder()}
-                    className="h-8 bg-transparent px-2 py-1.5 focus-visible:ring-ring text-xs"
-                  />
-                </div>
-                 <div className="space-y-1">
-                    <Label className="text-[10px] font-medium text-transparent select-none">Mode</Label>
-                    <Button
-                        variant="outline"
-                        onClick={handleQuantityModeToggle}
-                        className="h-8 px-2 text-xs w-full"
-                        title={`Current mode: ${quantityMode}. Click to change.`}
-                    >
-                        {quantityToggleText}
-                    </Button>
-                </div>
+              <div className="grid grid-cols-[1fr_auto] gap-1.5 items-end">
+                  <div className="space-y-1">
+                    <Label htmlFor="orderType" className="text-[10px] font-medium text-foreground">Order Type</Label>
+                    <Select value={orderType} onValueChange={(value) => setOrderType(value as OrderSystemType)}>
+                      <SelectTrigger id="orderType" className="h-8 text-xs">
+                        <SelectValue placeholder="Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Market" className="text-xs">Market</SelectItem>
+                        <SelectItem value="Limit" className="text-xs">Limit</SelectItem>
+                        <SelectItem value="Stop" className="text-xs">Stop</SelectItem>
+                        <SelectItem value="Stop Limit" className="text-xs">Stop Limit</SelectItem>
+                        <SelectItem value="Trailing Stop" className="text-xs">Trailing Stop</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="quantityValue" className="text-[10px] font-medium text-foreground">Quantity</Label>
+                    <div className="flex items-center gap-1.5">
+                       <Input
+                        ref={quantityInputRef}
+                        id="quantityValue"
+                        type="number"
+                        value={quantityValue}
+                        onChange={(e) => setQuantityValue(e.target.value)}
+                        placeholder={getQuantityInputPlaceholder()}
+                        className="h-8 bg-transparent px-2 py-1.5 focus-visible:ring-ring text-xs w-24"
+                      />
+                       <div className="flex items-center space-x-1 p-0.5 rounded-md border border-input">
+                          <Button
+                              variant={quantityMode === 'Shares' ? 'secondary' : 'ghost'}
+                              size="icon"
+                              onClick={() => { setQuantityMode('Shares'); setQuantityValue(''); }}
+                              className="h-6 w-6"
+                              title="Enter quantity in shares"
+                          >
+                              <PackageOpen className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                              variant={quantityMode === 'DollarAmount' ? 'secondary' : 'ghost'}
+                              size="icon"
+                              onClick={() => { setQuantityMode('DollarAmount'); setQuantityValue(''); }}
+                              className="h-6 w-6"
+                              title="Enter quantity in dollar amount"
+                          >
+                              <DollarSign className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                              variant={quantityMode === 'PercentOfBuyingPower' ? 'secondary' : 'ghost'}
+                              size="icon"
+                              onClick={() => { setQuantityMode('PercentOfBuyingPower'); setQuantityValue(''); }}
+                              className="h-6 w-6"
+                              title="Enter quantity as a percentage of buying power"
+                          >
+                              <Percent className="h-3.5 w-3.5" />
+                          </Button>
+                      </div>
+                    </div>
+                  </div>
               </div>
                {validationMessage && !isValidQuantity && quantityValue && (
                 <p className="text-xs text-destructive mt-0.5">{validationMessage}</p>
@@ -676,39 +711,19 @@ export function OrderCard({
                 />
               </div>
               {showTakeProfit && (
-                <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)] gap-1.5 items-end pl-2 mt-1.5">
-                  <div>
-                    <Label htmlFor="takeProfitModeSelect" className="text-[10px] font-medium text-foreground">
-                      Mode
-                    </Label>
-                    <Select
-                      value={takeProfitMode}
-                      onValueChange={(value) => setTakeProfitMode(value as 'Price' | 'DollarAmount' | 'Percentage')}
-                    >
-                      <SelectTrigger id="takeProfitModeSelect" className="h-8 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Price" className="text-xs">Price</SelectItem>
-                        <SelectItem value="DollarAmount" className="text-xs">$ Amount</SelectItem>
-                        <SelectItem value="Percentage" className="text-xs">% Gain</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
+                <div className="space-y-1 pl-2 mt-1.5">
                     <Label htmlFor="takeProfitValueInput" className="text-[10px] font-medium text-foreground">
-                      {takeProfitMode === 'Price' ? 'Target Price' : takeProfitMode === 'DollarAmount' ? 'Profit Amount ($)' : 'Gain (%)'}
+                      {getTakeProfitLabel()}
                     </Label>
                     <Input
                       id="takeProfitValueInput"
                       type="number"
-                      step={takeProfitMode === 'Price' ? '0.01' : takeProfitMode === 'DollarAmount' ? '0.01' : '0.1'}
+                      step={quantityMode === 'PercentOfBuyingPower' ? '0.1' : '0.01'}
                       value={takeProfitValue}
                       onChange={(e) => setTakeProfitValue(e.target.value)}
                       placeholder=""
                       className="bg-transparent h-8 text-xs"
                     />
-                  </div>
                 </div>
               )}
 
@@ -729,12 +744,12 @@ export function OrderCard({
               {showStopLoss && (
                 <div className="space-y-1 pl-2 mt-1.5">
                   <Label htmlFor="stopLossPriceInput" className="text-[10px] font-medium text-foreground flex items-center">
-                    Stop Loss Price
+                    {getStopLossLabel()}
                   </Label>
                   <Input
                     id="stopLossPriceInput"
                     type="number"
-                    step="0.01"
+                    step={quantityMode === 'PercentOfBuyingPower' ? '0.1' : '0.01'}
                     value={stopLossValue}
                     onChange={(e) => setStopLossValue(e.target.value)}
                     placeholder=""
@@ -832,4 +847,6 @@ export function OrderCard({
     </>
   );
 }
+    
+
     
