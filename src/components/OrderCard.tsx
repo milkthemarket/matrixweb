@@ -472,7 +472,7 @@ export function OrderCard({
         <CardHeader className="relative pb-1.5 pt-3 px-3 flex flex-row justify-between items-center">
           <div className="flex items-center">
             <CardTitle className="text-lg font-headline text-foreground mb-0">
-              Trade Panel
+              
             </CardTitle>
             {selectedStock && (
               <Button variant="ghost" size="icon" className="ml-1.5 h-6 w-6" onClick={handleClearSelection} title="Clear Selection">
@@ -845,5 +845,4 @@ export function OrderCard({
     </>
   );
 }
-
     
