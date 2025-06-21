@@ -106,8 +106,8 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
     
     const netChange = stock.price && stock.prevClose ? stock.price - stock.prevClose : stock.price * (stock.changePercent / 100);
     const netChangePercent = stock.price && stock.prevClose ? (netChange / stock.prevClose) * 100 : stock.changePercent;
-    const changeColor = netChange >= 0 ? 'text-[#22C55E]' : 'text-destructive';
-    const afterHoursChangeColor = stock.afterHoursChange && stock.afterHoursChange >= 0 ? 'text-[#4ADE80]' : 'text-destructive';
+    const changeColor = netChange >= 0 ? 'text-green-500' : 'text-red-500';
+    const afterHoursChangeColor = stock.afterHoursChange && stock.afterHoursChange >= 0 ? 'text-green-400' : 'text-red-500';
 
     return (
         <Card className={cn("flex flex-col", className)}>
@@ -163,32 +163,32 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
                         <Separator className="my-1.5 bg-white/10" />
                         {bestBid && bestAsk && spread !== undefined && (
                             <div className="text-[10px] text-center text-muted-foreground mb-1">
-                                Bid: <span className="text-[hsl(var(--confirm-green))] font-medium">${bestBid.toFixed(2)}</span> |
-                                Ask: <span className="text-destructive font-medium">${bestAsk.toFixed(2)}</span> |
+                                Bid: <span className="text-green-500 font-medium">${bestBid.toFixed(2)}</span> |
+                                Ask: <span className="text-red-500 font-medium">${bestAsk.toFixed(2)}</span> |
                                 Spread: <span className="text-primary font-medium">${spread.toFixed(2)}</span>
                             </div>
                         )}
-                        <div className="grid grid-cols-2 gap-x-4 text-xs">
+                        <div className="grid grid-cols-2 gap-x-4">
                             <div>
-                                <div className="flex justify-between text-muted-foreground font-medium border-b border-white/10 pb-0.5 mb-0.5">
+                                <div className="flex justify-between text-muted-foreground font-medium border-b border-white/10 pb-0.5 mb-0.5 text-[10px]">
                                     <span>Bids</span>
                                     <span>Size</span>
                                 </div>
                                 {orderBookData.bids.map((bid, index) => (
-                                    <div key={`bid-${index}`} className="flex justify-between items-center hover:bg-green-500/10 rounded-sm px-0.5">
-                                        <span className="font-bold text-green-400">{bid.price.toFixed(2)}</span>
+                                    <div key={`bid-${index}`} className="flex justify-between items-center hover:bg-green-500/10 rounded-sm px-0.5 text-[11px]">
+                                        <span className="font-bold text-green-500">{bid.price.toFixed(2)}</span>
                                         <span className="font-bold text-foreground">{bid.size}</span>
                                     </div>
                                 ))}
                             </div>
                             <div>
-                                <div className="flex justify-between text-muted-foreground font-medium border-b border-white/10 pb-0.5 mb-0.5">
+                                <div className="flex justify-between text-muted-foreground font-medium border-b border-white/10 pb-0.5 mb-0.5 text-[10px]">
                                     <span>Asks</span>
                                     <span>Size</span>
                                 </div>
                                 {orderBookData.asks.map((ask, index) => (
-                                    <div key={`ask-${index}`} className="flex justify-between items-center hover:bg-red-500/10 rounded-sm px-0.5">
-                                        <span className="font-bold text-red-400">{ask.price.toFixed(2)}</span>
+                                    <div key={`ask-${index}`} className="flex justify-between items-center hover:bg-red-500/10 rounded-sm px-0.5 text-[11px]">
+                                        <span className="font-bold text-red-500">{ask.price.toFixed(2)}</span>
                                         <span className="font-bold text-foreground">{ask.size}</span>
                                     </div>
                                 ))}
