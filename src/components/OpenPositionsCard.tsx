@@ -47,22 +47,22 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
             <Table>
               <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-[1]">
                 <TableRow>
-                  <TableHead className="h-7 px-2 text-xs text-muted-foreground font-medium">Symbol</TableHead>
-                  <TableHead className="h-7 px-2 text-xs text-right text-muted-foreground font-medium">Shares</TableHead>
-                  <TableHead className="h-7 px-2 text-xs text-right text-muted-foreground font-medium">Entry</TableHead>
-                  <TableHead className="h-7 px-2 text-xs text-right text-muted-foreground font-medium">Current</TableHead>
-                  <TableHead className="h-7 px-2 text-xs text-right text-muted-foreground font-medium">P&amp;L</TableHead>
-                  <TableHead className="h-7 px-2 text-xs text-center text-muted-foreground font-medium">Action</TableHead>
+                  <TableHead className="h-7 px-2 text-[10px] text-muted-foreground font-medium">Symbol</TableHead>
+                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Shares</TableHead>
+                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Entry</TableHead>
+                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Current</TableHead>
+                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">P&amp;L</TableHead>
+                  <TableHead className="h-7 px-2 text-[10px] text-center text-muted-foreground font-medium">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredPositions.map((pos) => {
                   const pnl = calculatePnl(pos);
                   return (
-                    <TableRow key={pos.id} className="text-xs hover:bg-white/5">
+                    <TableRow key={pos.id} className="text-[11px] hover:bg-white/5">
                       <TableCell className="font-bold text-foreground px-2 py-1.5">{pos.symbol}</TableCell>
-                      <TableCell className="text-right font-bold text-foreground px-2 py-1.5">{pos.shares}</TableCell>
-                      <TableCell className="text-right font-bold text-foreground px-2 py-1.5">${pos.entryPrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right font-medium text-foreground px-2 py-1.5">{pos.shares}</TableCell>
+                      <TableCell className="text-right font-medium text-foreground px-2 py-1.5">${pos.entryPrice.toFixed(2)}</TableCell>
                       <TableCell className="text-right font-bold text-foreground px-2 py-1.5">${pos.currentPrice.toFixed(2)}</TableCell>
                       <TableCell
                         className={cn(
