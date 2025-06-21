@@ -101,7 +101,7 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
         <div className="flex items-center justify-between">
           <CardTitle className="text-md font-headline text-foreground flex items-center">
             <Eye className="mr-1.5 h-3.5 w-3.5 text-primary" />
-            Watchlist
+            
           </CardTitle>
         </div>
         <Select value={selectedFilterId} onValueChange={setSelectedFilterId}>
