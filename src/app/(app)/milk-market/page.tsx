@@ -122,43 +122,38 @@ function MilkMarketPageContent() {
         <div className="grid grid-cols-[1fr_350px_300px] gap-1.5 flex-1 overflow-hidden">
             
             {/* Main/Left Column */}
-            <div className="min-h-0 flex flex-col gap-1.5">
+            <div className="flex flex-col flex-1 min-h-0 gap-1.5">
               <InteractiveChartCard
                 stock={stockForSyncedComps}
                 onManualTickerSubmit={handleSyncedTickerChange}
                 className="flex-1"
               />
-                {/* Bottom Panel: Tabs - Now part of the center column */}
-                <div className="h-[280px] flex-shrink-0">
-                    <Tabs defaultValue="positions" className="h-full flex flex-col">
-                        <TabsList className="shrink-0">
-                            <TabsTrigger value="positions">Positions</TabsTrigger>
-                            <TabsTrigger value="orders">Orders</TabsTrigger>
-                            <TabsTrigger value="history">History</TabsTrigger>
-                            <TabsTrigger value="news">News</TabsTrigger>
-                            <TabsTrigger value="level2">Level 2</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="positions" className="flex-1 overflow-hidden mt-2">
-                            <OpenPositionsCard className="h-full" />
-                        </TabsContent>
-                        <TabsContent value="orders" className="flex-1 overflow-hidden mt-2">
-                           <OrdersTable className="h-full" />
-                        </TabsContent>
-                        <TabsContent value="history" className="flex-1 overflow-hidden mt-2">
-                            <TradeHistoryTable className="h-full" syncedTickerSymbol={syncedTickerSymbol} />
-                        </TabsContent>
-                        <TabsContent value="news" className="flex-1 overflow-hidden mt-2">
-                            <NewsCard
-                                className="h-full"
-                                selectedTickerSymbol={syncedTickerSymbol}
-                                onTickerSelect={handleSyncedTickerChange}
-                            />
-                        </TabsContent>
-                        <TabsContent value="level2" className="flex-1 overflow-hidden mt-2">
-                            <OrderBookCard stock={stockForSyncedComps} className="h-full" />
-                        </TabsContent>
-                    </Tabs>
-                </div>
+              <div className="h-[490px] flex-shrink-0">
+                <Tabs defaultValue="positions" className="h-full flex flex-col">
+                    <TabsList className="shrink-0">
+                        <TabsTrigger value="positions">Positions</TabsTrigger>
+                        <TabsTrigger value="history">History</TabsTrigger>
+                        <TabsTrigger value="news">News</TabsTrigger>
+                        <TabsTrigger value="level2">Level 2</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="positions" className="flex-1 overflow-hidden mt-2">
+                        <OpenPositionsCard className="h-full" />
+                    </TabsContent>
+                    <TabsContent value="history" className="flex-1 overflow-hidden mt-2">
+                        <TradeHistoryTable className="h-full" syncedTickerSymbol={syncedTickerSymbol} />
+                    </TabsContent>
+                    <TabsContent value="news" className="flex-1 overflow-hidden mt-2">
+                        <NewsCard
+                            className="h-full"
+                            selectedTickerSymbol={syncedTickerSymbol}
+                            onTickerSelect={handleSyncedTickerChange}
+                        />
+                    </TabsContent>
+                    <TabsContent value="level2" className="flex-1 overflow-hidden mt-2">
+                        <OrderBookCard stock={stockForSyncedComps} className="h-full" />
+                    </TabsContent>
+                </Tabs>
+              </div>
             </div>
 
             {/* Center Column (Trade Panel) */}
