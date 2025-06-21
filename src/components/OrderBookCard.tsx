@@ -56,12 +56,6 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
 
   return (
     <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardHeader className="pt-2 px-3.5 pb-0">
-        <CardTitle className="text-xs font-normal text-muted-foreground text-center">
-          Level 2 Order Book
-        </CardTitle>
-      </CardHeader>
-
       <CardContent className="p-0 flex-1 overflow-hidden flex flex-col">
         <div className="py-2 px-3.5 border-b border-t border-border/[.1]">
             {stock && stock.price > 0 && bestBid && bestAsk && spread !== undefined ? (

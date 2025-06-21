@@ -160,14 +160,6 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
                     </div>
                 </div>
 
-                <div className="mt-4 text-center">
-                    <div className="inline-block px-6 py-2 rounded-full bg-gradient-to-t from-green-500/10 to-green-500/20 shadow-[0_0_15px_rgba(34,197,94,0.3)]">
-                        <span className="text-lg font-bold text-green-400 tracking-wider uppercase">
-                        Bullish
-                        </span>
-                    </div>
-                </div>
-
             </CardContent>
         </Card>
     );
