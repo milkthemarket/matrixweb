@@ -19,6 +19,7 @@ import { OrdersTable } from '@/components/market/OrdersTable';
 import { TradeHistoryTable } from '@/components/market/TradeHistoryTable';
 
 import { initialMockStocks } from '@/app/(app)/dashboard/page';
+import { FundamentalsCard } from '@/components/FundamentalsCard';
 
 function MilkMarketPageContent() {
   const { toast } = useToast();
@@ -159,8 +160,8 @@ function MilkMarketPageContent() {
               </div>
             </div>
 
-            {/* Center Column (Trade Panel) */}
-            <div className="min-h-0">
+            {/* Center Column (Trade Panel + Fundamentals) */}
+            <div className="flex flex-col min-h-0 gap-1.5">
               <OrderCard
                 selectedStock={stockForSyncedComps}
                 initialActionType={orderCardActionType}
@@ -172,7 +173,11 @@ function MilkMarketPageContent() {
                 initialQuantity={orderCardInitialQuantity}
                 initialOrderType={orderCardInitialOrderType}
                 initialLimitPrice={orderCardInitialLimitPrice}
-                className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                className="flex-1 min-h-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+              />
+              <FundamentalsCard 
+                stock={stockForSyncedComps}
+                className="h-[490px] transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
               />
             </div>
 

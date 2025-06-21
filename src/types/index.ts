@@ -27,11 +27,31 @@ export interface Stock {
   instOwn?: number;
   premarketChange?: number;
 
-  // New fields for StockDetailsCard
   peRatio?: number;
-  dividendYield?: number; // As a percentage, e.g., 1.5 for 1.5%
+  dividendYield?: number;
   sector?: string;
-  earningsDate?: string; // Could be a Date object or ISO string, e.g., "2024-07-25T00:00:00.000Z"
+  earningsDate?: string;
+
+  // New fields for FundamentalsCard
+  open?: number;
+  high?: number;
+  low?: number;
+  prevClose?: number;
+  turnoverPercent?: number;
+  turnoverValue?: number;
+  peRatioTTM?: number;
+  peRatioForecast?: number;
+  priceToBook?: number;
+  priceToSales?: number;
+  epsTTM?: number;
+  sharesOutstanding?: number; // full number, not millions
+  freeFloatShares?: number; // full number, not millions
+  bookValuePerShare?: number;
+  exDividendDate?: string; // YYYY-MM-DD
+  lotSize?: number;
+  afterHoursPrice?: number;
+  afterHoursChange?: number;
+  afterHoursChangePercent?: number;
 }
 
 export type RuleOperator = '>' | '<' | '>=' | '<=' | '==' | '!=' | 'between' | 'contains';
