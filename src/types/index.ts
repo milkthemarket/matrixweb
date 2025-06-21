@@ -167,7 +167,7 @@ export interface TradeHistoryEntry {
 }
 
 export interface ColumnConfig<T = Stock | TradeHistoryEntry> {
-  key: keyof T;
+  key: keyof T | string;
   label: string;
   defaultVisible?: boolean;
   isToggleable?: boolean;

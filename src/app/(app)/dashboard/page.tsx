@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { UploadCloud, Flame, Megaphone, Columns, Info, ListFilter, Bot, Cog, TrendingUp, TrendingDown, Activity, CalendarCheck2, GripHorizontal, Lock, Star, List, Filter } from "lucide-react";
+import { UploadCloud, Flame, Megaphone, Columns, Info, ListFilter, Bot, Cog, TrendingUp, TrendingDown, Activity, CalendarCheck2, GripHorizontal, Lock, Star, List, Filter, SlidersHorizontal } from "lucide-react";
 import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule, MiloTradeIdea, HistoryTradeMode, TradeMode } from "@/types";
 import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
@@ -27,6 +27,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { mockRules } from '@/app/(app)/rules/page';
 import { format } from 'date-fns';
+import { ScreenerFilterModal } from '@/components/ScreenerFilterModal';
+import type { ActiveScreenerFilters } from '@/components/ScreenerFilterModal';
+import { Badge } from '@/components/ui/badge';
 
 const MOCK_INITIAL_TIMESTAMP = '2024-07-01T10:00:00.000Z';
 const DASHBOARD_REFRESH_INTERVAL: RefreshInterval = 15000;
@@ -180,7 +183,7 @@ export const initialMockStocks: Stock[] = [
     lastUpdated: MOCK_INITIAL_TIMESTAMP,
     catalystType: 'news',
     historicalPrices: [815, 820, 818, 825, 830, 828, 835.45],
-    marketCap: 20050800000,
+    marketCap: 20.05e9,
     avgVolume: 0.9,
     atr: 15.5,
     rsi: 65.0,
@@ -204,7 +207,7 @@ export const initialMockStocks: Stock[] = [
   },
 ];
 
-const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX'];
+const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM', 'TPL'];
 
 
 function DashboardPageContent() {
@@ -214,6 +217,8 @@ function DashboardPageContent() {
   const [stocks, setStocks] = useState<Stock[]>(initialMockStocks);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
   const [selectedRuleId, setSelectedRuleId] = useState<string>('all');
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<Partial<ActiveScreenerFilters>>({});
 
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
   // Removed OrderCard specific state as it's not part of this view anymore
@@ -398,54 +403,89 @@ function DashboardPageContent() {
 
 
   const activeRules = useMemo(() => mockRules.filter(rule => rule.isActive), []);
+  const activeFilterCount = Object.values(activeFilters).filter(f => f.active).length;
 
   const filteredStocks = useMemo(() => {
     let processedStocks = [...stocks];
 
-    switch (selectedRuleId) {
-      case 'all':
-        return processedStocks;
-      case 'my-watchlist':
-        return processedStocks.filter(stock => dummyWatchlistSymbols.includes(stock.symbol));
-      case 'top-gainers':
-        return processedStocks.sort((a, b) => b.changePercent - a.changePercent);
-      case 'top-losers':
-        return processedStocks.sort((a, b) => a.changePercent - b.changePercent);
-      case 'active':
-        return processedStocks.sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0));
-      case '52-week':
-        return processedStocks.filter(stock =>
-          stock.price && stock.high52 && stock.low52 &&
-          (stock.price >= (stock.high52 * 0.98) || stock.price <= (stock.low52 * 1.02))
-        );
-      default:
-        const rule = activeRules.find(r => r.id === selectedRuleId);
-        if (!rule) {
-          return processedStocks;
-        }
-        return processedStocks.filter(stock => {
-          return rule.criteria.every(criterion => {
-            const stockValue = stock[criterion.metric as keyof Stock] as number | undefined;
-            if (stockValue === undefined || stockValue === null) return false;
-            const ruleValue = criterion.value;
-            switch (criterion.operator) {
-              case '>': return stockValue > (ruleValue as number);
-              case '<': return stockValue < (ruleValue as number);
-              case '>=': return stockValue >= (ruleValue as number);
-              case '<=': return stockValue <= (ruleValue as number);
-              case '==': return stockValue === (ruleValue as number);
-              case '!=': return stockValue !== (ruleValue as number);
-              case 'between':
-                if (Array.isArray(ruleValue) && ruleValue.length === 2) {
-                  return stockValue >= ruleValue[0] && stockValue <= ruleValue[1];
+    if (selectedRuleId !== 'all') {
+      switch (selectedRuleId) {
+        case 'my-watchlist':
+          processedStocks = processedStocks.filter(stock => dummyWatchlistSymbols.includes(stock.symbol));
+          break;
+        case 'top-gainers':
+          processedStocks = processedStocks.sort((a, b) => b.changePercent - a.changePercent);
+          break;
+        case 'top-losers':
+          processedStocks = processedStocks.sort((a, b) => a.changePercent - b.changePercent);
+          break;
+        case 'active':
+          processedStocks = processedStocks.sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0));
+          break;
+        case '52-week':
+          processedStocks = processedStocks.filter(stock =>
+            stock.price && stock.high52 && stock.low52 &&
+            (stock.price >= (stock.high52 * 0.98) || stock.price <= (stock.low52 * 1.02))
+          );
+          break;
+        default:
+          const rule = activeRules.find(r => r.id === selectedRuleId);
+          if (rule) {
+            processedStocks = processedStocks.filter(stock => {
+              return rule.criteria.every(criterion => {
+                const stockValue = stock[criterion.metric as keyof Stock] as number | undefined;
+                if (stockValue === undefined || stockValue === null) return false;
+                const ruleValue = criterion.value;
+                switch (criterion.operator) {
+                  case '>': return stockValue > (ruleValue as number);
+                  case '<': return stockValue < (ruleValue as number);
+                  case '>=': return stockValue >= (ruleValue as number);
+                  case '<=': return stockValue <= (ruleValue as number);
+                  case '==': return stockValue === (ruleValue as number);
+                  case '!=': return stockValue !== (ruleValue as number);
+                  case 'between':
+                    if (Array.isArray(ruleValue) && ruleValue.length === 2) {
+                      return stockValue >= ruleValue[0] && stockValue <= ruleValue[1];
+                    }
+                    return false;
+                  default: return true;
                 }
-                return false;
-              default: return true;
-            }
-          });
+              });
+            });
+          }
+      }
+    }
+    
+    const customFilterKeys = Object.entries(activeFilters)
+        .filter(([, filterValue]) => filterValue.active)
+        .map(([key]) => key);
+
+    if (customFilterKeys.length > 0) {
+        processedStocks = processedStocks.filter(stock => {
+            return customFilterKeys.every(key => {
+                const filter = activeFilters[key as keyof Stock];
+                if (!filter || !filter.active) return true;
+
+                let stockValue = stock[key as keyof Stock] as number | undefined;
+                if (stockValue === undefined || stockValue === null) return false;
+
+                let min = filter.min ? parseFloat(filter.min) : -Infinity;
+                let max = filter.max ? parseFloat(filter.max) : Infinity;
+
+                if (key === 'marketCap') {
+                    stockValue = stockValue / 1e9; // Convert stock's market cap to Billions for comparison
+                }
+
+                if (!isNaN(min) && stockValue < min) return false;
+                if (!isNaN(max) && stockValue > max) return false;
+
+                return true;
+            });
         });
     }
-  }, [stocks, selectedRuleId, activeRules]);
+
+    return processedStocks;
+  }, [stocks, selectedRuleId, activeRules, activeFilters]);
 
   const handleSelectStockForOrder = (stock: Stock, action: OrderActionType | null) => {
     // Logic for handling stock selection (e.g., for chart preview or other interactions)
@@ -566,208 +606,222 @@ function DashboardPageContent() {
 
 
   return (
-    <main className="flex flex-col flex-1 h-full overflow-auto">
-      {/* The main flex container will now only contain the screener section */}
-      <div className="flex flex-1 p-4 md:p-6 overflow-auto">
-        <div className="flex-1 flex flex-col overflow-auto space-y-6">
-          <Card className="flex-1 flex flex-col overflow-hidden min-h-[400px]">
-            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <CardTitle>Real-Time Stock Screener</CardTitle>
-                <CardDescription>Filter and find top market movers based on selected rule.</CardDescription>
-              </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Columns className="mr-2 h-4 w-4" /> Columns
+    <>
+      <main className="flex flex-col flex-1 h-full overflow-auto">
+        {/* The main flex container will now only contain the screener section */}
+        <div className="flex flex-1 p-4 md:p-6 overflow-auto">
+          <div className="flex-1 flex flex-col overflow-auto space-y-6">
+            <Card className="flex-1 flex flex-col overflow-hidden min-h-[400px]">
+              <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <CardTitle>Real-Time Stock Screener</CardTitle>
+                  <CardDescription>Filter and find top market movers based on selected rule.</CardDescription>
+                </div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Columns className="mr-2 h-4 w-4" /> Columns
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto max-w-xs md:max-w-sm p-0">
+                      <div className="p-2 border-b border-border">
+                          <h4 className="font-medium text-sm text-foreground">Customize Columns</h4>
+                      </div>
+                      <ScrollArea className="h-[200px] md:h-[300px]">
+                        <TooltipProvider>
+                          <div className="p-2 space-y-2">
+                            {initialColumnConfiguration
+                              .filter(col => col.isToggleable)
+                              .map(col => (
+                                <Tooltip key={`tooltip-${col.key as string}`}>
+                                  <TooltipTrigger asChild>
+                                    <Label
+                                      htmlFor={`col-${col.key as string}`}
+                                      className={cn(
+                                        "flex items-center space-x-2 p-2 rounded-md hover:bg-muted transition-colors w-full",
+                                        !visibleColumns[col.key as string] && "opacity-75"
+                                      )}
+                                    >
+                                      <Checkbox
+                                        id={`col-${col.key as string}`}
+                                        checked={visibleColumns[col.key as string]}
+                                        onCheckedChange={() => toggleColumnVisibility(col.key as string)}
+                                      />
+                                      <span className="text-sm font-normal text-foreground flex-1">{col.label}</span>
+                                      {col.description && <Info className="h-4 w-4 text-muted-foreground opacity-50" />}
+                                    </Label>
+                                  </TooltipTrigger>
+                                  {col.description && (
+                                    <TooltipContent side="right" align="center">
+                                      <p>{col.description}</p>
+                                    </TooltipContent>
+                                  )}
+                                </Tooltip>
+                              ))}
+                          </div>
+                        </TooltipProvider>
+                      </ScrollArea>
+                    </PopoverContent>
+                  </Popover>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleExport}
+                  >
+                    <UploadCloud className="mr-2 h-4 w-4" />
+                    Export
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="flex-1 flex flex-col overflow-hidden space-y-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                    <Button variant="outline" size="sm" onClick={() => setIsFilterModalOpen(true)}>
+                      <SlidersHorizontal className="mr-2 h-4 w-4" /> Filters
                     </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto max-w-xs md:max-w-sm p-0">
-                     <div className="p-2 border-b border-border">
-                        <h4 className="font-medium text-sm text-foreground">Customize Columns</h4>
-                     </div>
-                     <ScrollArea className="h-[200px] md:h-[300px]">
-                      <TooltipProvider>
-                        <div className="p-2 space-y-2">
-                          {initialColumnConfiguration
-                            .filter(col => col.isToggleable)
-                            .map(col => (
-                              <Tooltip key={`tooltip-${col.key as string}`}>
-                                <TooltipTrigger asChild>
-                                  <Label
-                                    htmlFor={`col-${col.key as string}`}
-                                    className={cn(
-                                      "flex items-center space-x-2 p-2 rounded-md hover:bg-muted transition-colors w-full",
-                                      !visibleColumns[col.key as string] && "opacity-75"
-                                    )}
-                                  >
-                                    <Checkbox
-                                      id={`col-${col.key as string}`}
-                                      checked={visibleColumns[col.key as string]}
-                                      onCheckedChange={() => toggleColumnVisibility(col.key as string)}
-                                    />
-                                    <span className="text-sm font-normal text-foreground flex-1">{col.label}</span>
-                                    {col.description && <Info className="h-4 w-4 text-muted-foreground opacity-50" />}
-                                  </Label>
-                                </TooltipTrigger>
-                                {col.description && (
-                                  <TooltipContent side="right" align="center">
-                                    <p>{col.description}</p>
-                                  </TooltipContent>
-                                )}
-                              </Tooltip>
-                            ))}
-                        </div>
-                      </TooltipProvider>
-                     </ScrollArea>
-                  </PopoverContent>
-                </Popover>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleExport}
-                >
-                  <UploadCloud className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-1 flex flex-col overflow-hidden space-y-4">
-              <div className="flex items-center gap-2">
-                  <Label htmlFor="ruleSelect" className="text-sm font-medium flex items-center">
-                    <ListFilter className="mr-2 h-4 w-4 text-primary" /> Apply Screener / Rule:
-                  </Label>
-                  <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
-                    <SelectTrigger id="ruleSelect" className="w-auto min-w-[200px]">
-                        <SelectValue placeholder="Select a screener or rule..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">
-                          <span className="flex items-center">
-                            <List className="mr-2 h-4 w-4 text-muted-foreground" /> Show All Stocks
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="my-watchlist">
-                          <span className="flex items-center">
-                            <Star className="mr-2 h-4 w-4 text-yellow-400" /> My Watchlist
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="top-gainers" className="text-[hsl(var(--confirm-green))]">
-                          <span className="flex items-center">
-                            <TrendingUp className="mr-2 h-4 w-4" /> Top Gainers
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="top-losers" className="text-destructive">
-                          <span className="flex items-center">
-                            <TrendingDown className="mr-2 h-4 w-4" /> Top Losers
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="active">
-                          <span className="flex items-center">
-                            <Activity className="mr-2 h-4 w-4 text-primary" /> Most Active
-                          </span>
-                        </SelectItem>
-                        <SelectItem value="52-week">
-                          <span className="flex items-center">
-                            <CalendarCheck2 className="mr-2 h-4 w-4 text-accent" /> 52 Week Highs/Lows
-                          </span>
-                        </SelectItem>
-                        {activeRules.map(rule => (
-                          <SelectItem key={rule.id} value={rule.id}>
+                    {activeFilterCount > 0 && (
+                      <Badge variant="secondary">{activeFilterCount} Active</Badge>
+                    )}
+                    <Label htmlFor="ruleSelect" className="text-sm font-medium flex items-center">
+                      <ListFilter className="mr-2 h-4 w-4 text-primary" /> Apply Screener / Rule:
+                    </Label>
+                    <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
+                      <SelectTrigger id="ruleSelect" className="w-auto min-w-[200px]">
+                          <SelectValue placeholder="Select a screener or rule..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all">
                             <span className="flex items-center">
-                              <Filter className="mr-2 h-4 w-4 text-foreground/80" /> {rule.name}
+                              <List className="mr-2 h-4 w-4 text-muted-foreground" /> Show All Stocks
                             </span>
                           </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-              </div>
-
-              <div className="rounded-lg border overflow-auto flex-1">
-                <Table className="table-layout-fixed">
-                  <colgroup>
-                    {displayedColumns.map(col => (
-                      <col key={`coldef-${col.key as string}`} style={{ width: columnWidths[col.key as string] ? `${columnWidths[col.key as string]}px` : (col.defaultWidth ? `${col.defaultWidth}px` : 'auto') }} />
-                    ))}
-                  </colgroup>
-                  <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
-                    <TableRow>
-                      {displayedColumns.map((col) => (
-                        <TableHead
-                          key={col.key as string}
-                          draggable={col.isDraggable}
-                          onDragStart={(e) => col.isDraggable && handleDragStart(e, col.key as keyof Stock)}
-                          onDragOver={(e) => col.isDraggable && handleDragOver(e, col.key as keyof Stock)}
-                          onDragLeave={(e) => col.isDraggable && handleDragLeave(e)}
-                          onDrop={(e) => col.isDraggable && handleDrop(e, col.key as keyof Stock)}
-                          className={cn(
-                            col.align === 'right' && "text-right",
-                            col.align === 'center' && "text-center",
-                            col.isDraggable && "cursor-grab",
-                            draggingOverKey === col.key && "bg-primary/20",
-                            "transition-colors duration-150 relative group"
-                          )}
-                        >
-                          <div className="flex items-center justify-between w-full">
-                             <div className="flex items-center gap-1 overflow-hidden">
-                                {col.isDraggable ? <GripHorizontal className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" /> : <Lock className="h-3 w-3 text-muted-foreground/50 flex-shrink-0" />}
-                                <span className="truncate">{col.label}</span>
-                             </div>
-                          </div>
-                           <div
-                              onMouseDown={(e) => handleResizeMouseDown(e, col.key as string)}
-                              className="absolute top-0 right-0 h-full w-1 cursor-col-resize opacity-0 group-hover:opacity-100 hover:bg-primary/30 z-20 transition-opacity"
-                              title={`Resize ${col.label} column`}
-                            />
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredStocks.length > 0 ? (
-                      filteredStocks.map((stock) => (
-                        <TableRow
-                            key={stock.id}
-                            className={cn(
-                                getRowHighlightClass(stock),
-                                "hover:bg-muted/50 transition-colors duration-200 cursor-pointer",
-                                selectedStockForOrderCard?.id === stock.id && "bg-primary/20"
-                            )}
-                            onClick={() => handleSelectStockForOrder(stock, null)}
-                        >
-                          {displayedColumns.map((col) => (
-                            <TableCell
-                              key={`${stock.id}-${col.key as string}`}
-                              className={cn(
-                                col.align === 'right' && "text-right",
-                                col.align === 'center' && "text-center",
-                                col.key === 'symbol' && "font-medium"
-                              )}
-                            >
-                              {col.format ? col.format(stock[col.key as keyof Stock], stock) : String(stock[col.key as keyof Stock] ?? 'N/A')}
-                            </TableCell>
+                          <SelectItem value="my-watchlist">
+                            <span className="flex items-center">
+                              <Star className="mr-2 h-4 w-4 text-yellow-400" /> My Watchlist
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="top-gainers" className="text-[hsl(var(--confirm-green))]">
+                            <span className="flex items-center">
+                              <TrendingUp className="mr-2 h-4 w-4" /> Top Gainers
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="top-losers" className="text-destructive">
+                            <span className="flex items-center">
+                              <TrendingDown className="mr-2 h-4 w-4" /> Top Losers
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="active">
+                            <span className="flex items-center">
+                              <Activity className="mr-2 h-4 w-4 text-primary" /> Most Active
+                            </span>
+                          </SelectItem>
+                          <SelectItem value="52-week">
+                            <span className="flex items-center">
+                              <CalendarCheck2 className="mr-2 h-4 w-4 text-accent" /> 52 Week Highs/Lows
+                            </span>
+                          </SelectItem>
+                          {activeRules.map(rule => (
+                            <SelectItem key={rule.id} value={rule.id}>
+                              <span className="flex items-center">
+                                <Filter className="mr-2 h-4 w-4 text-foreground/80" /> {rule.name}
+                              </span>
+                            </SelectItem>
                           ))}
-                        </TableRow>
-                      ))
-                    ) : (
+                      </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="rounded-lg border overflow-auto flex-1">
+                  <Table className="table-layout-fixed">
+                    <colgroup>
+                      {displayedColumns.map(col => (
+                        <col key={`coldef-${col.key as string}`} style={{ width: columnWidths[col.key as string] ? `${columnWidths[col.key as string]}px` : (col.defaultWidth ? `${col.defaultWidth}px` : 'auto') }} />
+                      ))}
+                    </colgroup>
+                    <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                       <TableRow>
-                        <TableCell colSpan={displayedColumns.length} className="h-24 text-center">
-                          No stocks match the selected filter or rule.
-                        </TableCell>
+                        {displayedColumns.map((col) => (
+                          <TableHead
+                            key={col.key as string}
+                            draggable={col.isDraggable}
+                            onDragStart={(e) => col.isDraggable && handleDragStart(e, col.key as keyof Stock)}
+                            onDragOver={(e) => col.isDraggable && handleDragOver(e, col.key as keyof Stock)}
+                            onDragLeave={(e) => col.isDraggable && handleDragLeave(e)}
+                            onDrop={(e) => col.isDraggable && handleDrop(e, col.key as keyof Stock)}
+                            className={cn(
+                              col.align === 'right' && "text-right",
+                              col.align === 'center' && "text-center",
+                              col.isDraggable && "cursor-grab",
+                              draggingOverKey === col.key && "bg-primary/20",
+                              "transition-colors duration-150 relative group"
+                            )}
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              <div className="flex items-center gap-1 overflow-hidden">
+                                  {col.isDraggable ? <GripHorizontal className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" /> : <Lock className="h-3 w-3 text-muted-foreground/50 flex-shrink-0" />}
+                                  <span className="truncate">{col.label}</span>
+                              </div>
+                            </div>
+                            <div
+                                onMouseDown={(e) => handleResizeMouseDown(e, col.key as string)}
+                                className="absolute top-0 right-0 h-full w-1 cursor-col-resize opacity-0 group-hover:opacity-100 hover:bg-primary/30 z-20 transition-opacity"
+                                title={`Resize ${col.label} column`}
+                              />
+                          </TableHead>
+                        ))}
                       </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            </CardContent>
-          </Card>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredStocks.length > 0 ? (
+                        filteredStocks.map((stock) => (
+                          <TableRow
+                              key={stock.id}
+                              className={cn(
+                                  getRowHighlightClass(stock),
+                                  "hover:bg-muted/50 transition-colors duration-200 cursor-pointer",
+                                  selectedStockForOrderCard?.id === stock.id && "bg-primary/20"
+                              )}
+                              onClick={() => handleSelectStockForOrder(stock, null)}
+                          >
+                            {displayedColumns.map((col) => (
+                              <TableCell
+                                key={`${stock.id}-${col.key as string}`}
+                                className={cn(
+                                  col.align === 'right' && "text-right",
+                                  col.align === 'center' && "text-center",
+                                  col.key === 'symbol' && "font-medium"
+                                )}
+                              >
+                                {col.format ? col.format(stock[col.key as keyof Stock], stock) : String(stock[col.key as keyof Stock] ?? 'N/A')}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell colSpan={displayedColumns.length} className="h-24 text-center">
+                            No stocks match the selected filter or rule.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* The right-hand column for Trade Panel, Open Positions, etc. is now removed from this view */}
+
         </div>
-
-        {/* The right-hand column for Trade Panel, Open Positions, etc. is now removed from this view */}
-
-      </div>
-    </main>
+      </main>
+      <ScreenerFilterModal 
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        activeFilters={activeFilters}
+        onApplyFilters={setActiveFilters}
+      />
+    </>
   );
 }
 
