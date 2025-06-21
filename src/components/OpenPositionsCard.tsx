@@ -41,26 +41,6 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
 
   return (
     <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardHeader className="flex flex-row items-center justify-between pt-2 pb-1.5 px-2 border-b border-border/[.08]">
-        <CardTitle className="text-sm font-medium text-foreground flex items-center">
-          <Briefcase className="mr-1.5 h-3.5 w-3.5 text-primary" />
-          Open Positions
-        </CardTitle>
-        <div className="flex items-center gap-1">
-          <Badge variant="outline" className="text-muted-foreground border-muted-foreground/30 bg-muted/10 text-[10px] px-1 py-0 h-auto whitespace-nowrap">
-            <User className="mr-0.5 h-2.5 w-2.5" />
-            Manual
-          </Badge>
-          <Badge variant="outline" className="text-primary border-primary/30 bg-primary/5 text-[10px] px-1 py-0 h-auto whitespace-nowrap">
-            <MiloAvatarIcon size={10} className="mr-0.5 h-2.5 w-2.5" />
-            AI Assist
-          </Badge>
-          <Badge variant="outline" className="text-[hsl(var(--confirm-green))] border-[hsl(var(--confirm-green))]/30 bg-[hsl(var(--confirm-green))]/5 text-[10px] px-1 py-0 h-auto whitespace-nowrap">
-            <Cpu className="mr-0.5 h-2.5 w-2.5" />
-            Autopilot
-          </Badge>
-        </div>
-      </CardHeader>
       <CardContent className="p-0 flex-1 overflow-hidden">
         {filteredPositions.length > 0 ? (
           <ScrollArea className="h-full">
