@@ -130,7 +130,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
           <ResponsiveContainer width="100%" height="100%">
             {chartType === 'line' && (
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.05)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
                 <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
                 <Tooltip
@@ -156,7 +156,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
                           <stop offset="95%" stopColor={neonPurpleColor} stopOpacity={0.05}/>
                         </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.05)" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
                     <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
                     <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
                     <Tooltip
@@ -176,7 +176,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
             )}
             {chartType === 'candle' && ( // Simplified candle as BarChart
               <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.05)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
                 <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
                 <Tooltip
