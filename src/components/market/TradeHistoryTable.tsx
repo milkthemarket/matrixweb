@@ -28,14 +28,8 @@ export function TradeHistoryTable({ className, syncedTickerSymbol }: TradeHistor
   }, [tradeHistory, syncedTickerSymbol]);
 
   return (
-    <Card className={cn("h-full flex flex-col", className)}>
-      <CardHeader className="p-2 border-b border-border/[.08]">
-        <CardTitle className="text-sm font-medium text-foreground flex items-center">
-          <History className="h-4 w-4 mr-2 text-primary" />
-          Trade History {syncedTickerSymbol ? `for ${syncedTickerSymbol}` : '(Recent)'}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0 flex-1 overflow-hidden">
+    <div className={cn("h-full flex flex-col", className)}>
+      <div className="p-0 flex-1 overflow-hidden">
         <ScrollArea className="h-full">
           {filteredHistory.length > 0 ? (
             <Table>
@@ -72,8 +66,8 @@ export function TradeHistoryTable({ className, syncedTickerSymbol }: TradeHistor
             </div>
           )}
         </ScrollArea>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 

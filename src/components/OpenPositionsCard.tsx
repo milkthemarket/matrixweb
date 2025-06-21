@@ -3,7 +3,7 @@
 
 import React, { useMemo } from 'react';
 import type { OpenPosition } from '@/types';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -40,8 +40,8 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
   }, [openPositions, selectedAccountId]);
 
   return (
-    <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardContent className="p-0 flex-1 overflow-hidden">
+    <div className={cn("flex flex-col h-full", className)}>
+      <div className="p-0 flex-1 overflow-hidden">
         {filteredPositions.length > 0 ? (
           <ScrollArea className="h-full">
             <Table>
@@ -94,9 +94,7 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
             <p className="text-muted-foreground text-center">No open positions for this account.</p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
-
-    

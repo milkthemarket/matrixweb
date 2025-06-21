@@ -55,23 +55,19 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
   const spread = bestBid && bestAsk && bestAsk > bestBid ? parseFloat((bestAsk - bestBid).toFixed(2)) : undefined;
 
   return (
-    <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardHeader className="py-2 px-3">
-        <CardTitle className="text-sm font-headline flex items-center text-foreground">
-          <BookOpen className="mr-1.5 h-3.5 w-3.5 text-primary" />
-          L2 {stock?.symbol ? `- ${stock.symbol}` : ''}
-        </CardTitle>
+    <div className={cn("h-full flex flex-col", className)}>
+      <div className="py-2 px-3">
         {stock && stock.price > 0 && bestBid && bestAsk && spread !== undefined ? (
-            <CardDescription className="text-xs mt-0.5">
+            <div className="text-xs text-center">
                 Bid: <span className="text-[hsl(var(--confirm-green))] font-medium">${bestBid.toFixed(2)}</span> |
                 Ask: <span className="text-destructive font-medium">${bestAsk.toFixed(2)}</span> |
                 Spread: <span className="text-primary font-medium">${spread.toFixed(2)}</span>
-            </CardDescription>
+            </div>
         ) : stock && stock.price <= 0 ? (
-            <CardDescription className="text-xs text-muted-foreground mt-0.5">Unavailable (invalid price).</CardDescription>
+            <div className="text-xs text-muted-foreground text-center mt-0.5">Unavailable (invalid price).</div>
         ) : null}
-      </CardHeader>
-      <CardContent className="p-0 flex-1 overflow-hidden">
+      </div>
+      <div className="p-0 flex-1 overflow-hidden">
         {!stock || stock.price <= 0 || !orderBookData ? (
           <div className="h-full flex items-center justify-center text-xs text-muted-foreground p-2 text-center">
             {stock && stock.price <=0 ? `L2 unavailable for ${stock.symbol}.` : "Select a stock."}
@@ -127,9 +123,7 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
             </div>
           </ScrollArea>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
-
-    

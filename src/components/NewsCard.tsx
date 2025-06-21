@@ -73,14 +73,8 @@ export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: Ne
   };
 
   return (
-    <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardHeader className="py-2 px-3 border-b border-border/[.08]">
-        <CardTitle className="text-sm font-headline flex items-center text-foreground">
-          <Rss className="mr-1.5 h-3.5 w-3.5 text-primary" />
-          News {selectedTickerSymbol ? `for ${selectedTickerSymbol}` : '(All Market)'}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0 flex-1 overflow-hidden">
+    <div className={cn("h-full flex flex-col", className)}>
+      <div className="p-0 flex-1 overflow-hidden">
         <ScrollArea className="h-full p-2">
           {filteredNews.length > 0 ? (
             <ul className="space-y-2">
@@ -113,8 +107,8 @@ export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: Ne
             </div>
           )}
         </ScrollArea>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 

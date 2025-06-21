@@ -8,6 +8,7 @@ import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 
 import { OrderCard } from '@/components/OrderCard';
+import { Card } from '@/components/ui/card';
 import { InteractiveChartCard } from '@/components/InteractiveChartCard';
 import { WatchlistCard } from '@/components/WatchlistCard';
 import { NewsCard } from '@/components/NewsCard';
@@ -129,30 +130,32 @@ function MilkMarketPageContent() {
                 className="flex-1"
               />
               <div className="h-[490px] flex-shrink-0">
-                <Tabs defaultValue="positions" className="h-full flex flex-col">
-                    <TabsList className="shrink-0">
-                        <TabsTrigger value="positions">Positions</TabsTrigger>
-                        <TabsTrigger value="history">History</TabsTrigger>
-                        <TabsTrigger value="news">News</TabsTrigger>
-                        <TabsTrigger value="level2">Level 2</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="positions" className="flex-1 overflow-hidden mt-2">
-                        <OpenPositionsCard className="h-full" />
-                    </TabsContent>
-                    <TabsContent value="history" className="flex-1 overflow-hidden mt-2">
-                        <TradeHistoryTable className="h-full" syncedTickerSymbol={syncedTickerSymbol} />
-                    </TabsContent>
-                    <TabsContent value="news" className="flex-1 overflow-hidden mt-2">
-                        <NewsCard
-                            className="h-full"
-                            selectedTickerSymbol={syncedTickerSymbol}
-                            onTickerSelect={handleSyncedTickerChange}
-                        />
-                    </TabsContent>
-                    <TabsContent value="level2" className="flex-1 overflow-hidden mt-2">
-                        <OrderBookCard stock={stockForSyncedComps} className="h-full" />
-                    </TabsContent>
-                </Tabs>
+                <Card className="h-full flex flex-col overflow-hidden">
+                    <Tabs defaultValue="positions" className="flex flex-col h-full">
+                        <TabsList className="shrink-0 px-3 pt-2">
+                            <TabsTrigger value="positions">Positions</TabsTrigger>
+                            <TabsTrigger value="history">History</TabsTrigger>
+                            <TabsTrigger value="news">News</TabsTrigger>
+                            <TabsTrigger value="level2">Level 2</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="positions" className="flex-1 overflow-hidden mt-0 p-0">
+                            <OpenPositionsCard className="h-full border-0 shadow-none rounded-none bg-transparent" />
+                        </TabsContent>
+                        <TabsContent value="history" className="flex-1 overflow-hidden mt-0 p-0">
+                            <TradeHistoryTable className="h-full border-0 shadow-none rounded-none bg-transparent" syncedTickerSymbol={syncedTickerSymbol} />
+                        </TabsContent>
+                        <TabsContent value="news" className="flex-1 overflow-hidden mt-0 p-0">
+                            <NewsCard
+                                className="h-full border-0 shadow-none rounded-none bg-transparent"
+                                selectedTickerSymbol={syncedTickerSymbol}
+                                onTickerSelect={handleSyncedTickerChange}
+                            />
+                        </TabsContent>
+                        <TabsContent value="level2" className="flex-1 overflow-hidden mt-0 p-0">
+                            <OrderBookCard stock={stockForSyncedComps} className="h-full border-0 shadow-none rounded-none bg-transparent" />
+                        </TabsContent>
+                    </Tabs>
+                </Card>
               </div>
             </div>
 
