@@ -21,7 +21,6 @@ const navItems = [
   { href: "/milk-market", label: "Milk Market", icon: Store },
   { href: "/dashboard", label: "Screener", icon: LayoutDashboard },
   { href: "/moo-alerts", label: "Moo Alerts", icon: Megaphone },
-  { href: "/alerts", label: "Alerts", icon: Bell },
   { href: "/rules", label: "Rules", icon: ListFilter },
   { href: "/history", label: "Trade History", icon: History },
   { href: "/academy", label: "Milk Academy", icon: GraduationCap },

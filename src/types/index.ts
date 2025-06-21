@@ -70,16 +70,6 @@ export interface AlertRule {
   criteria: RuleCriterion[];
 }
 
-
-export interface TradeAlert {
-  id: string;
-  symbol: string;
-  message: string;
-  timestamp: string; // ISO string format
-  source?: string;
-  alertType?: 'Price' | 'Volume' | 'News' | 'Technical';
-}
-
 export interface TradeLogEntry {
   id: string;
   symbol: string;
