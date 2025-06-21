@@ -15,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 
 // Define dummyWatchlistSymbols directly in this file
 // Added 5 new tickers as requested
-const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM'];
+const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM', 'TPL'];
 
 interface WatchlistCardProps {
   selectedStockSymbol: string | null;

@@ -60,6 +60,34 @@ const getAnalystRatingColor = (rating?: Stock['analystRating']) => {
 };
 
 export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
+    const technicalData = useMemo(() => {
+        if (!stock) {
+            return {
+                rsi: undefined,
+                trend: 'Neutral',
+                ma50: undefined,
+                ma200: undefined,
+                macd: 'Neutral',
+                signalLine: undefined,
+                support: undefined,
+                resistance: undefined,
+            };
+        }
+        return {
+            rsi: stock.rsi?.toFixed(1),
+            trend: stock.changePercent > 2 ? 'Uptrend' : stock.changePercent < -2 ? 'Downtrend' : 'Neutral',
+            ma50: (stock.price * 0.98).toFixed(2), // Mock value
+            ma200: (stock.price * 0.95).toFixed(2), // Mock value
+            macd: stock.changePercent > 1 ? 'Bullish Crossover' : stock.changePercent < -1 ? 'Bearish Crossover' : 'Neutral',
+            signalLine: (stock.price * 0.0015).toFixed(2), // Mock value
+            support: (stock.low52 || stock.price * 0.9).toFixed(2), // Mock value
+            resistance: (stock.high52 || stock.price * 1.1).toFixed(2), // Mock value
+        };
+    }, [stock]);
+
+    const macdColor = technicalData.macd.includes('Bullish') ? 'text-green-500' : technicalData.macd.includes('Bearish') ? 'text-red-500' : 'text-neutral-50';
+    const trendColor = technicalData.trend.includes('Up') ? 'text-green-500' : technicalData.trend.includes('Down') ? 'text-red-500' : 'text-neutral-50';
+
     if (!stock) {
         return (
             <Card className={cn("flex flex-col justify-center items-center", className)}>
@@ -147,19 +175,18 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
                 <h4 className="text-xs font-semibold text-neutral-300 mb-1.5">Technical Indicators</h4>
                 <div className="grid grid-cols-2 gap-x-4">
                     <div className="space-y-0">
-                        <DetailItem label="RSI" value="62.1" description="Relative Strength Index (14)" />
-                        <DetailItem label="50-Day MA" value="$169.02" description="50-Day Moving Average" />
-                        <DetailItem label="MACD" value="Bullish Crossover" valueClass="text-green-400" description="Moving Average Convergence Divergence" />
-                        <DetailItem label="Support" value="$168.00" description="Key Support Level" />
+                        <DetailItem label="RSI" value={technicalData.rsi} description="Relative Strength Index (14)" />
+                        <DetailItem label="50-Day MA" value={`$${technicalData.ma50}`} description="50-Day Moving Average" />
+                        <DetailItem label="MACD" value={technicalData.macd} valueClass={macdColor} description="Moving Average Convergence Divergence" />
+                        <DetailItem label="Support" value={`$${technicalData.support}`} description="Key Support Level" />
                     </div>
                     <div className="space-y-0">
-                        <DetailItem label="Trend" value="Neutral" description="Overall Trend" />
-                        <DetailItem label="200-Day MA" value="$165.33" description="200-Day Moving Average" />
-                        <DetailItem label="Signal Line" value="1.23" description="MACD Signal Line" />
-                        <DetailItem label="Resistance" value="$172.50" description="Key Resistance Level" />
+                        <DetailItem label="Trend" value={technicalData.trend} valueClass={trendColor} description="Overall Trend" />
+                        <DetailItem label="200-Day MA" value={`$${technicalData.ma200}`} description="200-Day Moving Average" />
+                        <DetailItem label="Signal Line" value={technicalData.signalLine} description="MACD Signal Line" />
+                        <DetailItem label="Resistance" value={`$${technicalData.resistance}`} description="Key Resistance Level" />
                     </div>
                 </div>
-
             </CardContent>
         </Card>
     );
