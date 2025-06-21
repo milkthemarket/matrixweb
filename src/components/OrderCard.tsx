@@ -188,9 +188,9 @@ export function OrderCard({
   };
 
   const getQuantityInputPlaceholder = () => {
-    if (quantityMode === 'Shares') return "e.g., 100";
-    if (quantityMode === 'DollarAmount') return "e.g., $1000";
-    if (quantityMode === 'PercentOfBuyingPower') return "e.g., 10%";
+    if (quantityMode === 'Shares') return "100";
+    if (quantityMode === 'DollarAmount') return "1000";
+    if (quantityMode === 'PercentOfBuyingPower') return "25";
     return "";
   };
 
@@ -585,15 +585,27 @@ export function OrderCard({
                   <div className="space-y-1">
                     <Label htmlFor="quantityValue" className="text-[10px] font-medium text-foreground">Quantity</Label>
                     <div className="flex items-center gap-1.5">
-                       <Input
-                        ref={quantityInputRef}
-                        id="quantityValue"
-                        type="number"
-                        value={quantityValue}
-                        onChange={(e) => setQuantityValue(e.target.value)}
-                        placeholder={getQuantityInputPlaceholder()}
-                        className="h-8 bg-transparent px-2 py-1.5 focus-visible:ring-ring text-xs w-24"
-                      />
+                       <div className="relative w-24">
+                         {quantityMode === 'DollarAmount' && (
+                           <DollarSign className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
+                         )}
+                         <Input
+                           ref={quantityInputRef}
+                           id="quantityValue"
+                           type="number"
+                           value={quantityValue}
+                           onChange={(e) => setQuantityValue(e.target.value)}
+                           placeholder={getQuantityInputPlaceholder()}
+                           className={cn(
+                             "h-8 bg-transparent py-1.5 focus-visible:ring-ring text-xs w-full px-2",
+                             quantityMode === 'DollarAmount' && 'pl-6',
+                             quantityMode === 'PercentOfBuyingPower' && 'pr-6'
+                           )}
+                         />
+                         {quantityMode === 'PercentOfBuyingPower' && (
+                           <Percent className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" />
+                         )}
+                       </div>
                        <div className="flex items-center space-x-1 p-0.5 rounded-md border border-input">
                           <Button
                               variant={quantityMode === 'Shares' ? 'secondary' : 'ghost'}
