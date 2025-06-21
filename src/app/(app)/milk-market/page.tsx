@@ -138,7 +138,7 @@ function MilkMarketPageContent() {
                             <TabsTrigger value="positions">Positions</TabsTrigger>
                             <TabsTrigger value="history">History</TabsTrigger>
                             <TabsTrigger value="news">News</TabsTrigger>
-                            <TabsTrigger value="level2">Level 2</TabsTrigger>
+                            <TabsTrigger value="technicals">Technicals</TabsTrigger>
                         </TabsList>
                         <TabsContent value="positions" className="flex-1 overflow-hidden mt-0 p-0">
                             <OpenPositionsCard className="h-full border-0 shadow-none rounded-none bg-transparent" />
@@ -153,8 +153,8 @@ function MilkMarketPageContent() {
                                 onTickerSelect={handleSyncedTickerChange}
                             />
                         </TabsContent>
-                        <TabsContent value="level2" className="flex-1 overflow-hidden mt-0 p-0">
-                            <OrderBookCard stock={stockForSyncedComps} className="h-full border-0 shadow-none rounded-none bg-transparent" />
+                        <TabsContent value="technicals" className="flex-1 overflow-hidden mt-0 p-0">
+                            <TechnicalIndicatorsCard stock={stockForSyncedComps} className="h-full border-0 shadow-none rounded-none bg-transparent" />
                         </TabsContent>
                     </Tabs>
                 </Card>
@@ -189,9 +189,9 @@ function MilkMarketPageContent() {
                     onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
                     className="flex-1 min-h-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
                 />
-                <TechnicalIndicatorsCard 
-                    stock={stockForSyncedComps}
-                    className="flex-shrink-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                <OrderBookCard 
+                    stock={stockForSyncedComps} 
+                    className="h-[250px] flex-shrink-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]" 
                 />
             </div>
         </div>
