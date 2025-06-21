@@ -137,17 +137,17 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
               >
                 <div className="flex justify-between items-start w-full">
                   <div className="flex flex-col text-left mr-1 min-w-0 flex-1">
-                    <span className="text-xs font-bold text-foreground truncate">{stock.symbol}</span>
-                    <span className="text-[10px] text-muted-foreground truncate">{stock.name || 'N/A'}</span>
+                    <span className="text-[11px] font-bold text-foreground truncate">{stock.symbol}</span>
+                    <span className="text-[10px] text-foreground/80 font-medium truncate">{stock.name || 'N/A'}</span>
                   </div>
                   <div className="flex flex-col items-end flex-shrink-0">
-                    <span className={cn("text-xs font-bold", stock.price >= 0 ? "text-foreground" : "text-destructive")}>
+                    <span className="text-[11px] font-bold text-foreground">
                       ${stock.price.toFixed(2)}
                     </span>
-                    <span className={cn("text-[10px] font-bold", stock.changePercent >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
+                    <span className={cn("text-[10px] font-bold", stock.changePercent >= 0 ? "text-[#22C55E]" : "text-[#EF4444]")}>
                       {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
                     </span>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[10px] text-[#A3A3A3]">
                       Vol: {formatVolumeDisplay(stock.volume)}
                     </span>
                   </div>
