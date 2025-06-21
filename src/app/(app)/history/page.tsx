@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
 import type { TradeHistoryEntry, HistoryTradeMode, TradeStatsData, ColumnConfig, HistoryFilterMode } from "@/types";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
