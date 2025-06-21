@@ -129,7 +129,7 @@ function MilkMarketPageContent() {
                 onManualTickerSubmit={handleSyncedTickerChange}
                 className="flex-1 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
               />
-              <div className="h-[490px] flex-shrink-0">
+              <div className="h-[284px] flex-shrink-0">
                 <Card className="h-full flex flex-col overflow-hidden transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
                     <Tabs defaultValue="positions" className="flex flex-col h-full">
                         <TabsList className="shrink-0 px-3 pt-2">
@@ -172,7 +172,7 @@ function MilkMarketPageContent() {
               />
               <FundamentalsCard 
                 stock={stockForSyncedComps}
-                className="h-[490px] transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                className="h-72 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
               />
             </div>
 
@@ -185,7 +185,7 @@ function MilkMarketPageContent() {
                 />
                 <OrderBookCard
                     stock={stockForSyncedComps}
-                    className="h-[490px] flex-shrink-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    className="h-72 flex-shrink-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
                 />
             </div>
         </div>
