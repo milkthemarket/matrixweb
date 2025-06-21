@@ -47,12 +47,12 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
             <Table>
               <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-[1]">
                 <TableRow>
-                  <TableHead className="h-7 px-2 text-xs">Symbol</TableHead>
-                  <TableHead className="h-7 px-2 text-xs text-right">Shares</TableHead>
-                  <TableHead className="h-7 px-2 text-xs text-right">Entry</TableHead>
-                  <TableHead className="h-7 px-2 text-xs text-right">Current</TableHead>
-                  <TableHead className="h-7 px-2 text-xs text-right">P&amp;L</TableHead>
-                  <TableHead className="h-7 px-2 text-xs text-center">Action</TableHead>
+                  <TableHead className="h-7 px-2 text-xs text-muted-foreground font-medium">Symbol</TableHead>
+                  <TableHead className="h-7 px-2 text-xs text-right text-muted-foreground font-medium">Shares</TableHead>
+                  <TableHead className="h-7 px-2 text-xs text-right text-muted-foreground font-medium">Entry</TableHead>
+                  <TableHead className="h-7 px-2 text-xs text-right text-muted-foreground font-medium">Current</TableHead>
+                  <TableHead className="h-7 px-2 text-xs text-right text-muted-foreground font-medium">P&amp;L</TableHead>
+                  <TableHead className="h-7 px-2 text-xs text-center text-muted-foreground font-medium">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -60,13 +60,13 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
                   const pnl = calculatePnl(pos);
                   return (
                     <TableRow key={pos.id} className="text-xs hover:bg-white/5">
-                      <TableCell className="font-medium text-foreground px-2 py-1.5">{pos.symbol}</TableCell>
-                      <TableCell className="text-right text-foreground px-2 py-1.5">{pos.shares}</TableCell>
-                      <TableCell className="text-right text-foreground px-2 py-1.5">${pos.entryPrice.toFixed(2)}</TableCell>
-                      <TableCell className="text-right text-foreground px-2 py-1.5">${pos.currentPrice.toFixed(2)}</TableCell>
+                      <TableCell className="font-bold text-foreground px-2 py-1.5">{pos.symbol}</TableCell>
+                      <TableCell className="text-right font-bold text-foreground px-2 py-1.5">{pos.shares}</TableCell>
+                      <TableCell className="text-right font-bold text-foreground px-2 py-1.5">${pos.entryPrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right font-bold text-foreground px-2 py-1.5">${pos.currentPrice.toFixed(2)}</TableCell>
                       <TableCell
                         className={cn(
-                          "text-right font-semibold px-2 py-1.5",
+                          "text-right font-bold px-2 py-1.5",
                           pnl >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"
                         )}
                       >

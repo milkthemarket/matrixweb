@@ -136,18 +136,18 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
                 onClick={() => onSelectStock(stock)}
               >
                 <div className="flex justify-between items-start w-full">
-                  <div className="flex flex-col text-left mr-1">
-                    <span className="text-[10px] font-semibold text-foreground">{stock.symbol}</span>
-                    <span className="text-[9px] text-muted-foreground truncate max-w-[100px] sm:max-w-[120px]">{stock.name || 'N/A'}</span>
+                  <div className="flex flex-col text-left mr-1 min-w-0 flex-1">
+                    <span className="text-xs font-bold text-foreground truncate">{stock.symbol}</span>
+                    <span className="text-[10px] text-muted-foreground truncate">{stock.name || 'N/A'}</span>
                   </div>
                   <div className="flex flex-col items-end flex-shrink-0">
-                    <span className={cn("text-[10px] font-semibold", stock.price >= 0 ? "text-foreground" : "text-destructive")}>
+                    <span className={cn("text-xs font-bold", stock.price >= 0 ? "text-foreground" : "text-destructive")}>
                       ${stock.price.toFixed(2)}
                     </span>
-                    <span className={cn("text-[9px]", stock.changePercent >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
+                    <span className={cn("text-[10px] font-bold", stock.changePercent >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
                       {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
                     </span>
-                    <span className="text-[9px] text-muted-foreground/80">
+                    <span className="text-[10px] text-muted-foreground">
                       Vol: {formatVolumeDisplay(stock.volume)}
                     </span>
                   </div>

@@ -646,7 +646,7 @@ export function OrderCard({
                 <div className="text-xs text-foreground space-y-0.5 mt-2 p-2 bg-black/10 rounded-md border border-white/5">
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Est. amount:</span>
-                    <span className="font-semibold">${estimatedCost.toFixed(2)}</span>
+                    <span className="font-bold">${estimatedCost.toFixed(2)}</span>
                   </div>
                   {quantityMode !== 'Shares' && finalSharesToSubmit > 0 && 
                     <p className="text-[10px] text-muted-foreground"><Info className="inline-block mr-0.5 h-2.5 w-2.5" />Est. Shares: {finalSharesToSubmit}</p>}

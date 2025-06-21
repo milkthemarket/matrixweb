@@ -35,25 +35,25 @@ export function TradeHistoryTable({ className, syncedTickerSymbol }: TradeHistor
             <Table>
               <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-[1]">
                 <TableRow>
-                  <TableHead className="text-xs h-7 px-2">Symbol</TableHead>
-                  <TableHead className="text-xs h-7 px-2">Side</TableHead>
-                  <TableHead className="text-xs h-7 px-2 text-right">Qty</TableHead>
-                  <TableHead className="text-xs h-7 px-2 text-right">Avg Price</TableHead>
-                  <TableHead className="text-xs h-7 px-2">Type</TableHead>
-                  <TableHead className="text-xs h-7 px-2">Time</TableHead>
-                  <TableHead className="text-xs h-7 px-2">Status</TableHead>
+                  <TableHead className="text-xs h-7 px-2 text-muted-foreground font-medium">Symbol</TableHead>
+                  <TableHead className="text-xs h-7 px-2 text-muted-foreground font-medium">Side</TableHead>
+                  <TableHead className="text-xs h-7 px-2 text-right text-muted-foreground font-medium">Qty</TableHead>
+                  <TableHead className="text-xs h-7 px-2 text-right text-muted-foreground font-medium">Avg Price</TableHead>
+                  <TableHead className="text-xs h-7 px-2 text-muted-foreground font-medium">Type</TableHead>
+                  <TableHead className="text-xs h-7 px-2 text-muted-foreground font-medium">Time</TableHead>
+                  <TableHead className="text-xs h-7 px-2 text-muted-foreground font-medium">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredHistory.map((trade) => (
                   <TableRow key={trade.id} className="text-xs hover:bg-white/5">
-                    <TableCell className="px-2 py-1.5">{trade.symbol}</TableCell>
-                    <TableCell className="px-2 py-1.5">{trade.side}</TableCell>
-                    <TableCell className="px-2 py-1.5 text-right">{trade.totalQty}</TableCell>
-                    <TableCell className="px-2 py-1.5 text-right">${trade.averagePrice.toFixed(2)}</TableCell>
-                    <TableCell className="px-2 py-1.5">{trade.orderType}</TableCell>
-                    <TableCell className="px-2 py-1.5">{format(parseISO(trade.filledTime), "HH:mm:ss")}</TableCell>
-                    <TableCell className="px-2 py-1.5">{trade.orderStatus}</TableCell>
+                    <TableCell className="px-2 py-1.5 font-bold">{trade.symbol}</TableCell>
+                    <TableCell className="px-2 py-1.5 font-bold">{trade.side}</TableCell>
+                    <TableCell className="px-2 py-1.5 text-right font-bold">{trade.totalQty}</TableCell>
+                    <TableCell className="px-2 py-1.5 text-right font-bold">${trade.averagePrice.toFixed(2)}</TableCell>
+                    <TableCell className="px-2 py-1.5 font-bold">{trade.orderType}</TableCell>
+                    <TableCell className="px-2 py-1.5 font-bold">{format(parseISO(trade.filledTime), "HH:mm:ss")}</TableCell>
+                    <TableCell className="px-2 py-1.5 font-bold">{trade.orderStatus}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

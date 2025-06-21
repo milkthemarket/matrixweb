@@ -88,17 +88,17 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
               <h3 className="text-lg font-bold text-neutral-50 truncate" title={stock.name}>
                 {stock.symbol}
               </h3>
-              <p className="text-lg font-semibold text-foreground">
+              <p className="text-lg font-bold text-foreground">
                 ${stock.price.toFixed(2)}
               </p>
-              <p className={cn("text-sm font-medium", stock.changePercent >= 0 ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
+              <p className={cn("text-sm font-bold", stock.changePercent >= 0 ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
                 {stock.changePercent >= 0 ? '+' : ''}{(stock.price * (stock.changePercent / 100)).toFixed(2)}
                 <span className="ml-1">({stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%)</span>
               </p>
               {stock.afterHoursPrice && stock.afterHoursChange !== undefined && (
-                <p className="text-xs text-muted-foreground whitespace-nowrap">
+                <p className="text-xs text-neutral-400 whitespace-nowrap">
                   After-Hours: ${stock.afterHoursPrice.toFixed(2)}
-                  <span className={cn("ml-1", stock.afterHoursChange >= 0 ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
+                  <span className={cn("ml-1 font-semibold", stock.afterHoursChange >= 0 ? 'text-green-400' : 'text-red-400')}>
                     ({stock.afterHoursChange >= 0 ? '+' : ''}{stock.afterHoursChange.toFixed(2)})
                   </span>
                 </p>

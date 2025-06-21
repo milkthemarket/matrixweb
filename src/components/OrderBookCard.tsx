@@ -77,8 +77,8 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
             <div className="grid grid-cols-2 gap-px text-[10px]">
               <div>
                 <div className="grid grid-cols-[1fr_auto] p-1.5 border-b border-border/[.08] sticky top-0 bg-card/[.05] backdrop-blur-sm z-[1]">
-                  <span className="font-semibold text-[hsl(var(--confirm-green))] flex items-center"><ArrowDown className="mr-1 h-2.5 w-2.5"/>Bids</span>
-                  <span className="font-semibold text-right text-muted-foreground">Size</span>
+                  <span className="font-medium text-muted-foreground flex items-center"><ArrowDown className="mr-1 h-2.5 w-2.5 text-[hsl(var(--confirm-green))]"/>Bids</span>
+                  <span className="font-medium text-right text-muted-foreground">Size</span>
                 </div>
                 {orderBookData.bids.map((bid, index) => (
                   <div
@@ -88,10 +88,10 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
                        "hover:bg-[hsl(var(--confirm-green))]/5"
                     )}
                   >
-                    <span className={cn("font-mono font-semibold", index === 0 ? "text-[hsl(var(--confirm-green))]" : "text-foreground/90")}>
+                    <span className={cn("font-mono font-bold", index === 0 ? "text-[hsl(var(--confirm-green))]" : "text-foreground")}>
                       ${bid.price.toFixed(2)}
                     </span>
-                    <span className="text-right font-mono text-muted-foreground">
+                    <span className="text-right font-mono font-bold text-foreground">
                       {bid.size}
                     </span>
                   </div>
@@ -100,8 +100,8 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
 
               <div>
                 <div className="grid grid-cols-[1fr_auto] p-1.5 border-b border-border/[.08] sticky top-0 bg-card/[.05] backdrop-blur-sm z-[1]">
-                  <span className="font-semibold text-destructive flex items-center"><ArrowUp className="mr-1 h-2.5 w-2.5"/>Asks</span>
-                  <span className="font-semibold text-right text-muted-foreground">Size</span>
+                  <span className="font-medium text-muted-foreground flex items-center"><ArrowUp className="mr-1 h-2.5 w-2.5 text-destructive"/>Asks</span>
+                  <span className="font-medium text-right text-muted-foreground">Size</span>
                 </div>
                 {orderBookData.asks.map((ask, index) => (
                   <div
@@ -111,10 +111,10 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
                       "hover:bg-destructive/5"
                     )}
                   >
-                    <span className={cn("font-mono font-semibold", index === 0 ? "text-destructive" : "text-foreground/90")}>
+                    <span className={cn("font-mono font-bold", index === 0 ? "text-destructive" : "text-foreground")}>
                       ${ask.price.toFixed(2)}
                     </span>
-                    <span className="text-right font-mono text-muted-foreground">
+                    <span className="text-right font-mono font-bold text-foreground">
                       {ask.size}
                     </span>
                   </div>
