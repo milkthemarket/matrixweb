@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { List, Star, TrendingUp, TrendingDown, Activity, CalendarCheck2, Filter as FilterIcon } from 'lucide-react';
 import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { mockRules } from '@/app/(app)/rules/page';
+import { Separator } from "@/components/ui/separator";
 
 // Define dummyWatchlistSymbols directly in this file
 // Added 5 new tickers as requested
@@ -123,7 +124,13 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
           </SelectContent>
         </Select>
       </CardHeader>
-      <CardContent className="flex-1 overflow-hidden p-0">
+      <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
+        <div className="grid grid-cols-4 w-full items-baseline text-[10px] gap-2 px-3 py-1 text-muted-foreground border-b border-border/10">
+          <span className="text-left">Symbol</span>
+          <span className="text-right">Price</span>
+          <span className="text-right">Change</span>
+          <span className="text-right">Vol</span>
+        </div>
         <ScrollArea className="h-full">
           <div className="space-y-px p-1">
             {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
@@ -145,12 +152,12 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
 
                   <span className={cn(
                       "font-bold text-right",
-                      stock.changePercent >= 0 ? "text-[#22C55E]" : "text-[#EF4444]"
+                      stock.changePercent >= 0 ? "text-green-500" : "text-red-500"
                   )}>
                     {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
                   </span>
 
-                  <span className="font-medium text-[#A3A3A3] text-right truncate">
+                  <span className="font-medium text-neutral-400 text-right truncate">
                     {formatVolumeDisplay(stock.volume)}
                   </span>
                 </div>
