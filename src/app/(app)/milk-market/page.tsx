@@ -20,6 +20,7 @@ import { TradeHistoryTable } from '@/components/market/TradeHistoryTable';
 
 import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { FundamentalsCard } from '@/components/FundamentalsCard';
+import { TechnicalIndicatorsCard } from '@/components/TechnicalIndicatorsCard';
 
 function MilkMarketPageContent() {
   const { toast } = useToast();
@@ -181,12 +182,16 @@ function MilkMarketPageContent() {
               />
             </div>
 
-             {/* Right Column (Watchlist) */}
-             <div className="min-h-0">
+             {/* Right Column */}
+             <div className="flex flex-col min-h-0 gap-1.5">
                 <WatchlistCard
                     selectedStockSymbol={syncedTickerSymbol}
                     onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
-                    className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    className="flex-1 min-h-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                />
+                <TechnicalIndicatorsCard 
+                    stock={stockForSyncedComps}
+                    className="flex-shrink-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
                 />
             </div>
         </div>
