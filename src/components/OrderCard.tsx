@@ -187,14 +187,6 @@ export function OrderCard({
     setCurrentAction(action);
   };
 
-  const getQuantityInputPlaceholder = () => {
-    if (quantityMode === 'Shares') return "e.g., 100";
-    if (quantityMode === 'DollarAmount') return "e.g., 1,000";
-    if (quantityMode === 'PercentOfBuyingPower') return "e.g., 25";
-    return "";
-  };
-
-
   const { finalSharesToSubmit, estimatedCost, isValidQuantity, validationMessage } = useMemo(() => {
     let shares = 0;
     let cost = 0;
@@ -605,10 +597,10 @@ export function OrderCard({
                            type="number"
                            value={quantityValue}
                            onChange={(e) => setQuantityValue(e.target.value)}
-                           placeholder={getQuantityInputPlaceholder()}
+                           placeholder=""
                            className={cn(
-                             "h-8 bg-transparent py-1.5 focus-visible:ring-ring text-[11px] w-full px-2",
-                             quantityMode === 'DollarAmount' && 'pl-6',
+                             "h-8 bg-transparent py-1.5 focus-visible:ring-ring text-[11px] w-full",
+                             quantityMode === 'DollarAmount' ? 'pl-6 pr-2' : 'px-2',
                              quantityMode === 'PercentOfBuyingPower' && 'pr-6'
                            )}
                          />
