@@ -719,7 +719,7 @@ export function OrderCard({
                   id="takeProfitSwitch"
                   checked={showTakeProfit}
                   onCheckedChange={setShowTakeProfit}
-                  className="h-5 w-9 data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0 [&>span]:h-4 [&>span]:w-4"
+                  className="h-5 w-9 data-[state=checked]:[&>span]:translate-x-4 [&>span]:h-4 [&>span]:w-4"
                 />
               </div>
               {showTakeProfit && (
@@ -750,7 +750,7 @@ export function OrderCard({
                   id="stopLossSwitch"
                   checked={showStopLoss}
                   onCheckedChange={setShowStopLoss}
-                  className="h-5 w-9 data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0 [&>span]:h-4 [&>span]:w-4"
+                  className="h-5 w-9 data-[state=checked]:[&>span]:translate-x-4 [&>span]:h-4 [&>span]:w-4"
                 />
               </div>
               {showStopLoss && (
@@ -807,7 +807,7 @@ export function OrderCard({
                                 id="autopilotSwitch"
                                 checked={isAutopilotEnabled}
                                 onCheckedChange={handleAutopilotSwitchChange}
-                                className="h-5 w-9 data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0 [&>span]:h-4 [&>span]:w-4"
+                                className="h-5 w-9 data-[state=checked]:[&>span]:translate-x-4 [&>span]:h-4 [&>span]:w-4"
                             />
                         </div>
                     </div>
@@ -859,6 +859,3 @@ export function OrderCard({
     </>
   );
 }
-    
-
-    

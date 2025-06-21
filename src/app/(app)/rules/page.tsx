@@ -244,7 +244,7 @@ export default function RulesPage() {
                           checked={rule.isActive}
                           onCheckedChange={() => toggleRuleStatus(rule.id)}
                           aria-label={rule.isActive ? "Deactivate rule" : "Activate rule"}
-                          className="h-5 w-9 data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0 [&>span]:h-4 [&>span]:w-4" // Made switch smaller
+                          className="h-5 w-9 data-[state=checked]:[&>span]:translate-x-4 [&>span]:h-4 [&>span]:w-4"
                         />
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(rule)} className="text-accent hover:text-accent-foreground hover:bg-accent/10 h-6 w-6"> {/* Reduced size */}
                         <Edit3 className="h-3.5 w-3.5" /> {/* Reduced icon size */}

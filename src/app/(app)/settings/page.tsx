@@ -160,7 +160,7 @@ export default function SettingsPage() {
                           checked={showManualTicker}
                           onCheckedChange={setShowManualTicker}
                           aria-label="Toggle manual trade ticker"
-                          className="h-5 w-9 data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0 [&>span]:h-4 [&>span]:w-4" // Made switch smaller
+                          className="h-5 w-9 data-[state=checked]:[&>span]:translate-x-4 [&>span]:h-4 [&>span]:w-4"
                       />
                     </div>
                      <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-1 shadow-sm bg-black/10"> {/* Reduced p-4 */}
@@ -177,7 +177,7 @@ export default function SettingsPage() {
                           checked={showAIAssistedTicker}
                           onCheckedChange={setShowAIAssistedTicker}
                           aria-label="Toggle AI-assisted trade ticker"
-                          className="h-5 w-9 data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0 [&>span]:h-4 [&>span]:w-4"
+                          className="h-5 w-9 data-[state=checked]:[&>span]:translate-x-4 [&>span]:h-4 [&>span]:w-4"
                       />
                     </div>
                      <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-1 shadow-sm bg-black/10"> {/* Reduced p-4 */}
@@ -194,7 +194,7 @@ export default function SettingsPage() {
                           checked={showAutopilotTicker}
                           onCheckedChange={setShowAutopilotTicker}
                           aria-label="Toggle Autopilot trade ticker"
-                          className="h-5 w-9 data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0 [&>span]:h-4 [&>span]:w-4"
+                          className="h-5 w-9 data-[state=checked]:[&>span]:translate-x-4 [&>span]:h-4 [&>span]:w-4"
                       />
                     </div>
                   </div>
