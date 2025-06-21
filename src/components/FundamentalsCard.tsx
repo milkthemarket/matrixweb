@@ -20,16 +20,16 @@ const DetailItem: React.FC<{ label: string; value?: string | number | null; unit
         <Tooltip>
             <TooltipTrigger asChild>
                 <div className="flex justify-between items-baseline py-1">
-                    <span className="text-[11px] uppercase tracking-wider text-neutral-400 whitespace-nowrap pr-2">
+                    <span className="text-[10px] uppercase tracking-wider text-neutral-400 whitespace-nowrap pr-2">
                         {label}
                     </span>
-                    <span className={cn("text-xs font-bold text-neutral-50 text-right", valueClass)}>
+                    <span className={cn("text-[11px] font-bold text-neutral-50 text-right", valueClass)}>
                         {value !== undefined && value !== null ? `${value}${unit || ''}` : <span className="text-neutral-500">-</span>}
                     </span>
                 </div>
             </TooltipTrigger>
             {description && (
-                <TooltipContent>
+                <TooltipContent side="right">
                     <p>{description}</p>
                 </TooltipContent>
             )}
@@ -98,19 +98,23 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
                 <div className="grid grid-cols-2 gap-x-4">
                     <div className="space-y-0">
                         <DetailItem label="Open" value={formatNumber(stock.open)} description="Today's opening price" />
-                        <DetailItem label="High / Low" value={`${formatNumber(stock.high)} / ${formatNumber(stock.low)}`} description="Today's highest and lowest price" />
-                        <DetailItem label="52Wk H/L" value={`${formatNumber(stock.high52)} / ${formatNumber(stock.low52)}`} description="52-week high and low price" />
-                        <Separator className="my-1.5 bg-white/10" />
+                        <DetailItem label="High" value={formatNumber(stock.high)} description="Today's highest price" />
+                        <DetailItem label="Low" value={formatNumber(stock.low)} description="Today's lowest price" />
+                        <Separator className="my-1 bg-white/10" />
                         <DetailItem label="Volume" value={formatCompact(stock.volume ? stock.volume * 1e6 : undefined)} description="Today's trading volume" />
                         <DetailItem label="Avg Vol (3M)" value={formatCompact(stock.avgVolume ? stock.avgVolume * 1e6 : undefined)} description="Average 3-month trading volume" />
+                        <Separator className="my-1 bg-white/10" />
+                        <DetailItem label="Div / Yield" value={stock.dividendYield ? `${formatNumber(stock.dividendYield, 3)} / ${formatNumber(stock.dividendYield, 1)}%` : '-'} valueClass="text-[#FACC15]" description="Dividend per share and yield percentage" />
+                        <DetailItem label="Ex-Div Date" value={stock.exDividendDate ? stock.exDividendDate : undefined} description="Ex-dividend date" />
                     </div>
                     <div className="space-y-0">
                         <DetailItem label="Market Cap" value={formatCompact(stock.marketCap)} description="Market Capitalization" />
+                        <DetailItem label="52Wk High" value={formatNumber(stock.high52)} description="52-week high price" />
+                        <DetailItem label="52Wk Low" value={formatNumber(stock.low52)} description="52-week low price" />
+                        <Separator className="my-1 bg-white/10" />
                         <DetailItem label="Shares Out" value={formatCompact(stock.sharesOutstanding)} description="Total shares outstanding" />
                         <DetailItem label="Float" value={formatCompact(stock.freeFloatShares)} description="Shares available for public trading" />
-                        <Separator className="my-1.5 bg-white/10" />
-                        <DetailItem label="Div / Yield" value={stock.dividendYield ? `${formatNumber(stock.dividendYield, 3)} / ${formatNumber(stock.dividendYield, 1)}%` : '-'} valueClass="text-[#FACC15]" description="Dividend per share and yield percentage" />
-                        <DetailItem label="Ex-Div Date" value={stock.exDividendDate ? stock.exDividendDate : undefined} description="Ex-dividend date" />
+                        <Separator className="my-1 bg-white/10" />
                         <DetailItem label="Next Earnings" value={stock.earningsDate ? new Date(stock.earningsDate).toLocaleDateString() : undefined} valueClass="text-[#8B5CF6]" description="Next earnings report date" />
                     </div>
                 </div>
