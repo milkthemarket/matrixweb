@@ -188,9 +188,9 @@ export function OrderCard({
   };
 
   const getQuantityInputPlaceholder = () => {
-    if (quantityMode === 'Shares') return "100";
-    if (quantityMode === 'DollarAmount') return "1000";
-    if (quantityMode === 'PercentOfBuyingPower') return "25";
+    if (quantityMode === 'Shares') return "e.g., 100";
+    if (quantityMode === 'DollarAmount') return "e.g., 1,000";
+    if (quantityMode === 'PercentOfBuyingPower') return "e.g., 25";
     return "";
   };
 
@@ -452,14 +452,14 @@ export function OrderCard({
   };
   
   const getTakeProfitLabel = () => {
-    if (quantityMode === 'Shares') return 'Target Price';
+    if (quantityMode === 'Shares') return 'Target Price ($)';
     if (quantityMode === 'DollarAmount') return 'Profit Amount ($)';
     if (quantityMode === 'PercentOfBuyingPower') return 'Gain (%)';
     return 'Target Price';
   };
 
   const getStopLossLabel = () => {
-    if (quantityMode === 'Shares') return 'Stop Price';
+    if (quantityMode === 'Shares') return 'Stop Price ($)';
     if (quantityMode === 'DollarAmount') return 'Max Loss ($)';
     if (quantityMode === 'PercentOfBuyingPower') return 'Max Loss (%)';
     return 'Stop Price';
@@ -474,7 +474,7 @@ export function OrderCard({
   const shortButtonBase = "border-yellow-500 text-yellow-400 hover:bg-yellow-500/10 hover:text-yellow-300";
   const shortButtonSelected = "bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90";
 
-  const buttonBaseClass = "flex-1 flex items-center justify-center h-8 py-1.5 px-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50";
+  const buttonBaseClass = "flex-1 flex items-center justify-center h-8 py-1.5 px-2 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50";
   const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
   const inactiveModeClass = "bg-transparent text-muted-foreground hover:bg-white/5";
 
@@ -483,7 +483,7 @@ export function OrderCard({
       <Card className={cn("shadow-none flex flex-col h-full", className)}>
         <CardHeader className="pb-0.5 pt-3 px-3 space-y-0.5">
           <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-            <SelectTrigger id="accountSelectOrderCard" className="w-full h-8 text-xs truncate">
+            <SelectTrigger id="accountSelectOrderCard" className="w-full h-8 text-[11px] truncate">
               <div className="flex items-center gap-1.5 truncate">
                 {getAccountIcon(selectedAccount?.type)}
                 <span className="truncate">{selectedAccount?.label} ({selectedAccount?.number})</span>
@@ -510,7 +510,7 @@ export function OrderCard({
               value={tickerInputValue}
               onChange={(e) => setTickerInputValue(e.target.value.toUpperCase())}
               onKeyDown={(e) => { if (e.key === 'Enter') handleTickerSearch(); }}
-              className="bg-transparent h-8 text-xs"
+              className="bg-transparent h-8 text-[11px]"
             />
             <Button variant="ghost" size="icon" onClick={handleTickerSearch} title="Search Ticker" className="h-8 w-8">
               <Search className="h-4 w-4 text-primary" />
@@ -546,21 +546,21 @@ export function OrderCard({
                   <Button
                     onClick={() => handleActionSelect('Buy')}
                     variant="outline"
-                    className={cn("flex-1 h-8 text-xs", currentAction === 'Buy' ? buyButtonSelected : buyButtonBase, currentAction === 'Buy' && 'hover:text-[hsl(var(--confirm-green-foreground))]')}
+                    className={cn("flex-1 h-8 text-[11px]", currentAction === 'Buy' ? buyButtonSelected : buyButtonBase, currentAction === 'Buy' && 'hover:text-[hsl(var(--confirm-green-foreground))]')}
                   >
                     <TrendingUp className="mr-1.5 h-3.5 w-3.5" /> Buy
                   </Button>
                   <Button
                     onClick={() => handleActionSelect('Sell')}
                     variant="outline"
-                    className={cn("flex-1 h-8 text-xs", currentAction === 'Sell' ? sellButtonSelected : sellButtonBase, currentAction === 'Sell' && 'hover:text-destructive-foreground')}
+                    className={cn("flex-1 h-8 text-[11px]", currentAction === 'Sell' ? sellButtonSelected : sellButtonBase, currentAction === 'Sell' && 'hover:text-destructive-foreground')}
                   >
                     <CircleSlash className="mr-1.5 h-3.5 w-3.5" /> Sell
                   </Button>
                   <Button
                     onClick={() => handleActionSelect('Short')}
                     variant="outline"
-                    className={cn("flex-1 h-8 text-xs", currentAction === 'Short' ? shortButtonSelected : shortButtonBase, currentAction === 'Short' && 'hover:text-yellow-950')}
+                    className={cn("flex-1 h-8 text-[11px]", currentAction === 'Short' ? shortButtonSelected : shortButtonBase, currentAction === 'Short' && 'hover:text-yellow-950')}
                   >
                     <TrendingDown className="mr-1.5 h-3.5 w-3.5" /> Short
                   </Button>
@@ -570,7 +570,7 @@ export function OrderCard({
                   <div className="space-y-1">
                     <Label htmlFor="orderType" className="text-[10px] font-medium text-foreground">Order Type</Label>
                     <Select value={orderType} onValueChange={(value) => setOrderType(value as OrderSystemType)}>
-                      <SelectTrigger id="orderType" className="h-8 text-xs">
+                      <SelectTrigger id="orderType" className="h-8 text-[11px]">
                         <SelectValue placeholder="Type" />
                       </SelectTrigger>
                       <SelectContent>
@@ -597,7 +597,7 @@ export function OrderCard({
                            onChange={(e) => setQuantityValue(e.target.value)}
                            placeholder={getQuantityInputPlaceholder()}
                            className={cn(
-                             "h-8 bg-transparent py-1.5 focus-visible:ring-ring text-xs w-full px-2",
+                             "h-8 bg-transparent py-1.5 focus-visible:ring-ring text-[11px] w-full px-2",
                              quantityMode === 'DollarAmount' && 'pl-6',
                              quantityMode === 'PercentOfBuyingPower' && 'pr-6'
                            )}
@@ -643,7 +643,7 @@ export function OrderCard({
               )}
               
               {selectedStock && quantityValue && isValidQuantity && estimatedCost > 0 && (
-                <div className="text-xs text-foreground space-y-0.5 mt-2 p-2 bg-black/10 rounded-md border border-white/5">
+                <div className="text-[11px] text-foreground space-y-0.5 mt-2 p-2 bg-black/10 rounded-md border border-white/5">
                   <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">Est. amount:</span>
                     <span className="font-bold">${estimatedCost.toFixed(2)}</span>
@@ -665,7 +665,7 @@ export function OrderCard({
                       value={allowExtendedHours ? 'yes' : 'no'}
                       onValueChange={(value) => setAllowExtendedHours(value === 'yes')}
                     >
-                      <SelectTrigger id="allowExtendedHours" className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="allowExtendedHours" className="h-8 text-[11px]"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="no" className="text-xs">No</SelectItem>
                         <SelectItem value="yes" className="text-xs">Yes</SelectItem>
@@ -678,7 +678,7 @@ export function OrderCard({
                     Time-in-Force
                   </Label>
                   <Select value={timeInForce} onValueChange={(value) => setTimeInForce(value)}>
-                    <SelectTrigger id="timeInForce" className="h-8 text-xs"><SelectValue placeholder="Select TIF" /></SelectTrigger>
+                    <SelectTrigger id="timeInForce" className="h-8 text-[11px]"><SelectValue placeholder="Select TIF" /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Day" className="text-xs">Day</SelectItem>
                       <SelectItem value="GTC" className="text-xs">Good-Til-Canceled (GTC)</SelectItem>
@@ -692,25 +692,25 @@ export function OrderCard({
               {(orderType === 'Limit' || orderType === 'Stop Limit') && (
                 <div className="space-y-1 mt-2">
                   <Label htmlFor="limitPrice" className="text-[10px] font-medium text-foreground">Limit Price</Label>
-                  <Input id="limitPrice" type="number" step="0.01" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} placeholder="" className="bg-transparent text-xs h-8" />
+                  <Input id="limitPrice" type="number" step="0.01" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} placeholder="" className="bg-transparent text-[11px] h-8" />
                 </div>
               )}
               {(orderType === 'Stop' || orderType === 'Stop Limit') && (
                 <div className="space-y-1 mt-2">
                   <Label htmlFor="stopPrice" className="text-[10px] font-medium text-foreground">Stop Price</Label>
-                  <Input id="stopPrice" type="number" step="0.01" value={stopPrice} onChange={(e) => setStopPrice(e.target.value)} placeholder="" className="bg-transparent text-xs h-8"/>
+                  <Input id="stopPrice" type="number" step="0.01" value={stopPrice} onChange={(e) => setStopPrice(e.target.value)} placeholder="" className="bg-transparent text-[11px] h-8"/>
                 </div>
               )}
               {orderType === 'Trailing Stop' && (
                 <div className="space-y-1 mt-2">
                   <Label htmlFor="trailingOffset" className="text-[10px] font-medium text-foreground">Trailing Offset ($ or %)</Label>
-                  <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="" className="bg-transparent text-xs h-8"/>
+                  <Input id="trailingOffset" type="number" step="0.01" value={trailingOffset} onChange={(e) => setTrailingOffset(e.target.value)} placeholder="" className="bg-transparent text-[11px] h-8"/>
                 </div>
               )}
 
               <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-2 shadow-sm bg-black/10 mt-2">
                 <div className="space-y-0.5">
-                  <Label htmlFor="takeProfitSwitch" className="font-medium text-foreground cursor-pointer flex items-center text-xs">
+                  <Label htmlFor="takeProfitSwitch" className="font-medium text-foreground cursor-pointer flex items-center text-[11px]">
                     <Target className="h-3.5 w-3.5 mr-1.5 text-green-400" /> Take Profit
                   </Label>
                   <p className="text-[10px] text-muted-foreground pl-[22px]">Set a target profit level.</p>
@@ -734,14 +734,14 @@ export function OrderCard({
                       value={takeProfitValue}
                       onChange={(e) => setTakeProfitValue(e.target.value)}
                       placeholder=""
-                      className="bg-transparent h-8 text-xs"
+                      className="bg-transparent h-8 text-[11px]"
                     />
                 </div>
               )}
 
               <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-2 shadow-sm bg-black/10 mt-2">
                 <div className="space-y-0.5">
-                  <Label htmlFor="stopLossSwitch" className="font-medium text-foreground cursor-pointer flex items-center text-xs">
+                  <Label htmlFor="stopLossSwitch" className="font-medium text-foreground cursor-pointer flex items-center text-[11px]">
                     <ShieldCheck className="h-3.5 w-3.5 mr-1.5 text-red-400" /> Stop Loss
                   </Label>
                   <p className="text-[10px] text-muted-foreground pl-[22px]">Set a price to limit potential losses.</p>
@@ -765,7 +765,7 @@ export function OrderCard({
                     value={stopLossValue}
                     onChange={(e) => setStopLossValue(e.target.value)}
                     placeholder=""
-                    className="bg-transparent h-8 text-xs"
+                    className="bg-transparent h-8 text-[11px]"
                   />
                 </div>
               )}
@@ -776,18 +776,18 @@ export function OrderCard({
               <div className="space-y-3">
                 <Card className="bg-transparent shadow-none border-none">
                   <CardHeader className="p-0 pb-2">
-                    <CardTitle className="text-md font-semibold text-foreground">Autopilot Active</CardTitle>
-                    <CardDescription className="text-xs">Trades for {selectedStock.symbol} based on rules.</CardDescription>
+                    <CardTitle className="text-[12px] font-semibold text-foreground">Autopilot Active</CardTitle>
+                    <CardDescription className="text-[11px]">Trades for {selectedStock.symbol} based on rules.</CardDescription>
                   </CardHeader>
                   <CardContent className="p-0 space-y-2">
                     <div>
-                      <h4 className="font-medium text-muted-foreground text-xs mb-1.5 flex items-center">
+                      <h4 className="font-medium text-muted-foreground text-[11px] mb-1.5 flex items-center">
                         <ListChecks className="mr-1.5 h-3.5 w-3.5 text-primary" /> Active Strategies
                       </h4>
                       <ul className="space-y-1.5 text-xs">
                         {dummyAutoRules.map(rule => (
                           <li key={rule.id} className="p-2 rounded-md bg-black/10 border border-white/5">
-                            <p className="font-medium text-foreground">{rule.name}</p>
+                            <p className="font-medium text-foreground text-[11px]">{rule.name}</p>
                             <p className="text-[10px] text-muted-foreground">{rule.description}</p>
                           </li>
                         ))}
@@ -796,10 +796,10 @@ export function OrderCard({
                       <div className="space-y-1 !mt-3">
                         <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-2 shadow-sm bg-black/10">
                             <div className="space-y-0.5">
-                                <Label htmlFor="autopilotSwitch" className="text-sm font-medium text-foreground cursor-pointer">
+                                <Label htmlFor="autopilotSwitch" className="text-[11px] font-medium text-foreground cursor-pointer">
                                 Autopilot Enabled
                                 </Label>
-                                  <p className="text-xs text-muted-foreground">
+                                  <p className="text-[10px] text-muted-foreground">
                                 AI execution for {selectedStock.symbol}.
                                 </p>
                             </div>
@@ -814,7 +814,7 @@ export function OrderCard({
                   </CardContent>
                 </Card>
                   <Link href="/rules" className="block">
-                    <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent-foreground h-8 text-xs">
+                    <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent-foreground h-8 text-[11px]">
                         <Cog className="mr-1.5 h-3.5 w-3.5" /> Manage Rules
                     </Button>
                 </Link>
@@ -833,7 +833,7 @@ export function OrderCard({
               type="button"
               onClick={handleManualSubmit}
               disabled={isSubmitDisabled()}
-              className={cn("w-full h-9 text-sm",
+              className={cn("w-full h-9 text-[11px]",
                 currentAction === 'Buy' && selectedStock && isValidQuantity && buyButtonSelected,
                 currentAction === 'Sell' && selectedStock && isValidQuantity && sellButtonSelected,
                 currentAction === 'Short' && selectedStock && isValidQuantity && shortButtonSelected,
