@@ -483,7 +483,6 @@ export function OrderCard({
           <div className="w-auto max-w-[180px] shrink">
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
               <SelectTrigger id="accountSelectOrderCard" className="h-8 text-xs truncate">
-                {selectedAccount && getAccountIcon(selectedAccount.type)}
                 <SelectValue placeholder="Account..." />
               </SelectTrigger>
               <SelectContent>

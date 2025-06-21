@@ -46,7 +46,6 @@ export function AccountSummaryCard({ className }: AccountSummaryCardProps) {
             </Label>
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
             <SelectTrigger id="accountSelectGlobal" className="flex-1 h-9 text-sm" aria-label="Select active account">
-                {selectedAccount && getAccountIcon(selectedAccount.type)}
                 <SelectValue placeholder="Select account..." />
             </SelectTrigger>
             <SelectContent>
