@@ -52,6 +52,7 @@ export interface Stock {
   afterHoursPrice?: number;
   afterHoursChange?: number;
   afterHoursChangePercent?: number;
+  analystRating?: 'Strong Buy' | 'Buy' | 'Hold' | 'Sell' | 'Strong Sell';
 }
 
 export type RuleOperator = '>' | '<' | '>=' | '<=' | '==' | '!=' | 'between' | 'contains';

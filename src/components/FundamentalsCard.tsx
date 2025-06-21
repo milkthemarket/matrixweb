@@ -48,6 +48,17 @@ const formatCompact = (value?: number) => {
     return value.toString();
 };
 
+const getAnalystRatingColor = (rating?: Stock['analystRating']) => {
+    switch (rating) {
+        case 'Strong Buy': return 'text-green-400 font-bold';
+        case 'Buy': return 'text-green-500';
+        case 'Hold': return 'text-yellow-400';
+        case 'Sell': return 'text-orange-400';
+        case 'Strong Sell': return 'text-red-500 font-bold';
+        default: return 'text-neutral-50';
+    }
+};
+
 export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
     if (!stock) {
         return (
@@ -104,7 +115,6 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
                         <DetailItem label="Avg Vol (3M)" value={formatCompact(stock.avgVolume ? stock.avgVolume * 1e6 : undefined)} description="Average 3-month trading volume" />
                         <Separator className="my-1 bg-white/10" />
                         <DetailItem label="Div / Yield" value={stock.dividendYield ? `${formatNumber(stock.dividendYield, 3)} / ${formatNumber(stock.dividendYield, 1)}%` : '-'} valueClass="text-[#FACC15]" description="Dividend per share and yield percentage" />
-                        <DetailItem label="Ex-Div Date" value={stock.exDividendDate ? stock.exDividendDate : undefined} description="Ex-dividend date" />
                     </div>
                     <div className="space-y-0">
                         <DetailItem label="Market Cap" value={formatCompact(stock.marketCap)} description="Market Capitalization" />
@@ -114,7 +124,21 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
                         <DetailItem label="Shares Out" value={formatCompact(stock.sharesOutstanding)} description="Total shares outstanding" />
                         <DetailItem label="Float" value={formatCompact(stock.freeFloatShares)} description="Shares available for public trading" />
                         <Separator className="my-1 bg-white/10" />
-                        <DetailItem label="Next Earnings" value={stock.earningsDate ? new Date(stock.earningsDate).toLocaleDateString() : undefined} valueClass="text-[#8B5CF6]" description="Next earnings report date" />
+                        <DetailItem label="Ex-Div Date" value={stock.exDividendDate ? stock.exDividendDate : undefined} description="Ex-dividend date" />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-x-4 mt-1">
+                    <div className="space-y-0">
+                         <DetailItem label="Next Earnings" value={stock.earningsDate ? new Date(stock.earningsDate).toLocaleDateString() : undefined} valueClass="text-[#8B5CF6]" description="Next earnings report date" />
+                    </div>
+                     <div className="space-y-0">
+                        <DetailItem
+                            label="Analyst Rating"
+                            value={stock.analystRating}
+                            valueClass={getAnalystRatingColor(stock.analystRating)}
+                            description="Consensus analyst rating"
+                        />
                     </div>
                 </div>
 
