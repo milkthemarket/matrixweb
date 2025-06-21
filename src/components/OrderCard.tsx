@@ -474,10 +474,6 @@ export function OrderCard({
   const shortButtonBase = "border-yellow-500 text-yellow-400 hover:bg-yellow-500/10 hover:text-yellow-300";
   const shortButtonSelected = "bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90";
 
-  const buttonBaseClass = "flex-1 flex items-center justify-center h-8 py-1.5 px-2 text-[11px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50";
-  const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
-  const inactiveModeClass = "bg-transparent text-muted-foreground hover:bg-white/5";
-
   return (
     <>
       <Card className={cn("shadow-none flex flex-col h-full", className)}>
@@ -517,18 +513,32 @@ export function OrderCard({
             </Button>
           </div>
 
-          <div className="grid grid-cols-2 w-full rounded-md overflow-hidden border border-white/5 bg-black/15">
+          <div className="grid grid-cols-2 gap-3">
             <button
+              type="button"
               onClick={() => setTradeMode('manual')}
-              className={cn(buttonBaseClass, tradeMode === 'manual' ? activeModeClass : inactiveModeClass)}
+              className={cn(
+                "border rounded-md h-[38px] px-4 flex items-center justify-center gap-2 transition-all text-sm",
+                tradeMode === 'manual' 
+                  ? 'border-primary text-primary bg-background shadow-[0_0_8px_hsl(var(--primary)/0.4)]'
+                  : 'border-input text-muted-foreground bg-transparent hover:border-foreground/30'
+              )}
             >
-              <User className="mr-1.5 h-3.5 w-3.5" /> Manual
+              <User className="w-4 h-4" />
+              Manual
             </button>
             <button
+              type="button"
               onClick={() => setTradeMode('autopilot')}
-              className={cn(buttonBaseClass, tradeMode === 'autopilot' ? activeModeClass : inactiveModeClass)}
+              className={cn(
+                "border rounded-md h-[38px] px-4 flex items-center justify-center gap-2 transition-all text-sm",
+                tradeMode === 'autopilot' 
+                  ? 'border-primary text-primary bg-background shadow-[0_0_8px_hsl(var(--primary)/0.4)]'
+                  : 'border-input text-muted-foreground bg-transparent hover:border-foreground/30'
+              )}
             >
-              <Cog className="mr-1.5 h-3.5 w-3.5" /> Autopilot
+              <Cog className="w-4 h-4" />
+              Autopilot
             </button>
           </div>
 
