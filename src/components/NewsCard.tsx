@@ -40,9 +40,9 @@ const dummyArticlesContent: Record<string, { title: string; paragraphs: string[]
   'n11': {
     title: "Insider Trading Scandal at Texas Pacific Land",
     paragraphs: [
-      "In a bizarre twist of events, Jonathan Rehkopf, a mid-level manager at Texas Pacific Land Corporation (NYSE: TPL), was found guilty of insider trading after unintentionally sharing non-public trading information in a family group chat titled 'Rehkopf Reunion 2024.'",
-      "According to investigators, Rehkopf forwarded several text messages containing upcoming land acquisition plans and their potential market impact to the wrong group chat — a thread originally meant for coordinating a cousin’s wedding itinerary. One family member, a financial blogger, flagged the information and notified authorities.",
-      "The SEC confirmed the authenticity of the leaked trade tips and found that multiple suspicious trades were placed ahead of TPL’s land announcements, netting over $170,000 in ill-gotten gains. Rehkopf has since been placed on administrative leave and faces criminal and civil charges. Texas Pacific Land Corporation issued a statement asserting it is cooperating fully with regulators and reviewing internal compliance procedures."
+      "In a bizarre twist of events, a mid-level manager at Texas Pacific Land Corporation (NYSE: TPL), known internally and on social media as 'DJ 4Play,' was found guilty of insider trading after accidentally leaking confidential trade insights to a group chat named 'Dawg Pound.'",
+      "Investigators revealed that DJ 4Play had shared details about upcoming land acquisitions and their market implications — information that had not yet been made public. The messages, initially intended for a colleague, were instead posted in the 'Dawg Pound' chat, which included old college friends, two fantasy football commissioners, and a surprisingly alert junior compliance officer from another firm.",
+      "Following the leak, several members of the chat made aggressive stock moves, prompting red flags at multiple brokerages. The SEC traced the trades back to the insider tips, resulting in swift enforcement action. Texas Pacific Land Corporation stated they are cooperating fully and have placed DJ 4Play on leave pending further disciplinary review. Internal policy revisions are underway, including a new rule: no nicknames or investment ideas allowed in social chats."
     ]
   },
   'n12': {
