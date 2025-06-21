@@ -29,6 +29,10 @@ const dummyNewsData: NewsItem[] = [
   { id: 'n8', symbol: 'XOM', headline: 'Oil prices decline amid global demand concerns', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 55).toISOString() },
   { id: 'n9', symbol: 'AAPL', headline: 'Apple Vision Pro demand exceeds expectations in early preorders.', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 90).toISOString() },
   { id: 'n10', symbol: 'TSLA', headline: 'Tesla recalls Model 3 vehicles due to software glitch.', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 10).toISOString() },
+  { id: 'n11', symbol: 'TPL', headline: 'Texas Pacific Land mid-manager caught insider trading after \'accidentally\' texting trade tips to group chat', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 8).toISOString() },
+  { id: 'n12', symbol: 'TPL', headline: 'TPL launches AI-powered land appraisal tool, stock pops 3%', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 22).toISOString() },
+  { id: 'n13', symbol: 'TPL', headline: 'Texas drought deepens, but TPL monetizes water rights in record Q2 earnings', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString() },
+  { id: 'n14', symbol: 'TPL', headline: 'Short-seller targets TPL, calls land valuation model ‘voodoo math’', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
 ];
 
 interface NewsCardProps {
