@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Stock, AlertRule } from '@/types';
 import { cn } from '@/lib/utils';
-import { Eye, List, Star, TrendingUp, TrendingDown, Activity, CalendarCheck2, Filter as FilterIcon } from 'lucide-react';
+import { List, Star, TrendingUp, TrendingDown, Activity, CalendarCheck2, Filter as FilterIcon } from 'lucide-react';
 import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { mockRules } from '@/app/(app)/rules/page';
 
@@ -100,7 +100,6 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
       <CardHeader className="pb-0.5 pt-3 px-3 space-y-0.5">
         <div className="flex items-center justify-between">
           <CardTitle className="text-md font-headline text-foreground flex items-center">
-            <Eye className="mr-1.5 h-3.5 w-3.5 text-primary" />
             
           </CardTitle>
         </div>
