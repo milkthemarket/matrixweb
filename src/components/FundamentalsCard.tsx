@@ -15,32 +15,6 @@ interface FundamentalsCardProps {
   className?: string;
 }
 
-interface OrderBookLevel {
-  price: number;
-  size: number;
-}
-
-const generateMockOrderBook = (basePrice: number, count: number = 8): { bids: OrderBookLevel[], asks: OrderBookLevel[] } => {
-  const bids: OrderBookLevel[] = [];
-  const asks: OrderBookLevel[] = [];
-  const priceIncrement = basePrice > 100 ? 0.05 : 0.01;
-
-  for (let i = 0; i < count; i++) {
-    bids.push({
-      price: parseFloat((basePrice - (i + 1) * priceIncrement - Math.random() * priceIncrement * 0.5).toFixed(2)),
-      size: Math.floor(Math.random() * 500) + 50,
-    });
-    asks.push({
-      price: parseFloat((basePrice + (i + 1) * priceIncrement + Math.random() * priceIncrement * 0.5).toFixed(2)),
-      size: Math.floor(Math.random() * 500) + 50,
-    });
-  }
-  bids.sort((a, b) => b.price - a.price);
-  asks.sort((a, b) => a.price - b.price);
-  return { bids, asks };
-};
-
-
 const DetailItem: React.FC<{ label: string; value?: string | number | null; unit?: string; valueClass?: string; description?: string }> = ({ label, value, unit, valueClass, description }) => (
     <TooltipProvider delayDuration={200}>
         <Tooltip>
@@ -75,20 +49,6 @@ const formatCompact = (value?: number) => {
 };
 
 export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
-    const [orderBookData, setOrderBookData] = useState<{ bids: OrderBookLevel[], asks: OrderBookLevel[] } | null>(null);
-
-    useEffect(() => {
-        if (stock && stock.price > 0) {
-            setOrderBookData(generateMockOrderBook(stock.price, 8));
-        } else {
-            setOrderBookData(null);
-        }
-    }, [stock]);
-
-    const bestBid = orderBookData?.bids[0]?.price;
-    const bestAsk = orderBookData?.asks[0]?.price;
-    const spread = bestBid && bestAsk && bestAsk > bestBid ? parseFloat((bestAsk - bestBid).toFixed(2)) : undefined;
-
     if (!stock) {
         return (
             <Card className={cn("flex flex-col justify-center items-center", className)}>
@@ -158,44 +118,6 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
                     </div>
                 </div>
 
-                {orderBookData && (
-                    <>
-                        <Separator className="my-1.5 bg-white/10" />
-                        {bestBid && bestAsk && spread !== undefined && (
-                            <div className="text-[10px] text-center text-muted-foreground mb-1">
-                                Bid: <span className="text-green-500 font-medium">${bestBid.toFixed(2)}</span> |
-                                Ask: <span className="text-red-500 font-medium">${bestAsk.toFixed(2)}</span> |
-                                Spread: <span className="text-primary font-medium">${spread.toFixed(2)}</span>
-                            </div>
-                        )}
-                        <div className="grid grid-cols-2 gap-x-4">
-                            <div>
-                                <div className="flex justify-between text-muted-foreground font-medium border-b border-white/10 pb-0.5 mb-0.5 text-[10px]">
-                                    <span>Bids</span>
-                                    <span>Size</span>
-                                </div>
-                                {orderBookData.bids.map((bid, index) => (
-                                    <div key={`bid-${index}`} className="flex justify-between items-center hover:bg-green-500/10 rounded-sm px-0.5 text-[11px]">
-                                        <span className="font-bold text-green-500">{bid.price.toFixed(2)}</span>
-                                        <span className="font-bold text-foreground">{bid.size}</span>
-                                    </div>
-                                ))}
-                            </div>
-                            <div>
-                                <div className="flex justify-between text-muted-foreground font-medium border-b border-white/10 pb-0.5 mb-0.5 text-[10px]">
-                                    <span>Asks</span>
-                                    <span>Size</span>
-                                </div>
-                                {orderBookData.asks.map((ask, index) => (
-                                    <div key={`ask-${index}`} className="flex justify-between items-center hover:bg-red-500/10 rounded-sm px-0.5 text-[11px]">
-                                        <span className="font-bold text-red-500">{ask.price.toFixed(2)}</span>
-                                        <span className="font-bold text-foreground">{ask.size}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </>
-                )}
             </CardContent>
         </Card>
     );
