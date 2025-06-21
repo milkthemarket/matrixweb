@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Rss } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import type { Stock } from '@/types';
+import type { NewsItem } from '@/types';
+import { NewsArticleModal } from './NewsArticleModal';
 
 interface NewsItem {
   id: string;
@@ -35,6 +36,30 @@ const dummyNewsData: NewsItem[] = [
   { id: 'n14', symbol: 'TPL', headline: 'Short-seller targets TPL, calls land valuation model ‘voodoo math’', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
 ];
 
+const dummyArticlesContent: Record<string, { title: string; paragraphs: string[] }> = {
+  'n11': {
+    title: "Insider Trading Scandal at Texas Pacific Land",
+    paragraphs: [
+      "In a bizarre twist of events, Jonathan Rehkopf, a mid-level manager at Texas Pacific Land Corporation (NYSE: TPL), was found guilty of insider trading after unintentionally sharing non-public trading information in a family group chat titled 'Rehkopf Reunion 2024.'",
+      "According to investigators, Rehkopf forwarded several text messages containing upcoming land acquisition plans and their potential market impact to the wrong group chat — a thread originally meant for coordinating a cousin’s wedding itinerary. One family member, a financial blogger, flagged the information and notified authorities.",
+      "The SEC confirmed the authenticity of the leaked trade tips and found that multiple suspicious trades were placed ahead of TPL’s land announcements, netting over $170,000 in ill-gotten gains. Rehkopf has since been placed on administrative leave and faces criminal and civil charges. Texas Pacific Land Corporation issued a statement asserting it is cooperating fully with regulators and reviewing internal compliance procedures."
+    ]
+  },
+  'n12': {
+    title: "TPL Launches AI-Powered Land Appraisal Tool",
+    paragraphs: ["Texas Pacific Land Corporation today announced the launch of its new proprietary AI-powered land appraisal tool, causing the stock to pop 3% in early trading.", "The tool leverages satellite imagery and historical data to provide real-time valuation estimates, a move that analysts say could revolutionize the land management industry.", "Further details about the technology and its market impact will be released next week."]
+  },
+  'n13': {
+    title: "TPL Monetizes Water Rights Amidst Drought",
+    paragraphs: ["Despite deepening drought conditions in Texas, TPL has successfully monetized its extensive water rights, contributing to record Q2 earnings.", "The company reported a 25% increase in revenue from its water segment, selling surplus water to agricultural and industrial clients.", "The company's innovative approach to water management is being hailed as a model for the industry."]
+  },
+  'n14': {
+    title: "Short-Seller Targets TPL",
+    paragraphs: ["A prominent short-seller has targeted Texas Pacific Land, calling its land valuation model 'voodoo math' in a scathing report released this morning.", "The report alleges that TPL's valuation methods are opaque and do not reflect current market realities, creating an unsustainable bubble.", "TPL's stock has seen increased volatility following the report's publication, dropping 8% before recovering slightly."]
+  }
+};
+
+
 interface NewsCardProps {
   className?: string;
   selectedTickerSymbol: string | null;
@@ -43,6 +68,8 @@ interface NewsCardProps {
 
 export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: NewsCardProps) {
   const [clientTimestamps, setClientTimestamps] = useState<Record<string, string>>({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState<{ title: string; paragraphs: string[]; sentiment: NewsItem['sentiment']; timestamp: string; } | null>(null);
 
   const filteredNews = React.useMemo(() => {
     if (!selectedTickerSymbol) {
@@ -65,6 +92,19 @@ export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: Ne
     setClientTimestamps(newTimestamps);
   }, [filteredNews]);
 
+  const handleNewsItemClick = (item: NewsItem) => {
+    const articleContent = dummyArticlesContent[item.id];
+    if (articleContent) {
+      setSelectedArticle({
+        ...articleContent,
+        sentiment: item.sentiment,
+        timestamp: clientTimestamps[item.id] || new Date(item.timestamp).toLocaleString()
+      });
+      setIsModalOpen(true);
+    } else {
+      onTickerSelect(item.symbol);
+    }
+  };
 
   const getSentimentBadgeClass = (sentiment: NewsItem['sentiment']) => {
     switch (sentiment) {
@@ -77,43 +117,48 @@ export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: Ne
   };
 
   return (
-    <div className={cn("h-full flex flex-col", className)}>
-      <div className="p-0 flex-1 overflow-hidden">
-        <ScrollArea className="h-full p-2">
-          {filteredNews.length > 0 ? (
-            <ul className="space-y-2">
-              {filteredNews.map(item => (
-                <li key={item.id} className="pb-1.5 border-b border-border/[.05] last:border-b-0">
-                  <button
-                    onClick={() => onTickerSelect(item.symbol)}
-                    className="w-full text-left hover:bg-white/5 p-1 rounded-md transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-                    aria-label={`View news for ${item.symbol}: ${item.headline}`}
-                  >
-                    <div className="flex justify-between items-start gap-1.5 mb-0.5">
-                      <div className="flex-1">
-                        <span className="font-semibold text-primary text-xs mr-1">{item.symbol}:</span>
-                        <span className="text-xs text-foreground leading-tight">{item.headline}</span>
+    <>
+      <div className={cn("h-full flex flex-col", className)}>
+        <div className="p-0 flex-1 overflow-hidden">
+          <ScrollArea className="h-full p-2">
+            {filteredNews.length > 0 ? (
+              <ul className="space-y-2">
+                {filteredNews.map(item => (
+                  <li key={item.id} className="pb-1.5 border-b border-border/[.05] last:border-b-0">
+                    <button
+                      onClick={() => handleNewsItemClick(item)}
+                      className="w-full text-left hover:bg-white/5 p-1 rounded-md transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                      aria-label={`View news for ${item.symbol}: ${item.headline}`}
+                    >
+                      <div className="flex justify-between items-start gap-1.5 mb-0.5">
+                        <div className="flex-1">
+                          <span className="font-semibold text-primary text-xs mr-1">{item.symbol}:</span>
+                          <span className="text-xs text-foreground leading-tight">{item.headline}</span>
+                        </div>
+                        <Badge variant="outline" className={cn("text-[10px] py-0 px-1 h-auto whitespace-nowrap", getSentimentBadgeClass(item.sentiment))}>
+                          {item.sentiment}
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className={cn("text-[10px] py-0 px-1 h-auto whitespace-nowrap", getSentimentBadgeClass(item.sentiment))}>
-                        {item.sentiment}
-                      </Badge>
-                    </div>
-                    <p className="text-[10px] text-muted-foreground">{clientTimestamps[item.id] || 'Calculating...'}</p>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-xs text-muted-foreground text-center">
-                No news found {selectedTickerSymbol ? `for ${selectedTickerSymbol}` : 'at the moment'}.
-              </p>
-            </div>
-          )}
-        </ScrollArea>
+                      <p className="text-[10px] text-muted-foreground">{clientTimestamps[item.id] || 'Calculating...'}</p>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-xs text-muted-foreground text-center">
+                  No news found {selectedTickerSymbol ? `for ${selectedTickerSymbol}` : 'at the moment'}.
+                </p>
+              </div>
+            )}
+          </ScrollArea>
+        </div>
       </div>
-    </div>
+       <NewsArticleModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        article={selectedArticle}
+      />
+    </>
   );
 }
-
-    
