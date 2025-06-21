@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { SlidersHorizontal } from 'lucide-react';
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface TechnicalIndicatorsCardProps {
   stock: Stock | null;
@@ -18,7 +19,7 @@ const DetailItem: React.FC<{ label: string; value?: string | number | null; valu
     <TooltipProvider delayDuration={200}>
         <Tooltip>
             <TooltipTrigger asChild>
-                <div className="flex justify-between items-baseline py-1">
+                <div className="flex justify-between items-baseline py-0.5">
                     <span className="text-[10px] uppercase tracking-wider text-neutral-400 whitespace-nowrap pr-2">
                         {label}
                     </span>
@@ -36,7 +37,7 @@ const DetailItem: React.FC<{ label: string; value?: string | number | null; valu
     </TooltipProvider>
 );
 
-// Static data for AAPL as per prompt
+// Static data for display as per prompt
 const technicalData = {
   rsi: 62.1,
   trend: 'Neutral',
@@ -48,9 +49,59 @@ const technicalData = {
   resistance: 172.50
 };
 
-
 export function TechnicalIndicatorsCard({ stock, className }: TechnicalIndicatorsCardProps) {
     const macdColor = technicalData.macd.includes('Bullish') ? 'text-green-500' : technicalData.macd.includes('Bearish') ? 'text-red-500' : 'text-neutral-50';
+
+    const renderContent = () => {
+        if (!stock) {
+            return (
+                <div className="space-y-1">
+                    <div className="grid grid-cols-2 gap-x-4">
+                        <Skeleton className="h-5 w-full" />
+                        <Skeleton className="h-5 w-full" />
+                    </div>
+                    <Separator className="bg-white/10" />
+                     <div className="grid grid-cols-2 gap-x-4">
+                        <Skeleton className="h-5 w-full" />
+                        <Skeleton className="h-5 w-full" />
+                    </div>
+                    <Separator className="bg-white/10" />
+                     <div className="grid grid-cols-2 gap-x-4">
+                        <Skeleton className="h-5 w-full" />
+                        <Skeleton className="h-5 w-full" />
+                    </div>
+                    <Separator className="bg-white/10" />
+                     <div className="grid grid-cols-2 gap-x-4">
+                        <Skeleton className="h-5 w-full" />
+                        <Skeleton className="h-5 w-full" />
+                    </div>
+                </div>
+            )
+        }
+        return (
+             <div className="space-y-1">
+                <div className="grid grid-cols-2 gap-x-4">
+                    <DetailItem label="RSI" value={technicalData.rsi.toFixed(1)} description="Relative Strength Index (14)" />
+                    <DetailItem label="Trend" value={technicalData.trend} description="Overall Trend" />
+                </div>
+                <Separator className="bg-white/10" />
+                <div className="grid grid-cols-2 gap-x-4">
+                    <DetailItem label="50-Day MA" value={`$${technicalData.ma50.toFixed(2)}`} description="50-Day Moving Average" />
+                    <DetailItem label="200-Day MA" value={`$${technicalData.ma200.toFixed(2)}`} description="200-Day Moving Average" />
+                </div>
+                <Separator className="bg-white/10" />
+                <div className="grid grid-cols-2 gap-x-4">
+                    <DetailItem label="MACD" value={technicalData.macd} valueClass={macdColor} description="Moving Average Convergence Divergence" />
+                    <DetailItem label="Signal Line" value={technicalData.signalLine.toFixed(2)} description="MACD Signal Line" />
+                </div>
+                 <Separator className="bg-white/10" />
+                <div className="grid grid-cols-2 gap-x-4">
+                    <DetailItem label="Support" value={`$${technicalData.support.toFixed(2)}`} description="Key Support Level" />
+                    <DetailItem label="Resistance" value={`$${technicalData.resistance.toFixed(2)}`} description="Key Resistance Level" />
+                </div>
+            </div>
+        )
+    };
 
     return (
         <Card className={cn("flex flex-col", className)}>
@@ -60,33 +111,7 @@ export function TechnicalIndicatorsCard({ stock, className }: TechnicalIndicator
                 </h3>
             </CardHeader>
             <CardContent className="p-3 pt-1 flex-1 overflow-y-auto">
-                {!stock ? (
-                     <div className="flex items-center justify-center h-full">
-                        <p className="text-xs text-muted-foreground text-center">Select a stock to view technicals.</p>
-                    </div>
-                ) : (
-                    <div className="space-y-1">
-                        <div className="grid grid-cols-2 gap-x-4">
-                            <DetailItem label="RSI" value={technicalData.rsi.toFixed(1)} description="Relative Strength Index (14)" />
-                            <DetailItem label="Trend" value={technicalData.trend} description="Overall Trend" />
-                        </div>
-                        <Separator className="bg-white/10" />
-                        <div className="grid grid-cols-2 gap-x-4">
-                            <DetailItem label="50-Day MA" value={`$${technicalData.ma50.toFixed(2)}`} description="50-Day Moving Average" />
-                            <DetailItem label="200-Day MA" value={`$${technicalData.ma200.toFixed(2)}`} description="200-Day Moving Average" />
-                        </div>
-                        <Separator className="bg-white/10" />
-                        <div className="grid grid-cols-2 gap-x-4">
-                            <DetailItem label="MACD" value={technicalData.macd} valueClass={macdColor} description="Moving Average Convergence Divergence" />
-                            <DetailItem label="Signal Line" value={technicalData.signalLine.toFixed(2)} description="MACD Signal Line" />
-                        </div>
-                         <Separator className="bg-white/10" />
-                        <div className="grid grid-cols-2 gap-x-4">
-                            <DetailItem label="Support" value={`$${technicalData.support.toFixed(2)}`} description="Key Support Level" />
-                            <DetailItem label="Resistance" value={`$${technicalData.resistance.toFixed(2)}`} description="Key Resistance Level" />
-                        </div>
-                    </div>
-                )}
+                {renderContent()}
             </CardContent>
         </Card>
     );

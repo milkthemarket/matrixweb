@@ -12,10 +12,8 @@ import { Card } from '@/components/ui/card';
 import { InteractiveChartCard } from '@/components/InteractiveChartCard';
 import { WatchlistCard } from '@/components/WatchlistCard';
 import { NewsCard } from '@/components/NewsCard';
-import { OrderBookCard } from '@/components/OrderBookCard';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { OrdersTable } from '@/components/market/OrdersTable';
 import { TradeHistoryTable } from '@/components/market/TradeHistoryTable';
 
 import { initialMockStocks } from '@/app/(app)/dashboard/page';
@@ -138,7 +136,6 @@ function MilkMarketPageContent() {
                             <TabsTrigger value="positions">Positions</TabsTrigger>
                             <TabsTrigger value="history">History</TabsTrigger>
                             <TabsTrigger value="news">News</TabsTrigger>
-                            <TabsTrigger value="technicals">Technicals</TabsTrigger>
                         </TabsList>
                         <TabsContent value="positions" className="flex-1 overflow-hidden mt-0 p-0">
                             <OpenPositionsCard className="h-full border-0 shadow-none rounded-none bg-transparent" />
@@ -152,9 +149,6 @@ function MilkMarketPageContent() {
                                 selectedTickerSymbol={syncedTickerSymbol}
                                 onTickerSelect={handleSyncedTickerChange}
                             />
-                        </TabsContent>
-                        <TabsContent value="technicals" className="flex-1 overflow-hidden mt-0 p-0">
-                            <TechnicalIndicatorsCard stock={stockForSyncedComps} className="h-full border-0 shadow-none rounded-none bg-transparent" />
                         </TabsContent>
                     </Tabs>
                 </Card>
@@ -189,9 +183,9 @@ function MilkMarketPageContent() {
                     onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
                     className="flex-1 min-h-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
                 />
-                <OrderBookCard 
-                    stock={stockForSyncedComps} 
-                    className="h-[250px] flex-shrink-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]" 
+                <TechnicalIndicatorsCard
+                    stock={stockForSyncedComps}
+                    className="h-[250px] flex-shrink-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
                 />
             </div>
         </div>
