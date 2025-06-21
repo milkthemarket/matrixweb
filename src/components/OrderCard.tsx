@@ -542,27 +542,27 @@ export function OrderCard({
                   <p className="text-[10px] text-primary/80">{displayedMiloContext}</p>
                 </div>
               )}
-              <div className="grid grid-cols-3 gap-1.5 mb-3">
+              <div className="grid grid-cols-3 gap-1 mb-2">
                   <Button
                     onClick={() => handleActionSelect('Buy')}
                     variant="outline"
-                    className={cn("flex-1 h-8 text-[11px]", currentAction === 'Buy' ? buyButtonSelected : buyButtonBase, currentAction === 'Buy' && 'hover:text-[hsl(var(--confirm-green-foreground))]')}
+                    className={cn("flex-1 h-6 text-[10px]", currentAction === 'Buy' ? buyButtonSelected : buyButtonBase, currentAction === 'Buy' && 'hover:text-[hsl(var(--confirm-green-foreground))]')}
                   >
-                    <TrendingUp className="mr-1.5 h-3.5 w-3.5" /> Buy
+                    <TrendingUp className="mr-1 h-3 w-3" /> Buy
                   </Button>
                   <Button
                     onClick={() => handleActionSelect('Sell')}
                     variant="outline"
-                    className={cn("flex-1 h-8 text-[11px]", currentAction === 'Sell' ? sellButtonSelected : sellButtonBase, currentAction === 'Sell' && 'hover:text-destructive-foreground')}
+                    className={cn("flex-1 h-6 text-[10px]", currentAction === 'Sell' ? sellButtonSelected : sellButtonBase, currentAction === 'Sell' && 'hover:text-destructive-foreground')}
                   >
-                    <CircleSlash className="mr-1.5 h-3.5 w-3.5" /> Sell
+                    <CircleSlash className="mr-1 h-3 w-3" /> Sell
                   </Button>
                   <Button
                     onClick={() => handleActionSelect('Short')}
                     variant="outline"
-                    className={cn("flex-1 h-8 text-[11px]", currentAction === 'Short' ? shortButtonSelected : shortButtonBase, currentAction === 'Short' && 'hover:text-yellow-950')}
+                    className={cn("flex-1 h-6 text-[10px]", currentAction === 'Short' ? shortButtonSelected : shortButtonBase, currentAction === 'Short' && 'hover:text-yellow-950')}
                   >
-                    <TrendingDown className="mr-1.5 h-3.5 w-3.5" /> Short
+                    <TrendingDown className="mr-1 h-3 w-3" /> Short
                   </Button>
               </div>
               
