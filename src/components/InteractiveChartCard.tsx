@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Stock } from '@/types';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart as RechartsAreaChart, Area, BarChart, Bar, Cell } from 'recharts';
+import type { TooltipProps } from 'recharts';
 import { AreaChart as AreaIcon, CandlestickChart, Minus, Plus, Activity, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -16,24 +17,61 @@ interface InteractiveChartCardProps {
   className?: string;
 }
 
-const generateMockPriceData = (basePrice: number, numPoints = 50) => {
+const generateMockOHLCData = (basePrice: number, numPoints = 50) => {
   const data = [];
-  let currentPrice = basePrice;
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - numPoints + 1);
-
+  let lastClose = basePrice;
   for (let i = 0; i < numPoints; i++) {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + i);
+    const date = new Date();
+    date.setDate(date.getDate() - numPoints + 1 + i);
+    
+    const open = lastClose;
+    const change = (Math.random() - 0.49) * (open * 0.03); // More volatility
+    const close = open + change;
+    const high = Math.max(open, close) + (Math.random() * open * 0.015);
+    const low = Math.min(open, close) - (Math.random() * open * 0.015);
+    
     data.push({
       date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      price: parseFloat(currentPrice.toFixed(2))
+      price: parseFloat(close.toFixed(2)),
+      open: parseFloat(open.toFixed(2)),
+      high: parseFloat(high.toFixed(2)),
+      low: parseFloat(low.toFixed(2)),
+      close: parseFloat(close.toFixed(2)),
     });
-    currentPrice += (Math.random() - 0.48) * (basePrice * 0.015);
-    currentPrice = Math.max(0.01, currentPrice);
+    lastClose = close;
   }
   return data;
 };
+
+const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    if (data.open !== undefined) { // Candlestick data
+      const color = data.close >= data.open ? 'hsl(var(--chart-2))' : 'hsl(var(--chart-5))';
+      return (
+        <div className="p-1.5 text-xs bg-popover rounded-md border border-border/50">
+          <p className="label text-foreground font-semibold">{`${label}`}</p>
+          <div className="intro space-y-0.5 mt-1" style={{ color: color }}>
+            <div className="flex justify-between"><span>Open:</span> <span className="font-bold ml-2">${data.open.toFixed(2)}</span></div>
+            <div className="flex justify-between"><span>High:</span> <span className="font-bold ml-2">${data.high.toFixed(2)}</span></div>
+            <div className="flex justify-between"><span>Low:</span> <span className="font-bold ml-2">${data.low.toFixed(2)}</span></div>
+            <div className="flex justify-between"><span>Close:</span> <span className="font-bold ml-2">${data.close.toFixed(2)}</span></div>
+          </div>
+        </div>
+      );
+    }
+    // Default tooltip for line/area
+    const color = payload[0].stroke || payload[0].fill;
+    return (
+        <div className="p-1.5 text-xs bg-popover rounded-md border border-border/50">
+            <p className="label text-foreground font-semibold">{`${label}`}</p>
+            <div style={{ color }}>Price: <span className="font-bold">${payload[0].value?.toFixed(2)}</span></div>
+        </div>
+    );
+  }
+  return null;
+};
+
 
 export function InteractiveChartCard({ stock, onManualTickerSubmit, className }: InteractiveChartCardProps) {
   const [chartType, setChartType] = useState<'line' | 'area' | 'candle'>('line');
@@ -58,14 +96,8 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
     if (timeframe === '1Y') numPoints = 252;
     if (timeframe === 'MAX') numPoints = 500;
 
-    if (stock?.historicalPrices && stock.historicalPrices.length >= numPoints && stock.price > 0) {
-      return stock.historicalPrices.slice(-numPoints).map((price, index, arr) => ({
-        date: `P${arr.length - numPoints + index + 1}`,
-        price
-      }));
-    }
     if (basePrice > 0) {
-        return generateMockPriceData(basePrice, numPoints);
+        return generateMockOHLCData(basePrice, numPoints);
     }
     return [];
   }, [stock, timeframe]);
@@ -135,15 +167,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
                 <Tooltip
                   cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '3 3' }}
-                  contentStyle={{
-                    backgroundColor: 'hsla(var(--popover), 0.9)',
-                    borderColor: 'hsla(var(--border), 0.1)',
-                    borderRadius: 'var(--radius)',
-                    backdropFilter: 'blur(4px)',
-                  }}
-                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', fontSize:'10px', marginBottom: '2px' }}
-                  itemStyle={{ color: dynamicStrokeColor, fontSize:'10px' }}
-                  formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
+                  content={<CustomTooltip />}
                 />
                 <Line type="monotone" dataKey="price" stroke={dynamicStrokeColor} strokeWidth={1.5} dot={false} />
               </LineChart>
@@ -161,48 +185,24 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
                     <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
                     <Tooltip
                         cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '3 3' }}
-                        contentStyle={{
-                            backgroundColor: 'hsla(var(--popover), 0.9)',
-                            borderColor: 'hsla(var(--border), 0.1)',
-                            borderRadius: 'var(--radius)',
-                            backdropFilter: 'blur(4px)',
-                        }}
-                        labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', fontSize:'10px', marginBottom: '2px' }}
-                        itemStyle={{ color: neonPurpleColor, fontSize:'10px' }}
-                        formatter={(value: number) => [`$${value.toFixed(2)}`, 'Price']}
+                        content={<CustomTooltip />}
                     />
                     <Area type="monotone" dataKey="price" stroke={neonPurpleColor} strokeWidth={1.5} fillOpacity={1} fill={`url(#colorPriceAreaPurple-${stock?.id || 'default'})`} dot={false}/>
                 </RechartsAreaChart>
             )}
-            {chartType === 'candle' && ( // Simplified candle as BarChart
+            {chartType === 'candle' && (
               <BarChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
                 <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['dataMin - 1', 'dataMax + 1']} />
                 <Tooltip
                   cursor={{ fill: 'hsla(var(--primary), 0.05)' }}
-                  contentStyle={{
-                    backgroundColor: 'hsla(var(--popover), 0.9)',
-                    borderColor: 'hsla(var(--border), 0.1)',
-                    borderRadius: 'var(--radius)',
-                    backdropFilter: 'blur(4px)',
-                  }}
-                  labelStyle={{ color: 'hsl(var(--foreground))', fontWeight: '500', fontSize:'10px', marginBottom: '2px' }}
-                  formatter={(value: number, name: string, props: any) => {
-                    const itemColor = props.payload.fill;
-                    return [<span style={{ color: itemColor, fontSize:'10px' }}>${value.toFixed(2)}</span>, 'Price'];
-                  }}
+                  content={<CustomTooltip />}
                 />
-                <Bar dataKey="price" barSize={8}>
+                <Bar dataKey={(d) => [d.open, d.close]} barSize={8}>
                   {chartData.map((entry, index) => {
-                    const previousPrice = index > 0 ? chartData[index - 1].price : entry.price - 0.01;
-                    let fillColor = 'hsl(var(--muted-foreground))';
-                    if (entry.price > previousPrice) {
-                      fillColor = 'hsl(var(--chart-2))';
-                    } else if (entry.price < previousPrice) {
-                      fillColor = 'hsl(var(--chart-5))';
-                    }
-                    return <Cell key={`cell-${index}`} fill={fillColor} />;
+                    const fillColor = entry.close >= entry.open ? 'hsl(var(--chart-2))' : 'hsl(var(--chart-5))';
+                    return <Cell key={`cell-${index}`} fill={fillColor} style={{ filter: `drop-shadow(0 0 1px ${fillColor})` }}/>;
                   })}
                 </Bar>
               </BarChart>
@@ -225,7 +225,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
         ))}
         <div className="w-px bg-border/[.1] h-5 mx-1 hidden sm:block"></div>
         {[
-          { type: 'line', label: 'Line', Icon: AreaIcon },
+          { type: 'line', label: 'Line', Icon: LineChart },
           { type: 'area', label: 'Area', Icon: AreaIcon },
           { type: 'candle', label: 'Candle', Icon: CandlestickChart },
         ].map(({ type, label, Icon }) => (
@@ -237,3 +237,5 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
     </Card>
   );
 }
+
+    
