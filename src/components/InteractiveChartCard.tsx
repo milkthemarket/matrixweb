@@ -46,26 +46,36 @@ const generateMockOHLCData = (basePrice: number, numPoints = 50) => {
 const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
-    if (data.open !== undefined) { // Candlestick data
-      const color = data.close >= data.open ? 'hsl(var(--chart-2))' : 'hsl(var(--chart-5))';
+    // Candlestick data
+    if (data.open !== undefined) { 
+      const isUp = data.close >= data.open;
+      const valueColor = isUp ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive'; // Use theme colors
       return (
-        <div className="p-1.5 text-xs bg-popover rounded-md border border-border/50">
-          <p className="label text-foreground font-semibold">{`${label}`}</p>
-          <div className="intro space-y-0.5 mt-1" style={{ color: color }}>
-            <div className="flex justify-between"><span>Open:</span> <span className="font-bold ml-2">${data.open.toFixed(2)}</span></div>
-            <div className="flex justify-between"><span>High:</span> <span className="font-bold ml-2">${data.high.toFixed(2)}</span></div>
-            <div className="flex justify-between"><span>Low:</span> <span className="font-bold ml-2">${data.low.toFixed(2)}</span></div>
-            <div className="flex justify-between"><span>Close:</span> <span className="font-bold ml-2">${data.close.toFixed(2)}</span></div>
+        <div className="p-2.5 text-xs bg-background/90 backdrop-blur-sm rounded-md border border-border/20 shadow-lg shadow-primary/10">
+          <p className="label text-muted-foreground font-semibold mb-1">{`${label}`}</p>
+          <div className="intro space-y-1">
+            <div className="flex justify-between items-baseline"><span className="text-foreground">Open:</span> <span className={cn("font-bold ml-2", valueColor)}>${data.open.toFixed(2)}</span></div>
+            <div className="flex justify-between items-baseline"><span className="text-foreground">High:</span> <span className={cn("font-bold ml-2", valueColor)}>${data.high.toFixed(2)}</span></div>
+            <div className="flex justify-between items-baseline"><span className="text-foreground">Low:</span> <span className={cn("font-bold ml-2", valueColor)}>${data.low.toFixed(2)}</span></div>
+            <div className="flex justify-between items-baseline"><span className="text-foreground">Close:</span> <span className={cn("font-bold ml-2", valueColor)}>${data.close.toFixed(2)}</span></div>
           </div>
         </div>
       );
     }
     // Default tooltip for line/area
-    const color = payload[0].stroke || payload[0].fill;
+    const valueColor = payload[0].stroke === "hsl(var(--chart-2))"
+        ? 'text-[hsl(var(--confirm-green))]'
+        : payload[0].stroke === "hsl(var(--chart-5))"
+        ? 'text-destructive'
+        : 'text-primary'; // Fallback for purple area chart
+    
     return (
-        <div className="p-1.5 text-xs bg-popover rounded-md border border-border/50">
-            <p className="label text-foreground font-semibold">{`${label}`}</p>
-            <div style={{ color }}>Price: <span className="font-bold">${payload[0].value?.toFixed(2)}</span></div>
+        <div className="p-2.5 text-xs bg-background/90 backdrop-blur-sm rounded-md border border-border/20 shadow-lg shadow-primary/10">
+            <p className="label text-muted-foreground font-semibold mb-1">{`${label}`}</p>
+            <div className="flex justify-between items-baseline">
+                <span className="text-foreground">Price:</span>
+                <span className={cn("font-bold ml-2", valueColor)}>${payload[0].value?.toFixed(2)}</span>
+            </div>
         </div>
     );
   }
