@@ -469,34 +469,22 @@ export function OrderCard({
   return (
     <>
       <Card className={cn("shadow-none flex flex-col h-full", className)}>
-        <CardHeader className="relative pb-1.5 pt-3 px-3 flex flex-row justify-between items-center">
-          <div className="flex items-center">
-            <CardTitle className="text-lg font-headline text-foreground mb-0">
-              
-            </CardTitle>
-            {selectedStock && (
-              <Button variant="ghost" size="icon" className="ml-1.5 h-6 w-6" onClick={handleClearSelection} title="Clear Selection">
-                <XCircle className="h-4 w-4 text-muted-foreground hover:text-foreground" />
-              </Button>
-            )}
-          </div>
-          <div className="w-auto max-w-[180px] shrink">
-            <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-              <SelectTrigger id="accountSelectOrderCard" className="h-8 text-xs truncate">
-                <SelectValue placeholder="Account..." />
-              </SelectTrigger>
-              <SelectContent>
-                {accounts.map(acc => (
-                  <SelectItem key={acc.id} value={acc.id} className="text-xs">
-                    <div className="flex items-center gap-1.5">
-                      {getAccountIcon(acc.type)}
-                      <span>{acc.label} ({acc.number})</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <CardHeader className="pb-0.5 pt-3 px-3 space-y-0.5">
+          <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+            <SelectTrigger id="accountSelectOrderCard" className="w-full h-7 text-xs">
+              <SelectValue placeholder="Select an account..." />
+            </SelectTrigger>
+            <SelectContent>
+              {accounts.map(acc => (
+                <SelectItem key={acc.id} value={acc.id} className="text-xs">
+                  <div className="flex items-center gap-1.5">
+                    {getAccountIcon(acc.type)}
+                    <span>{acc.label} ({acc.number})</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </CardHeader>
         <CardContent className="space-y-3 py-3 px-3 overflow-y-auto flex-1">
           <div className="flex items-center space-x-1.5">
