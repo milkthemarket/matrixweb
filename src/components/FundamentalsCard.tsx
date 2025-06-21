@@ -78,15 +78,12 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
                     <div className="space-y-0">
                         <DetailItem label="Open" value={formatNumber(stock.open)} />
                         <DetailItem label="High / Low" value={`${formatNumber(stock.high)} / ${formatNumber(stock.low)}`} />
-                        <DetailItem label="Prev. Close" value={formatNumber(stock.prevClose)} />
                         <DetailItem label="Volume" value={formatCompact(stock.volume ? stock.volume * 1e6 : undefined)} />
                         <DetailItem label="Avg Vol (3M)" value={formatCompact(stock.avgVolume ? stock.avgVolume * 1e6 : undefined)} />
                         <DetailItem label="Market Cap" value={formatCompact(stock.marketCap)} />
                         <DetailItem label="52Wk High / Low" value={`${formatNumber(stock.high52)} / ${formatNumber(stock.low52)}`} />
                     </div>
                     <div className="space-y-0">
-                        <DetailItem label="P/E (TTM)" value={formatNumber(stock.peRatioTTM)} />
-                        <DetailItem label="EPS (TTM)" value={formatNumber(stock.epsTTM)} />
                         <DetailItem label="Shares Out" value={formatCompact(stock.sharesOutstanding)} />
                         <DetailItem label="Float" value={formatCompact(stock.freeFloatShares)} />
                         <DetailItem label="Div / Yield" value={stock.dividendYield ? `${formatNumber(stock.dividendYield, 3)} / ${formatNumber(stock.dividendYield, 1)}%` : '-'} />
