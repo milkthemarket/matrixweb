@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Stock } from '@/types';
-import { AlignVerticalSpaceAround, ArrowDown, ArrowUp, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { cn } from '@/lib/utils';
 
 interface OrderBookCardProps {
@@ -18,7 +18,7 @@ interface OrderBookLevel {
   size: number;
 }
 
-const generateMockOrderBook = (basePrice: number, count: number = 10): { bids: OrderBookLevel[], asks: OrderBookLevel[] } => {
+const generateMockOrderBook = (basePrice: number, count: number = 20): { bids: OrderBookLevel[], asks: OrderBookLevel[] } => {
   const bids: OrderBookLevel[] = [];
   const asks: OrderBookLevel[] = [];
   const priceIncrement = basePrice > 100 ? 0.05 : 0.01;
@@ -43,7 +43,8 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
 
   useEffect(() => {
     if (stock && stock.price > 0) {
-      const mockData = generateMockOrderBook(stock.price);
+      // Generate more rows to ensure scrollability in a tall card
+      const mockData = generateMockOrderBook(stock.price, 30);
       setOrderBookData(mockData);
     } else {
       setOrderBookData(null);
@@ -55,75 +56,62 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
   const spread = bestBid && bestAsk && bestAsk > bestBid ? parseFloat((bestAsk - bestBid).toFixed(2)) : undefined;
 
   return (
-    <div className={cn("h-full flex flex-col", className)}>
-      <div className="py-2 px-3">
-        {stock && stock.price > 0 && bestBid && bestAsk && spread !== undefined ? (
-            <div className="text-xs text-center">
-                Bid: <span className="text-[hsl(var(--confirm-green))] font-medium">${bestBid.toFixed(2)}</span> |
-                Ask: <span className="text-destructive font-medium">${bestAsk.toFixed(2)}</span> |
-                Spread: <span className="text-primary font-medium">${spread.toFixed(2)}</span>
-            </div>
-        ) : stock && stock.price <= 0 ? (
-            <div className="text-xs text-muted-foreground text-center mt-0.5">Unavailable (invalid price).</div>
-        ) : null}
-      </div>
-      <div className="p-0 flex-1 overflow-hidden">
-        {!stock || stock.price <= 0 || !orderBookData ? (
-          <div className="h-full flex items-center justify-center text-xs text-muted-foreground p-2 text-center">
-            {stock && stock.price <=0 ? `L2 unavailable for ${stock.symbol}.` : "Select a stock."}
-          </div>
-        ) : (
-          <ScrollArea className="h-full">
-            <div className="grid grid-cols-2 gap-px text-[10px]">
-              <div>
-                <div className="grid grid-cols-[1fr_auto] p-1.5 border-b border-border/[.08] sticky top-0 bg-card/[.05] backdrop-blur-sm z-[1]">
-                  <span className="font-medium text-muted-foreground flex items-center"><ArrowDown className="mr-1 h-2.5 w-2.5 text-[hsl(var(--confirm-green))]"/>Bids</span>
-                  <span className="font-medium text-right text-muted-foreground">Size</span>
-                </div>
-                {orderBookData.bids.map((bid, index) => (
-                  <div
-                    key={`bid-${index}`}
-                    className={cn(
-                      "grid grid-cols-[1fr_auto] p-1 items-center border-t border-border/[.05]",
-                       "hover:bg-[hsl(var(--confirm-green))]/5"
-                    )}
-                  >
-                    <span className={cn("font-mono font-bold", index === 0 ? "text-[hsl(var(--confirm-green))]" : "text-foreground")}>
-                      ${bid.price.toFixed(2)}
-                    </span>
-                    <span className="text-right font-mono font-bold text-foreground">
-                      {bid.size}
-                    </span>
-                  </div>
-                ))}
-              </div>
+    <Card className={cn("shadow-none flex flex-col", className)}>
+      <CardHeader className="py-2.5 px-3.5">
+        <CardTitle className="text-base font-bold text-neutral-50 flex items-center">
+            <BookOpen className="h-4 w-4 mr-2" /> Level 2 Order Book
+        </CardTitle>
+      </CardHeader>
 
-              <div>
-                <div className="grid grid-cols-[1fr_auto] p-1.5 border-b border-border/[.08] sticky top-0 bg-card/[.05] backdrop-blur-sm z-[1]">
-                  <span className="font-medium text-muted-foreground flex items-center"><ArrowUp className="mr-1 h-2.5 w-2.5 text-destructive"/>Asks</span>
-                  <span className="font-medium text-right text-muted-foreground">Size</span>
+      <CardContent className="p-0 flex-1 overflow-hidden flex flex-col">
+        <div className="py-2 px-3.5 border-b border-t border-border/[.1]">
+            {stock && stock.price > 0 && bestBid && bestAsk && spread !== undefined ? (
+                <div className="text-[11px] text-center flex justify-around font-medium">
+                    <span>Bid: <span className="text-green-500">${bestBid.toFixed(2)}</span></span>
+                    <span>Ask: <span className="text-red-500">${bestAsk.toFixed(2)}</span></span>
+                    <span>Spread: <span className="text-primary">${spread.toFixed(2)}</span></span>
                 </div>
-                {orderBookData.asks.map((ask, index) => (
-                  <div
-                    key={`ask-${index}`}
-                    className={cn(
-                      "grid grid-cols-[1fr_auto] p-1 items-center border-t border-border/[.05]",
-                      "hover:bg-destructive/5"
-                    )}
-                  >
-                    <span className={cn("font-mono font-bold", index === 0 ? "text-destructive" : "text-foreground")}>
-                      ${ask.price.toFixed(2)}
-                    </span>
-                    <span className="text-right font-mono font-bold text-foreground">
-                      {ask.size}
-                    </span>
-                  </div>
-                ))}
-              </div>
+            ) : (
+                <div className="text-xs text-muted-foreground text-center">Spread data unavailable.</div>
+            )}
+        </div>
+        <div className="flex-1 overflow-hidden">
+            {!stock || stock.price <= 0 || !orderBookData ? (
+            <div className="h-full flex items-center justify-center text-xs text-muted-foreground p-2 text-center">
+                {stock && stock.price <=0 ? `L2 unavailable for ${stock.symbol}.` : "Select a stock to view L2 data."}
             </div>
-          </ScrollArea>
-        )}
-      </div>
-    </div>
+            ) : (
+            <ScrollArea className="h-full">
+                <div className="grid grid-cols-2 gap-px text-[11px]">
+                <div>
+                    <div className="grid grid-cols-2 p-1.5 border-b border-border/[.08] sticky top-0 bg-card/[.05] backdrop-blur-sm z-[1] text-[10px] uppercase tracking-wider text-neutral-400">
+                    <span className="font-semibold">Bids</span>
+                    <span className="font-semibold text-right">Size</span>
+                    </div>
+                    {orderBookData.bids.map((bid, index) => (
+                    <div key={`bid-${index}`} className="grid grid-cols-2 p-1 items-center hover:bg-green-500/5">
+                        <span className="font-bold text-green-500">${bid.price.toFixed(2)}</span>
+                        <span className="text-right font-medium text-foreground">{bid.size}</span>
+                    </div>
+                    ))}
+                </div>
+                <div>
+                    <div className="grid grid-cols-2 p-1.5 border-b border-border/[.08] sticky top-0 bg-card/[.05] backdrop-blur-sm z-[1] text-[10px] uppercase tracking-wider text-neutral-400">
+                    <span className="font-semibold">Asks</span>
+                    <span className="font-semibold text-right">Size</span>
+                    </div>
+                    {orderBookData.asks.map((ask, index) => (
+                    <div key={`ask-${index}`} className="grid grid-cols-2 p-1 items-center hover:bg-red-500/5">
+                        <span className="font-bold text-red-500">${ask.price.toFixed(2)}</span>
+                        <span className="text-right font-medium text-foreground">{ask.size}</span>
+                    </div>
+                    ))}
+                </div>
+                </div>
+            </ScrollArea>
+            )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
