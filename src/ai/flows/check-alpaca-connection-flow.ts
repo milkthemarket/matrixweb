@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow to check the connection to the Alpaca API.
@@ -57,8 +58,7 @@ const checkAlpacaConnectionFlow = ai.defineFlow(
       const response = await axios.get("https://paper-api.alpaca.markets/v2/account", {
         headers: {
           "APCA-API-KEY-ID": apiKey,
-          "APCA-API-SECRET-KEY": apiSecret,
-          "Content-Type": "application/json"
+          "APCA-API-SECRET-KEY": apiSecret
         }
       });
       

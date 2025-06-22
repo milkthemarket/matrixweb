@@ -74,8 +74,7 @@ const getChartDataFlow = ai.defineFlow(
       const response = await axios.get(url, {
         headers: {
           'APCA-API-KEY-ID': apiKey,
-          'APCA-API-SECRET-KEY': apiSecret,
-          "Content-Type": "application/json",
+          'APCA-API-SECRET-KEY': apiSecret
         },
       });
 
