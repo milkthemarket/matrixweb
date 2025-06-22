@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A flow to fetch historical chart data from Alpaca.
@@ -51,8 +50,8 @@ const getChartDataFlow = ai.defineFlow(
   },
   async (input) => {
     const { symbol, timeframe, limit, start, end } = input;
-    const apiKey = process.env.ALPACA_API_KEY_ID;
-    const apiSecret = process.env.ALPACA_SECRET_KEY;
+    const apiKey = process.env.APCA_API_KEY_ID;
+    const apiSecret = process.env.APCA_API_SECRET_KEY;
 
     if (!apiKey || !apiSecret) {
       throw new Error('Alpaca API keys are not configured in environment variables.');

@@ -46,8 +46,8 @@ const checkAlpacaConnectionFlow = ai.defineFlow(
     outputSchema: AlpacaAccountSchema,
   },
   async () => {
-    const apiKey = process.env.ALPACA_API_KEY_ID;
-    const apiSecret = process.env.ALPACA_SECRET_KEY;
+    const apiKey = process.env.APCA_API_KEY_ID;
+    const apiSecret = process.env.APCA_API_SECRET_KEY;
 
     if (!apiKey || !apiSecret) {
       throw new Error('Alpaca API keys are not configured in environment variables.');
@@ -57,8 +57,7 @@ const checkAlpacaConnectionFlow = ai.defineFlow(
       const response = await axios.get("https://paper-api.alpaca.markets/v2/account", {
         headers: {
           "APCA-API-KEY-ID": apiKey,
-          "APCA-API-SECRET-KEY": apiSecret,
-          "Content-Type": "application/json"
+          "APCA-API-SECRET-KEY": apiSecret
         }
       });
       
