@@ -7,35 +7,38 @@ interface MiloAvatarIconProps {
   size?: number | string;
   className?: string;
   strokeWidth?: number | string;
+  color?: string;
 }
 
+// Phosphor cow icon (https://phosphoricons.com/) - open source
+// This component now renders the full-body cow icon.
 export function MiloAvatarIcon({ 
   size = 24, 
   className,
-  strokeWidth = 1.5 
+  color = "currentColor", 
+  ...props 
 }: MiloAvatarIconProps) {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-      strokeLinejoin="round"
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 256 256" 
+      width={size} 
+      height={size} 
       className={className}
       aria-labelledby="miloAvatarTitle"
+      {...props}
     >
       <title id="miloAvatarTitle">Milo AI Assistant Icon (Cow)</title>
-      {/* Simplified cow head outline */}
-      <path d="M12 5C8.68629 5 6 7.68629 6 11V15C6 16.1046 6.89543 17 8 17H16C17.1046 17 18 16.1046 18 15V11C18 7.68629 15.3137 5 12 5Z" />
-      {/* Simplified horns */}
-      <path d="M7 5C7 3.34315 5.65685 2 4 2" />
-      <path d="M17 5C17 3.34315 18.3431 2 20 2" />
-      {/* Optional: Simple snout lines or nostrils if desired for more detail, keeping it minimal */}
-      {/* <line x1="9" y1="14" x2="9" y2="14.01" /> */}
-      {/* <line x1="15" y1="14" x2="15" y2="14.01" /> */}
+      <rect width="256" height="256" fill="none"/>
+      <path d="M56,24h0a48,48,0,0,0,48,48h48a48,48,0,0,0,48-48h0" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+      <rect x="48" y="160" width="160" height="64" rx="32" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+      <line x1="80" y1="192" x2="96" y2="192" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+      <line x1="160" y1="192" x2="176" y2="192" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+      <circle cx="100" cy="124" r="12" fill={color}/>
+      <circle cx="156" cy="124" r="12" fill={color}/>
+      <path d="M160,72h32.78a48,48,0,0,1,47.07,38.53A8,8,0,0,1,232,120H192" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+      <path d="M96,72H63.22a48,48,0,0,0-47.07,38.53A8,8,0,0,0,24,120H64" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
+      <path d="M64,164.28V104A32,32,0,0,1,96,72h64a32,32,0,0,1,32,32v60.28" fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth="16"/>
     </svg>
   );
 }
