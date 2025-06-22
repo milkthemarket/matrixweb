@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useMemo, Suspense, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,10 +12,7 @@ import { Newspaper, BarChartBig, LineChart, Megaphone, MousePointerSquareDashed,
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import type { MooAlertItem, MooAlertSentiment, Stock, TradeRequest, OrderActionType, TradeMode, OrderSystemType } from '@/types';
 import { cn } from '@/lib/utils';
-import { OrderCard } from '@/components/OrderCard';
 import { useToast } from "@/hooks/use-toast";
-import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
-import { useOpenPositionsContext } from "@/contexts/OpenPositionsContext";
 import { useSettingsContext } from '@/contexts/SettingsContext';
 
 
@@ -227,21 +225,9 @@ const criteriaFilterConfig: Array<{ key: keyof SelectedCriteriaState; label: str
 const MooAlertsContent: React.FC = () => {
   const [alerts, setAlerts] = useState<MooAlertItem[]>([]); 
   const [selectedCriteria, setSelectedCriteria] = useState<SelectedCriteriaState>(initialCriteriaFilterState);
-
+  const router = useRouter();
   const { toast } = useToast();
-  const { addTradeToHistory } = useTradeHistoryContext();
-  const { addOpenPosition, selectedAccountId } = useOpenPositionsContext();
   const { notificationSounds, playSound } = useSettingsContext();
-
-
-  const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
-  const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
-  const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
-  const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
-  
-  const [orderCardInitialQuantity, setOrderCardInitialQuantity] = useState<string | undefined>(undefined);
-  const [orderCardInitialOrderType, setOrderCardInitialOrderType] = useState<OrderSystemType | undefined>(undefined);
-  const [orderCardInitialLimitPrice, setOrderCardInitialLimitPrice] = useState<string | undefined>(undefined);
 
 
   useEffect(() => {
@@ -279,114 +265,13 @@ const MooAlertsContent: React.FC = () => {
   }, [notificationSounds.mooAlert, playSound]);
 
 
-  const handleMooAlertSelectForOrder = (alertItem: MooAlertItem) => {
-    const stockForOrderCard: Stock = {
-      id: alertItem.id,
-      symbol: alertItem.symbol,
-      name: alertItem.symbol, 
-      price: alertItem.currentPrice,
-      changePercent: alertItem.premarketChangePercent || 0,
-      float: 0, 
-      volume: 0, 
-      newsSnippet: alertItem.headline,
-      lastUpdated: new Date().toISOString(),
-      historicalPrices: [alertItem.currentPrice], 
-    };
-    setSelectedStockForOrderCard(stockForOrderCard);
-    setOrderCardActionType(alertItem.suggestedAction || null); 
-    setOrderCardInitialTradeMode('manual'); 
-    
-    setOrderCardInitialQuantity(alertItem.suggestedQuantity !== undefined ? String(alertItem.suggestedQuantity) : undefined);
-    setOrderCardInitialOrderType(alertItem.suggestedOrderType);
-    setOrderCardInitialLimitPrice(
-      (alertItem.suggestedOrderType === 'Limit' || alertItem.suggestedOrderType === 'Stop Limit') && alertItem.suggestedEntryPrice !== undefined
-        ? String(alertItem.suggestedEntryPrice)
-        : undefined
-    );
-
-    let contextSummary = `Moo Alert Plan for ${alertItem.symbol}: ${alertItem.suggestedAction || 'Review'} ${alertItem.suggestedQuantity || ''} shares`;
-    if (alertItem.suggestedOrderType) contextSummary += ` via ${alertItem.suggestedOrderType}`;
-    if (alertItem.suggestedEntryPrice && (alertItem.suggestedOrderType === 'Limit' || alertItem.suggestedOrderType === 'Stop Limit')) contextSummary += ` @ $${alertItem.suggestedEntryPrice.toFixed(2)}`;
-    setOrderCardMiloActionContext(contextSummary);
-    
+  const handleAlertClick = (alertItem: MooAlertItem) => {
+    router.push(`/milk-market?ticker=${alertItem.symbol}`);
     toast({
-      title: "Trade Plan Loaded",
-      description: `${alertItem.symbol} trade plan sent to panel. Review and confirm.`,
+      title: "Loading Ticker...",
+      description: `Navigating to Milk Market for ${alertItem.symbol}.`,
     });
   };
-
-  const handleClearOrderCard = () => {
-    setSelectedStockForOrderCard(null);
-    setOrderCardActionType(null);
-    setOrderCardInitialTradeMode(undefined);
-    setOrderCardMiloActionContext(null);
-    setOrderCardInitialQuantity(undefined);
-    setOrderCardInitialOrderType(undefined);
-    setOrderCardInitialLimitPrice(undefined);
-  };
-
-  const handleTradeSubmit = (tradeDetails: TradeRequest) => {
-    console.log("Trade Submitted via Order Card on Moo Alerts Page:", tradeDetails);
-    toast({
-      title: "Trade Processing",
-      description: `${tradeDetails.action} ${tradeDetails.quantity} ${tradeDetails.symbol} (${tradeDetails.orderType}) submitted. Origin: ${tradeDetails.tradeModeOrigin || 'manual'}`,
-    });
-
-    if (selectedStockForOrderCard) { 
-      addTradeToHistory({
-        id: String(Date.now()),
-        symbol: tradeDetails.symbol,
-        side: tradeDetails.action,
-        totalQty: tradeDetails.quantity,
-        orderType: tradeDetails.orderType,
-        limitPrice: tradeDetails.limitPrice,
-        stopPrice: tradeDetails.stopPrice,
-        trailAmount: tradeDetails.trailingOffset,
-        TIF: tradeDetails.TIF || "Day",
-        tradingHours: tradeDetails.allowExtendedHours ? "Include Extended Hours" : "Regular Market Hours Only",
-        placedTime: new Date().toISOString(),
-        filledTime: new Date(Date.now() + Math.random() * 5000 + 1000).toISOString(), 
-        orderStatus: "Filled", 
-        averagePrice: (tradeDetails.orderType === "Limit" && tradeDetails.limitPrice) ? tradeDetails.limitPrice : selectedStockForOrderCard.price,
-        tradeModeOrigin: tradeDetails.tradeModeOrigin || 'manual', 
-        accountId: tradeDetails.accountId || selectedAccountId,
-      });
-    }
-    
-    if (tradeDetails.action === 'Buy' || tradeDetails.action === 'Short') {
-        addOpenPosition({
-            id: `pos${Date.now()}`,
-            symbol: tradeDetails.symbol,
-            entryPrice: selectedStockForOrderCard?.price || 0,
-            shares: tradeDetails.quantity,
-            currentPrice: selectedStockForOrderCard?.price || 0,
-            origin: tradeDetails.tradeModeOrigin || 'manual',
-            accountId: tradeDetails.accountId || selectedAccountId,
-        });
-    }
-  };
-
-  const handleStockSymbolSubmitFromOrderCard = (symbol: string) => {
-    const alertItem = alerts.find(a => a.symbol.toUpperCase() === symbol.toUpperCase());
-    if (alertItem) {
-      handleMooAlertSelectForOrder(alertItem);
-    } else {
-      setSelectedStockForOrderCard({ 
-        id: symbol, symbol, name: symbol, price: 0, changePercent: 0, float:0, volume:0, lastUpdated: new Date().toISOString(), historicalPrices: []
-      });
-      setOrderCardActionType(null);
-      setOrderCardInitialTradeMode('manual');
-      setOrderCardMiloActionContext(null);
-      setOrderCardInitialQuantity(undefined);
-      setOrderCardInitialOrderType(undefined);
-      setOrderCardInitialLimitPrice(undefined);
-      toast({
-        title: "Ticker Loaded Manually",
-        description: `The ticker "${symbol.toUpperCase()}" was loaded. Please verify details.`,
-      });
-    }
-  };
-
 
   const filteredAlerts = useMemo(() => {
     const activeFilterKeys = (Object.keys(selectedCriteria) as Array<keyof SelectedCriteriaState>)
@@ -433,7 +318,7 @@ const MooAlertsContent: React.FC = () => {
   return (
     <main className="flex flex-col flex-1 h-full overflow-auto">
       <PageHeader title="Moo Alerts" />
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_400px] p-4 gap-4 overflow-auto">
+      <div className="flex-1 p-4 overflow-auto">
         
         <div className="flex-1 flex flex-col gap-4 overflow-auto">
           <Card>
@@ -443,7 +328,7 @@ const MooAlertsContent: React.FC = () => {
                 Real-Time Trade Signals
               </CardTitle>
               <CardDescription>
-                Actionable signals with trade plans. Click an alert to populate the trade panel.
+                Actionable signals with trade plans. Click an alert to view on the chart.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -495,13 +380,13 @@ const MooAlertsContent: React.FC = () => {
                     {filteredAlerts.map(alert => (
                       <Card 
                         key={alert.id} 
+                        onClick={() => handleAlertClick(alert)} 
                         className="flex flex-col hover:border-primary/50 transition-all duration-150 ease-in-out cursor-pointer"
-                        onClick={() => handleMooAlertSelectForOrder(alert)}
                       >
                         <CardHeader className="pb-2 space-y-1">
                            <div className="flex items-center justify-between gap-2 flex-wrap w-full">
                                 <div className="flex items-baseline gap-2 flex-wrap">
-                                    <button onClick={(e) => { e.stopPropagation(); handleMooAlertSelectForOrder(alert); }} className="focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">
+                                    <button onClick={(e) => { e.stopPropagation(); handleAlertClick(alert); }} className="focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">
                                       <CardTitle className="text-base font-semibold text-primary hover:underline">{alert.symbol}</CardTitle>
                                     </button>
                                     <span className="text-sm font-mono text-foreground">${alert.currentPrice.toFixed(2)}</span>
@@ -559,9 +444,9 @@ const MooAlertsContent: React.FC = () => {
                                 variant="outline" 
                                 size="sm" 
                                 className="border-accent text-accent hover:bg-accent/10 hover:text-accent"
-                                onClick={(e) => { e.stopPropagation(); handleMooAlertSelectForOrder(alert); }}
+                                onClick={(e) => { e.stopPropagation(); handleAlertClick(alert); }}
                             >
-                                <MousePointerSquareDashed className="mr-2 h-4 w-4" /> Trade
+                                <MousePointerSquareDashed className="mr-2 h-4 w-4" /> View on Chart
                             </Button>
                             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary" onClick={(e) => {e.stopPropagation(); toast({title: "Alert Setting", description:"Alert configuration UI for this specific Moo Alert would go here."})}}>
                                 <AlertCircle className="mr-2 h-4 w-4" /> Alert
@@ -575,23 +460,6 @@ const MooAlertsContent: React.FC = () => {
               )}
             </CardContent>
           </Card>
-
-        </div>
-
-        <div className="w-full lg:w-[400px] flex-shrink-0 lg:flex flex-col gap-4 overflow-auto min-h-[500px]">
-           <OrderCard
-            selectedStock={selectedStockForOrderCard}
-            initialActionType={orderCardActionType}
-            initialTradeMode={orderCardInitialTradeMode}
-            miloActionContextText={orderCardMiloActionContext}
-            onSubmit={handleTradeSubmit}
-            onClear={handleClearOrderCard}
-            onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
-            initialQuantity={orderCardInitialQuantity}
-            initialOrderType={orderCardInitialOrderType}
-            initialLimitPrice={orderCardInitialLimitPrice}
-            className="min-h-[400px]"
-          />
         </div>
       </div>
     </main>
@@ -605,3 +473,5 @@ export default function MooAlertsPage() {
     </Suspense>
   );
 }
+
+    
