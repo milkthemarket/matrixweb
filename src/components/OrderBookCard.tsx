@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Stock } from '@/types';
 import { cn } from '@/lib/utils';
+import { BookOpen } from 'lucide-react';
 
 interface OrderBookCardProps {
   stock: Stock | null;
@@ -56,18 +57,20 @@ export function OrderBookCard({ stock, className }: OrderBookCardProps) {
 
   return (
     <Card className={cn("shadow-none flex flex-col", className)}>
+      <CardHeader className="py-2 px-3.5 border-b border-border/[.1]">
+          <div className="flex justify-between items-center">
+              <CardTitle className="text-sm font-medium text-foreground flex items-center">
+                  <BookOpen className="h-4 w-4 mr-2 text-primary" />
+                  <span>Order Book: <span className="font-bold">{stock ? stock.symbol : 'N/A'}</span></span>
+              </CardTitle>
+              {stock && stock.price > 0 && bestBid && bestAsk && spread !== undefined ? (
+                  <div className="text-[11px] text-right font-medium">
+                      <span>Spread: <span className="text-primary">${spread.toFixed(2)}</span></span>
+                  </div>
+              ) : null }
+          </div>
+      </CardHeader>
       <CardContent className="p-0 flex-1 overflow-hidden flex flex-col">
-        <div className="py-2 px-3.5 border-b border-t border-border/[.1]">
-            {stock && stock.price > 0 && bestBid && bestAsk && spread !== undefined ? (
-                <div className="text-[11px] text-center flex justify-around font-medium">
-                    <span>Bid: <span className="text-green-500">${bestBid.toFixed(2)}</span></span>
-                    <span>Ask: <span className="text-red-500">${bestAsk.toFixed(2)}</span></span>
-                    <span>Spread: <span className="text-primary">${spread.toFixed(2)}</span></span>
-                </div>
-            ) : (
-                <div className="text-xs text-muted-foreground text-center">Spread data unavailable.</div>
-            )}
-        </div>
         <div className="flex-1 overflow-hidden">
             {!stock || stock.price <= 0 || !orderBookData ? (
             <div className="h-full flex items-center justify-center text-xs text-muted-foreground p-2 text-center">

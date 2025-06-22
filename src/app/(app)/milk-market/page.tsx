@@ -108,16 +108,6 @@ function MilkMarketPageContent() {
     setOrderCardInitialLimitPrice(undefined);
   };
   
-  const handleStockSymbolSubmitFromOrderCard = (symbol: string) => {
-    handleSyncedTickerChange(symbol);
-    setOrderCardActionType(null);
-    setOrderCardInitialTradeMode(undefined);
-    setOrderCardMiloActionContext(null);
-    setOrderCardInitialQuantity(undefined);
-    setOrderCardInitialOrderType(undefined);
-    setOrderCardInitialLimitPrice(undefined);
-  };
-
   return (
     <main className="flex flex-col h-full overflow-hidden p-1.5 md:p-2.5 gap-1.5">
         <div className="grid grid-cols-[1fr_350px_300px] gap-1.5 flex-1 overflow-hidden">
@@ -164,7 +154,6 @@ function MilkMarketPageContent() {
                 miloActionContextText={orderCardMiloActionContext}
                 onSubmit={handleTradeSubmit}
                 onClear={handleClearOrderCard}
-                onStockSymbolSubmit={handleStockSymbolSubmitFromOrderCard}
                 initialQuantity={orderCardInitialQuantity}
                 initialOrderType={orderCardInitialOrderType}
                 initialLimitPrice={orderCardInitialLimitPrice}

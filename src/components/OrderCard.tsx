@@ -26,7 +26,6 @@ interface OrderCardProps {
   onClear: () => void;
   initialTradeMode?: TradeMode;
   miloActionContextText?: string | null;
-  onStockSymbolSubmit: (symbol: string) => void;
   initialQuantity?: string;
   initialOrderType?: OrderSystemType;
   initialLimitPrice?: string;
@@ -54,7 +53,6 @@ export function OrderCard({
   onClear,
   initialTradeMode,
   miloActionContextText,
-  onStockSymbolSubmit,
   initialQuantity,
   initialOrderType,
   initialLimitPrice,
@@ -75,8 +73,7 @@ export function OrderCard({
   const [allowExtendedHours, setAllowExtendedHours] = useState<boolean>(false);
   const [isAutopilotEnabled, setIsAutopilotEnabled] = useState(false);
   const [displayedMiloContext, setDisplayedMiloContext] = useState<string | null>(null);
-  const [tickerInputValue, setTickerInputValue] = useState('');
-
+  
   const [showTakeProfit, setShowTakeProfit] = useState(false);
   const [takeProfitValue, setTakeProfitValue] = useState('');
 
@@ -101,10 +98,6 @@ export function OrderCard({
 
   useEffect(() => {
     if (selectedStock) {
-      if (tickerInputValue.toUpperCase() !== selectedStock.symbol.toUpperCase()) {
-        setTickerInputValue(selectedStock.symbol);
-      }
-
       const isPreFillScenario = initialActionType !== undefined || initialQuantity !== undefined || initialOrderType !== undefined || initialLimitPrice !== undefined;
 
       if (isPreFillScenario) {
@@ -134,7 +127,6 @@ export function OrderCard({
         setLimitPrice('');
         setStopPrice('');
         setTrailingOffset('');
-        // TimeInForce and AllowExtendedHours can retain their values or be reset
       }
 
       if (initialTradeMode) {
@@ -159,20 +151,15 @@ export function OrderCard({
       setStopLossValue('');
       setDisplayedMiloContext(null);
       setIsAutopilotEnabled(false);
-      if (document.activeElement !== document.getElementById('orderCardTickerInput')) {
-          setTickerInputValue('');
-      }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    selectedStock, // Key dependency
+    selectedStock,
     initialActionType,
     initialTradeMode,
     miloActionContextText,
     initialQuantity,
     initialOrderType,
     initialLimitPrice,
-    // tickerInputValue is intentionally omitted to prevent loops when user types
   ]);
 
 
@@ -421,12 +408,6 @@ export function OrderCard({
     onClear();
   }
 
-  const handleTickerSearch = () => {
-    if (tickerInputValue.trim()) {
-      onStockSymbolSubmit(tickerInputValue.trim());
-    }
-  };
-
   const getSubmitButtonText = () => {
     if (!selectedStock) return "Load Ticker to Trade";
     if (!currentAction) return "Select Action";
@@ -490,19 +471,15 @@ export function OrderCard({
           </Select>
         </CardHeader>
         <CardContent className="space-y-3 py-3 px-3 overflow-y-auto flex-1">
-          <div className="flex items-center space-x-1.5">
-            <Input
-              id="orderCardTickerInput"
-              type="text"
-              placeholder="Ticker (e.g., AAPL)"
-              value={tickerInputValue}
-              onChange={(e) => setTickerInputValue(e.target.value.toUpperCase())}
-              onKeyDown={(e) => { if (e.key === 'Enter') handleTickerSearch(); }}
-              className="bg-transparent h-8 text-[11px]"
-            />
-            <Button variant="ghost" size="icon" onClick={handleTickerSearch} title="Search Ticker" className="h-8 w-8">
-              <Search className="h-4 w-4 text-primary" />
-            </Button>
+          <div className="flex items-baseline justify-between rounded-lg border border-input bg-transparent p-2 h-10">
+              {selectedStock ? (
+                  <>
+                      <span className="text-lg font-bold text-foreground">{selectedStock.symbol}</span>
+                      <span className="text-xs text-muted-foreground truncate ml-2">{selectedStock.name}</span>
+                  </>
+              ) : (
+                  <span className="text-sm text-muted-foreground">No Ticker Selected</span>
+              )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
