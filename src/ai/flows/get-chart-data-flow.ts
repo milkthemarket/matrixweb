@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A flow to fetch historical chart data from Alpaca.
@@ -73,6 +74,7 @@ const getChartDataFlow = ai.defineFlow(
         headers: {
           'APCA-API-KEY-ID': apiKey,
           'APCA-API-SECRET-KEY': apiSecret,
+          'Content-Type': 'application/json',
         },
       });
 
