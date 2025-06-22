@@ -4,7 +4,6 @@
 import React, { useMemo } from 'react';
 import type { OpenPosition } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { XSquare, Briefcase, User, Cpu } from 'lucide-react';
@@ -49,51 +48,49 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
       <div className="p-0 flex-1 overflow-hidden">
         {filteredPositions.length > 0 ? (
           <ScrollArea className="h-full">
-            <Table className="table-fixed">
-              <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-[1]">
-                <TableRow>
-                  <TableHead className="h-7 px-2 text-[10px] text-center text-muted-foreground font-medium">Actions</TableHead>
-                  <TableHead className="h-7 px-2 text-[10px] text-left text-muted-foreground font-medium">Symbol</TableHead>
-                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Open P&L %</TableHead>
-                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Open P&L</TableHead>
-                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Avg Price</TableHead>
-                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Last Price</TableHead>
-                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Quantity</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            {/* Header */}
+            <div className="grid grid-cols-7 gap-2 sticky top-0 bg-card/[.05] backdrop-blur-md z-[1] h-7 px-2 items-center text-[10px] text-muted-foreground font-medium border-b border-border/10">
+                <div className="text-left">Actions</div>
+                <div className="text-left">Symbol</div>
+                <div className="text-center">Open P&L %</div>
+                <div className="text-center">Open P&L</div>
+                <div className="text-center">Avg Price</div>
+                <div className="text-center">Last Price</div>
+                <div className="text-center">Quantity</div>
+            </div>
+             {/* Body */}
+            <div className="px-1">
                 {filteredPositions.map((pos) => {
-                  const pnl = calculatePnl(pos);
-                  const pnlPercent = calculatePnlPercent(pos);
-                  const pnlColorClass = pnl >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive";
+                    const pnl = calculatePnl(pos);
+                    const pnlPercent = calculatePnlPercent(pos);
+                    const pnlColorClass = pnl >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive";
 
-                  return (
-                    <TableRow key={pos.id} className="text-[11px] hover:bg-white/5">
-                      <TableCell className="text-center px-2 py-1.5">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-6 px-1.5 border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive-foreground text-[10px]"
-                          onClick={() => handleClose(pos)}
-                        >
-                          <XSquare className="mr-0.5 h-3 w-3" /> Close
-                        </Button>
-                      </TableCell>
-                      <TableCell className="font-bold text-foreground px-2 py-1.5 text-left">{pos.symbol}</TableCell>
-                      <TableCell className={cn("text-right font-bold px-2 py-1.5", pnlColorClass)}>
-                        {pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
-                      </TableCell>
-                      <TableCell className={cn("text-right font-bold px-2 py-1.5", pnlColorClass)}>
-                        {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
-                      </TableCell>
-                      <TableCell className="text-right font-medium text-foreground px-2 py-1.5">${pos.entryPrice.toFixed(2)}</TableCell>
-                      <TableCell className="text-right font-bold text-foreground px-2 py-1.5">${pos.currentPrice.toFixed(2)}</TableCell>
-                      <TableCell className="text-right font-medium text-foreground px-2 py-1.5">{pos.shares}</TableCell>
-                    </TableRow>
-                  );
+                    return (
+                        <div key={pos.id} className="grid grid-cols-7 gap-2 items-center text-[11px] hover:bg-white/5 px-1 py-1.5 border-b border-border/5 last:border-b-0">
+                            <div className="text-left">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-6 px-1.5 border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive-foreground text-[10px]"
+                                    onClick={() => handleClose(pos)}
+                                >
+                                    <XSquare className="mr-0.5 h-3 w-3" /> Close
+                                </Button>
+                            </div>
+                            <div className="font-bold text-foreground text-left">{pos.symbol}</div>
+                            <div className={cn("text-center font-bold", pnlColorClass)}>
+                                {pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
+                            </div>
+                            <div className={cn("text-center font-bold", pnlColorClass)}>
+                                {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
+                            </div>
+                            <div className="text-center font-medium text-foreground">${pos.entryPrice.toFixed(2)}</div>
+                            <div className="text-center font-bold text-foreground">${pos.currentPrice.toFixed(2)}</div>
+                            <div className="text-center font-medium text-foreground">{pos.shares}</div>
+                        </div>
+                    );
                 })}
-              </TableBody>
-            </Table>
+            </div>
           </ScrollArea>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-xs py-8 px-3">
