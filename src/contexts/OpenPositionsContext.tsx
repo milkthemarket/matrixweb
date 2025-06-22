@@ -76,11 +76,9 @@ export function OpenPositionsProvider({ children }: { children: ReactNode }) {
     const positionToRemove = openPositions.find(p => p.id === positionId);
     
     const successMessages = [
-      "🐄 That trade’s been milked! You’re all clear.",
-      "🥛 Freshly churned profits — position closed.",
-      "✅ Cream of the crop — order successfully closed.",
-      "🚀 That position’s udderly complete!",
-      "🐮 You just moooved on from that trade."
+      "🥛 Position closed! You milked that move.",
+      "Moo-velous! Trade wrapped up.",
+      "Fresh profits in the bucket."
     ];
     const randomMessage = successMessages[Math.floor(Math.random() * successMessages.length)];
 

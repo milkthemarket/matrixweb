@@ -19,7 +19,7 @@ export function OrdersTable({ className }: OrdersTableProps) {
     <div className={cn("h-full flex flex-col", className)}>
       <div className="p-0 flex-1 overflow-hidden">
         <ScrollArea className="h-full">
-          <Table>
+          <Table className="table-fixed">
             <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-[1]">
               <TableRow>
                 <TableHead className="h-7 px-2 text-[10px] text-center text-muted-foreground font-medium">Action</TableHead>
