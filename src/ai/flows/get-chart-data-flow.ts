@@ -65,6 +65,7 @@ const getChartDataFlow = ai.defineFlow(
           start,
           end,
           adjustment: 'raw', // As per Alpaca docs
+          feed: 'iex', // Specify IEX data feed, which is available on free plans
         },
         headers: {
           'APCA-API-KEY-ID': apiKey,
@@ -72,7 +73,8 @@ const getChartDataFlow = ai.defineFlow(
         },
       });
 
-      const validatedData = GetChartDataOutputSchema.parse(response.data.bars);
+      const bars = response.data.bars || []; // Handle cases where no bars are returned
+      const validatedData = GetChartDataOutputSchema.parse(bars);
       return validatedData;
 
     } catch (error: any) {
@@ -82,7 +84,13 @@ const getChartDataFlow = ai.defineFlow(
         if (error.response?.status === 404) {
             throw new Error(`Symbol '${symbol}' not found in Alpaca data.`);
         }
-        throw new Error(`Alpaca API Error: ${error.response?.status} ${JSON.stringify(error.response?.data)}`);
+        
+        // Don't JSON.stringify if the response is HTML
+        const errorDetails = (typeof error.response?.data === 'string' && error.response.data.startsWith('<'))
+          ? "Received an HTML error page from the server."
+          : JSON.stringify(error.response?.data);
+
+        throw new Error(`Alpaca API Error: ${error.response?.status} ${errorDetails}`);
       }
       throw new Error(`Failed to fetch chart data for ${symbol}: ${error.message}`);
     }
