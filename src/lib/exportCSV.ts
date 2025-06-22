@@ -1,70 +1,74 @@
 
-import type { Stock, ColumnConfig } from '@/types';
+import type { ColumnConfig } from '@/types';
 
-// Function to get a value from a stock using a key, handling potential undefined
-function getStockValue(stock: Stock, key: keyof Stock): any {
-  return stock[key];
+// A more robust CSV value sanitizer
+function sanitizeValue(value: any): string {
+    if (value === undefined || value === null) {
+        return '';
+    }
+    let stringValue = String(value);
+
+    // If the value contains a comma, a double quote, or a newline, wrap it in double quotes.
+    if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+        // Escape any double quotes within the value by doubling them up.
+        stringValue = stringValue.replace(/"/g, '""');
+        return `"${stringValue}"`;
+    }
+    return stringValue;
 }
 
-export function exportToCSV(filename: string, data: Stock[], columnConfig: ColumnConfig<Stock>[]): void {
+function getColumnValue(item: any, col: ColumnConfig<any>): any {
+    // Handling nested data, if any, could go here. For now, direct access.
+    return item[col.key as keyof typeof item];
+}
+
+
+// A generic export function that can handle different data types
+export function exportToCSV(filename: string, data: any[], columnConfig: ColumnConfig<any>[]): void {
   if (!data || data.length === 0) {
     console.warn('No data to export.');
     return;
   }
 
-  // Use all defined columns from config, not just visible ones, for a complete export
-  // Or, could filter by visibleColumns if only visible data is desired for export
+  // Use all defined columns from config for a complete export.
   const exportableColumns = columnConfig;
 
-  const headers = exportableColumns.map(col => col.label);
+  // Generate header row
+  const headers = exportableColumns.map(col => sanitizeValue(col.label));
   const csvRows = [headers.join(',')];
 
-  for (const stock of data) {
+  // Generate data rows
+  for (const item of data) {
     const values = exportableColumns.map(col => {
-      let value = getStockValue(stock, col.key);
-      // If there's a custom formatter, try to get a string representation.
-      // This is tricky because formatters can return ReactNodes.
-      // For CSV, we need plain text.
+      let value = getColumnValue(item, col);
+
+      // Apply formatter if it exists and results in a primitive type
       if (col.format) {
-        const formatted = col.format(value, stock);
-        if (typeof formatted === 'string') {
+        const formatted = col.format(value, item);
+        if (typeof formatted === 'string' || typeof formatted === 'number' || typeof formatted === 'boolean') {
           value = formatted;
-        } else if (typeof formatted === 'number' || typeof formatted === 'boolean') {
-          value = String(formatted);
         } else {
-          // If it's a ReactNode or complex object, fall back to raw value or key
-          // or a placeholder. For simplicity, use raw value or 'N/A'.
-          value = value !== undefined && value !== null ? String(value) : 'N/A';
+            // If the formatter returns a ReactNode, fall back to the raw value.
+            // This is a simplification; a more complex system might extract text from the ReactNode.
+            value = getColumnValue(item, col);
         }
-      } else {
-        value = value !== undefined && value !== null ? String(value) : 'N/A';
       }
       
-      // Clean value for CSV: remove $ signs from prices/VWAP, % from percentages, etc.
-      // This step might need to be more sophisticated based on specific formatters.
-      if (typeof value === 'string') {
-         if (col.key === 'price' || col.key === 'vwap' || col.key === 'high52' || col.key === 'low52' || col.key === 'atr') {
-            value = value.replace('$', '');
-         } else if (col.key === 'changePercent' || col.key === 'gapPercent' || col.key === 'shortFloat' || col.key === 'instOwn' || col.key === 'premarketChange') {
-            value = value.replace('%', '').replace('+', '');
-         } else if (col.key === 'marketCap') {
-            // Let market cap formatter handle it (e.g. 2.55T becomes 2.55T)
-         } else if (col.key === 'volume' || col.key === 'avgVolume') {
-            value = value.replace('M', '');
-         }
+      // Fallback for null/undefined after formatting attempt
+      if (value === undefined || value === null) {
+          value = '';
       }
 
-
-      // Escape double quotes and handle commas for CSV
-      const stringValue = String(value).replace(/"/g, '""');
-      return `"${stringValue}"`; // Enclose all values in quotes
+      return sanitizeValue(value);
     });
     csvRows.push(values.join(','));
   }
 
-  const csvString = csvRows.join('\\n');
-
+  // Join rows with proper newline character
+  const csvString = csvRows.join('\n');
   const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+
+  // Create and click a download link
   const link = document.createElement('a');
   if (link.download !== undefined) {
     const url = URL.createObjectURL(blob);
