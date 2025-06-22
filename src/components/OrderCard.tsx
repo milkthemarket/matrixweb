@@ -471,14 +471,14 @@ export function OrderCard({
           </Select>
         </CardHeader>
         <CardContent className="space-y-3 py-3 px-3 overflow-y-auto flex-1">
-          <div className="rounded-lg border border-input bg-transparent p-2">
+          <div className="h-[34px] flex flex-col justify-center">
               {selectedStock ? (
                   <div>
-                      <h3 className="text-base font-bold text-foreground">{selectedStock.symbol}</h3>
-                      <p className="text-[11px] text-muted-foreground truncate">{selectedStock.name}</p>
+                      <h3 className="text-sm font-bold text-foreground">{selectedStock.symbol}</h3>
+                      <p className="text-[10px] text-muted-foreground truncate">{selectedStock.name}</p>
                   </div>
               ) : (
-                  <div className="h-[38px] flex items-center justify-center">
+                  <div className="flex items-center justify-center h-full">
                        <span className="text-sm text-muted-foreground">No Ticker Selected</span>
                   </div>
               )}
