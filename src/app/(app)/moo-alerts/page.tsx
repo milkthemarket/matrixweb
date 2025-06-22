@@ -8,12 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Newspaper, BarChartBig, LineChart, Megaphone, MousePointerSquareDashed, AlertCircle, Info, TrendingDown, TrafficCone, DollarSign, ShieldCheck, Target, Percent, PackageOpen } from "lucide-react";
+import { Newspaper, BarChartBig, LineChart, Megaphone, TrendingDown } from "lucide-react";
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
-import type { MooAlertItem, MooAlertSentiment, Stock, TradeRequest, OrderActionType, TradeMode, OrderSystemType } from '@/types';
+import type { MooAlertItem, MooAlertSentiment, OrderActionType, OrderSystemType } from '@/types';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
 import { useSettingsContext } from '@/contexts/SettingsContext';
+import { Separator } from '@/components/ui/separator';
 
 
 const generateTradePlan = (price: number, sentiment: MooAlertSentiment): Partial<MooAlertItem> => {
@@ -319,7 +320,6 @@ const MooAlertsContent: React.FC = () => {
     <main className="flex flex-col flex-1 h-full overflow-auto">
       <PageHeader title="Moo Alerts" />
       <div className="flex-1 p-4 overflow-auto">
-        
         <div className="flex-1 flex flex-col gap-4 overflow-auto">
           <Card>
             <CardHeader>
@@ -376,82 +376,69 @@ const MooAlertsContent: React.FC = () => {
 
               {filteredAlerts.length > 0 && (
                  <ScrollArea className="h-[calc(100vh-22rem)]"> 
-                  <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-4">
+                  <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
                     {filteredAlerts.map(alert => (
                       <Card 
                         key={alert.id} 
                         onClick={() => handleAlertClick(alert)} 
                         className="flex flex-col hover:border-primary/50 transition-all duration-150 ease-in-out cursor-pointer"
                       >
-                        <CardHeader className="pb-2 space-y-1">
-                           <div className="flex items-center justify-between gap-2 flex-wrap w-full">
-                                <div className="flex items-baseline gap-2 flex-wrap">
-                                    <button onClick={(e) => { e.stopPropagation(); handleAlertClick(alert); }} className="focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-sm">
-                                      <CardTitle className="text-base font-semibold text-primary hover:underline">{alert.symbol}</CardTitle>
-                                    </button>
-                                    <span className="text-sm font-mono text-foreground">${alert.currentPrice.toFixed(2)}</span>
-                                    {alert.premarketChangePercent !== undefined && (
-                                        <span className={cn("text-sm font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
-                                          Pre: {alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%
-                                        </span>
-                                    )}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Badge variant="outline" className={cn("text-xs", getSentimentBadgeClass(alert.sentiment))}>
+                        <CardContent className="p-3 space-y-2 text-sm">
+                           <div className="flex justify-between items-baseline">
+                               <div className="flex items-baseline gap-2">
+                                   <h4 className="text-base font-bold text-primary">{alert.symbol}</h4>
+                                   <span className="font-mono">${alert.currentPrice.toFixed(2)}</span>
+                                   {alert.premarketChangePercent !== undefined && (
+                                       <span className={cn("text-xs font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
+                                          ({alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%)
+                                       </span>
+                                   )}
+                               </div>
+                                <Badge variant="outline" className={cn("text-xs", getSentimentBadgeClass(alert.sentiment))}>
                                       {alert.sentiment}
-                                    </Badge>
-                                    <p className="text-xs text-muted-foreground">{alert.time}</p>
-                                </div>
-                            </div>
-                            <p className="text-sm text-foreground leading-tight line-clamp-2 pt-1">{alert.headline}</p>
-                            <div className="flex items-center space-x-2 pt-2">
-                                <CriteriaIcon met={alert.criteria.news} IconComponent={Newspaper} label="Positive News" />
-                                <CriteriaIcon met={alert.criteria.volume} IconComponent={BarChartBig} label="High Pre-market Volume" />
-                                <CriteriaIcon met={alert.criteria.chart} IconComponent={LineChart} label="Clean Chart Structure" />
-                                <CriteriaIcon met={alert.criteria.shortable} IconComponent={TrendingDown} label="Shortable" activeColorClass="text-yellow-400" />
-                            </div>
-                        </CardHeader>
-                        <CardContent className="pt-2 flex-1 flex flex-col justify-between space-y-2">
-                          {alert.suggestedAction && (
-                            <div className="border-t border-border pt-2 mt-2 space-y-1 text-sm">
-                              <div className="flex items-center font-medium text-primary">
-                                <TrafficCone className="h-4 w-4 mr-2" /> Trade Plan:
+                                </Badge>
+                           </div>
+                           
+                           <p className="text-sm text-foreground pt-1">{alert.headline}</p>
+
+                           <div className="flex justify-between items-center text-xs text-muted-foreground pt-1">
+                               <span>{alert.time}</span>
+                               <div className="flex items-center space-x-2">
+                                   <CriteriaIcon met={alert.criteria.news} IconComponent={Newspaper} label="Positive News" />
+                                   <CriteriaIcon met={alert.criteria.volume} IconComponent={BarChartBig} label="High Pre-market Volume" />
+                                   <CriteriaIcon met={alert.criteria.chart} IconComponent={LineChart} label="Clean Chart Structure" />
+                                   <CriteriaIcon met={alert.criteria.shortable} IconComponent={TrendingDown} label="Shortable" activeColorClass="text-yellow-400" />
+                               </div>
+                           </div>
+
+                           {alert.suggestedAction && (
+                            <>
+                              <Separator className="my-2 bg-border/10"/>
+                              <div className="space-y-1 text-xs">
+                                  <h5 className="font-semibold text-foreground mb-1">Trade Plan</h5>
+                                  <div className="p-2 rounded-md bg-black/10 border border-white/5 space-y-1">
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">Action:</span> 
+                                      <span className={cn("font-bold", getActionTextColorClass(alert.suggestedAction))}>
+                                        {alert.suggestedAction} @ {alert.suggestedQuantity}
+                                      </span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">Entry:</span> 
+                                      <span className="font-mono">${alert.suggestedEntryPrice?.toFixed(2)} ({alert.suggestedOrderType})</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">Target:</span> 
+                                      <span className="font-mono text-green-400">${alert.suggestedTargetPrice?.toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                      <span className="text-muted-foreground">Stop:</span> 
+                                      <span className="font-mono text-red-400">${alert.suggestedStopLossPrice?.toFixed(2)}</span>
+                                    </div>
+                                  </div>
                               </div>
-                              <div className="flex items-center">
-                                <span className="text-foreground">Action:</span>
-                                <span className={cn("font-semibold ml-2", getActionTextColorClass(alert.suggestedAction))}>{alert.suggestedAction}</span>
-                                <span className="text-foreground ml-4">, Qty:</span>
-                                <span className="font-semibold ml-2 text-foreground">{alert.suggestedQuantity}</span>
-                              </div>
-                              <div className="flex items-center">
-                                <span className="text-foreground">Entry:</span>
-                                <span className="ml-2 text-foreground">${alert.suggestedEntryPrice?.toFixed(2)} ({alert.suggestedOrderType})</span>
-                              </div>
-                              <div className="flex items-center">
-                                <Target className="h-4 w-4 mr-2 text-green-400" />
-                                <span className="text-foreground">Target:</span>
-                                <span className="ml-2 text-green-400">${alert.suggestedTargetPrice?.toFixed(2)} (+{alert.targetGainPercent?.toFixed(1)}%)</span>
-                              </div>
-                              <div className="flex items-center">
-                                <ShieldCheck className="h-4 w-4 mr-2 text-red-400" />
-                                <span className="text-foreground">Stop:</span>
-                                <span className="ml-2 text-red-400">${alert.suggestedStopLossPrice?.toFixed(2)} (-{alert.stopLossRiskPercent?.toFixed(1)}%)</span>
-                              </div>
-                            </div>
-                          )}
-                          <div className="flex items-center space-x-2 pt-2 justify-start mt-auto">
-                            <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="border-accent text-accent hover:bg-accent/10 hover:text-accent"
-                                onClick={(e) => { e.stopPropagation(); handleAlertClick(alert); }}
-                            >
-                                <MousePointerSquareDashed className="mr-2 h-4 w-4" /> View on Chart
-                            </Button>
-                            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary" onClick={(e) => {e.stopPropagation(); toast({title: "Alert Setting", description:"Alert configuration UI for this specific Moo Alert would go here."})}}>
-                                <AlertCircle className="mr-2 h-4 w-4" /> Alert
-                            </Button>
-                          </div>
+                            </>
+                           )}
                         </CardContent>
                       </Card>
                     ))}
