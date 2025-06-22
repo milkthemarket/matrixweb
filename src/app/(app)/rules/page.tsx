@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -9,12 +9,9 @@ import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-// Using Label from ui/label directly as FormLabel is tied to react-hook-form context
 import { Label } from "@/components/ui/label"; 
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-// FormField, FormItem etc are removed if not using Form context for basic switch
-// import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import type { AlertRule, RuleCriterion } from "@/types";
 import { PlusCircle, Edit3, Trash2, ListFilter, Terminal } from "lucide-react";
@@ -27,6 +24,8 @@ const simpleRuleSchema = z.object({
 });
 
 type SimpleRuleFormData = z.infer<typeof simpleRuleSchema>;
+
+const RULES_STORAGE_KEY = 'tradeflow-alert-rules';
 
 export const mockRules: AlertRule[] = [
   { 
@@ -93,11 +92,31 @@ const formatCriterion = (criterion: RuleCriterion): string => {
 };
 
 export default function RulesPage() {
-  const [rules, setRules] = useState<AlertRule[]>(mockRules);
+  const [rules, setRules] = useState<AlertRule[]>([]);
   const [editingRule, setEditingRule] = useState<AlertRule | null>(null);
   const { toast } = useToast();
 
-  // Using react-hook-form's useForm hook
+  useEffect(() => {
+    try {
+      const savedRulesJSON = localStorage.getItem(RULES_STORAGE_KEY);
+      if (savedRulesJSON) {
+        setRules(JSON.parse(savedRulesJSON));
+      } else {
+        setRules(mockRules);
+        localStorage.setItem(RULES_STORAGE_KEY, JSON.stringify(mockRules));
+      }
+    } catch (error) {
+      console.error("Failed to load rules from localStorage", error);
+      setRules(mockRules);
+    }
+  }, []);
+
+  const updateRulesAndNotify = (newRules: AlertRule[]) => {
+      setRules(newRules);
+      localStorage.setItem(RULES_STORAGE_KEY, JSON.stringify(newRules));
+      window.dispatchEvent(new Event('rules-updated'));
+  };
+
   const form = useForm<SimpleRuleFormData>({
     resolver: zodResolver(simpleRuleSchema),
     defaultValues: {
@@ -108,7 +127,8 @@ export default function RulesPage() {
 
   const onSubmit: SubmitHandler<SimpleRuleFormData> = (data) => {
     if (editingRule) {
-      setRules(rules.map(r => r.id === editingRule.id ? { ...r, name: data.name, isActive: data.isActive } : r));
+      const newRules = rules.map(r => r.id === editingRule.id ? { ...r, name: data.name, isActive: data.isActive } : r)
+      updateRulesAndNotify(newRules);
       toast({ title: "Rule Updated", description: `Rule "${data.name}" has been updated.` });
       setEditingRule(null);
     } else {
@@ -116,9 +136,9 @@ export default function RulesPage() {
         id: String(Date.now()), 
         name: data.name, 
         isActive: data.isActive, 
-        criteria: [] 
+        criteria: [] // Basic rule creation doesn't set criteria from this form
       };
-      setRules([...rules, newRule]);
+      updateRulesAndNotify([...rules, newRule]);
       toast({ title: "Rule Created", description: `New rule "${data.name}" has been added (with no criteria).` });
     }
     form.reset({ name: '', isActive: true });
@@ -130,13 +150,15 @@ export default function RulesPage() {
   };
 
   const handleDelete = (ruleId: string) => {
-    setRules(rules.filter(r => r.id !== ruleId));
+    const newRules = rules.filter(r => r.id !== ruleId);
+    updateRulesAndNotify(newRules);
     toast({ title: "Rule Deleted", description: "The rule has been deleted.", variant: "destructive" });
   };
   
   const toggleRuleStatus = (ruleId: string) => {
-    setRules(rules.map(r => r.id === ruleId ? { ...r, isActive: !r.isActive } : r));
-     const rule = rules.find(r => r.id === ruleId);
+    const newRules = rules.map(r => r.id === ruleId ? { ...r, isActive: !r.isActive } : r)
+    updateRulesAndNotify(newRules);
+    const rule = rules.find(r => r.id === ruleId);
     if (rule) {
       toast({
         title: `Rule ${!rule.isActive ? "Activated" : "Deactivated"}`,

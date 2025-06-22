@@ -36,6 +36,7 @@ const DASHBOARD_REFRESH_INTERVAL: RefreshInterval = 15000;
 const LOCAL_STORAGE_COLUMN_ORDER_KEY = 'tradeflow-dashboard-column-order';
 const LOCAL_STORAGE_COLUMN_WIDTHS_KEY = 'tradeflow-dashboard-column-widths';
 const MIN_COLUMN_WIDTH = 50; // Minimum width for a column in pixels
+const RULES_STORAGE_KEY = 'tradeflow-alert-rules';
 
 const formatMarketCap = (value?: number) => {
   if (value === undefined || value === null) return 'N/A';
@@ -216,6 +217,7 @@ function DashboardPageContent() {
 
   const [stocks, setStocks] = useState<Stock[]>(initialMockStocks);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+  const [rules, setRules] = useState<AlertRule[]>([]);
   const [selectedRuleId, setSelectedRuleId] = useState<string>('all');
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState<Partial<ActiveScreenerFilters>>({});
@@ -250,6 +252,23 @@ function DashboardPageContent() {
   const [resizeStartX, setResizeStartX] = useState<number>(0);
   const [initialColumnWidthForResize, setInitialColumnWidthForResize] = useState<number>(0);
 
+   useEffect(() => {
+    const loadRules = () => {
+        try {
+            const savedRulesJSON = localStorage.getItem(RULES_STORAGE_KEY);
+            const initialRules = savedRulesJSON ? JSON.parse(savedRulesJSON) : []; 
+            setRules(initialRules);
+        } catch (error) {
+            console.error("Failed to load rules from localStorage", error);
+            setRules([]);
+        }
+    };
+    loadRules();
+    window.addEventListener('rules-updated', loadRules);
+    return () => {
+        window.removeEventListener('rules-updated', loadRules);
+    };
+  }, []);
 
   useEffect(() => {
     const savedOrderJSON = localStorage.getItem(LOCAL_STORAGE_COLUMN_ORDER_KEY);
@@ -402,7 +421,7 @@ function DashboardPageContent() {
   }, [searchParams, toast]); 
 
 
-  const activeRules = useMemo(() => mockRules.filter(rule => rule.isActive), []);
+  const activeRules = useMemo(() => rules.filter(rule => rule.isActive), [rules]);
   const activeFilterCount = Object.values(activeFilters).filter(f => f.active).length;
 
   const filteredStocks = useMemo(() => {
@@ -614,8 +633,8 @@ function DashboardPageContent() {
             <Card className="flex-1 flex flex-col overflow-hidden min-h-[400px]">
               <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <CardTitle>Real-Time Stock Screener</CardTitle>
-                  <CardDescription>Filter and find top market movers based on selected rule.</CardDescription>
+                  <CardTitle>Screener</CardTitle>
+                  <CardDescription>Filter and find top market movers based on your custom rules.</CardDescription>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <Popover>

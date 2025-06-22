@@ -9,8 +9,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { SlidersHorizontal } from 'lucide-react';
-import type { Stock } from '@/types';
+import { SlidersHorizontal, Save } from 'lucide-react';
+import type { Stock, AlertRule, RuleCriterion } from '@/types';
+import { useToast } from "@/hooks/use-toast";
 
 type FilterValue = { min?: string; max?: string; };
 export type ActiveScreenerFilters = Record<string, FilterValue & { active: boolean }>;
@@ -46,12 +47,19 @@ const filterConfig: Record<string, Array<{ key: keyof Stock; label: string; unit
   ],
 };
 
+const RULES_STORAGE_KEY = 'tradeflow-alert-rules';
+
 export function ScreenerFilterModal({ isOpen, onClose, activeFilters, onApplyFilters }: ScreenerFilterModalProps) {
   const [localFilters, setLocalFilters] = useState<Partial<ActiveScreenerFilters>>({});
+  const [isSavingRule, setIsSavingRule] = useState(false);
+  const [newRuleName, setNewRuleName] = useState('');
+  const { toast } = useToast();
 
   useEffect(() => {
     if (isOpen) {
       setLocalFilters(JSON.parse(JSON.stringify(activeFilters))); // Deep copy
+      setIsSavingRule(false);
+      setNewRuleName('');
     }
   }, [isOpen, activeFilters]);
 
@@ -71,12 +79,72 @@ export function ScreenerFilterModal({ isOpen, onClose, activeFilters, onApplyFil
 
   const handleReset = () => {
     setLocalFilters({});
+    onApplyFilters({});
   };
 
   const handleApply = () => {
     onApplyFilters(localFilters);
     onClose();
   };
+
+  const handleSaveAsRule = () => {
+    if (!newRuleName.trim()) {
+        toast({ variant: "destructive", title: "Rule name cannot be empty." });
+        return;
+    }
+
+    const criteria: RuleCriterion[] = Object.entries(localFilters)
+        .filter(([, filterValue]) => filterValue.active)
+        .flatMap(([key, filterValue]) => {
+            const rules: RuleCriterion[] = [];
+            const keyTyped = key as keyof Stock;
+            const config = Object.values(filterConfig).flat().find(f => f.key === keyTyped);
+
+            // Handle market cap conversion from Billions back to raw number
+            const toRawValue = (val: string) => {
+                let num = parseFloat(val);
+                if (keyTyped === 'marketCap' && config?.unit === 'B') {
+                    return num * 1e9;
+                }
+                return num;
+            };
+
+            if (filterValue.min && !isNaN(parseFloat(filterValue.min))) {
+                rules.push({ metric: key, operator: '>=', value: toRawValue(filterValue.min) });
+            }
+            if (filterValue.max && !isNaN(parseFloat(filterValue.max))) {
+                rules.push({ metric: key, operator: '<=', value: toRawValue(filterValue.max) });
+            }
+            return rules;
+        }).filter(r => !isNaN(r.value as number));
+
+    if (criteria.length === 0) {
+        toast({ variant: "destructive", title: "No active filters to save." });
+        return;
+    }
+
+    const newRule: AlertRule = {
+        id: `rule${Date.now()}`,
+        name: newRuleName.trim(),
+        isActive: true,
+        criteria,
+    };
+
+    try {
+        const savedRulesJSON = localStorage.getItem(RULES_STORAGE_KEY);
+        const currentRules: AlertRule[] = savedRulesJSON ? JSON.parse(savedRulesJSON) : [];
+        const updatedRules = [...currentRules, newRule];
+        localStorage.setItem(RULES_STORAGE_KEY, JSON.stringify(updatedRules));
+        window.dispatchEvent(new Event('rules-updated'));
+        toast({ title: "Rule Saved", description: `"${newRule.name}" has been added to your rules.` });
+        setIsSavingRule(false);
+        setNewRuleName("");
+    } catch (error) {
+        console.error("Failed to save rule", error);
+        toast({ variant: "destructive", title: "Error saving rule." });
+    }
+  };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -132,13 +200,36 @@ export function ScreenerFilterModal({ isOpen, onClose, activeFilters, onApplyFil
             ))}
           </div>
         </ScrollArea>
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button type="button" variant="outline" onClick={handleReset}>
+        {isSavingRule && (
+          <div className="p-4 border-t border-border/20 space-y-2">
+            <Label htmlFor="newRuleName" className="text-sm font-medium">Save Filters as New Rule</Label>
+            <div className="flex items-center gap-2">
+              <Input
+                id="newRuleName"
+                placeholder="Enter rule name..."
+                value={newRuleName}
+                onChange={(e) => setNewRuleName(e.target.value)}
+                className="h-8 text-xs bg-transparent"
+              />
+              <Button size="sm" onClick={handleSaveAsRule}>Save</Button>
+              <Button size="sm" variant="ghost" onClick={() => setIsSavingRule(false)}>Cancel</Button>
+            </div>
+          </div>
+        )}
+        <DialogFooter className="gap-2 sm:gap-0 pt-4 border-t border-border/20">
+          <Button type="button" variant="ghost" onClick={handleReset}>
             Reset Filters
           </Button>
-          <Button type="button" onClick={handleApply}>
-            Apply Filters
-          </Button>
+          <div className="flex items-center gap-2">
+            {!isSavingRule && (
+              <Button type="button" variant="outline" onClick={() => setIsSavingRule(true)}>
+                <Save className="mr-2 h-4 w-4" /> Save as Rule
+              </Button>
+            )}
+            <Button type="button" onClick={handleApply}>
+              Apply Filters
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
