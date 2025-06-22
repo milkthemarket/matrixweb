@@ -58,15 +58,18 @@ const getChartDataFlow = ai.defineFlow(
     }
 
     try {
+      // Dynamically build the params object to avoid sending undefined values
+      const params: any = {
+        timeframe,
+        adjustment: 'raw', // As per Alpaca docs
+        feed: 'iex', // Specify IEX data feed, which is available on free plans
+      };
+      if (limit) params.limit = limit;
+      if (start) params.start = start;
+      if (end) params.end = end;
+
       const response = await axios.get(`https://data.alpaca.markets/v2/stocks/${symbol}/bars`, {
-        params: {
-          timeframe,
-          limit,
-          start,
-          end,
-          adjustment: 'raw', // As per Alpaca docs
-          feed: 'iex', // Specify IEX data feed, which is available on free plans
-        },
+        params,
         headers: {
           'APCA-API-KEY-ID': apiKey,
           'APCA-API-SECRET-KEY': apiSecret,
