@@ -36,15 +36,13 @@ const dummyNewsData: NewsItem[] = [
   { id: 'n14', symbol: 'TPL', headline: 'Short-seller targets TPL, calls land valuation model ‘voodoo math’', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
 ];
 
-const dummyArticlesContent: Record<string, { title: string; paragraphs: string[] }> = {
+const dummyArticlesContent: Record<string, { title: string; paragraphs?: string[]; content?: string; }> = {
   'n11': {
-    title: "Insider Trading Scandal Unfolds at Texas Pacific Land Corporation",
-    paragraphs: [
-      "In a bizarre twist of events, a mid-level manager at Texas Pacific Land Corporation (NYSE: TPL), known internally and in several Discord servers as DJ 4Play, has been found guilty of insider trading. The violation came to light after the manager leaked confidential trade information to a low-level employee at Travelers Insurance.",
-      "The message, shared via Discord, included sensitive details about upcoming land deals and strategic partnerships not yet disclosed to the public. Unfortunately for DJ 4Play and the Travelers employee, the suspiciously timed trade triggered compliance alerts across two broker-dealers.",
-      "The SEC confirmed it traced the trades back to a conversation that took place in Waco, TX. While the Travelers employee is currently under internal review, no formal charges have been filed yet. Texas Pacific Land has suspended DJ 4Play pending further disciplinary action and announced plans to overhaul internal communication protocols — including a ban on non-secure chat apps.",
-      "In an internal memo, company leadership called the incident 'deeply embarrassing' and a 'cautionary tale for anyone mixing memes and material non-public info.'"
-    ]
+    title: "TPL News Story – Insider Trading Scandal Unfolds",
+    content: `<p>In a bizarre twist of events, a mid-level manager at Texas Pacific Land Corporation (<span style="text-decoration: underline; color: #3b82f6;">NYSE: TPL</span>), known internally and in several Discord servers as <em>DJ 4Play</em>, has been found guilty of insider trading. The violation came to light after the manager leaked confidential trade information to a low-level employee at Travelers Insurance.</p>
+    <p>The message, shared via Discord, included sensitive details about upcoming land deals and strategic partnerships not yet disclosed to the public. Unfortunately for <em>DJ 4Play</em> and the Travelers employee, the suspiciously timed trade triggered compliance alerts across two broker-dealers.</p>
+    <p>The SEC confirmed it traced the trades back to a conversation that took place in Waco, TX. While the Travelers employee is currently under internal review, no formal charges have been filed yet. Texas Pacific Land has suspended <em>DJ 4Play</em> pending further disciplinary action and announced plans to overhaul internal communication protocols — including a ban on non-secure chat apps.</p>
+    <p style="color: #dc2626;"><strong>In an internal memo, company leadership called the incident "deeply embarrassing" and a "cautionary tale about how casually shared information can spiral into serious legal exposure."</strong></p>`
   },
   'n12': {
     title: "TPL Launches AI-Powered Land Appraisal Tool",
@@ -70,7 +68,13 @@ interface NewsCardProps {
 export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: NewsCardProps) {
   const [clientTimestamps, setClientTimestamps] = useState<Record<string, string>>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedArticle, setSelectedArticle] = useState<{ title: string; paragraphs: string[]; sentiment: NewsItem['sentiment']; timestamp: string; } | null>(null);
+  const [selectedArticle, setSelectedArticle] = useState<{
+    title: string;
+    paragraphs?: string[];
+    content?: string;
+    sentiment: NewsItem['sentiment'];
+    timestamp: string;
+  } | null>(null);
 
   const filteredNews = React.useMemo(() => {
     if (!selectedTickerSymbol) {
@@ -97,7 +101,9 @@ export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: Ne
     const articleContent = dummyArticlesContent[item.id];
     if (articleContent) {
       setSelectedArticle({
-        ...articleContent,
+        title: articleContent.title,
+        paragraphs: articleContent.paragraphs,
+        content: articleContent.content,
         sentiment: item.sentiment,
         timestamp: clientTimestamps[item.id] || new Date(item.timestamp).toLocaleString()
       });

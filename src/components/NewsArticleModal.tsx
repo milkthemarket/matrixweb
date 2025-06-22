@@ -19,7 +19,8 @@ interface NewsArticleModalProps {
   onClose: () => void;
   article: {
     title: string;
-    paragraphs: string[];
+    paragraphs?: string[];
+    content?: string; // Add optional content string
     sentiment: NewsItem['sentiment'];
     timestamp: string;
   } | null;
@@ -43,10 +44,19 @@ export function NewsArticleModal({ isOpen, onClose, article }: NewsArticleModalP
         </DialogHeader>
         
         <ScrollArea className="max-h-[60vh] p-1 pr-6">
-          <div className="space-y-4 py-4 text-sm leading-relaxed">
-            {article.paragraphs.map((paragraph, index) => (
-              <p key={index}>{paragraph}</p>
-            ))}
+          <div className="py-4 text-sm leading-relaxed">
+            {article.content ? (
+              <div
+                className="space-y-4"
+                dangerouslySetInnerHTML={{ __html: article.content }}
+              />
+            ) : (
+              <div className="space-y-4">
+                {article.paragraphs?.map((paragraph, index) => (
+                  <p key={index}>{paragraph}</p>
+                ))}
+              </div>
+            )}
           </div>
         </ScrollArea>
         
