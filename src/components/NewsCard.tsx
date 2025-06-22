@@ -30,7 +30,7 @@ const dummyNewsData: NewsItem[] = [
   { id: 'n8', symbol: 'XOM', headline: 'Oil prices decline amid global demand concerns', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 55).toISOString() },
   { id: 'n9', symbol: 'AAPL', headline: 'Apple Vision Pro demand exceeds expectations in early preorders.', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 90).toISOString() },
   { id: 'n10', symbol: 'TSLA', headline: 'Tesla recalls Model 3 vehicles due to software glitch.', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 10).toISOString() },
-  { id: 'n11', symbol: 'TPL', headline: 'TPL mid-manager caught insider trading after group chat blunder', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 8).toISOString() },
+  { id: 'n11', symbol: 'TPL', headline: 'Insider Trading Scandal Unfolds at Texas Pacific Land Corporation', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 8).toISOString() },
   { id: 'n12', symbol: 'TPL', headline: 'TPL launches AI-powered land appraisal tool, stock pops 3%', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 22).toISOString() },
   { id: 'n13', symbol: 'TPL', headline: 'Texas drought deepens, but TPL monetizes water rights in record Q2 earnings', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString() },
   { id: 'n14', symbol: 'TPL', headline: 'Short-seller targets TPL, calls land valuation model ‘voodoo math’', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
@@ -38,11 +38,12 @@ const dummyNewsData: NewsItem[] = [
 
 const dummyArticlesContent: Record<string, { title: string; paragraphs: string[] }> = {
   'n11': {
-    title: "TPL’s DJ 4Play Busted: Insider Info Spilled in Group Chat Blunder",
+    title: "Insider Trading Scandal Unfolds at Texas Pacific Land Corporation",
     paragraphs: [
-      "In a bizarre twist of events, a mid-level manager at Texas Pacific Land Corporation (NYSE: TPL), known internally and in several Discord servers as 'DJ 4Play,' has been found guilty of insider trading. The violation came to light after the manager accidentally sent confidential trade information to a group chat named 'Dawg Pound' — originally intended as a space for memes, fantasy football talk, and barbecue plans.",
-      "The leaked message included sensitive details about upcoming land deals and strategic partnerships that had not yet been disclosed to the public. Unfortunately for DJ 4Play, among the Dawg Pound participants was a low-level employee at Travelers Insurance who acted on the information, executing a suspiciously timed trade that triggered compliance alerts across two broker-dealers.",
-      "The SEC confirmed it traced the trades back to the conversation in the Dawg Pound. The Travelers employee is now under internal review, though no formal charges have been filed yet. Texas Pacific Land has suspended DJ 4Play pending further disciplinary action and has vowed to rework its communication policies — including banning non-secure chat apps for internal discussion. In an internal memo, leadership described the incident as 'deeply embarrassing' and a 'cautionary tale for anyone mixing memes and material non-public info.'"
+      "In a bizarre twist of events, a mid-level manager at Texas Pacific Land Corporation (NYSE: TPL), known internally and in several Discord servers as DJ 4Play, has been found guilty of insider trading. The violation came to light after the manager leaked confidential trade information to a low-level employee at Travelers Insurance.",
+      "The message, shared via Discord, included sensitive details about upcoming land deals and strategic partnerships not yet disclosed to the public. Unfortunately for DJ 4Play and the Travelers employee, the suspiciously timed trade triggered compliance alerts across two broker-dealers.",
+      "The SEC confirmed it traced the trades back to a conversation that took place in Waco, TX. While the Travelers employee is currently under internal review, no formal charges have been filed yet. Texas Pacific Land has suspended DJ 4Play pending further disciplinary action and announced plans to overhaul internal communication protocols — including a ban on non-secure chat apps.",
+      "In an internal memo, company leadership called the incident 'deeply embarrassing' and a 'cautionary tale for anyone mixing memes and material non-public info.'"
     ]
   },
   'n12': {
