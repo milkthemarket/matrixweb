@@ -190,17 +190,6 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
   }
 ];
 
-
-const CriteriaIcon: React.FC<{ met: boolean; IconComponent: React.ElementType; label: string; activeColorClass?: string }> = ({ met, IconComponent, label, activeColorClass = "text-green-400" }) => (
-  <TooltipProviderWrapper content={label}>
-    <IconComponent className={cn("h-3.5 w-3.5", met ? activeColorClass : "text-muted-foreground/50")} />
-  </TooltipProviderWrapper>
-);
-
-const TooltipProviderWrapper: React.FC<{ content: string; children: React.ReactNode }> = ({ content, children }) => {
-  return <div title={content}>{children}</div>; 
-};
-
 interface SelectedCriteriaState {
   news: boolean;
   volume: boolean;
@@ -216,10 +205,10 @@ const initialCriteriaFilterState: SelectedCriteriaState = {
 };
 
 const criteriaFilterConfig: Array<{ key: keyof SelectedCriteriaState; label: string; Icon?: React.ElementType }> = [
-  { key: 'news', label: 'News', Icon: Newspaper },
-  { key: 'volume', label: 'Volume', Icon: BarChartBig },
-  { key: 'chart', label: 'Chart', Icon: LineChart },
-  { key: 'shortable', label: 'Shortable', Icon: TrendingDown },
+  { key: 'news', label: 'News' },
+  { key: 'volume', label: 'Volume' },
+  { key: 'chart', label: 'Chart' },
+  { key: 'shortable', label: 'Shortable' },
 ];
 
 
@@ -267,11 +256,21 @@ const MooAlertsContent: React.FC = () => {
 
 
   const handleAlertClick = (alertItem: MooAlertItem) => {
-    router.push(`/milk-market?ticker=${alertItem.symbol}`);
-    toast({
-      title: "Loading Ticker...",
-      description: `Navigating to Milk Market for ${alertItem.symbol}.`,
+    if (!alertItem.suggestedAction || !alertItem.suggestedQuantity || !alertItem.suggestedEntryPrice || !alertItem.suggestedOrderType) {
+        // Fallback for alerts without a full plan
+        router.push(`/milk-market?ticker=${alertItem.symbol}`);
+        return;
+    }
+    
+    const params = new URLSearchParams({
+        ticker: alertItem.symbol,
+        action: alertItem.suggestedAction,
+        quantity: String(alertItem.suggestedQuantity),
+        entryPrice: String(alertItem.suggestedEntryPrice),
+        orderType: alertItem.suggestedOrderType
     });
+
+    router.push(`/milk-market?${params.toString()}`);
   };
 
   const filteredAlerts = useMemo(() => {
@@ -328,7 +327,7 @@ const MooAlertsContent: React.FC = () => {
                 Real-Time Trade Signals
               </CardTitle>
               <CardDescription>
-                Actionable signals with trade plans. Click an alert to view on the chart.
+                Actionable signals with trade plans. Click an alert to load it into the Milk Market trade panel.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -341,7 +340,7 @@ const MooAlertsContent: React.FC = () => {
                 >
                   Show All
                 </Button>
-                {criteriaFilterConfig.map(({ key, label, Icon }) => (
+                {criteriaFilterConfig.map(({ key, label }) => (
                   <Button
                     key={key}
                     variant={selectedCriteria[key] ? "default" : "outline"}
@@ -352,7 +351,6 @@ const MooAlertsContent: React.FC = () => {
                       selectedCriteria[key] ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
                     )}
                   >
-                    {Icon && <Icon className={cn("h-4 w-4", selectedCriteria[key] ? "text-primary-foreground" : "text-muted-foreground")} />}
                     {label}
                   </Button>
                 ))}
@@ -384,36 +382,31 @@ const MooAlertsContent: React.FC = () => {
                         className="flex flex-col hover:border-primary/50 transition-all duration-150 ease-in-out cursor-pointer"
                       >
                         <CardContent className="p-3 space-y-2 text-sm">
-                           <div className="flex justify-between items-baseline">
-                               <div className="flex items-baseline gap-2">
-                                   <h4 className="text-base font-bold text-primary">{alert.symbol}</h4>
-                                   <span className="font-mono">${alert.currentPrice.toFixed(2)}</span>
+                           <div className="flex justify-between items-start">
+                               <div className="flex flex-col items-start">
+                                   <div className="flex items-baseline gap-2">
+                                       <h4 className="text-base font-bold text-primary">{alert.symbol}</h4>
+                                       <span className="font-mono text-sm">${alert.currentPrice.toFixed(2)}</span>
+                                   </div>
                                    {alert.premarketChangePercent !== undefined && (
                                        <span className={cn("text-xs font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
                                           ({alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%)
                                        </span>
                                    )}
                                </div>
-                                <Badge variant="outline" className={cn("text-xs", getSentimentBadgeClass(alert.sentiment))}>
-                                      {alert.sentiment}
-                                </Badge>
+                                <div className="flex flex-col items-end gap-1">
+                                    <Badge variant="outline" className={cn("text-xs", getSentimentBadgeClass(alert.sentiment))}>
+                                        {alert.sentiment}
+                                    </Badge>
+                                    <span className="text-xs font-light text-muted-foreground">{alert.time}</span>
+                                </div>
                            </div>
                            
                            <p className="text-sm text-foreground pt-1">{alert.headline}</p>
 
-                           <div className="flex justify-between items-center text-xs text-muted-foreground pt-1">
-                               <span>{alert.time}</span>
-                               <div className="flex items-center space-x-2">
-                                   <CriteriaIcon met={alert.criteria.news} IconComponent={Newspaper} label="Positive News" />
-                                   <CriteriaIcon met={alert.criteria.volume} IconComponent={BarChartBig} label="High Pre-market Volume" />
-                                   <CriteriaIcon met={alert.criteria.chart} IconComponent={LineChart} label="Clean Chart Structure" />
-                                   <CriteriaIcon met={alert.criteria.shortable} IconComponent={TrendingDown} label="Shortable" activeColorClass="text-yellow-400" />
-                               </div>
-                           </div>
-
                            {alert.suggestedAction && (
                             <>
-                              <Separator className="my-2 bg-border/10"/>
+                              <Separator className="my-2 bg-border/20"/>
                               <div className="space-y-1 text-xs">
                                   <h5 className="font-semibold text-foreground mb-1">Trade Plan</h5>
                                   <div className="p-2 rounded-md bg-black/10 border border-white/5 space-y-1">
@@ -460,5 +453,3 @@ export default function MooAlertsPage() {
     </Suspense>
   );
 }
-
-    

@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useState, useMemo, Suspense, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import type { Stock, TradeRequest, OrderActionType, TradeMode, OrderSystemType, Account } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
@@ -22,11 +23,50 @@ import { OrderBookCard } from '@/components/OrderBookCard';
 
 function MilkMarketPageContent() {
   const { toast } = useToast();
+  const searchParams = useSearchParams();
   const { addTradeToHistory } = useTradeHistoryContext();
   const { addOpenPosition, selectedAccountId, accounts } = useOpenPositionsContext();
 
   const [syncedTickerSymbol, setSyncedTickerSymbol] = useState<string>('AAPL');
   const [stockForSyncedComps, setStockForSyncedComps] = useState<Stock | null>(null);
+  
+  // States for OrderCard (Trade Panel)
+  const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
+  const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
+  const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
+  const [orderCardInitialQuantity, setOrderCardInitialQuantity] = useState<string | undefined>(undefined);
+  const [orderCardInitialOrderType, setOrderCardInitialOrderType] = useState<OrderSystemType | undefined>(undefined);
+  const [orderCardInitialLimitPrice, setOrderCardInitialLimitPrice] = useState<string | undefined>(undefined);
+
+  // This effect will run whenever the search params change.
+  useEffect(() => {
+    const ticker = searchParams.get('ticker');
+    const action = searchParams.get('action') as OrderActionType | null;
+    const quantity = searchParams.get('quantity');
+    const entryPrice = searchParams.get('entryPrice');
+    const orderType = searchParams.get('orderType') as OrderSystemType | null;
+
+    if (ticker) {
+      handleSyncedTickerChange(ticker);
+
+      if (action && quantity && entryPrice && orderType) {
+        setOrderCardActionType(action);
+        setOrderCardInitialQuantity(quantity);
+        setOrderCardInitialOrderType(orderType);
+        if (orderType === 'Limit') {
+            setOrderCardInitialLimitPrice(entryPrice);
+        } else {
+            setOrderCardInitialLimitPrice(undefined);
+        }
+        setOrderCardInitialTradeMode('manual');
+        setOrderCardMiloActionContext(`Trade plan loaded from Moo Alerts for ${ticker}.`);
+        toast({
+            title: "Trade Plan Loaded",
+            description: `${action} ${quantity} shares of ${ticker} at ~$${entryPrice} loaded into trade panel.`
+        });
+      }
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const stockData = initialMockStocks.find(s => s.symbol.toUpperCase() === syncedTickerSymbol.toUpperCase());
@@ -44,20 +84,19 @@ function MilkMarketPageContent() {
         lastUpdated: new Date().toISOString(),
         historicalPrices: []
       });
+      toast({
+          variant: "destructive",
+          title: "Ticker Not Found",
+          description: `Could not find data for "${syncedTickerSymbol}". Please check the symbol.`
+      })
     }
-  }, [syncedTickerSymbol]);
+  }, [syncedTickerSymbol, toast]);
 
   const handleSyncedTickerChange = useCallback((symbol: string) => {
     setSyncedTickerSymbol(symbol.toUpperCase());
+    // Clear any previous trade-specific context when the ticker changes manually
+    handleClearOrderCard();
   }, []);
-
-  // States for OrderCard (Trade Panel)
-  const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
-  const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
-  const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
-  const [orderCardInitialQuantity, setOrderCardInitialQuantity] = useState<string | undefined>(undefined);
-  const [orderCardInitialOrderType, setOrderCardInitialOrderType] = useState<OrderSystemType | undefined>(undefined);
-  const [orderCardInitialLimitPrice, setOrderCardInitialLimitPrice] = useState<string | undefined>(undefined);
 
   const handleTradeSubmit = (tradeDetails: TradeRequest) => {
     console.log("Trade Submitted via Order Card:", tradeDetails);
