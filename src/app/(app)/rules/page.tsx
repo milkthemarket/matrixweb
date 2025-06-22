@@ -170,29 +170,29 @@ export default function RulesPage() {
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Alert Rules Engine" />
-      <div className="flex-1 p-1 md:p-1.5 space-y-1.5 overflow-y-auto"> {/* Reduced padding and space */}
+      <div className="flex-1 p-1 md:p-1.5 space-y-1.5 overflow-y-auto">
         <Card> 
           <CardHeader>
-            <CardTitle className="text-xl font-headline flex items-center"> {/* Reduced from 2xl */}
-              <ListFilter className="mr-1.5 h-5 w-5 text-primary"/> {/* Reduced icon size */}
-              {editingRule ? 'Edit Rule Info' : 'Create New Rule (Basic)'}
+            <CardTitle className="text-xl font-headline flex items-center">
+              <ListFilter className="mr-1.5 h-5 w-5 text-primary"/>
+              {editingRule ? 'Edit Rule Info' : 'Create New Rule'}
             </CardTitle>
-            <CardDescription>Define rule name and status. Complex criteria are managed via predefined rules for now.</CardDescription>
+            <CardDescription>Create, manage, and toggle your custom alert rules. Active rules will generate Moo Alerts.</CardDescription>
           </CardHeader>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardContent className="space-y-1.5"> {/* Reduced space-y-6 */}
+            <CardContent className="space-y-1.5">
               <div>
                 <Label htmlFor="ruleName">Rule Name</Label>
                 <Input 
                   id="ruleName" 
                   placeholder="e.g., Premarket Spike Low Float" 
                   {...form.register("name")} 
-                  className="bg-transparent text-sm h-9" // Reduced size
+                  className="bg-transparent text-sm h-9"
                 />
-                {form.formState.errors.name && <p className="text-xs text-destructive mt-0.5">{form.formState.errors.name.message}</p>} {/* Reduced margin */}
+                {form.formState.errors.name && <p className="text-xs text-destructive mt-0.5">{form.formState.errors.name.message}</p>}
               </div>
               
-              <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-1 shadow-sm bg-black/10"> {/* Reduced p-3 */}
+              <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-1 shadow-sm bg-black/10">
                 <div className="space-y-0.5">
                     <Label htmlFor="isActiveSwitch" className="font-medium text-foreground cursor-pointer">Activate Rule</Label>
                     <p className="text-xs text-muted-foreground">
@@ -206,53 +206,55 @@ export default function RulesPage() {
                 />
               </div>
             </CardContent>
-            <CardFooter className="flex justify-end gap-0.5"> {/* Reduced gap */}
+            <CardFooter className="flex justify-end gap-0.5">
               {editingRule && <Button type="button" variant="outline" size="sm" onClick={() => { setEditingRule(null); form.reset({name: '', isActive: true }); }}>Cancel Edit</Button>}
-              <Button type="submit" size="sm" className="text-primary-foreground bg-primary hover:bg-primary/90"> {/* Made button smaller */}
-                <PlusCircle className="mr-1 h-3.5 w-3.5" /> {/* Reduced icon size */}
-                {editingRule ? 'Save Changes' : 'Add Basic Rule'}
+              <Button type="submit" size="sm" className="text-primary-foreground bg-primary hover:bg-primary/90">
+                <PlusCircle className="mr-1 h-3.5 w-3.5" />
+                {editingRule ? 'Save Changes' : 'Add Rule'}
               </Button>
             </CardFooter>
           </form>
         </Card>
 
-        <Separator className="border-white/5 my-1.5"/> {/* Added margin */}
+        <Separator className="border-white/5 my-1.5"/>
 
         <Card> 
           <CardHeader>
-            <CardTitle className="text-lg font-headline">Defined Rules</CardTitle> {/* Reduced text-xl */}
+            <CardTitle className="text-lg font-headline">Defined Rules</CardTitle>
             <CardDescription>Manage your existing alert rules. Dashboard filters based on these.</CardDescription>
           </CardHeader>
           <CardContent>
             {rules.length > 0 ? (
-              <ul className="space-y-1"> {/* Reduced space-y-4 */}
+              <ul className="space-y-1">
                 {rules.map((rule) => (
                   <li 
                     key={rule.id} 
                     className={cn(
-                      "flex items-start md:items-center justify-between p-1 rounded-lg shadow-none flex-col md:flex-row border border-white/5", // Reduced p-4, rounded-xl to rounded-lg
+                      "flex items-start md:items-center justify-between p-2 rounded-lg shadow-none flex-col md:flex-row border border-white/5", 
                       "bg-black/10 backdrop-blur-md", 
                       "hover:bg-white/10 transition-colors duration-200"
                     )}
                   >
-                    <div className="flex-1 mb-1 md:mb-0"> {/* Reduced mb-3 */}
-                      <div className="flex items-center gap-1 mb-0.5"> {/* Reduced gap-2, mb-1 */}
-                        <p className="font-semibold text-foreground text-sm">{rule.name} </p> {/* Reduced text size */}
-                        <Badge 
-                            variant={rule.isActive ? "default" : "secondary"}
-                            className={cn(
-                              "text-xs h-4 px-1 py-0", // Reduced h-5, px-1.5, py-0.5
-                              rule.isActive ? "bg-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green-foreground))]" : "bg-muted text-muted-foreground"
-                            )}
-                          >
-                            {rule.isActive ? 'Active' : 'Inactive'}
-                          </Badge>
+                    <div className="flex-1 mb-1 md:mb-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-semibold text-foreground text-sm">{rule.name} </p>
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "text-xs h-5 px-1.5 py-0.5 border",
+                            rule.isActive 
+                              ? "border-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green))] bg-transparent shadow-[0_0_8px_hsl(var(--confirm-green)/0.5)]" 
+                              : "border-muted/50 text-muted-foreground bg-muted/20"
+                          )}
+                        >
+                          {rule.isActive ? 'Active' : 'Inactive'}
+                        </Badge>
                       </div>
                       {rule.criteria.length > 0 ? (
-                        <div className="text-xs text-muted-foreground space-y-px"> {/* Reduced space-y-0.5 */}
+                        <div className="text-xs text-muted-foreground space-y-px">
                           {rule.criteria.map((crit, index) => (
                             <div key={index} className="flex items-center">
-                              <Terminal className="h-3 w-3 mr-1 text-accent flex-shrink-0"/> {/* Reduced mr-1.5 */}
+                              <Terminal className="h-3 w-3 mr-1 text-accent flex-shrink-0"/>
                               <span>{formatCriterion(crit)}</span>
                             </div>
                           ))}
@@ -261,18 +263,18 @@ export default function RulesPage() {
                         <p className="text-xs text-muted-foreground italic">No criteria defined for this rule.</p>
                       )}
                     </div>
-                    <div className="flex items-center space-x-0.5 flex-shrink-0"> {/* Reduced space-x-2 */}
+                    <div className="flex items-center space-x-0.5 flex-shrink-0">
                        <Switch
                           checked={rule.isActive}
                           onCheckedChange={() => toggleRuleStatus(rule.id)}
                           aria-label={rule.isActive ? "Deactivate rule" : "Activate rule"}
                           className="h-5 w-9 data-[state=checked]:[&>span]:translate-x-4 [&>span]:h-4 [&>span]:w-4"
                         />
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(rule)} className="text-accent hover:text-accent-foreground hover:bg-accent/10 h-6 w-6"> {/* Reduced size */}
-                        <Edit3 className="h-3.5 w-3.5" /> {/* Reduced icon size */}
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(rule)} className="text-accent hover:text-accent-foreground hover:bg-accent/10 h-6 w-6">
+                        <Edit3 className="h-3.5 w-3.5" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(rule.id)} className="text-destructive hover:text-destructive-foreground hover:bg-destructive/10 h-6 w-6"> {/* Reduced size */}
-                        <Trash2 className="h-3.5 w-3.5" /> {/* Reduced icon size */}
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(rule.id)} className="text-destructive hover:text-destructive-foreground hover:bg-destructive/10 h-6 w-6">
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </li>
@@ -287,3 +289,5 @@ export default function RulesPage() {
     </main>
   );
 }
+
+    
