@@ -63,7 +63,7 @@ const getChartDataFlow = ai.defineFlow(
       const queryParams = new URLSearchParams({
         timeframe,
         adjustment: 'raw',
-        feed: 'iex',
+        feed: 'iex', // Required for free data plan
       });
       if (limit) queryParams.append('limit', String(limit));
       if (start) queryParams.append('start', start);
