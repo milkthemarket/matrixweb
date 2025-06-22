@@ -52,13 +52,13 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
             <Table>
               <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-[1]">
                 <TableRow>
-                  <TableHead className="h-7 px-2 text-[10px] text-muted-foreground font-medium text-center">Actions</TableHead>
+                  <TableHead className="h-7 px-2 text-[10px] text-center text-muted-foreground font-medium">Actions</TableHead>
                   <TableHead className="h-7 px-2 text-[10px] text-left text-muted-foreground font-medium">Symbol</TableHead>
-                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Open P&L</TableHead>
                   <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Open P&L %</TableHead>
-                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Quantity</TableHead>
+                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Open P&L</TableHead>
                   <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Avg Price</TableHead>
                   <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Last Price</TableHead>
+                  <TableHead className="h-7 px-2 text-[10px] text-right text-muted-foreground font-medium">Quantity</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -81,14 +81,14 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
                       </TableCell>
                       <TableCell className="font-bold text-foreground px-2 py-1.5 text-left">{pos.symbol}</TableCell>
                       <TableCell className={cn("text-right font-bold px-2 py-1.5", pnlColorClass)}>
-                        {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
-                      </TableCell>
-                       <TableCell className={cn("text-right font-bold px-2 py-1.5", pnlColorClass)}>
                         {pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
                       </TableCell>
-                      <TableCell className="text-right font-medium text-foreground px-2 py-1.5">{pos.shares}</TableCell>
+                      <TableCell className={cn("text-right font-bold px-2 py-1.5", pnlColorClass)}>
+                        {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
+                      </TableCell>
                       <TableCell className="text-right font-medium text-foreground px-2 py-1.5">${pos.entryPrice.toFixed(2)}</TableCell>
                       <TableCell className="text-right font-bold text-foreground px-2 py-1.5">${pos.currentPrice.toFixed(2)}</TableCell>
+                      <TableCell className="text-right font-medium text-foreground px-2 py-1.5">{pos.shares}</TableCell>
                     </TableRow>
                   );
                 })}

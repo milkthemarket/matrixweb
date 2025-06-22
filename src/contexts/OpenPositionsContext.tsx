@@ -74,12 +74,22 @@ export function OpenPositionsProvider({ children }: { children: ReactNode }) {
 
   const removeOpenPosition = useCallback((positionId: string) => {
     const positionToRemove = openPositions.find(p => p.id === positionId);
+    
+    const successMessages = [
+      "🐄 That trade’s been milked! You’re all clear.",
+      "🥛 Freshly churned profits — position closed.",
+      "✅ Cream of the crop — order successfully closed.",
+      "🚀 That position’s udderly complete!",
+      "🐮 You just moooved on from that trade."
+    ];
+    const randomMessage = successMessages[Math.floor(Math.random() * successMessages.length)];
+
     setOpenPositions(prevPositions => prevPositions.filter(p => p.id !== positionId));
     if (positionToRemove) {
       toast({
-        title: "Position Closed",
-        description: `Position ${positionToRemove.symbol} (${positionToRemove.shares} shares) from account ${dummyAccounts.find(acc => acc.id === positionToRemove.accountId)?.label} has been closed.`,
-        variant: "destructive"
+        title: "Position Closed Successfully",
+        description: randomMessage,
+        variant: "success",
       });
     }
   }, [openPositions, toast]);
