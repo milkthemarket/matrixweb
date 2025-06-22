@@ -97,7 +97,7 @@ const initialColumnConfiguration: ColumnConfig<Stock>[] = [
   { key: 'price', label: 'Price', defaultVisible: true, isToggleable: false, isDraggable: true, align: 'right', defaultWidth: 90, format: (val) => `$${formatDecimal(val)}` },
   { key: 'changePercent', label: '% Change', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 100, format: (val) => {
     const numVal = typeof val === 'number' ? val : 0;
-    return <span className={cn(numVal >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}> {numVal >= 0 ? '+' : ''}{formatDecimal(numVal, 1)}% </span>
+    return <span className={cn("font-semibold", numVal >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}> {numVal >= 0 ? '+' : ''}{formatDecimal(numVal, 1)}% </span>
   }},
   { key: 'float', label: 'Float (M)', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 80, format: (val) => formatDecimal(val, 0) },
   { key: 'volume', label: 'Volume (M)', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 90, format: formatVolume },
@@ -731,7 +731,7 @@ function DashboardPageContent() {
                     </Select>
                 </div>
 
-                <div className="rounded-lg border overflow-auto flex-1">
+                <div className="rounded-lg overflow-auto flex-1">
                   <Table className="table-layout-fixed">
                     <colgroup>
                       {displayedColumns.map(col => (
@@ -778,7 +778,7 @@ function DashboardPageContent() {
                               key={stock.id}
                               className={cn(
                                   getRowHighlightClass(stock),
-                                  "hover:bg-muted/50 transition-colors duration-200 cursor-pointer",
+                                  "cursor-pointer",
                                   selectedStockForOrderCard?.id === stock.id && "bg-primary/20"
                               )}
                               onClick={() => handleSelectStockForOrder(stock, null)}
@@ -789,7 +789,7 @@ function DashboardPageContent() {
                                 className={cn(
                                   col.align === 'right' && "text-right",
                                   col.align === 'center' && "text-center",
-                                  col.key === 'symbol' && "font-medium"
+                                  (col.key === 'symbol' || col.key === 'price') && "font-semibold"
                                 )}
                               >
                                 {col.format ? col.format(stock[col.key as keyof Stock], stock) : String(stock[col.key as keyof Stock] ?? 'N/A')}
