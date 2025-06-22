@@ -471,14 +471,16 @@ export function OrderCard({
           </Select>
         </CardHeader>
         <CardContent className="space-y-3 py-3 px-3 overflow-y-auto flex-1">
-          <div className="flex items-baseline justify-between rounded-lg border border-input bg-transparent p-2 h-10">
+          <div className="rounded-lg border border-input bg-transparent p-2">
               {selectedStock ? (
-                  <>
-                      <span className="text-lg font-bold text-foreground">{selectedStock.symbol}</span>
-                      <span className="text-xs text-muted-foreground truncate ml-2">{selectedStock.name}</span>
-                  </>
+                  <div>
+                      <h3 className="text-base font-bold text-foreground">{selectedStock.symbol}</h3>
+                      <p className="text-[11px] text-muted-foreground truncate">{selectedStock.name}</p>
+                  </div>
               ) : (
-                  <span className="text-sm text-muted-foreground">No Ticker Selected</span>
+                  <div className="h-[38px] flex items-center justify-center">
+                       <span className="text-sm text-muted-foreground">No Ticker Selected</span>
+                  </div>
               )}
           </div>
 
