@@ -16,6 +16,7 @@ import { NewsCard } from '@/components/NewsCard';
 import { OpenPositionsCard } from '@/components/OpenPositionsCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TradeHistoryTable } from '@/components/market/TradeHistoryTable';
+import { OrdersTable } from '@/components/market/OrdersTable';
 
 import { initialMockStocks } from '@/app/(app)/dashboard/page';
 import { FundamentalsCard } from '@/components/FundamentalsCard';
@@ -163,11 +164,15 @@ function MilkMarketPageContent() {
                     <Tabs defaultValue="positions" className="flex flex-col h-full">
                         <TabsList className="shrink-0 px-3 pt-2">
                             <TabsTrigger value="positions">Positions</TabsTrigger>
+                            <TabsTrigger value="orders">Open Orders</TabsTrigger>
                             <TabsTrigger value="history">History</TabsTrigger>
                             <TabsTrigger value="news">News</TabsTrigger>
                         </TabsList>
                         <TabsContent value="positions" className="flex-1 overflow-hidden mt-0 p-0">
                             <OpenPositionsCard className="h-full border-0 shadow-none rounded-none bg-transparent" />
+                        </TabsContent>
+                         <TabsContent value="orders" className="flex-1 overflow-hidden mt-0 p-0">
+                            <OrdersTable className="h-full border-0 shadow-none rounded-none bg-transparent" />
                         </TabsContent>
                         <TabsContent value="history" className="flex-1 overflow-hidden mt-0 p-0">
                             <TradeHistoryTable className="h-full border-0 shadow-none rounded-none bg-transparent" syncedTickerSymbol={syncedTickerSymbol} />
