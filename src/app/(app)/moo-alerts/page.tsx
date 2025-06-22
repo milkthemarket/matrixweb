@@ -8,14 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Newspaper, BarChartBig, LineChart, Megaphone, TrendingDown } from "lucide-react";
+import { Megaphone, Filter, Layers } from "lucide-react";
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import type { MooAlertItem, MooAlertSentiment, OrderActionType, OrderSystemType } from '@/types';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
 import { useSettingsContext } from '@/contexts/SettingsContext';
 import { Separator } from '@/components/ui/separator';
-
 
 const generateTradePlan = (price: number, sentiment: MooAlertSentiment): Partial<MooAlertItem> => {
   let action: OrderActionType = 'Buy';
@@ -54,7 +53,6 @@ const generateTradePlan = (price: number, sentiment: MooAlertSentiment): Partial
   };
 };
 
-
 const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedEntryPrice' | 'suggestedTargetPrice' | 'suggestedStopLossPrice' | 'targetGainPercent' | 'stopLossRiskPercent' | 'suggestedOrderType' | 'suggestedQuantity'>[] = [
   {
     id: 'ma1',
@@ -65,7 +63,9 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
     sentiment: "Positive",
     currentPrice: 182.50,
     premarketChangePercent: 1.5,
-    criteria: { news: true, volume: true, chart: true, shortable: true }
+    criteria: { news: true, volume: true, chart: true, shortable: true },
+    sourceType: 'Rule',
+    source: 'Rule: Earnings Catalyst'
   },
   {
     id: 'ma2',
@@ -76,18 +76,22 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
     sentiment: "Positive",
     currentPrice: 905.75,
     premarketChangePercent: 0.8,
-    criteria: { news: true, volume: false, chart: true, shortable: false }
+    criteria: { news: true, volume: false, chart: true, shortable: false },
+    sourceType: 'Rule',
+    source: 'Rule: News Catalyst'
   },
   {
     id: 'ma3',
     symbol: "AMC",
-    fullText: "AMC in focus on pre-market spike — 7:12am — Neutral",
+    fullText: "AMC in focus on pre-market spike",
     headline: "AMC in focus on pre-market spike",
     time: "7:12am",
     sentiment: "Neutral",
     currentPrice: 5.12,
     premarketChangePercent: 3.2,
-    criteria: { news: false, volume: true, chart: false, shortable: true }
+    criteria: { news: false, volume: true, chart: false, shortable: true },
+    sourceType: 'Manual Screener',
+    source: 'Screener: High Volume'
   },
   {
     id: 'ma4',
@@ -98,7 +102,9 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
     sentiment: "Negative",
     currentPrice: 24.80,
     premarketChangePercent: -1.1,
-    criteria: { news: true, volume: true, chart: true, shortable: true }
+    criteria: { news: true, volume: true, chart: true, shortable: true },
+    sourceType: 'Rule',
+    source: 'Rule: Unusual Activity'
   },
   {
     id: 'ma5',
@@ -109,7 +115,9 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
     sentiment: "Neutral",
     currentPrice: 549.30,
     premarketChangePercent: -0.2,
-    criteria: { news: false, volume: false, chart: true, shortable: false }
+    criteria: { news: false, volume: false, chart: true, shortable: false },
+    sourceType: 'Manual Screener',
+    source: 'Screener: Index Movers'
   },
   {
     id: 'ma6',
@@ -120,7 +128,9 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
     sentiment: "Positive",
     currentPrice: 171.05,
     premarketChangePercent: 0.5,
-    criteria: { news: true, volume: false, chart: false, shortable: true }
+    criteria: { news: true, volume: false, chart: false, shortable: true },
+    sourceType: 'News Feed',
+    source: 'News Feed'
   },
   {
     id: 'ma7',
@@ -131,7 +141,9 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
     sentiment: "Positive",
     currentPrice: 670.20,
     premarketChangePercent: 2.10,
-    criteria: { news: true, volume: true, chart: true, shortable: true }
+    criteria: { news: true, volume: true, chart: true, shortable: true },
+    sourceType: 'Rule',
+    source: 'Rule: Earnings Catalyst'
   },
   {
     id: 'ma8',
@@ -142,7 +154,9 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
     sentiment: "Negative",
     currentPrice: 214.80,
     premarketChangePercent: -0.50,
-    criteria: { news: true, volume: true, chart: true, shortable: true }
+    criteria: { news: true, volume: true, chart: true, shortable: true },
+    sourceType: 'News Feed',
+    source: 'News Feed'
   },
   {
     id: 'ma9',
@@ -153,7 +167,9 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
     sentiment: "Positive",
     currentPrice: 245.15,
     premarketChangePercent: 3.70,
-    criteria: { news: true, volume: true, chart: true, shortable: true }
+    criteria: { news: true, volume: true, chart: true, shortable: true },
+    sourceType: 'Rule',
+    source: 'Rule: High Volume Movers'
   },
   {
     id: 'ma10',
@@ -164,7 +180,9 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
     sentiment: "Neutral",
     currentPrice: 332.25,
     premarketChangePercent: 1.00,
-    criteria: { news: true, volume: true, chart: true, shortable: true }
+    criteria: { news: true, volume: true, chart: true, shortable: true },
+    sourceType: 'News Feed',
+    source: 'News Feed'
   },
   {
     id: 'ma11',
@@ -175,7 +193,9 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
     sentiment: "Negative",
     currentPrice: 71.05,
     premarketChangePercent: -1.90,
-    criteria: { news: true, volume: true, chart: true, shortable: true }
+    criteria: { news: true, volume: true, chart: true, shortable: true },
+    sourceType: 'Rule',
+    source: 'Rule: Earnings Catalyst'
   },
   {
     id: 'ma12',
@@ -186,39 +206,27 @@ const initialDummyAlertsData: Omit<MooAlertItem, 'suggestedAction' | 'suggestedE
     sentiment: "Positive",
     currentPrice: 164.70,
     premarketChangePercent: 2.80,
-    criteria: { news: true, volume: true, chart: true, shortable: true }
+    criteria: { news: true, volume: true, chart: true, shortable: true },
+    sourceType: 'Rule',
+    source: 'Rule: High Volume Movers'
   }
 ];
 
-interface SelectedCriteriaState {
-  news: boolean;
-  volume: boolean;
-  chart: boolean;
-  shortable: boolean;
-}
-
-const initialCriteriaFilterState: SelectedCriteriaState = {
-  news: false,
-  volume: false,
-  chart: false,
-  shortable: false,
-};
-
-const criteriaFilterConfig: Array<{ key: keyof SelectedCriteriaState; label: string; Icon?: React.ElementType }> = [
-  { key: 'news', label: 'News' },
-  { key: 'volume', label: 'Volume' },
-  { key: 'chart', label: 'Chart' },
-  { key: 'shortable', label: 'Shortable' },
-];
-
+type SourceTypeFilter = 'all' | 'Rule' | 'Manual Screener' | 'News Feed';
 
 const MooAlertsContent: React.FC = () => {
   const [alerts, setAlerts] = useState<MooAlertItem[]>([]); 
-  const [selectedCriteria, setSelectedCriteria] = useState<SelectedCriteriaState>(initialCriteriaFilterState);
+  const [selectedSourceType, setSelectedSourceType] = useState<SourceTypeFilter>('all');
   const router = useRouter();
   const { toast } = useToast();
   const { notificationSounds, playSound } = useSettingsContext();
 
+  const filterButtons: { id: SourceTypeFilter; label: string; }[] = [
+    { id: 'all', label: 'All Alerts' },
+    { id: 'Rule', label: 'Rule-Based' },
+    { id: 'Manual Screener', label: 'From Screener' },
+    { id: 'News Feed', label: 'From News' },
+  ];
 
   useEffect(() => {
     const processedInitialAlerts = initialDummyAlertsData.map(alert => ({
@@ -246,7 +254,7 @@ const MooAlertsContent: React.FC = () => {
 
       setAlerts(prevAlerts => [newAlert, ...prevAlerts].slice(0, 20)); 
       
-      if (notificationSounds.mooAlert !== 'off') {
+      if (notificationSounds.mooAlert !== 'off' && newAlert.sourceType !== 'News Feed') { // Don't play for news
         playSound(notificationSounds.mooAlert);
       }
 
@@ -257,7 +265,6 @@ const MooAlertsContent: React.FC = () => {
 
   const handleAlertClick = (alertItem: MooAlertItem) => {
     if (!alertItem.suggestedAction || !alertItem.suggestedQuantity || !alertItem.suggestedEntryPrice || !alertItem.suggestedOrderType) {
-        // Fallback for alerts without a full plan
         router.push(`/milk-market?ticker=${alertItem.symbol}`);
         return;
     }
@@ -274,17 +281,11 @@ const MooAlertsContent: React.FC = () => {
   };
 
   const filteredAlerts = useMemo(() => {
-    const activeFilterKeys = (Object.keys(selectedCriteria) as Array<keyof SelectedCriteriaState>)
-      .filter(key => selectedCriteria[key]);
-
-    if (activeFilterKeys.length === 0) {
+    if (selectedSourceType === 'all') {
       return alerts;
     }
-
-    return alerts.filter(alert => {
-      return activeFilterKeys.every(key => alert.criteria[key]);
-    });
-  }, [alerts, selectedCriteria]);
+    return alerts.filter(alert => alert.sourceType === selectedSourceType);
+  }, [alerts, selectedSourceType]);
 
   const getSentimentBadgeClass = (sentiment: MooAlertSentiment) => {
     switch (sentiment) {
@@ -296,24 +297,12 @@ const MooAlertsContent: React.FC = () => {
     }
   };
   
-  const handleCriteriaToggle = (criterionKey: keyof SelectedCriteriaState) => {
-    setSelectedCriteria(prev => ({
-      ...prev,
-      [criterionKey]: !prev[criterionKey],
-    }));
-  };
-
-  const handleShowAll = () => {
-    setSelectedCriteria(initialCriteriaFilterState);
-  };
-
   const getActionTextColorClass = (action?: OrderActionType) => {
     if (action === 'Buy') return 'text-[hsl(var(--confirm-green))]';
     if (action === 'Sell') return 'text-destructive';
     if (action === 'Short') return 'text-yellow-400';
     return 'text-foreground';
   };
-
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-auto">
@@ -327,28 +316,24 @@ const MooAlertsContent: React.FC = () => {
                 Real-Time Trade Signals
               </CardTitle>
               <CardDescription>
-                Actionable signals with trade plans. Click an alert to load it into the Milk Market trade panel.
+                Actionable signals from your rules and screeners. Click an alert to load it into the Milk Market trade panel.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap items-center gap-2 mb-4">
-                <Button
-                  variant={Object.values(selectedCriteria).every(v => !v) ? "default" : "outline"}
-                  onClick={handleShowAll}
-                  size="sm"
-                  className={cn(Object.values(selectedCriteria).every(v => !v) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted")}
-                >
-                  Show All
-                </Button>
-                {criteriaFilterConfig.map(({ key, label }) => (
+                <p className="text-sm text-muted-foreground mr-2 flex items-center">
+                  <Filter className="h-4 w-4 mr-1.5" />
+                  Filter by source:
+                </p>
+                {filterButtons.map(({ id, label }) => (
                   <Button
-                    key={key}
-                    variant={selectedCriteria[key] ? "default" : "outline"}
-                    onClick={() => handleCriteriaToggle(key)}
+                    key={id}
+                    variant={selectedSourceType === id ? "default" : "outline"}
+                    onClick={() => setSelectedSourceType(id)}
                     size="sm"
                     className={cn(
                       "flex items-center gap-2",
-                      selectedCriteria[key] ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+                      selectedSourceType === id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
                     )}
                   >
                     {label}
@@ -383,10 +368,10 @@ const MooAlertsContent: React.FC = () => {
                       >
                         <CardContent className="p-3 space-y-2 text-sm">
                            <div className="flex justify-between items-start">
-                               <div className="flex flex-col items-start">
+                               <div className="flex flex-col items-start gap-1">
                                    <div className="flex items-baseline gap-2">
-                                       <h4 className="text-base font-bold text-primary">{alert.symbol}</h4>
-                                       <span className="font-mono text-sm">${alert.currentPrice.toFixed(2)}</span>
+                                       <h4 className="text-lg font-bold text-primary">{alert.symbol}</h4>
+                                       <span className="font-mono text-base">${alert.currentPrice.toFixed(2)}</span>
                                    </div>
                                    {alert.premarketChangePercent !== undefined && (
                                        <span className={cn("text-xs font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
@@ -403,6 +388,10 @@ const MooAlertsContent: React.FC = () => {
                            </div>
                            
                            <p className="text-sm text-foreground pt-1">{alert.headline}</p>
+                           
+                           {alert.source && (
+                             <p className="text-xs text-muted-foreground pt-1"><span className="font-semibold text-primary">Source:</span> {alert.source}</p>
+                           )}
 
                            {alert.suggestedAction && (
                             <>

@@ -284,6 +284,8 @@ export interface MooAlertItem {
     chart: boolean;
     shortable: boolean;
   };
+  source?: string;
+  sourceType?: 'Rule' | 'Manual Screener' | 'News Feed';
   suggestedAction?: OrderActionType;
   suggestedEntryPrice?: number;
   suggestedTargetPrice?: number;
