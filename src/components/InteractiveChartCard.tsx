@@ -59,7 +59,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
 };
 
 // Map UI timeframes to Alpaca API parameters
-const getTimeframeParams = (timeframe: '1D' | '5D' | '1M' | '6M' | '1Y' | 'MAX') => {
+const getTimeframeParams = (timeframe: '1D' | '5D' | '1M' | '6M' | '1Y' | '5Y') => {
   const now = new Date();
   switch (timeframe) {
     case '1D':
@@ -72,8 +72,8 @@ const getTimeframeParams = (timeframe: '1D' | '5D' | '1M' | '6M' | '1Y' | 'MAX')
       return { timeframe: '1Day', start: formatISO(sub(now, { months: 6 })) };
     case '1Y':
       return { timeframe: '1Day', start: formatISO(sub(now, { years: 1 })) };
-    case 'MAX':
-      return { timeframe: '1Month', start: formatISO(sub(now, { years: 5 })) };
+    case '5Y':
+      return { timeframe: '1Week', start: formatISO(sub(now, { years: 5 })) };
     default:
       return { timeframe: '1Day', start: formatISO(sub(now, { months: 1 })) };
   }
@@ -82,7 +82,7 @@ const getTimeframeParams = (timeframe: '1D' | '5D' | '1M' | '6M' | '1Y' | 'MAX')
 
 export function InteractiveChartCard({ stock, onManualTickerSubmit, className }: InteractiveChartCardProps) {
   const [chartType, setChartType] = useState<'line' | 'area' | 'candle'>('line');
-  const [timeframe, setTimeframe] = useState<'1D' | '5D' | '1M' | '6M' | '1Y' | 'MAX'>('1M');
+  const [timeframe, setTimeframe] = useState<'1D' | '5D' | '1M' | '6M' | '1Y' | '5Y'>('1M');
   const [manualTickerInput, setManualTickerInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -292,7 +292,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
         {renderChartContent()}
       </CardContent>
       <CardFooter className="flex flex-wrap justify-center items-center gap-1 pt-2 pb-2 px-1">
-        {['1D', '5D', '1M', '6M', '1Y', 'MAX'].map((tf) => (
+        {['1D', '5D', '1M', '6M', '1Y', '5Y'].map((tf) => (
           <Button key={tf} variant={timeframe === tf ? "default" : "outline"} size="sm" onClick={() => setTimeframe(tf as any)} className="h-6 text-[10px] px-2">
             {tf}
           </Button>
