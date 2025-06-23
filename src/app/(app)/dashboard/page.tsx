@@ -11,8 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { UploadCloud, Flame, Megaphone, Columns, Info, ListFilter, Bot, Cog, TrendingUp, TrendingDown, Activity, CalendarCheck2, GripHorizontal, Lock, Star, List, Filter, SlidersHorizontal } from "lucide-react";
-import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule, MiloTradeIdea, HistoryTradeMode, TradeMode } from "@/types";
+import { UploadCloud, Flame, Megaphone, Columns, Info, ListFilter, Bot, Cog, TrendingUp, TrendingDown, Activity, CalendarCheck2, GripHorizontal, Lock, Star, List, Filter, SlidersHorizontal, Newspaper, Search, Loader2 } from "lucide-react";
+import type { Stock, TradeRequest, OrderActionType, OpenPosition, TradeHistoryEntry, ColumnConfig, AlertRule, MiloTradeIdea, HistoryTradeMode, TradeMode, NewsArticle } from "@/types";
 import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
@@ -20,16 +20,15 @@ import type { RefreshInterval } from '@/contexts/AlertContext';
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 import { useToast } from "@/hooks/use-toast";
-// OrderCard, OpenPositionsCard, and MilosTradeIdeasCard are removed from this specific view
-// import { OrderCard } from '@/components/OrderCard';
-// import { OpenPositionsCard } from '@/components/OpenPositionsCard';
-// import { MilosTradeIdeasCard } from '@/components/MilosTradeIdeasCard';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { mockRules } from '@/app/(app)/rules/page';
 import { format } from 'date-fns';
 import { ScreenerFilterModal } from '@/components/ScreenerFilterModal';
 import type { ActiveScreenerFilters } from '@/components/ScreenerFilterModal';
 import { Badge } from '@/components/ui/badge';
+import { dummyNewsData } from '@/components/NewsCard';
+import { NewsArticleModal } from '@/components/NewsArticleModal';
+import { Input } from '@/components/ui/input';
 
 const MOCK_INITIAL_TIMESTAMP = '2024-07-01T10:00:00.000Z';
 const DASHBOARD_REFRESH_INTERVAL: RefreshInterval = 15000;
@@ -53,14 +52,15 @@ const formatVolume = (value?: number) => (value !== undefined && value !== null 
 
 const initialColumnConfiguration: ColumnConfig<Stock>[] = [
   { key: 'symbol', label: 'Symbol', defaultVisible: true, isToggleable: false, isDraggable: false, align: 'left', defaultWidth: 100,
-    format: (value, stock) => (
+    format: (value, stock, context) => ( // Modified to accept context
       <Popover>
         <PopoverTrigger asChild>
-          <span className="hover:text-primary flex items-center cursor-pointer">
-            {stock.symbol}
+          <div className="flex items-center cursor-pointer group">
+            {context?.foundNewsSymbols?.has(stock.symbol) && <Newspaper className="mr-1.5 h-4 w-4 text-primary group-hover:text-accent" title="News Found" />}
+            <span className="hover:text-primary">{stock.symbol}</span>
             {stock.catalystType === 'fire' && <Flame className="ml-1 h-4 w-4 text-destructive" title="Hot Catalyst" />}
-            {stock.catalystType === 'news' && <Megaphone className="ml-1 h-4 w-4 text-primary" title="News Catalyst"/>}
-          </span>
+            {stock.catalystType === 'news' && !context?.foundNewsSymbols?.has(stock.symbol) && <Megaphone className="ml-1 h-4 w-4 text-primary" title="News Catalyst"/>}
+          </div>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0 shadow-none" side="right" align="start">
           <ChartPreview stock={stock} />
@@ -223,16 +223,15 @@ function DashboardPageContent() {
   const [activeFilters, setActiveFilters] = useState<Partial<ActiveScreenerFilters>>({});
 
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
-  // Removed OrderCard specific state as it's not part of this view anymore
-  // const [orderCardActionType, setOrderCardActionType] = useState<OrderActionType | null>(null);
-  // const [orderCardInitialTradeMode, setOrderCardInitialTradeMode] = useState<TradeMode | undefined>(undefined);
-  // const [orderCardMiloActionContext, setOrderCardMiloActionContext] = useState<string | null>(null);
 
-  // const { openPositions, addOpenPosition, removeOpenPosition, updateAllPositionsPrices } = useOpenPositionsContext();
-  // const [miloIdeas, setMiloIdeas] = useState<MiloTradeIdea[]>(initialMockMiloIdeas);
-  // const [isMiloLoading, setIsMiloLoading] = useState(false);
+  // State for News Search
+  const [newsSearchKeyword, setNewsSearchKeyword] = useState('');
+  const [isSearchingNews, setIsSearchingNews] = useState(false);
+  const [foundNewsSymbols, setFoundNewsSymbols] = useState<Set<string> | null>(null);
 
-  // const { addTradeToHistory } = useTradeHistoryContext();
+  // State for News Modal
+  const [isNewsModalOpen, setIsNewsModalOpen] = useState(false);
+  const [newsModalContent, setNewsModalContent] = useState<{ articles: NewsArticle[]; title: string } | null>(null);
 
   const defaultColumnOrder = useMemo(() => initialColumnConfiguration.map(c => c.key), []);
   const defaultColumnWidths = useMemo(() => {
@@ -381,13 +380,6 @@ function DashboardPageContent() {
     setLastRefreshed(new Date());
   }, []);
 
-  // Removed effect for updating open positions as OpenPositionsCard is not in this view.
-  // useEffect(() => {
-  //   if (stocks && stocks.length > 0) {
-  //     updateAllPositionsPrices(stocks);
-  //   }
-  // }, [stocks, updateAllPositionsPrices]);
-
   useEffect(() => {
     if (lastRefreshed === null) {
         setLastRefreshed(new Date());
@@ -401,10 +393,6 @@ function DashboardPageContent() {
     if (tickerFromQuery) {
       const stockToSelect = initialMockStocks.find(s => s.symbol.toUpperCase() === tickerFromQuery.toUpperCase());
       if (stockToSelect) {
-        // setSelectedStockForOrderCard(stockToSelect); // OrderCard removed
-        // setOrderCardActionType(null); 
-        // setOrderCardInitialTradeMode('manual'); 
-        // setOrderCardMiloActionContext(null); 
          toast({
           title: "Ticker Loaded from Moo Alerts",
           description: `${stockToSelect.symbol} loaded. (Trade panel not available in screener view)`,
@@ -424,8 +412,57 @@ function DashboardPageContent() {
   const activeRules = useMemo(() => rules.filter(rule => rule.isActive), [rules]);
   const activeFilterCount = Object.values(activeFilters).filter(f => f.active).length;
 
+  const handleNewsSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const keyword = newsSearchKeyword.trim();
+    
+    if (!keyword) {
+      setFoundNewsSymbols(null);
+      return;
+    }
+    
+    setIsSearchingNews(true);
+    // Simulate API call
+    setTimeout(() => {
+      const lowerKeyword = keyword.toLowerCase();
+      const relevantSymbols = new Set<string>();
+
+      initialMockStocks.forEach(stock => {
+        const stockName = stock.name?.toLowerCase() || '';
+        const stockSymbol = stock.symbol.toLowerCase();
+
+        const hasMatchingNews = dummyNewsData.some(news => {
+          const headline = news.headline.toLowerCase();
+          const preview = news.preview.toLowerCase();
+          return (headline.includes(lowerKeyword) || preview.includes(lowerKeyword)) && 
+                 (headline.includes(stockName) || headline.includes(stockSymbol) || preview.includes(stockName) || preview.includes(stockSymbol));
+        });
+
+        if (hasMatchingNews) {
+          relevantSymbols.add(stock.symbol);
+        }
+      });
+      setFoundNewsSymbols(relevantSymbols);
+      setIsSearchingNews(false);
+      toast({
+        title: "News Search Complete",
+        description: `Found news for ${relevantSymbols.size} stock(s) related to "${keyword}".`,
+      });
+    }, 500);
+  };
+  
+  const clearNewsSearch = () => {
+    setNewsSearchKeyword('');
+    setFoundNewsSymbols(null);
+  };
+
   const filteredStocks = useMemo(() => {
     let processedStocks = [...stocks];
+    
+    // Apply news keyword filter first if active
+    if (foundNewsSymbols) {
+      processedStocks = processedStocks.filter(stock => foundNewsSymbols.has(stock.symbol));
+    }
 
     if (selectedRuleId !== 'all') {
       switch (selectedRuleId) {
@@ -504,19 +541,33 @@ function DashboardPageContent() {
     }
 
     return processedStocks;
-  }, [stocks, selectedRuleId, activeRules, activeFilters]);
+  }, [stocks, selectedRuleId, activeRules, activeFilters, foundNewsSymbols]);
 
-  const handleSelectStockForOrder = (stock: Stock, action: OrderActionType | null) => {
-    // Logic for handling stock selection (e.g., for chart preview or other interactions)
-    // Since OrderCard is removed, this might just set a "selected stock" for other purposes
-    // For now, if only for popover, it's handled by Popover itself.
-    // If you need a global "selected stock on dashboard" for other reasons, set it here.
-    console.log("Stock selected for details/preview (no trade panel):", stock.symbol, action);
-    setSelectedStockForOrderCard(stock); // Keep this if popover or other elements use it
+  const handleShowNewsForStock = (stock: Stock) => {
+    if (!newsSearchKeyword.trim()) return;
+
+    const lowerKeyword = newsSearchKeyword.toLowerCase();
+    const matchingNews = dummyNewsData.filter(news => {
+      const headline = news.headline.toLowerCase();
+      const preview = news.preview.toLowerCase();
+      const stockName = stock.name?.toLowerCase() || '';
+      const stockSymbol = stock.symbol.toLowerCase();
+
+      return (headline.includes(stockSymbol) || headline.includes(stockName) || preview.includes(stockSymbol) || preview.includes(stockName)) &&
+             (headline.includes(lowerKeyword) || preview.includes(lowerKeyword));
+    });
+
+    setNewsModalContent({
+      articles: matchingNews,
+      title: `News for ${stock.symbol} matching "${newsSearchKeyword}"`
+    });
+    setIsNewsModalOpen(true);
   };
-
-  // Removed handleMiloIdeaSelect, handleTradeSubmit as they relate to removed OrderCard/MiloIdeasCard
-  // Removed handleStockSymbolSubmitFromOrderCard
+  
+  const handleSelectStockForOrder = (stock: Stock) => {
+    console.log("Stock selected for details/preview (no trade panel):", stock.symbol);
+    setSelectedStockForOrderCard(stock);
+  };
 
   const handleExport = () => {
     if (filteredStocks.length === 0) {
@@ -535,13 +586,15 @@ function DashboardPageContent() {
   };
 
   const getRowHighlightClass = (stock: Stock): string => {
+    if (foundNewsSymbols && foundNewsSymbols.has(stock.symbol)) {
+      return 'border-l-4 border-primary bg-primary/10';
+    }
     if (stock.changePercent >= 10) return 'border-l-4 border-[hsl(var(--chart-2))] bg-[hsla(var(--chart-2),0.05)]';
     if (stock.changePercent <= -8) return 'border-l-4 border-[hsl(var(--chart-5))] bg-[hsla(var(--chart-5),0.05)]';
     if (stock.float <= 500 && stock.volume >= 50) return 'border-l-4 border-accent bg-accent/5';
     return '';
   };
 
-  // Removed handleRefreshMiloIdeas as MiloIdeasCard is not in this view
 
   const handleDragStart = (e: React.DragEvent<HTMLTableCellElement>, columnKey: keyof Stock) => {
     e.dataTransfer.setData('draggedColumnKey', columnKey as string);
@@ -627,7 +680,6 @@ function DashboardPageContent() {
   return (
     <>
       <main className="flex flex-col flex-1 h-full overflow-auto">
-        {/* The main flex container will now only contain the screener section */}
         <div className="flex flex-1 p-4 md:p-6 overflow-auto">
           <div className="flex-1 flex flex-col overflow-auto space-y-6">
             <Card className="flex-1 flex flex-col overflow-hidden min-h-[400px]">
@@ -694,6 +746,27 @@ function DashboardPageContent() {
                 </div>
               </CardHeader>
               <CardContent className="flex-1 flex flex-col overflow-hidden space-y-4">
+                <div className="flex items-center gap-4 flex-wrap border-b border-border/10 pb-4">
+                    <form onSubmit={handleNewsSearch} className="flex items-center gap-2 flex-1 min-w-[250px]">
+                        <Label htmlFor="newsSearch" className="text-sm font-medium flex items-center shrink-0">
+                          <Newspaper className="mr-2 h-4 w-4 text-primary" /> News Search:
+                        </Label>
+                        <Input
+                            id="newsSearch"
+                            placeholder="e.g., earnings, AI, FDA"
+                            value={newsSearchKeyword}
+                            onChange={(e) => setNewsSearchKeyword(e.target.value)}
+                            className="h-9"
+                        />
+                        <Button type="submit" size="sm" disabled={isSearchingNews}>
+                            {isSearchingNews ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                            <span className="ml-2">Search</span>
+                        </Button>
+                        {foundNewsSymbols !== null && (
+                          <Button type="button" variant="ghost" size="sm" onClick={clearNewsSearch}>Clear</Button>
+                        )}
+                    </form>
+                </div>
                 <div className="flex items-center gap-2 flex-wrap">
                     <Button variant="outline" size="sm" onClick={() => setIsFilterModalOpen(true)}>
                       <SlidersHorizontal className="mr-2 h-4 w-4" /> Filters
@@ -796,11 +869,17 @@ function DashboardPageContent() {
                           <TableRow
                               key={stock.id}
                               className={cn(
-                                  getRowHighlightClass(stock),
                                   "cursor-pointer",
+                                  getRowHighlightClass(stock),
                                   selectedStockForOrderCard?.id === stock.id && "bg-primary/20"
                               )}
-                              onClick={() => handleSelectStockForOrder(stock, null)}
+                              onClick={() => {
+                                if (foundNewsSymbols?.has(stock.symbol)) {
+                                  handleShowNewsForStock(stock);
+                                } else {
+                                  handleSelectStockForOrder(stock);
+                                }
+                              }}
                           >
                             {displayedColumns.map((col) => (
                               <TableCell
@@ -811,7 +890,7 @@ function DashboardPageContent() {
                                   (col.key === 'symbol' || col.key === 'price') && "font-semibold"
                                 )}
                               >
-                                {col.format ? col.format(stock[col.key as keyof Stock], stock) : String(stock[col.key as keyof Stock] ?? 'N/A')}
+                                {col.format ? col.format(stock[col.key as keyof Stock], stock, { foundNewsSymbols }) : String(stock[col.key as keyof Stock] ?? 'N/A')}
                               </TableCell>
                             ))}
                           </TableRow>
@@ -819,7 +898,7 @@ function DashboardPageContent() {
                       ) : (
                         <TableRow>
                           <TableCell colSpan={displayedColumns.length} className="h-24 text-center">
-                            No stocks match the selected filter or rule.
+                            {isSearchingNews ? "Searching for news..." : "No stocks match the selected filters."}
                           </TableCell>
                         </TableRow>
                       )}
@@ -830,8 +909,6 @@ function DashboardPageContent() {
             </Card>
           </div>
 
-          {/* The right-hand column for Trade Panel, Open Positions, etc. is now removed from this view */}
-
         </div>
       </main>
       <ScreenerFilterModal 
@@ -839,6 +916,12 @@ function DashboardPageContent() {
         onClose={() => setIsFilterModalOpen(false)}
         activeFilters={activeFilters}
         onApplyFilters={setActiveFilters}
+      />
+      <NewsArticleModal
+        isOpen={isNewsModalOpen}
+        onClose={() => setIsNewsModalOpen(false)}
+        articles={newsModalContent?.articles || null}
+        title={newsModalContent?.title || "News"}
       />
     </>
   );

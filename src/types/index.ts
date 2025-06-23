@@ -1,4 +1,5 @@
 
+
 export type CatalystType = 'fire' | 'news';
 
 export interface Stock {
@@ -143,6 +144,9 @@ export interface NewsArticle {
   source: string;
   preview: string;
   link: string;
+  sentiment: 'Positive' | 'Negative' | 'Neutral';
+  content?: string; // Optional full HTML content for modal
+  paragraphs?: string[]; // Optional paragraphs for modal
 }
 
 export interface TradeHistoryEntry {
@@ -174,7 +178,7 @@ export interface ColumnConfig<T = Stock | TradeHistoryEntry> {
   isDraggable?: boolean;
   defaultWidth?: number;
   align?: 'left' | 'right' | 'center';
-  format?: (value: any, item: T) => string | React.ReactNode;
+  format?: (value: any, item: T, context?: any) => string | React.ReactNode;
   description?: string;
 }
 

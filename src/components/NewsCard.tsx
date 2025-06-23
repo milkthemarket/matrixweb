@@ -8,32 +8,24 @@ import { Badge } from "@/components/ui/badge";
 import { Rss } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow, parseISO } from 'date-fns';
-import type { NewsItem } from '@/types';
+import type { NewsArticle } from '@/types';
 import { NewsArticleModal } from './NewsArticleModal';
 
-interface NewsItem {
-  id: string;
-  symbol: string;
-  headline: string;
-  sentiment: 'Positive' | 'Negative' | 'Neutral';
-  timestamp: string; // ISO string format for date-fns
-}
-
-const dummyNewsData: NewsItem[] = [
-  { id: 'n1', symbol: 'TSLA', headline: 'Tesla shares surge after earnings beat', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 3).toISOString() },
-  { id: 'n2', symbol: 'AAPL', headline: 'Apple delays new product launch to Q4', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 17).toISOString() },
-  { id: 'n3', symbol: 'MSFT', headline: 'Microsoft announces major AI partnership', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 65).toISOString() },
-  { id: 'n4', symbol: 'NVDA', headline: 'Nvidia faces chip supply chain issues', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
-  { id: 'n5', symbol: 'AMZN', headline: 'Amazon maintains steady growth in Q2', sentiment: 'Neutral', timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
-  { id: 'n6', symbol: 'COIN', headline: 'Coinbase surges on crypto ETF approval rumors', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString() },
-  { id: 'n7', symbol: 'SPY', headline: 'Federal Reserve signals potential rate cuts later this year', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 240).toISOString() },
-  { id: 'n8', symbol: 'XOM', headline: 'Oil prices decline amid global demand concerns', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 55).toISOString() },
-  { id: 'n9', symbol: 'AAPL', headline: 'Apple Vision Pro demand exceeds expectations in early preorders.', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 90).toISOString() },
-  { id: 'n10', symbol: 'TSLA', headline: 'Tesla recalls Model 3 vehicles due to software glitch.', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 10).toISOString() },
-  { id: 'n11', symbol: 'TPL', headline: 'Insider Trading Scandal Unfolds at Texas Pacific Land Corporation', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 8).toISOString() },
-  { id: 'n12', symbol: 'TPL', headline: 'TPL launches AI-powered land appraisal tool, stock pops 3%', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 22).toISOString() },
-  { id: 'n13', symbol: 'TPL', headline: 'Texas drought deepens, but TPL monetizes water rights in record Q2 earnings', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString() },
-  { id: 'n14', symbol: 'TPL', headline: 'Short-seller targets TPL, calls land valuation model ‘voodoo math’', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString() },
+export const dummyNewsData: NewsArticle[] = [
+  { id: 'n1', symbol: 'TSLA', headline: 'Tesla shares surge after earnings beat', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 3).toISOString(), source: 'Reuters', preview: 'Tesla (TSLA) reported quarterly earnings that crushed analyst estimates, sending shares soaring in pre-market trading.', link: '#' },
+  { id: 'n2', symbol: 'AAPL', headline: 'Apple delays new product launch to Q4', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 17).toISOString(), source: 'Bloomberg', preview: 'Sources familiar with the matter say Apple (AAPL) is facing supply chain hurdles, pushing back the launch of its much-anticipated AR headset.', link: '#' },
+  { id: 'n3', symbol: 'MSFT', headline: 'Microsoft announces major AI partnership', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 65).toISOString(), source: 'MarketWatch', preview: 'Microsoft has entered into a strategic partnership with a leading AI research firm to accelerate the development of next-generation AI models.', link: '#' },
+  { id: 'n4', symbol: 'NVDA', headline: 'Nvidia faces chip supply chain issues', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(), source: 'WSJ', preview: 'Nvidia (NVDA) stock dipped after reports of ongoing supply chain constraints that could impact production of its popular GPUs.', link: '#' },
+  { id: 'n5', symbol: 'AMZN', headline: 'Amazon maintains steady growth in Q2', sentiment: 'Neutral', timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(), source: 'Associated Press', preview: 'Amazon (AMZN) reported Q2 results in line with expectations, showing steady but not spectacular growth in its retail and cloud segments.', link: '#' },
+  { id: 'n6', symbol: 'COIN', headline: 'Coinbase surges on crypto ETF approval rumors', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString(), source: 'CoinDesk', preview: 'Shares of Coinbase (COIN) are up significantly as speculation mounts that the SEC is close to approving a spot Bitcoin ETF.', link: '#' },
+  { id: 'n7', symbol: 'SPY', headline: 'Federal Reserve signals potential rate cuts later this year', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 240).toISOString(), source: 'FedWire', preview: 'In its latest meeting, the Federal Reserve hinted at the possibility of interest rate cuts before the end of the year, boosting market sentiment.', link: '#' },
+  { id: 'n8', symbol: 'XOM', headline: 'Oil prices decline amid global demand concerns', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 55).toISOString(), source: 'Reuters', preview: 'Crude oil futures fell as new economic data from China fueled concerns about slowing global demand for energy.', link: '#' },
+  { id: 'n9', symbol: 'AAPL', headline: 'Apple Vision Pro demand exceeds expectations in early preorders.', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 90).toISOString(), source: 'TechCrunch', preview: 'Initial preorder numbers for the Apple Vision Pro have surpassed even the most optimistic Wall Street estimates, indicating strong early demand.', link: '#' },
+  { id: 'n10', symbol: 'TSLA', headline: 'Tesla recalls Model 3 vehicles due to software glitch.', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 10).toISOString(), source: 'NHTSA', preview: 'The National Highway Traffic Safety Administration announced a recall for certain Tesla Model 3 vehicles to address a software issue.', link: '#' },
+  { id: 'n11', symbol: 'TPL', headline: 'Insider Trading Scandal Unfolds at Texas Pacific Land Corporation', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 8).toISOString(), source: 'SEC Filings', preview: 'The SEC has launched an investigation into unusual trading activity at Texas Pacific Land (TPL) preceding a major announcement.', link: '#' },
+  { id: 'n12', symbol: 'TPL', headline: 'TPL launches AI-powered land appraisal tool, stock pops 3%', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 22).toISOString(), source: 'Business Wire', preview: 'Texas Pacific Land (TPL) unveiled a new AI platform designed to revolutionize land appraisals, causing a jump in its stock price.', link: '#' },
+  { id: 'n13', symbol: 'TPL', headline: 'Texas drought deepens, but TPL monetizes water rights in record Q2 earnings', sentiment: 'Positive', timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString(), source: 'Texas Tribune', preview: 'In a surprising move, Texas Pacific Land Corporation reported record earnings from its water rights segment despite ongoing drought conditions.', link: '#' },
+  { id: 'n14', symbol: 'TPL', headline: 'Short-seller targets TPL, calls land valuation model "voodoo math"', sentiment: 'Negative', timestamp: new Date(Date.now() - 1000 * 60 * 120).toISOString(), source: 'Hindenburg Research', preview: 'A new report from a prominent short-seller alleges that Texas Pacific Land (TPL) uses questionable valuation models for its assets.', link: '#' },
 ];
 
 const dummyArticlesContent: Record<string, { title: string; paragraphs?: string[]; content?: string; }> = {
@@ -69,11 +61,8 @@ export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: Ne
   const [clientTimestamps, setClientTimestamps] = useState<Record<string, string>>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<{
+    articles: NewsArticle[];
     title: string;
-    paragraphs?: string[];
-    content?: string;
-    sentiment: NewsItem['sentiment'];
-    timestamp: string;
   } | null>(null);
 
   const filteredNews = React.useMemo(() => {
@@ -97,15 +86,17 @@ export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: Ne
     setClientTimestamps(newTimestamps);
   }, [filteredNews]);
 
-  const handleNewsItemClick = (item: NewsItem) => {
+  const handleNewsItemClick = (item: NewsArticle) => {
     const articleContent = dummyArticlesContent[item.id];
     if (articleContent) {
+      const fullArticle: NewsArticle = {
+        ...item,
+        headline: articleContent.title,
+        ...articleContent,
+      };
       setSelectedArticle({
-        title: articleContent.title,
-        paragraphs: articleContent.paragraphs,
-        content: articleContent.content,
-        sentiment: item.sentiment,
-        timestamp: clientTimestamps[item.id] || new Date(item.timestamp).toLocaleString()
+        articles: [fullArticle],
+        title: item.headline
       });
       setIsModalOpen(true);
     } else {
@@ -113,7 +104,7 @@ export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: Ne
     }
   };
 
-  const getSentimentBadgeClass = (sentiment: NewsItem['sentiment']) => {
+  const getSentimentBadgeClass = (sentiment: NewsArticle['sentiment']) => {
     switch (sentiment) {
       case 'Positive': return 'bg-green-500/20 text-green-400 border-green-500/30';
       case 'Negative': return 'bg-red-500/20 text-red-400 border-red-500/30';
@@ -164,7 +155,8 @@ export function NewsCard({ className, selectedTickerSymbol, onTickerSelect }: Ne
        <NewsArticleModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        article={selectedArticle}
+        articles={selectedArticle?.articles || null}
+        title={selectedArticle?.title || ''}
       />
     </>
   );
