@@ -747,16 +747,16 @@ function DashboardPageContent() {
               </CardHeader>
               <CardContent className="flex-1 flex flex-col overflow-hidden space-y-4">
                 <div className="flex items-center gap-4 flex-wrap border-b border-border/10 pb-4">
-                    <form onSubmit={handleNewsSearch} className="flex items-center gap-2 flex-1 min-w-[250px]">
+                    <form onSubmit={handleNewsSearch} className="flex items-center gap-2">
                         <Label htmlFor="newsSearch" className="text-sm font-medium flex items-center shrink-0">
                           <Newspaper className="mr-2 h-4 w-4 text-primary" /> News Search:
                         </Label>
                         <Input
                             id="newsSearch"
-                            placeholder="e.g., earnings, AI, FDA"
+                            placeholder="e.g., FDA Approval"
                             value={newsSearchKeyword}
                             onChange={(e) => setNewsSearchKeyword(e.target.value)}
-                            className="h-9"
+                            className="h-9 w-72"
                         />
                         <Button type="submit" size="sm" disabled={isSearchingNews}>
                             {isSearchingNews ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
