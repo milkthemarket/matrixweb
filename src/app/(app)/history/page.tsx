@@ -368,25 +368,23 @@ export default function HistoryPage() {
             </CardHeader>
             <CardContent>
               <ScrollArea className="max-w-full">
-                <Table className="min-w-[600px]"> {/* Reduced min-w */}
-                  <TableHeader>
+                <Table className="min-w-[600px]"><TableHeader>
                     <TableRow>
-                      <TableHead className="w-[150px]">Metric</TableHead> {/* Reduced width */}
-                      <TableHead className="text-center w-[120px]"> {/* Reduced width */}
-                        <div className="flex items-center justify-center"><User className="mr-1 h-3.5 w-3.5" /> Manual</div> {/* Reduced icon size */}
+                      <TableHead className="w-[150px]">Metric</TableHead>
+                      <TableHead className="text-center w-[120px]">
+                        <div className="flex items-center justify-center"><User className="mr-1 h-3.5 w-3.5" /> Manual</div>
                       </TableHead>
-                      <TableHead className="text-center w-[120px]"> {/* Reduced width */}
-                        <div className="flex items-center justify-center"><MiloAvatarIcon size={14} className="mr-1" /> AI Assist</div> {/* Reduced icon size */}
+                      <TableHead className="text-center w-[120px]">
+                        <div className="flex items-center justify-center"><MiloAvatarIcon size={14} className="mr-1" /> AI Assist</div>
                       </TableHead>
-                      <TableHead className="text-center w-[120px]"> {/* Reduced width */}
-                        <div className="flex items-center justify-center"><Cpu className="mr-1 h-3.5 w-3.5" /> Autopilot</div> {/* Reduced icon size */}
+                      <TableHead className="text-center w-[120px]">
+                        <div className="flex items-center justify-center"><Cpu className="mr-1 h-3.5 w-3.5" /> Autopilot</div>
                       </TableHead>
-                       <TableHead className="text-center w-[120px] font-semibold"> {/* Reduced width */}
-                        <div className="flex items-center justify-center"><Layers className="mr-1 h-3.5 w-3.5" /> Overall</div> {/* Reduced icon size */}
+                       <TableHead className="text-center w-[120px] font-semibold">
+                        <div className="flex items-center justify-center"><Layers className="mr-1 h-3.5 w-3.5" /> Overall</div>
                       </TableHead>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                  </TableHeader><TableBody>
                     {comparisonTableMetrics.map(metric => (
                       <TableRow key={metric.key}>
                         <TableCell className="font-medium text-muted-foreground">{metric.label}</TableCell>
@@ -411,8 +409,7 @@ export default function HistoryPage() {
                         })()}
                       </TableRow>
                     ))}
-                  </TableBody>
-                </Table>
+                  </TableBody></Table>
               </ScrollArea>
             </CardContent>
           </Card>
@@ -437,8 +434,7 @@ export default function HistoryPage() {
           <CardContent className="flex-1 overflow-hidden">
             {displayedTradeHistory.length > 0 ? (
               <ScrollArea className="h-[calc(100%-0rem)]"> 
-                <Table>
-                  <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
+                <Table><TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                     <TableRow>
                       <TableHead>Symbol</TableHead>
                       <TableHead>Side</TableHead>
@@ -454,8 +450,7 @@ export default function HistoryPage() {
                       <TableHead>Filled Time</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                  </TableHeader><TableBody>
                     {displayedTradeHistory.map((trade) => (
                       <TableRow key={trade.id} className="hover:bg-white/5 transition-colors duration-200">
                         <TableCell className="font-medium text-foreground">{trade.symbol}</TableCell>
@@ -487,8 +482,7 @@ export default function HistoryPage() {
                         </TableCell>
                       </TableRow>
                     ))}
-                  </TableBody>
-                </Table>
+                  </TableBody></Table>
               </ScrollArea>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
