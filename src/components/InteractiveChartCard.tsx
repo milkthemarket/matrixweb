@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -113,11 +112,15 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
 
       try {
         const params = getTimeframeParams(timeframe);
-        const data = await getChartData({
-          symbol: stock.symbol,
-          timeframe: params.timeframe,
-          start: params.start,
-        });
+        // Temporarily disabled to allow server to start.
+        // const data = await getChartData({
+        //   symbol: stock.symbol,
+        //   timeframe: params.timeframe,
+        //   start: params.start,
+        // });
+
+        // Using mock data for now
+        const data: any[] = []; 
 
         if (data && data.length > 0) {
           const formattedData = data.map(bar => ({
@@ -141,8 +144,10 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
         setIsLoading(false);
       }
     };
-
-    fetchAndSetChartData();
+    
+    // Temporarily disabled to allow server to start.
+    // fetchAndSetChartData();
+    setError("Chart data is temporarily unavailable while we resolve a connection issue.");
   }, [stock, timeframe]);
 
 
