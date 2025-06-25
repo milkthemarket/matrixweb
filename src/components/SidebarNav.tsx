@@ -25,8 +25,7 @@ const navItems = [
   { href: "/history", label: "Trade History", icon: History },
   { href: "/academy", label: "Milk Academy", icon: GraduationCap },
   { href: "/suggestions", label: "Suggestions", icon: Lightbulb },
-  { href: "/spilled-milk", label: "Spilled Milk", icon: ArchiveX },
-  { href: "/settings", label: "Settings", icon: SettingsIcon }, 
+  { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 // Phosphor cow icon (https://phosphoricons.com/) - open source
