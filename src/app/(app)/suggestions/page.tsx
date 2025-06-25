@@ -225,7 +225,7 @@ export default function SuggestionsPage() {
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-xs">Category (Optional)</FormLabel> {/* Reduced text size */}
-                          <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
+                          <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
                             <FormControl>
                               <SelectTrigger className="h-8 text-xs"> {/* Reduced height */}
                                 <SelectValue placeholder="Select a category" />
