@@ -299,7 +299,7 @@ export default function SuggestionsPage() {
                       <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
                     ))
                   ) : (
-                    <p className="text-muted-foreground text-xs text-center py-1">No new suggestions right now. Be the first!</p> {/* Reduced text-sm, py-4 */}
+                    <p className="text-muted-foreground text-xs text-center py-1">No new suggestions right now. Be the first!</p>
                   )}
                 </CardContent>
               </Card>
