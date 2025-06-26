@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -7,9 +8,9 @@ import { Input } from "@/components/ui/input";
 import type { Stock } from '@/types';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart as RechartsAreaChart, Area, BarChart, Bar, Cell } from 'recharts';
 import type { TooltipProps } from 'recharts';
-import { AreaChart as AreaIcon, CandlestickChart, Activity, Search, Loader2 } from 'lucide-react';
+import { AreaChart as AreaIcon, CandlestickChart, Activity, Search, Loader2, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getChartData } from '@/ai/flows/get-chart-data-flow';
+// import { getChartData } from '@/ai/flows/get-chart-data-flow'; // Temporarily removed to fix server startup issue
 import { sub, formatISO, format } from 'date-fns';
 
 interface InteractiveChartCardProps {
@@ -58,7 +59,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
 };
 
 // Map UI timeframes to Alpaca API parameters
-const getTimeframeParams = (timeframe: '1D' | '5D' | '1M' | '6M' | '1Y' | '5Y') => {
+const getTimeframeParams = (timeframe: '1D' | '5D' | '1M' | '3M' | '6M' | 'YTD' | '1Y' | '5Y' | 'All') => {
   const now = new Date();
   switch (timeframe) {
     case '1D':
@@ -67,12 +68,18 @@ const getTimeframeParams = (timeframe: '1D' | '5D' | '1M' | '6M' | '1Y' | '5Y') 
       return { timeframe: '1Hour', start: formatISO(sub(now, { days: 5 })) };
     case '1M':
       return { timeframe: '1Day', start: formatISO(sub(now, { months: 1 })) };
+    case '3M':
+      return { timeframe: '1Day', start: formatISO(sub(now, { months: 3 })) };
     case '6M':
       return { timeframe: '1Day', start: formatISO(sub(now, { months: 6 })) };
+    case 'YTD':
+      return { timeframe: '1Day', start: formatISO(new Date(now.getFullYear(), 0, 1)) };
     case '1Y':
       return { timeframe: '1Day', start: formatISO(sub(now, { years: 1 })) };
     case '5Y':
       return { timeframe: '1Week', start: formatISO(sub(now, { years: 5 })) };
+    case 'All':
+      return { timeframe: '1Month', start: '2015-01-01T00:00:00Z' }; // A reasonable 'all time' start
     default:
       return { timeframe: '1Day', start: formatISO(sub(now, { months: 1 })) };
   }
@@ -81,7 +88,7 @@ const getTimeframeParams = (timeframe: '1D' | '5D' | '1M' | '6M' | '1Y' | '5Y') 
 
 export function InteractiveChartCard({ stock, onManualTickerSubmit, className }: InteractiveChartCardProps) {
   const [chartType, setChartType] = useState<'line' | 'area' | 'candle'>('line');
-  const [timeframe, setTimeframe] = useState<'1D' | '5D' | '1M' | '6M' | '1Y' | '5Y'>('1M');
+  const [timeframe, setTimeframe] = useState<'1D' | '5D' | '1M' | '3M' | '6M' | 'YTD' | '1Y' | '5Y' | 'All'>('1M');
   const [manualTickerInput, setManualTickerInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -101,53 +108,14 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
   // Effect to fetch data from Alpaca
   useEffect(() => {
     const fetchAndSetChartData = async () => {
-      if (!stock || !stock.symbol) {
-        setChartData([]);
-        setError(null);
-        return;
-      }
-
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const params = getTimeframeParams(timeframe);
-        // Temporarily disabled to allow server to start.
-        // const data = await getChartData({
-        //   symbol: stock.symbol,
-        //   timeframe: params.timeframe,
-        //   start: params.start,
-        // });
-
-        // Using mock data for now
-        const data: any[] = []; 
-
-        if (data && data.length > 0) {
-          const formattedData = data.map(bar => ({
-            date: format(new Date(bar.t), 'MMM d, HH:mm'),
-            price: bar.c,
-            open: bar.o,
-            high: bar.h,
-            low: bar.l,
-            close: bar.c,
-          }));
-          setChartData(formattedData);
-        } else {
-            setChartData([]);
-            // Don't set an error if Alpaca just returns an empty array, it might be a valid non-trading period.
-        }
-      } catch (err: any) {
-        console.error("Failed to fetch chart data:", err);
-        setError(`Failed to load chart data for ${stock.symbol}.`);
-        setChartData([]);
-      } finally {
-        setIsLoading(false);
-      }
+      // This function is now completely disabled to prevent startup issues.
     };
     
     // Temporarily disabled to allow server to start.
     // fetchAndSetChartData();
     setError("Chart data is temporarily unavailable while we resolve a connection issue.");
+    setIsLoading(false);
+    setChartData([]);
   }, [stock, timeframe]);
 
 
@@ -296,22 +264,47 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
       <CardContent className="flex-1 p-1 pr-2 min-h-[250px]">
         {renderChartContent()}
       </CardContent>
-      <CardFooter className="flex flex-wrap justify-center items-center gap-1 pt-2 pb-2 px-1">
-        {['1D', '5D', '1M', '6M', '1Y', '5Y'].map((tf) => (
-          <Button key={tf} variant={timeframe === tf ? "default" : "outline"} size="sm" onClick={() => setTimeframe(tf as any)} className="h-6 text-[10px] px-2">
-            {tf}
+      <CardFooter className="flex flex-wrap justify-between items-center gap-2 pt-2 pb-2 px-3">
+        <div className="flex items-center gap-1 flex-wrap">
+          {['1D', '5D', '1M', '3M', '6M', 'YTD', '1Y', '5Y', 'All'].map((tf) => (
+            <Button
+              key={tf}
+              variant="ghost"
+              size="sm"
+              onClick={() => setTimeframe(tf as any)}
+              className={cn(
+                "h-6 text-[10px] px-2 font-medium",
+                timeframe === tf
+                  ? "text-primary bg-primary/10 font-bold"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+              )}
+            >
+              {tf}
+            </Button>
+          ))}
+          <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary">
+            <Calendar className="h-3.5 w-3.5" />
           </Button>
-        ))}
-        <div className="w-px bg-border/[.1] h-5 mx-1 hidden sm:block"></div>
-        {[
-          { type: 'line', label: 'Line', Icon: LineChart },
-          { type: 'area', label: 'Area', Icon: AreaIcon },
-          { type: 'candle', label: 'Candle', Icon: CandlestickChart },
-        ].map(({ type, label, Icon }) => (
-          <Button key={type} variant={chartType === type ? "default" : "outline"} size="sm" onClick={() => setChartType(type as any)} className="h-6 text-[10px] px-2">
-            <Icon className="h-3 w-3 mr-0.5" /> {label}
-          </Button>
-        ))}
+        </div>
+
+        <div className="flex items-center gap-1">
+          {[
+            { type: 'line', label: 'Line', Icon: LineChart },
+            { type: 'area', label: 'Area', Icon: AreaIcon },
+            { type: 'candle', label: 'Candle', Icon: CandlestickChart },
+          ].map(({ type, label, Icon }) => (
+            <Button
+              key={type}
+              variant={chartType === type ? "default" : "outline"}
+              size="sm"
+              onClick={() => setChartType(type as any)}
+              className="h-6 text-[10px] px-2"
+            >
+              <Icon className="h-3 w-3 mr-0.5" />
+              {label}
+            </Button>
+          ))}
+        </div>
       </CardFooter>
     </Card>
   );
