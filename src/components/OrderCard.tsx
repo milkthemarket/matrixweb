@@ -484,35 +484,6 @@ export function OrderCard({
               )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setTradeMode('manual')}
-              className={cn(
-                "border rounded-md h-[38px] px-4 flex items-center justify-center gap-2 transition-all text-sm",
-                tradeMode === 'manual' 
-                  ? 'border-primary text-primary bg-background shadow-[0_0_8px_hsl(var(--primary)/0.4)]'
-                  : 'border-input text-muted-foreground bg-transparent hover:border-foreground/30'
-              )}
-            >
-              <User className="w-4 h-4" />
-              Manual
-            </button>
-            <button
-              type="button"
-              onClick={() => setTradeMode('autopilot')}
-              className={cn(
-                "border rounded-md h-[38px] px-4 flex items-center justify-center gap-2 transition-all text-sm",
-                tradeMode === 'autopilot' 
-                  ? 'border-primary text-primary bg-background shadow-[0_0_8px_hsl(var(--primary)/0.4)]'
-                  : 'border-input text-muted-foreground bg-transparent hover:border-foreground/30'
-              )}
-            >
-              <Cog className="w-4 h-4" />
-              Autopilot
-            </button>
-          </div>
-
           {tradeMode === 'manual' && (
             <>
               {displayedMiloContext && (
@@ -840,3 +811,5 @@ export function OrderCard({
     </>
   );
 }
+
+    
