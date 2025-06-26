@@ -12,6 +12,9 @@ import { AreaChart as AreaIcon, CandlestickChart, Activity, Search, Loader2, Cal
 import { cn } from '@/lib/utils';
 // import { getChartData } from '@/ai/flows/get-chart-data-flow'; // Temporarily removed to fix server startup issue
 import { sub, formatISO, format } from 'date-fns';
+import { ChartDatePickerModal } from './ChartDatePickerModal';
+import type { DateRange } from 'react-day-picker';
+
 
 interface InteractiveChartCardProps {
   stock: Stock | null;
@@ -95,6 +98,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
   const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
 
   useEffect(() => {
@@ -118,6 +122,10 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
     setChartData([]);
   }, [stock, timeframe]);
 
+  const handleDateGo = (date: Date | DateRange) => {
+    console.log("Selected date/range:", date);
+    // Future logic to refetch chart data will go here.
+  };
 
   const dynamicStrokeColor = stock && stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))";
   const neonPurpleColor = "hsl(var(--primary))";
@@ -282,7 +290,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
               {tf}
             </Button>
           ))}
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary">
+          <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={() => setIsDatePickerOpen(true)}>
             <Calendar className="h-3.5 w-3.5" />
           </Button>
         </div>
@@ -306,6 +314,11 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
           ))}
         </div>
       </CardFooter>
+      <ChartDatePickerModal 
+        isOpen={isDatePickerOpen}
+        onClose={() => setIsDatePickerOpen(false)}
+        onGo={handleDateGo}
+      />
     </Card>
   );
 }
