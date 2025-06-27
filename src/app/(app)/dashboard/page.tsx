@@ -919,9 +919,11 @@ function DashboardPageContent() {
                             </div>
                             <div
                                 onMouseDown={(e) => handleResizeMouseDown(e, col.key as string)}
-                                className="absolute top-0 right-0 h-full w-2 cursor-col-resize opacity-0 group-hover:opacity-100 hover:bg-primary/50 active:bg-primary z-20 transition-all duration-75"
+                                className="absolute top-0 right-0 h-full w-2 cursor-col-resize z-20 flex justify-center items-center group"
                                 title={`Resize ${col.label} column`}
-                              />
+                            >
+                                <div className="h-1/2 w-0.5 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                            </div>
                           </TableHead>
                         ))}
                       </TableRow>
@@ -998,4 +1000,5 @@ export default function DashboardPage() {
     </Suspense>
   );
 }
+
 
