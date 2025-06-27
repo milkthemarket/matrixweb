@@ -296,9 +296,9 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
               <Calendar className="h-3.5 w-3.5" />
             </Button>
           </div>
+        </div>
 
-          <div className="w-px bg-border/20 h-5 self-center"></div>
-
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="flex items-center gap-1 flex-wrap">
             {['1m', '5m', '30m', '1h', 'D', 'W', 'M'].map((iv) => (
               <Button
@@ -317,25 +317,32 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
               </Button>
             ))}
           </div>
-        </div>
+          
+          <div className="w-px bg-border/20 h-5 self-center"></div>
 
-        <div className="flex items-center gap-1">
-          {[
-            { type: 'line', label: 'Line', Icon: LineChart },
-            { type: 'area', label: 'Area', Icon: AreaIcon },
-            { type: 'candle', label: 'Candle', Icon: CandlestickChart },
-          ].map(({ type, label, Icon }) => (
-            <Button
-              key={type}
-              variant={chartType === type ? "default" : "outline"}
-              size="sm"
-              onClick={() => setChartType(type as any)}
-              className="h-6 text-[10px] px-2"
-            >
-              <Icon className="h-3 w-3 mr-0.5" />
-              {label}
-            </Button>
-          ))}
+          <div className="flex items-center gap-1">
+            {[
+              { type: 'line', label: 'Line', Icon: LineChart },
+              { type: 'area', label: 'Area', Icon: AreaIcon },
+              { type: 'candle', label: 'Candle', Icon: CandlestickChart },
+            ].map(({ type, label, Icon }) => (
+              <Button
+                key={type}
+                variant="ghost"
+                size="sm"
+                onClick={() => setChartType(type as any)}
+                className={cn(
+                  "h-6 text-[10px] px-2 font-medium",
+                  chartType === type
+                    ? "text-primary bg-primary/10 font-bold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                )}
+              >
+                <Icon className="h-3 w-3 mr-0.5" />
+                {label}
+              </Button>
+            ))}
+          </div>
         </div>
       </CardFooter>
       <ChartDatePickerModal 
