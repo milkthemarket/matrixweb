@@ -92,6 +92,7 @@ const getTimeframeParams = (timeframe: '1D' | '5D' | '1M' | '3M' | '6M' | 'YTD' 
 export function InteractiveChartCard({ stock, onManualTickerSubmit, className }: InteractiveChartCardProps) {
   const [chartType, setChartType] = useState<'line' | 'area' | 'candle'>('line');
   const [timeframe, setTimeframe] = useState<'1D' | '5D' | '1M' | '3M' | '6M' | 'YTD' | '1Y' | '5Y' | 'All'>('1M');
+  const [interval, setInterval] = useState<'1m' | '5m' | '30m' | '1h' | 'D' | 'W' | 'M'>('D');
   const [manualTickerInput, setManualTickerInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -273,26 +274,49 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
         {renderChartContent()}
       </CardContent>
       <CardFooter className="flex flex-wrap justify-between items-center gap-2 pt-2 pb-2 px-3">
-        <div className="flex items-center gap-1 flex-wrap">
-          {['1D', '5D', '1M', '3M', '6M', 'YTD', '1Y', '5Y', 'All'].map((tf) => (
-            <Button
-              key={tf}
-              variant="ghost"
-              size="sm"
-              onClick={() => setTimeframe(tf as any)}
-              className={cn(
-                "h-6 text-[10px] px-2 font-medium",
-                timeframe === tf
-                  ? "text-primary bg-primary/10 font-bold"
-                  : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-              )}
-            >
-              {tf}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1 flex-wrap">
+            {['1D', '5D', '1M', '3M', '6M', 'YTD', '1Y', '5Y', 'All'].map((tf) => (
+              <Button
+                key={tf}
+                variant="ghost"
+                size="sm"
+                onClick={() => setTimeframe(tf as any)}
+                className={cn(
+                  "h-6 text-[10px] px-2 font-medium",
+                  timeframe === tf
+                    ? "text-primary bg-primary/10 font-bold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                )}
+              >
+                {tf}
+              </Button>
+            ))}
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={() => setIsDatePickerOpen(true)}>
+              <Calendar className="h-3.5 w-3.5" />
             </Button>
-          ))}
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={() => setIsDatePickerOpen(true)}>
-            <Calendar className="h-3.5 w-3.5" />
-          </Button>
+          </div>
+
+          <div className="w-px bg-border/20 h-5 self-center"></div>
+
+          <div className="flex items-center gap-1 flex-wrap">
+            {['1m', '5m', '30m', '1h', 'D', 'W', 'M'].map((iv) => (
+              <Button
+                key={iv}
+                variant="ghost"
+                size="sm"
+                onClick={() => setInterval(iv as any)}
+                className={cn(
+                  "h-6 text-[10px] px-2 font-medium",
+                  interval === iv
+                    ? "text-primary bg-primary/10 font-bold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                )}
+              >
+                {iv}
+              </Button>
+            ))}
+          </div>
         </div>
 
         <div className="flex items-center gap-1">
