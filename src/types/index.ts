@@ -13,6 +13,7 @@ export interface Stock {
   newsSnippet?: string;
   lastUpdated: string;
   catalystType?: CatalystType;
+  sentiment?: 'Positive' | 'Negative' | 'Neutral';
   historicalPrices?: number[];
 
   marketCap?: number;
