@@ -702,7 +702,6 @@ function DashboardPageContent() {
 
   const handleResizeMouseDown = (e: React.MouseEvent<HTMLDivElement>, columnKey: string) => {
     e.preventDefault();
-    e.stopPropagation();
     setResizingColumnKey(columnKey);
     setResizeStartX(e.clientX);
     const currentWidth = columnWidths[columnKey] || initialColumnConfiguration.find(c => c.key === columnKey)?.defaultWidth || 120;
@@ -920,7 +919,7 @@ function DashboardPageContent() {
                             </div>
                             <div
                                 onMouseDown={(e) => handleResizeMouseDown(e, col.key as string)}
-                                className="absolute top-0 right-0 h-full w-1 cursor-col-resize opacity-0 group-hover:opacity-100 hover:bg-primary/30 z-20 transition-opacity"
+                                className="absolute top-0 right-0 h-full w-2 cursor-col-resize opacity-0 group-hover:opacity-100 hover:bg-primary/50 active:bg-primary z-20 transition-all duration-75"
                                 title={`Resize ${col.label} column`}
                               />
                           </TableHead>
@@ -999,3 +998,4 @@ export default function DashboardPage() {
     </Suspense>
   );
 }
+
