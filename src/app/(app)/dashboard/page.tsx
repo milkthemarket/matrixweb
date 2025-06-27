@@ -153,7 +153,33 @@ const initialColumnConfiguration: ColumnConfig<Stock>[] = [
   { key: 'premarketChange', label: 'Pre-Mkt %', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 100, format: formatPercentage, description: "Pre-Market Change Percentage" },
   { key: 'peRatio', label: 'P/E Ratio', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 80, format: (val) => val ? val.toFixed(1) : 'N/A', description: "Price-to-Earnings Ratio" },
   { key: 'dividendYield', label: 'Div Yield', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 90, format: (val) => val ? `${val.toFixed(2)}%` : 'N/A', description: "Dividend Yield Percentage" },
-  { key: 'sector', label: 'Sector', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'left', defaultWidth: 150, description: "Industry Sector" },
+  { 
+    key: 'sector', 
+    label: 'Sector', 
+    defaultVisible: false, 
+    isToggleable: true, 
+    isDraggable: true, 
+    align: 'left', 
+    defaultWidth: 150, 
+    description: "Industry Sector",
+    format: (sectorValue: string | undefined) => {
+      const sector = sectorValue || 'N/A';
+      return (
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="truncate w-full">
+                {sector}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{sector}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+  },
   { key: 'earningsDate', label: 'Earnings', defaultVisible: false, isToggleable: true, isDraggable: true, align: 'left', defaultWidth: 120, format: (val) => val ? format(new Date(val), 'MMM dd, yyyy') : 'N/A', description: "Next Earnings Date" },
 ];
 
