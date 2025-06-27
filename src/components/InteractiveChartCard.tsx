@@ -273,77 +273,72 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
       <CardContent className="flex-1 p-1 pr-2 min-h-[250px]">
         {renderChartContent()}
       </CardContent>
-      <CardFooter className="flex flex-wrap justify-between items-center gap-2 pt-2 pb-2 px-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1 flex-wrap">
-            {['1D', '5D', '1M', '3M', '6M', 'YTD', '1Y', '5Y', 'All'].map((tf) => (
-              <Button
-                key={tf}
-                variant="ghost"
-                size="sm"
-                onClick={() => setTimeframe(tf as any)}
-                className={cn(
-                  "h-6 text-[10px] px-2 font-medium",
-                  timeframe === tf
-                    ? "text-primary bg-primary/10 font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                )}
-              >
-                {tf}
-              </Button>
-            ))}
-            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={() => setIsDatePickerOpen(true)}>
-              <Calendar className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        </div>
+      <CardFooter className="flex flex-wrap justify-start items-center gap-x-1 gap-y-2 pt-2 pb-2 px-3">
+        {/* Timeframes */}
+        {['1D', '5D', '1M', '3M', '6M', 'YTD', '1Y', '5Y', 'All'].map((tf) => (
+          <Button
+            key={tf}
+            variant="ghost"
+            size="sm"
+            onClick={() => setTimeframe(tf as any)}
+            className={cn(
+              "h-6 text-[10px] px-2 font-medium",
+              timeframe === tf
+                ? "text-primary bg-primary/10 font-bold"
+                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+            )}
+          >
+            {tf}
+          </Button>
+        ))}
+        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={() => setIsDatePickerOpen(true)}>
+          <Calendar className="h-3.5 w-3.5" />
+        </Button>
+        
+        <div className="w-px bg-border/20 h-5 self-center mx-1"></div>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1 flex-wrap">
-            {['1m', '5m', '30m', '1h', 'D', 'W', 'M'].map((iv) => (
-              <Button
-                key={iv}
-                variant="ghost"
-                size="sm"
-                onClick={() => setInterval(iv as any)}
-                className={cn(
-                  "h-6 text-[10px] px-2 font-medium",
-                  interval === iv
-                    ? "text-primary bg-primary/10 font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                )}
-              >
-                {iv}
-              </Button>
-            ))}
-          </div>
-          
-          <div className="w-px bg-border/20 h-5 self-center"></div>
+        {/* Intervals */}
+        {['1m', '5m', '30m', '1h', 'D', 'W', 'M'].map((iv) => (
+          <Button
+            key={iv}
+            variant="ghost"
+            size="sm"
+            onClick={() => setInterval(iv as any)}
+            className={cn(
+              "h-6 text-[10px] px-2 font-medium",
+              interval === iv
+                ? "text-primary bg-primary/10 font-bold"
+                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+            )}
+          >
+            {iv}
+          </Button>
+        ))}
 
-          <div className="flex items-center gap-1">
-            {[
-              { type: 'line', label: 'Line', Icon: LineChart },
-              { type: 'area', label: 'Area', Icon: AreaIcon },
-              { type: 'candle', label: 'Candle', Icon: CandlestickChart },
-            ].map(({ type, label, Icon }) => (
-              <Button
-                key={type}
-                variant="ghost"
-                size="sm"
-                onClick={() => setChartType(type as any)}
-                className={cn(
-                  "h-6 text-[10px] px-2 font-medium",
-                  chartType === type
-                    ? "text-primary bg-primary/10 font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                )}
-              >
-                <Icon className="h-3 w-3 mr-0.5" />
-                {label}
-              </Button>
-            ))}
-          </div>
-        </div>
+        <div className="w-px bg-border/20 h-5 self-center mx-1"></div>
+
+        {/* Chart Types */}
+        {[
+          { type: 'line', label: 'Line', Icon: LineChart },
+          { type: 'area', label: 'Area', Icon: AreaIcon },
+          { type: 'candle', label: 'Candle', Icon: CandlestickChart },
+        ].map(({ type, label, Icon }) => (
+          <Button
+            key={type}
+            variant="ghost"
+            size="sm"
+            onClick={() => setChartType(type as any)}
+            className={cn(
+              "h-6 text-[10px] px-2 font-medium",
+              chartType === type
+                ? "text-primary bg-primary/10 font-bold"
+                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+            )}
+          >
+            <Icon className="h-3 w-3 mr-0.5" />
+            {label}
+          </Button>
+        ))}
       </CardFooter>
       <ChartDatePickerModal 
         isOpen={isDatePickerOpen}
