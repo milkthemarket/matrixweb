@@ -701,21 +701,21 @@ const SidebarMenuSub = React.forwardRef<
   HTMLUListElement,
   React.ComponentProps<"ul">
 >(({ className, ...props }, ref) => {
-    const { state, isMobile } = useSidebar();
-    if (!isMobile && state === 'collapsed') return null; 
+  const { state } = useSidebar();
 
   return (
     <ul
       ref={ref}
       data-sidebar="menu-sub"
       className={cn(
-        "ml-4 flex min-w-0 flex-col gap-0.5 pl-2 pr-1 py-px",
+        "flex min-w-0 flex-col gap-0.5",
+        state === "expanded" ? "ml-4 py-px pl-2 pr-1" : "items-center",
         className
       )}
       {...props}
     />
-  )
-})
+  );
+});
 SidebarMenuSub.displayName = "SidebarMenuSub"
 
 const SidebarMenuSubItem = React.forwardRef<
@@ -729,25 +729,46 @@ const SidebarMenuSubButton = React.forwardRef<
   React.ComponentProps<"a"> & {
     asChild?: boolean
     isActive?: boolean
+    tooltip?: string | React.ComponentProps<typeof TooltipContent>
   }
->(({ asChild = false, isActive, className, ...props }, ref) => {
+>(({ asChild = false, isActive, tooltip, className, ...props }, ref) => {
   const Comp = asChild ? Slot : "a"
-  const { state, isMobile } = useSidebar();
-  if (!isMobile && state === 'collapsed') return null; 
+  const { state, hasMounted } = useSidebar();
 
-  return (
+  const button = (
     <Comp
       ref={ref}
       data-sidebar="menu-sub-button"
       data-active={isActive}
       className={cn(
-        "flex h-8 min-w-0 items-center gap-2 overflow-hidden rounded-sm px-2 text-sm text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 active:bg-sidebar-accent/[.05] active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+        "flex h-10 min-w-0 items-center gap-2.5 overflow-hidden rounded-md px-3 text-sm text-sidebar-foreground outline-none ring-sidebar-ring transition-all hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 active:bg-sidebar-accent/[.05] active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
         "data-[active=true]:bg-sidebar-accent/[.05] data-[active=true]:text-sidebar-foreground data-[active=true]:[&>svg]:text-primary",
+        state === "collapsed" && "size-10 justify-center p-3",
         className
       )}
       {...props}
     />
-  )
+  );
+
+  if (!tooltip || !hasMounted) {
+    return button;
+  }
+
+  if (typeof tooltip === "string") {
+    tooltip = { children: tooltip };
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipContent
+        side="right"
+        align="center"
+        hidden={state === "expanded"}
+        {...tooltip}
+      />
+    </Tooltip>
+  );
 })
 SidebarMenuSubButton.displayName = "SidebarMenuSubButton"
 

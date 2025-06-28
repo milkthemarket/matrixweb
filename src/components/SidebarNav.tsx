@@ -68,9 +68,7 @@ export function SidebarNav() {
   const { state, toggleSidebar, isMobile } = useSidebar();
   const [isTradingOpen, setIsTradingOpen] = React.useState(true);
 
-  const isTradingGroupActive = navItems.some(item => pathname.startsWith(item.href));
-
-  // The button that acts as the collapsible header
+  // The button that acts as the collapsible header, only shown when expanded
   const tradingGroupButton = (
     <SidebarMenuButton
       onClick={() => {
@@ -78,17 +76,13 @@ export function SidebarNav() {
           setIsTradingOpen(!isTradingOpen);
         }
       }}
-      isActive={isTradingGroupActive}
       className="justify-between w-full"
-      tooltip={{ children: "Trading", hidden: state === 'expanded' }}
     >
       <div className="flex items-center gap-2">
         <Activity className="h-5 w-5" />
-        {state === 'expanded' && <span className="text-base font-semibold tracking-wide">Trading</span>}
+        <span className="text-base font-semibold tracking-wide">Trading</span>
       </div>
-      {state === 'expanded' && (
-        <ChevronDown className={cn("h-4 w-4 transition-transform", isTradingOpen && "rotate-180")} />
-      )}
+      <ChevronDown className={cn("h-4 w-4 transition-transform", isTradingOpen && "rotate-180")} />
     </SidebarMenuButton>
   );
 
@@ -121,31 +115,27 @@ export function SidebarNav() {
       <SidebarContent>
         <SidebarMenu>
           <SidebarMenuItem>
-            {/* When collapsed, the group button links to the first item */}
-            {state === 'collapsed' ? (
-              <Link href="/milk-market">{tradingGroupButton}</Link>
-            ) : (
-              tradingGroupButton
-            )}
+            {/* Only show the group header when expanded */}
+            {state === 'expanded' && tradingGroupButton}
 
-            {/* The collapsible sub-menu */}
-            {isTradingOpen && state === 'expanded' && (
-              <SidebarMenuSub>
-                {navItems.map((item) => {
+            {/* The sub-menu which will show conditionally based on expand/collapse */}
+            <SidebarMenuSub>
+              {/* Render items if the group is open, OR if the sidebar is collapsed */}
+              {(isTradingOpen || state === 'collapsed') &&
+                navItems.map((item) => {
                   const isActive = pathname === item.href;
                   return (
                     <SidebarMenuSubItem key={item.href}>
-                      <SidebarMenuSubButton asChild isActive={isActive}>
+                      <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
                         <Link href={item.href}>
-                            <item.icon className="h-4 w-4" />
-                            <span>{item.label}</span>
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.label}</span>
                         </Link>
                       </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
-                  )
+                  );
                 })}
-              </SidebarMenuSub>
-            )}
+            </SidebarMenuSub>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
