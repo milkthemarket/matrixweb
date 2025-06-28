@@ -30,11 +30,20 @@ import {
   Activity,
   ChevronDown,
   Users,
+  Home,
+  Mail,
+  CheckSquare,
+  Workflow,
+  Calendar,
+  DollarSign,
+  Briefcase,
+  File,
+  BarChart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-const navItems = [
+const tradingNavItems = [
   { href: "/milk-market", label: "Milk Market", icon: Store },
   { href: "/dashboard", label: "Screener", icon: LayoutDashboard },
   { href: "/moo-alerts", label: "Moo Alerts", icon: Megaphone },
@@ -44,6 +53,20 @@ const navItems = [
   { href: "/suggestions", label: "Suggestions", icon: Lightbulb },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
+
+const crmNavItems = [
+  { href: "/crm/home", label: "Home", icon: Home },
+  { href: "/crm/email", label: "Email", icon: Mail },
+  { href: "/crm/contacts", label: "Contacts", icon: Users },
+  { href: "/crm/tasks", label: "Tasks", icon: CheckSquare },
+  { href: "/crm/workflows", label: "Workflows", icon: Workflow },
+  { href: "/crm/calendar", label: "Calendar", icon: Calendar },
+  { href: "/crm/opportunities", label: "Opportunities", icon: DollarSign },
+  { href: "/crm/projects", label: "Projects", icon: Briefcase },
+  { href: "/crm/files", label: "Files", icon: File },
+  { href: "/crm/reports", label: "Reports", icon: BarChart },
+];
+
 
 // Phosphor cow icon (https://phosphoricons.com/) - open source
 const CowIcon = ({ size = 28, color = "currentColor", ...props }) => {
@@ -68,9 +91,23 @@ export function SidebarNav() {
   const pathname = usePathname();
   const { state, toggleSidebar, isMobile } = useSidebar();
   const [isTradingOpen, setIsTradingOpen] = React.useState(true);
-  const [isCrmOpen, setIsCrmOpen] = React.useState(false);
+  const [isCrmOpen, setIsCrmOpen] = React.useState(true);
 
-  const tradingSubMenuItems = navItems.map((item) => {
+  const tradingSubMenuItems = tradingNavItems.map((item) => {
+    const isActive = pathname === item.href;
+    return (
+      <SidebarMenuSubItem key={item.href}>
+        <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
+          <Link href={item.href}>
+            <item.icon className="h-4 w-4" />
+            <span>{item.label}</span>
+          </Link>
+        </SidebarMenuSubButton>
+      </SidebarMenuSubItem>
+    );
+  });
+  
+  const crmSubMenuItems = crmNavItems.map((item) => {
     const isActive = pathname === item.href;
     return (
       <SidebarMenuSubItem key={item.href}>
@@ -119,7 +156,7 @@ export function SidebarNav() {
                 <SidebarMenuButton
                   onClick={() => setIsTradingOpen(!isTradingOpen)}
                   className="justify-between w-full"
-                  isActive={navItems.some((item) => item.href === pathname)}
+                  isActive={tradingNavItems.some((item) => item.href === pathname)}
                 >
                   <div className="flex items-center gap-2">
                     <Activity className="h-5 w-5" />
@@ -140,7 +177,7 @@ export function SidebarNav() {
                 <SidebarMenuButton
                   onClick={() => setIsCrmOpen(!isCrmOpen)}
                   className="justify-between w-full"
-                  isActive={false} 
+                  isActive={crmNavItems.some((item) => item.href === pathname)} 
                 >
                   <div className="flex items-center gap-2">
                     <Users className="h-5 w-5" />
@@ -154,7 +191,7 @@ export function SidebarNav() {
                   />
                 </SidebarMenuButton>
                 <SidebarMenuSub open={isCrmOpen}>
-                  {/* CRM sub-items will go here */}
+                  {crmSubMenuItems}
                 </SidebarMenuSub>
               </SidebarMenuItem>
             </>
@@ -165,12 +202,9 @@ export function SidebarNav() {
             <>
               {tradingSubMenuItems}
               <SidebarMenuSubItem>
-                <SidebarMenuSubButton tooltip={{ children: "CRM" }} asChild>
-                    <Link href="#" className="cursor-not-allowed">
-                      <Users className="h-4 w-4" />
-                      <span>CRM</span>
-                    </Link>
-                </SidebarMenuSubButton>
+                 <SidebarMenuSub open={true}>
+                    {crmSubMenuItems}
+                 </SidebarMenuSub>
               </SidebarMenuSubItem>
             </>
           )}
