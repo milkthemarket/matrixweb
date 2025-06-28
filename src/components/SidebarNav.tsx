@@ -29,6 +29,7 @@ import {
   ChevronRight,
   Activity,
   ChevronDown,
+  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -67,24 +68,21 @@ export function SidebarNav() {
   const pathname = usePathname();
   const { state, toggleSidebar, isMobile } = useSidebar();
   const [isTradingOpen, setIsTradingOpen] = React.useState(true);
+  const [isCrmOpen, setIsCrmOpen] = React.useState(false);
 
-  // The button that acts as the collapsible header, only shown when expanded
-  const tradingGroupButton = (
-    <SidebarMenuButton
-      onClick={() => {
-        if (state === 'expanded') {
-          setIsTradingOpen(!isTradingOpen);
-        }
-      }}
-      className="justify-between w-full"
-    >
-      <div className="flex items-center gap-2">
-        <Activity className="h-5 w-5" />
-        <span className="text-base font-semibold tracking-wide">Trading</span>
-      </div>
-      <ChevronDown className={cn("h-4 w-4 transition-transform", isTradingOpen && "rotate-180")} />
-    </SidebarMenuButton>
-  );
+  const tradingSubMenuItems = navItems.map((item) => {
+    const isActive = pathname === item.href;
+    return (
+      <SidebarMenuSubItem key={item.href}>
+        <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
+          <Link href={item.href}>
+            <item.icon className="h-4 w-4" />
+            <span>{item.label}</span>
+          </Link>
+        </SidebarMenuSubButton>
+      </SidebarMenuSubItem>
+    );
+  });
 
 
   return (
@@ -114,29 +112,68 @@ export function SidebarNav() {
 
       <SidebarContent>
         <SidebarMenu>
-          <SidebarMenuItem>
-            {/* Only show the group header when expanded */}
-            {state === 'expanded' && tradingGroupButton}
+          {/* Expanded View */}
+          {state === "expanded" && (
+            <>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setIsTradingOpen(!isTradingOpen)}
+                  className="justify-between w-full"
+                  isActive={navItems.some((item) => item.href === pathname)}
+                >
+                  <div className="flex items-center gap-2">
+                    <Activity className="h-5 w-5" />
+                    <span className="text-base font-semibold tracking-wide">Trading</span>
+                  </div>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 transition-transform",
+                      isTradingOpen && "rotate-180"
+                    )}
+                  />
+                </SidebarMenuButton>
+                <SidebarMenuSub open={isTradingOpen}>
+                  {tradingSubMenuItems}
+                </SidebarMenuSub>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setIsCrmOpen(!isCrmOpen)}
+                  className="justify-between w-full"
+                  isActive={false} 
+                >
+                  <div className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    <span className="text-base font-semibold tracking-wide">CRM</span>
+                  </div>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 transition-transform",
+                      isCrmOpen && "rotate-180"
+                    )}
+                  />
+                </SidebarMenuButton>
+                <SidebarMenuSub open={isCrmOpen}>
+                  {/* CRM sub-items will go here */}
+                </SidebarMenuSub>
+              </SidebarMenuItem>
+            </>
+          )}
 
-            {/* The sub-menu which will show conditionally based on expand/collapse */}
-            <SidebarMenuSub>
-              {/* Render items if the group is open, OR if the sidebar is collapsed */}
-              {(isTradingOpen || state === 'collapsed') &&
-                navItems.map((item) => {
-                  const isActive = pathname === item.href;
-                  return (
-                    <SidebarMenuSubItem key={item.href}>
-                      <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
-                        <Link href={item.href}>
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.label}</span>
-                        </Link>
-                      </SidebarMenuSubButton>
-                    </SidebarMenuSubItem>
-                  );
-                })}
-            </SidebarMenuSub>
-          </SidebarMenuItem>
+          {/* Collapsed View */}
+          {state === "collapsed" && (
+            <>
+              <SidebarMenuItem>
+                <SidebarMenuSub>{tradingSubMenuItems}</SidebarMenuSub>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="CRM" size="lg" className="cursor-not-allowed">
+                  <Users className="h-4 w-4" />
+                  <span>CRM</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </>
+          )}
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>
