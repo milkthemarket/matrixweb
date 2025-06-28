@@ -1,6 +1,6 @@
 
 import { redirect } from 'next/navigation';
 
-export default function SpilledMilkPage() {
-  redirect('/dashboard');
+export default function SpilledMilkPageRedirect() {
+  redirect('/trading/dashboard');
 }

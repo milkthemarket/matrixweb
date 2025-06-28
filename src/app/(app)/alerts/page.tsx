@@ -1,6 +1,6 @@
 
 import { redirect } from 'next/navigation';
 
-export default function AlertsPage() {
-  redirect('/dashboard');
+export default function AlertsPageRedirect() {
+  redirect('/trading/dashboard');
 }
