@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -12,7 +11,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarMenuSub,
-  SidebarMenuSubItem,
   SidebarMenuSubButton,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -96,38 +94,38 @@ export function SidebarNav() {
   const tradingSubMenuItems = tradingNavItems.map((item) => {
     const isActive = pathname === item.href;
     return (
-      <SidebarMenuSubItem key={item.href}>
+      <SidebarMenuItem key={item.href}>
         <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
           <Link href={item.href}>
             <item.icon className="h-4 w-4" />
             <span>{item.label}</span>
           </Link>
         </SidebarMenuSubButton>
-      </SidebarMenuSubItem>
+      </SidebarMenuItem>
     );
   });
   
   const crmSubMenuItems = crmNavItems.map((item) => {
     const isActive = pathname === item.href;
     return (
-      <SidebarMenuSubItem key={item.href}>
+      <SidebarMenuItem key={item.href}>
         <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
           <Link href={item.href}>
             <item.icon className="h-4 w-4" />
             <span>{item.label}</span>
           </Link>
         </SidebarMenuSubButton>
-      </SidebarMenuSubItem>
+      </SidebarMenuItem>
     );
   });
 
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className={cn(state === 'expanded' ? "p-3" : "p-0")}>
+      <SidebarHeader className={cn(state === 'expanded' ? "p-3" : "p-0 flex flex-col items-center gap-2")}>
         <div className={cn(
           "flex w-full items-center",
-          state === "expanded" ? "justify-between" : "flex-col justify-center gap-4"
+          state === "expanded" ? "justify-between" : "flex-col justify-center gap-2"
         )}>
           <Link href="/milk-market" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
             <CowIcon size={28} className="text-white flex-shrink-0" />

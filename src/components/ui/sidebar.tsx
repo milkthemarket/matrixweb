@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -245,7 +244,7 @@ const Sidebar = React.forwardRef<
           data-sidebar="sidebar" 
           className={cn(
             "flex h-full w-full flex-col bg-sidebar backdrop-blur-md shadow-none",
-            "group-data-[state=collapsed]:items-center group-data-[state=collapsed]:justify-start group-data-[state=collapsed]:gap-4 group-data-[state=collapsed]:py-6",
+            "group-data-[state=collapsed]:items-center group-data-[state=collapsed]:justify-start group-data-[state=collapsed]:gap-2 group-data-[state=collapsed]:py-6",
             variant === "floating" && "rounded-lg",
             "p-0.5"
           )}
@@ -502,7 +501,7 @@ const SidebarMenu = React.forwardRef<
         data-sidebar="menu"
         className={cn(
             "flex w-full min-w-0 flex-col",
-            state === 'collapsed' ? "items-center gap-4" : "items-stretch gap-y-1",
+            state === 'collapsed' ? "items-center gap-2" : "items-stretch gap-y-1",
             className)}
         {...props}
         />
@@ -624,7 +623,7 @@ const SidebarMenuAction = React.forwardRef<
       ref={ref}
       data-sidebar="menu-action"
       className={cn(
-        "absolute right-0.5 top-0.5 flex aspect-square w-4 items-center justify-center rounded-sm p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-3.5 [&>svg]:shrink-0",
+        "absolute right-0.5 top-0.5 flex aspect-square w-4 items-center justify-center rounded-sm p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground [&>svg]:size-3.5 [&>svg]:shrink-0",
         "after:absolute after:-inset-1 after:md:hidden",
         "peer-data-[size=sm]/menu-button:top-0.5",
         "peer-data-[size=default]/menu-button:top-0.5",
@@ -736,12 +735,6 @@ const SidebarMenuSub = React.forwardRef<
   );
 });
 SidebarMenuSub.displayName = "SidebarMenuSub"
-
-const SidebarMenuSubItem = React.forwardRef<
-  HTMLLIElement,
-  React.ComponentProps<"li">
->(({ ...props }, ref) => <li ref={ref} {...props} />)
-SidebarMenuSubItem.displayName = "SidebarMenuSubItem"
 
 const SidebarMenuSubButton = React.forwardRef<
   HTMLAnchorElement,
