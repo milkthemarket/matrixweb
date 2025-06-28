@@ -84,9 +84,9 @@ const analyticsNavItems = [
 const helpDeskNavItems = [
   { href: "/trading/academy", label: "Milk Academy", icon: GraduationCap },
   { href: "/trading/suggestions", label: "Suggestions", icon: Lightbulb },
-  { href: "/settings", label: "Settings", icon: SettingsIcon },
   { href: "/analytics/resource", label: "Resource Matrix", icon: Grid3x3 },
   { href: "/help-desk/documentation", label: "Documentation", icon: FileText },
+  { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 
