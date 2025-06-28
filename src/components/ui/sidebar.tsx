@@ -709,7 +709,7 @@ const SidebarMenuSub = React.forwardRef<
       ref={ref}
       data-sidebar="menu-sub"
       className={cn(
-        "mx-1 flex min-w-0 translate-x-px flex-col gap-0.5 border-l border-sidebar-border/[.08] px-1 py-px",
+        "ml-4 flex min-w-0 flex-col gap-0.5 border-l border-sidebar-border/[.08] pl-2 pr-1 py-px",
         className
       )}
       {...props}
@@ -741,8 +741,8 @@ const SidebarMenuSubButton = React.forwardRef<
       data-sidebar="menu-sub-button"
       data-active={isActive}
       className={cn(
-        "flex h-8 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-sm px-2 text-sm text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 active:bg-sidebar-accent/[.05] active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
-        "data-[active=true]:bg-sidebar-accent/[.05] data-[active=true]:text-sidebar-foreground data-[active=true]:[&>svg]:text-sidebar-accent-foreground",
+        "flex h-8 min-w-0 items-center gap-2 overflow-hidden rounded-sm px-2 text-sm text-sidebar-foreground outline-none ring-sidebar-ring hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 active:bg-sidebar-accent/[.05] active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+        "data-[active=true]:bg-sidebar-accent/[.05] data-[active=true]:text-sidebar-foreground data-[active=true]:[&>svg]:text-primary",
         className
       )}
       {...props}
