@@ -246,8 +246,7 @@ const Sidebar = React.forwardRef<
           className={cn(
             "flex h-full w-full flex-col bg-sidebar backdrop-blur-md shadow-none",
             variant === "floating" && "rounded-lg",
-            "p-0.5",
-            state === 'collapsed' && "items-center"
+            "p-0.5"
           )}
         >
           {children}
@@ -406,7 +405,7 @@ const SidebarContent = React.forwardRef<
       ref={ref}
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-0.5 overflow-hidden group-data-[state=collapsed]:justify-center",
+        "flex min-h-0 flex-1 flex-col gap-0.5 overflow-hidden",
         className
       )}
       {...props}
@@ -498,8 +497,8 @@ const SidebarMenu = React.forwardRef<
         ref={ref}
         data-sidebar="menu"
         className={cn(
-            "flex w-full min-w-0 flex-col gap-y-1",
-            state === 'collapsed' ? "items-center" : "items-stretch",
+            "flex w-full min-w-0 flex-col",
+            state === 'collapsed' ? "h-full items-center justify-center gap-4" : "items-stretch gap-y-1",
             className)}
         {...props}
         />
