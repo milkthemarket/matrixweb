@@ -9,6 +9,11 @@ export default {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        'market-open': '0 0 15px 1px hsl(var(--confirm-green) / 0.5)',
+        'market-closing': '0 0 15px 1px hsl(var(--chart-4) / 0.5)',
+        'market-closed': '0 0 15px 1px hsl(var(--destructive) / 0.5)',
+      },
       fontFamily: {
         body: ['Inter', 'sans-serif'],
         headline: ['Inter', 'sans-serif'],
