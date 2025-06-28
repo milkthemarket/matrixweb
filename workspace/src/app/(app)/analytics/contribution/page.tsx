@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -12,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CircularProgressRing } from "@/components/ui/circular-progress-ring";
-import { AccountTypeProgressRing } from "@/components/charts/account-type-progress-ring"; 
+import { AccountTypeProgressRing } from "@/components/ui/account-type-progress-ring"; 
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/PageHeader";
 
