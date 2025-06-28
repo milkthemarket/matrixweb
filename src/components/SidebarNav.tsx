@@ -45,6 +45,8 @@ import {
   GitMerge,
   Grid3x3,
   TrendingUp,
+  LifeBuoy,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -55,9 +57,6 @@ const tradingNavItems = [
   { href: "/trading/moo-alerts", label: "Moo Alerts", icon: Megaphone },
   { href: "/trading/rules", label: "Rules", icon: ListFilter },
   { href: "/trading/history", label: "Trade History", icon: History },
-  { href: "/trading/academy", label: "Milk Academy", icon: GraduationCap },
-  { href: "/trading/suggestions", label: "Suggestions", icon: Lightbulb },
-  { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 const crmNavItems = [
@@ -80,7 +79,14 @@ const analyticsNavItems = [
     { href: "/analytics/conversion", label: "Conversion Analytics", icon: Repeat },
     { href: "/analytics/compliance", label: "Compliance Matrix", icon: ShieldCheck },
     { href: "/analytics/contribution", label: "Contribution Matrix", icon: GitMerge },
-    { href: "/analytics/resource", label: "Resource Matrix", icon: Grid3x3 },
+];
+
+const helpDeskNavItems = [
+  { href: "/trading/academy", label: "Milk Academy", icon: GraduationCap },
+  { href: "/trading/suggestions", label: "Suggestions", icon: Lightbulb },
+  { href: "/settings", label: "Settings", icon: SettingsIcon },
+  { href: "/analytics/resource", label: "Resource Matrix", icon: Grid3x3 },
+  { href: "/help-desk/documentation", label: "Documentation", icon: FileText },
 ];
 
 
@@ -109,6 +115,7 @@ export function SidebarNav() {
   const [isTradingOpen, setIsTradingOpen] = React.useState(true);
   const [isCrmOpen, setIsCrmOpen] = React.useState(true);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = React.useState(true);
+  const [isHelpDeskOpen, setIsHelpDeskOpen] = React.useState(true);
 
   const tradingSubMenuItems = tradingNavItems.map((item) => {
     const isActive = pathname === item.href;
@@ -139,6 +146,20 @@ export function SidebarNav() {
   });
 
   const analyticsSubMenuItems = analyticsNavItems.map((item) => {
+    const isActive = pathname === item.href;
+    return (
+      <SidebarMenuItem key={item.href}>
+        <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
+          <Link href={item.href}>
+            <item.icon className="h-4 w-4" />
+            <span>{item.label}</span>
+          </Link>
+        </SidebarMenuSubButton>
+      </SidebarMenuItem>
+    );
+  });
+
+  const helpDeskSubMenuItems = helpDeskNavItems.map((item) => {
     const isActive = pathname === item.href;
     return (
       <SidebarMenuItem key={item.href}>
@@ -246,6 +267,27 @@ export function SidebarNav() {
                   {analyticsSubMenuItems}
                 </SidebarMenuSub>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setIsHelpDeskOpen(!isHelpDeskOpen)}
+                  className="justify-between w-full"
+                  isActive={helpDeskNavItems.some((item) => item.href === pathname)}
+                >
+                  <div className="flex items-center gap-2">
+                    <LifeBuoy className="h-5 w-5" />
+                    <span className="text-base font-semibold tracking-wide">Help Desk</span>
+                  </div>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 transition-transform",
+                      isHelpDeskOpen && "rotate-180"
+                    )}
+                  />
+                </SidebarMenuButton>
+                <SidebarMenuSub open={isHelpDeskOpen}>
+                  {helpDeskSubMenuItems}
+                </SidebarMenuSub>
+              </SidebarMenuItem>
             </>
           )}
 
@@ -255,6 +297,7 @@ export function SidebarNav() {
               {tradingSubMenuItems}
               {crmSubMenuItems}
               {analyticsSubMenuItems}
+              {helpDeskSubMenuItems}
             </>
           )}
         </SidebarMenu>
