@@ -224,19 +224,19 @@ export default function SuggestionsPage() {
                       name="category"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-xs">Category (Optional)</FormLabel> {/* Reduced text size */}
-                          <Select onValueChange={field.onChange} value={field.value} disabled={isLoading}>
-                            <FormControl>
-                              <SelectTrigger className="h-8 text-xs"> {/* Reduced height */}
-                                <SelectValue placeholder="Select a category" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {suggestionCategories.map(cat => (
-                                <SelectItem key={cat} value={cat} className="text-xs">{cat}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <FormLabel className="text-xs">Category (Optional)</FormLabel>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value || ''} disabled={isLoading}>
+                                <SelectTrigger className="h-8 text-xs">
+                                  <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                              <SelectContent>
+                                {suggestionCategories.map(cat => (
+                                  <SelectItem key={cat} value={cat} className="text-xs">{cat}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
                           <FormMessage className="text-xs"/>
                         </FormItem>
                       )}
