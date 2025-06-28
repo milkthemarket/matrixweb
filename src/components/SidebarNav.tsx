@@ -176,7 +176,7 @@ export function SidebarNav() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className={cn(state === 'expanded' ? "p-3" : "p-0 flex flex-col items-center gap-2 py-6")}>
+      <SidebarHeader className={cn(state === 'expanded' ? "p-3" : "p-0 flex flex-col items-center pt-3 pb-2")}>
         <div className={cn(
           "flex w-full items-center",
           state === "expanded" ? "justify-between" : "flex-col justify-center gap-2"
