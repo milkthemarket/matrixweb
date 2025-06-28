@@ -1,6 +1,6 @@
+
 import { redirect } from 'next/navigation';
 
-export default function HomePage() {
+export default function OptionsPage() {
   redirect('/trading/dashboard');
-  return null; 
 }

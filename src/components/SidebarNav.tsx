@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -42,13 +43,13 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const tradingNavItems = [
-  { href: "/milk-market", label: "Milk Market", icon: Store },
-  { href: "/dashboard", label: "Screener", icon: LayoutDashboard },
-  { href: "/moo-alerts", label: "Moo Alerts", icon: Megaphone },
-  { href: "/rules", label: "Rules", icon: ListFilter },
-  { href: "/history", label: "Trade History", icon: History },
-  { href: "/academy", label: "Milk Academy", icon: GraduationCap },
-  { href: "/suggestions", label: "Suggestions", icon: Lightbulb },
+  { href: "/trading/milk-market", label: "Milk Market", icon: Store },
+  { href: "/trading/dashboard", label: "Screener", icon: LayoutDashboard },
+  { href: "/trading/moo-alerts", label: "Moo Alerts", icon: Megaphone },
+  { href: "/trading/rules", label: "Rules", icon: ListFilter },
+  { href: "/trading/history", label: "Trade History", icon: History },
+  { href: "/trading/academy", label: "Milk Academy", icon: GraduationCap },
+  { href: "/trading/suggestions", label: "Suggestions", icon: Lightbulb },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
@@ -122,12 +123,12 @@ export function SidebarNav() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className={cn(state === 'expanded' ? "p-3" : "p-0 flex flex-col items-center gap-2")}>
+      <SidebarHeader className={cn(state === 'expanded' ? "p-3" : "p-0 flex flex-col items-center gap-2 py-6")}>
         <div className={cn(
           "flex w-full items-center",
           state === "expanded" ? "justify-between" : "flex-col justify-center gap-2"
         )}>
-          <Link href="/milk-market" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
+          <Link href="/trading/milk-market" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
             <CowIcon size={28} className="text-white flex-shrink-0" />
             {state === 'expanded' && <span className="font-bold text-lg text-white">MILK</span>}
           </Link>

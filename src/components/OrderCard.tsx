@@ -765,7 +765,7 @@ export function OrderCard({
                     </div>
                   </CardContent>
                 </Card>
-                  <Link href="/rules" className="block">
+                  <Link href="/trading/rules" className="block">
                     <Button variant="outline" className="w-full border-accent text-accent hover:bg-accent/10 hover:text-accent-foreground h-8 text-[11px]">
                         <Cog className="mr-1.5 h-3.5 w-3.5" /> Manage Rules
                     </Button>

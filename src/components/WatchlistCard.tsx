@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { Stock, AlertRule } from '@/types';
 import { cn } from '@/lib/utils';
 import { List, Star, TrendingUp, TrendingDown, Activity, CalendarCheck2, Filter as FilterIcon } from 'lucide-react';
-import { initialMockStocks } from '@/app/(app)/dashboard/page';
-import { mockRules } from '@/app/(app)/rules/page';
+import { initialMockStocks } from '@/app/(app)/trading/dashboard/page';
+import { mockRules } from '@/app/(app)/trading/rules/page';
 import { Separator } from "@/components/ui/separator";
 
 // Define dummyWatchlistSymbols directly in this file
