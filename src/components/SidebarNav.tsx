@@ -201,11 +201,7 @@ export function SidebarNav() {
           {state === "collapsed" && (
             <>
               {tradingSubMenuItems}
-              <SidebarMenuSubItem>
-                 <SidebarMenuSub open={true}>
-                    {crmSubMenuItems}
-                 </SidebarMenuSub>
-              </SidebarMenuSubItem>
+              {crmSubMenuItems}
             </>
           )}
         </SidebarMenu>

@@ -245,7 +245,7 @@ const Sidebar = React.forwardRef<
           data-sidebar="sidebar" 
           className={cn(
             "flex h-full w-full flex-col bg-sidebar backdrop-blur-md shadow-none",
-            "group-data-[state=collapsed]:items-center group-data-[state=collapsed]:justify-start group-data-[state=collapsed]:gap-4 group-data-[state=collapsed]:pt-4",
+            "group-data-[state=collapsed]:items-center group-data-[state=collapsed]:justify-start group-data-[state=collapsed]:gap-4 group-data-[state=collapsed]:py-6",
             variant === "floating" && "rounded-lg",
             "p-0.5"
           )}
