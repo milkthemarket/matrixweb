@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import * as React from "react";
 import {
   Sidebar,
   SidebarHeader,
@@ -10,9 +11,25 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, GraduationCap, Lightbulb, SlidersHorizontal, Megaphone, Store, ArchiveX, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  LayoutDashboard,
+  ListFilter,
+  History,
+  Settings as SettingsIcon,
+  GraduationCap,
+  Lightbulb,
+  Megaphone,
+  Store,
+  ChevronLeft,
+  ChevronRight,
+  Activity,
+  ChevronDown,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -49,6 +66,32 @@ const CowIcon = ({ size = 28, color = "currentColor", ...props }) => {
 export function SidebarNav() {
   const pathname = usePathname();
   const { state, toggleSidebar, isMobile } = useSidebar();
+  const [isTradingOpen, setIsTradingOpen] = React.useState(true);
+
+  const isTradingGroupActive = navItems.some(item => pathname.startsWith(item.href));
+
+  // The button that acts as the collapsible header
+  const tradingGroupButton = (
+    <SidebarMenuButton
+      onClick={() => {
+        if (state === 'expanded') {
+          setIsTradingOpen(!isTradingOpen);
+        }
+      }}
+      isActive={isTradingGroupActive}
+      className="justify-between w-full"
+      tooltip={{ children: "Trading", hidden: state === 'expanded' }}
+    >
+      <div className="flex items-center gap-1">
+        <Activity className="h-5 w-5" />
+        {state === 'expanded' && <span className="text-base font-semibold tracking-wide">Trading</span>}
+      </div>
+      {state === 'expanded' && (
+        <ChevronDown className={cn("h-4 w-4 transition-transform", isTradingOpen && "rotate-180")} />
+      )}
+    </SidebarMenuButton>
+  );
+
 
   return (
     <Sidebar collapsible="icon">
@@ -77,25 +120,33 @@ export function SidebarNav() {
 
       <SidebarContent>
         <SidebarMenu>
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || (pathname.startsWith(item.href) && item.href !== "/dashboard" && item.href !== "/");
-            return (
-              <SidebarMenuItem key={item.href}>
-                <Link href={item.href}>
-                  <SidebarMenuButton
-                    variant="default"
-                    isActive={isActive}
-                    tooltip={{ children: item.label, hidden: state === 'expanded' }}
-                  >
-                    <item.icon className={cn("h-5 w-5", isActive ? "text-sidebar-primary" : "text-muted-foreground group-hover:text-sidebar-accent-foreground")} />
-                    {state === 'expanded' && (
-                      <span className="text-base font-semibold tracking-wide">{item.label}</span>
-                    )}
-                  </SidebarMenuButton>
-                </Link>
-              </SidebarMenuItem>
-            );
-          })}
+          <SidebarMenuItem>
+            {/* When collapsed, the group button links to the first item */}
+            {state === 'collapsed' ? (
+              <Link href="/milk-market">{tradingGroupButton}</Link>
+            ) : (
+              tradingGroupButton
+            )}
+
+            {/* The collapsible sub-menu */}
+            {isTradingOpen && state === 'expanded' && (
+              <SidebarMenuSub>
+                {navItems.map((item) => {
+                  const isActive = pathname === item.href;
+                  return (
+                    <SidebarMenuSubItem key={item.href}>
+                      <Link href={item.href} passHref legacyBehavior>
+                        <SidebarMenuSubButton isActive={isActive}>
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.label}</span>
+                        </SidebarMenuSubButton>
+                      </Link>
+                    </SidebarMenuSubItem>
+                  )
+                })}
+              </SidebarMenuSub>
+            )}
+          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>
