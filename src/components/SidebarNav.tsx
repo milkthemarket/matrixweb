@@ -82,7 +82,7 @@ export function SidebarNav() {
       className="justify-between w-full"
       tooltip={{ children: "Trading", hidden: state === 'expanded' }}
     >
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         <Activity className="h-5 w-5" />
         {state === 'expanded' && <span className="text-base font-semibold tracking-wide">Trading</span>}
       </div>
