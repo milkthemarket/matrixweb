@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from '@/lib/utils';
+import { PageHeader } from '@/components/PageHeader';
 
 interface MarketData {
   label: string;
@@ -328,214 +329,211 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <main className="flex-1 p-6 space-y-8 md:p-8">
-      <h1 className="text-3xl font-bold tracking-tight text-foreground">
-        Welcome Josh!
-      </h1>
+    <div className="flex flex-col flex-1 h-full overflow-hidden">
+      <PageHeader title="Welcome Josh!" />
+      <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
+        <section>
+          <h2 className="text-xl font-semibold text-foreground mb-6">Market Overview</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {initialMarketOverviewData.map((market) => {
+              const apiResult = marketApiData[market.polygonTicker];
+              const statusInfo = marketStatuses[market.label] || { statusText: "Loading...", tooltipText: "Fetching status...", shadowClass: "" };
 
-      <section>
-        <h2 className="text-xl font-semibold text-foreground mb-6">Market Overview</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {initialMarketOverviewData.map((market) => {
-            const apiResult = marketApiData[market.polygonTicker];
-            const statusInfo = marketStatuses[market.label] || { statusText: "Loading...", tooltipText: "Fetching status...", shadowClass: "" };
+              let valueProp: string | undefined;
+              let descriptionProp: React.ReactNode | undefined;
 
-            let valueDisplay: React.ReactNode = "$0.00";
-            let changeDisplay: React.ReactNode = "0.00%";
-            let valueProp: string | undefined;
-            let descriptionProp: React.ReactNode | undefined;
-
-            if (apiResult?.loading) {
-              valueProp = "Loading...";
-              descriptionProp = <span className="text-xs text-muted-foreground">Loading...</span>;
-            } else if (apiResult?.error) {
-              valueProp = undefined;
-              descriptionProp = <span className="text-sm text-destructive flex items-center"><AlertCircle className="w-4 h-4 mr-1" /> {apiResult.error}</span>;
-            } else if (apiResult?.c !== undefined && apiResult?.o !== undefined) {
-              valueProp = `$${apiResult.c.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-              const percentChange = calculateChangePercent(apiResult.c, apiResult.o);
-              if (percentChange !== null) {
-                const changeType = percentChange >= 0 ? 'up' : 'down';
-                descriptionProp = (
-                  <span className={cn("text-sm font-semibold", changeType === 'up' ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
-                    {changeType === 'up' ? <TrendingUp className="inline-block w-4 h-4 mr-1" /> : <TrendingDown className="inline-block w-4 h-4 mr-1" />}
-                    {percentChange.toFixed(2)}%
-                  </span>
-                );
-              } else {
-                descriptionProp = <span className="text-xs text-muted-foreground">N/A</span>;
+              if (apiResult?.loading) {
+                valueProp = "Loading...";
+                descriptionProp = <span className="text-xs text-muted-foreground">Loading...</span>;
+              } else if (apiResult?.error) {
+                valueProp = undefined; // Hide the main value display on error
+                descriptionProp = <span className="text-sm text-destructive flex items-center"><AlertCircle className="w-4 h-4 mr-1" /> {apiResult.error}</span>;
+              } else if (apiResult?.c !== undefined && apiResult?.o !== undefined) {
+                valueProp = `$${apiResult.c.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                const percentChange = calculateChangePercent(apiResult.c, apiResult.o);
+                if (percentChange !== null) {
+                  const changeType = percentChange >= 0 ? 'up' : 'down';
+                  descriptionProp = (
+                    <span className={cn("text-sm font-semibold", changeType === 'up' ? 'text-[hsl(var(--confirm-green))]' : 'text-destructive')}>
+                      {changeType === 'up' ? <TrendingUp className="inline-block w-4 h-4 mr-1" /> : <TrendingDown className="inline-block w-4 h-4 mr-1" />}
+                      {percentChange.toFixed(2)}%
+                    </span>
+                  );
+                } else {
+                  descriptionProp = <span className="text-xs text-muted-foreground">N/A</span>;
+                }
               }
-            }
 
-            return (
-              <PlaceholderCard
-                key={market.polygonTicker}
-                title={market.label}
-                icon={market.icon || Landmark}
-                className={cn(
-                  "transition-all duration-300 ease-in-out",
-                  statusInfo.shadowClass
-                )}
-                value={valueProp}
-                description={descriptionProp}
-              >
-                <div className="h-10 w-full my-2 bg-black/30 rounded-md flex items-center justify-center backdrop-blur-sm" data-ai-hint="mini trendline chart">
-                  <span className="text-xs text-muted-foreground/50">Mini Trend</span>
-                </div>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="text-xs text-muted-foreground mt-auto pt-2 border-t border-border/20 flex justify-between items-center">
-                        <span>{statusInfo.statusText}</span>
-                        <span className="flex items-center"><Clock className="w-3 h-3 mr-1" />{currentTimeEST.replace(/\s(AM|PM)/, '')}</span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-popover text-popover-foreground">
-                      <p>{statusInfo.tooltipText}</p>
-                      {apiResult?.c !== undefined && <p>Prev. Close: ${apiResult.c.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>}
-                      {apiResult?.o !== undefined && <p>Prev. Open: ${apiResult.o.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </PlaceholderCard>
-            );
-          })}
-        </div>
-      </section>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <PlaceholderCard title="Why the Market Moved" icon={Cpu} className="lg:col-span-1 h-full">
-          <p className="text-sm text-muted-foreground leading-relaxed font-serif mt-2">
-            Market sentiment turned positive following the release of favorable inflation data, suggesting that price pressures may be easing. This led to a broad rally across major indices, particularly in growth-oriented sectors like technology and consumer discretionary. Investors are now keenly awaiting upcoming corporate earnings reports for further direction.
-          </p>
-        </PlaceholderCard>
-        <PlaceholderCard title="Top News Stories" icon={Newspaper} className="lg:col-span-2 h-full">
-          <ul className="space-y-4">
-            {newsData.map((news) => (
-              <li key={news.id} className="pb-3 border-b border-border/30 last:border-b-0 last:pb-0">
-                <div className="flex items-center justify-between mb-1">
-                  <h4 className="text-base font-semibold text-foreground">{news.headline}</h4>
-                  <Badge variant="outline" className={cn("text-xs", getNewsSentimentBadgeClass(news.sentiment))}>
-                    {news.sentiment}
-                  </Badge>
-                </div>
-                <p className="text-xs text-muted-foreground mb-1">{news.summary}</p>
-                <p className="text-xs text-muted-foreground/70">{news.timestamp}</p>
-              </li>
-            ))}
-          </ul>
-        </PlaceholderCard>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1 hidden lg:block"> {/* Spacer */} </div>
-        <PlaceholderCard title="Ticker Lookup Tool" icon={Search} className="lg:col-span-3">
-          <div className="flex space-x-2 mb-4">
-            <Input
-              type="text"
-              placeholder="Enter stock ticker (e.g., AAPL)"
-              className="bg-input border-border/50 text-foreground placeholder-muted-foreground focus:ring-primary"
-              value={tickerQuery}
-              onChange={(e) => setTickerQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleTickerLookup()}
-            />
-            <Button onClick={handleTickerLookup} disabled={isLoadingTicker}>
-              {isLoadingTicker ? <Loader2 className="animate-spin h-4 w-4" /> : <Send className="h-4 w-4" />}
-            </Button>
+              return (
+                <PlaceholderCard
+                  key={market.polygonTicker}
+                  title={market.label}
+                  icon={market.icon || Landmark}
+                  className={cn(
+                    "transition-all duration-300 ease-in-out",
+                    statusInfo.shadowClass
+                  )}
+                  value={valueProp}
+                  description={descriptionProp}
+                >
+                  <div className="h-10 w-full my-2 bg-black/30 rounded-md flex items-center justify-center backdrop-blur-sm" data-ai-hint="mini trendline chart">
+                    <span className="text-xs text-muted-foreground/50">Mini Trend</span>
+                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="text-xs text-muted-foreground mt-auto pt-2 border-t border-border/20 flex justify-between items-center">
+                          <span>{statusInfo.statusText}</span>
+                          <span className="flex items-center"><Clock className="w-3 h-3 mr-1" />{currentTimeEST.replace(/\s(AM|PM)/, '')}</span>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="bottom" className="bg-popover text-popover-foreground">
+                        <p>{statusInfo.tooltipText}</p>
+                        {apiResult?.c !== undefined && <p>Prev. Close: ${apiResult.c.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>}
+                        {apiResult?.o !== undefined && <p>Prev. Open: ${apiResult.o.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </PlaceholderCard>
+              );
+            })}
           </div>
-          {isLoadingTicker && <p className="text-sm text-muted-foreground text-center">Fetching data...</p>}
-          {tickerData && !isLoadingTicker && (
-            <div className="space-y-6 text-sm">
-              {/* Header Section */}
-              <div className="pb-4 border-b border-border/30">
-                <div className="flex items-start space-x-4 mb-3">
-                  <Image src={tickerData.logo} alt={`${tickerData.companyName} logo`} width={48} height={48} className="rounded-md bg-muted p-1" data-ai-hint="company logo"/>
-                  <div>
-                    <h3 className="text-xl font-bold text-foreground">{tickerData.companyName}</h3>
-                    <p className="text-muted-foreground">
-                      {tickerData.symbol} • {tickerData.exchange}
-                    </p>
-                    <p className="text-xs text-muted-foreground/80">
-                      {tickerData.sector} • {tickerData.industry}
-                    </p>
+        </section>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <PlaceholderCard title="Why the Market Moved" icon={Cpu} className="lg:col-span-1 h-full">
+            <p className="text-sm text-muted-foreground leading-relaxed font-serif mt-2">
+              Market sentiment turned positive following the release of favorable inflation data, suggesting that price pressures may be easing. This led to a broad rally across major indices, particularly in growth-oriented sectors like technology and consumer discretionary. Investors are now keenly awaiting upcoming corporate earnings reports for further direction.
+            </p>
+          </PlaceholderCard>
+          <PlaceholderCard title="Top News Stories" icon={Newspaper} className="lg:col-span-2 h-full">
+            <ul className="space-y-4">
+              {newsData.map((news) => (
+                <li key={news.id} className="pb-3 border-b border-border/30 last:border-b-0 last:pb-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="text-base font-semibold text-foreground">{news.headline}</h4>
+                    <Badge variant="outline" className={cn("text-xs", getNewsSentimentBadgeClass(news.sentiment))}>
+                      {news.sentiment}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-1">{news.summary}</p>
+                  <p className="text-xs text-muted-foreground/70">{news.timestamp}</p>
+                </li>
+              ))}
+            </ul>
+          </PlaceholderCard>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1 hidden lg:block"> {/* Spacer */} </div>
+          <PlaceholderCard title="Ticker Lookup Tool" icon={Search} className="lg:col-span-3">
+            <div className="flex space-x-2 mb-4">
+              <Input
+                type="text"
+                placeholder="Enter stock ticker (e.g., AAPL)"
+                className="bg-input border-border/50 text-foreground placeholder-muted-foreground focus:ring-primary"
+                value={tickerQuery}
+                onChange={(e) => setTickerQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleTickerLookup()}
+              />
+              <Button onClick={handleTickerLookup} disabled={isLoadingTicker}>
+                {isLoadingTicker ? <Loader2 className="animate-spin h-4 w-4" /> : <Send className="h-4 w-4" />}
+              </Button>
+            </div>
+            {isLoadingTicker && <p className="text-sm text-muted-foreground text-center">Fetching data...</p>}
+            {tickerData && !isLoadingTicker && (
+              <div className="space-y-6 text-sm">
+                {/* Header Section */}
+                <div className="pb-4 border-b border-border/30">
+                  <div className="flex items-start space-x-4 mb-3">
+                    <Image src={tickerData.logo} alt={`${tickerData.companyName} logo`} width={48} height={48} className="rounded-md bg-muted p-1" data-ai-hint="company logo"/>
+                    <div>
+                      <h3 className="text-xl font-bold text-foreground">{tickerData.companyName}</h3>
+                      <p className="text-muted-foreground">
+                        {tickerData.symbol} • {tickerData.exchange}
+                      </p>
+                      <p className="text-xs text-muted-foreground/80">
+                        {tickerData.sector} • {tickerData.industry}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Live Price Section */}
-              <div className="pb-4 border-b border-border/30">
-                <div className="flex items-baseline space-x-2 mb-2">
-                  <p className="text-4xl font-bold text-foreground">${tickerData.currentPrice}</p>
-                  <p className={cn(
-                    "text-lg font-semibold",
-                    parseFloat(tickerData.priceChangeAmount) >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"
-                  )}>
-                    {parseFloat(tickerData.priceChangeAmount) >= 0 ? <ArrowUpRight className="inline h-4 w-4 mb-1" /> : <ArrowDownRight className="inline h-4 w-4 mb-1" />}
-                    {tickerData.priceChangeAmount} ({tickerData.priceChangePercent}%)
-                  </p>
+                {/* Live Price Section */}
+                <div className="pb-4 border-b border-border/30">
+                  <div className="flex items-baseline space-x-2 mb-2">
+                    <p className="text-4xl font-bold text-foreground">${tickerData.currentPrice}</p>
+                    <p className={cn(
+                      "text-lg font-semibold",
+                      parseFloat(tickerData.priceChangeAmount) >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"
+                    )}>
+                      {parseFloat(tickerData.priceChangeAmount) >= 0 ? <ArrowUpRight className="inline h-4 w-4 mb-1" /> : <ArrowDownRight className="inline h-4 w-4 mb-1" />}
+                      {tickerData.priceChangeAmount} ({tickerData.priceChangePercent}%)
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                    <div><strong className="text-muted-foreground">Prev. Close:</strong> ${tickerData.previousClose}</div>
+                    <div><strong className="text-muted-foreground">Open:</strong> ${tickerData.openPrice}</div>
+                    <div><strong className="text-muted-foreground">Day's Range:</strong> {tickerData.daysRange}</div>
+                    <div><strong className="text-muted-foreground">52W Range:</strong> {tickerData.fiftyTwoWeekRange}</div>
+                    <div><strong className="text-muted-foreground">Volume:</strong> {tickerData.volume}</div>
+                    <div><strong className="text-muted-foreground">Avg. Volume:</strong> {tickerData.avgVolume}</div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                  <div><strong className="text-muted-foreground">Prev. Close:</strong> ${tickerData.previousClose}</div>
-                  <div><strong className="text-muted-foreground">Open:</strong> ${tickerData.openPrice}</div>
-                  <div><strong className="text-muted-foreground">Day's Range:</strong> {tickerData.daysRange}</div>
-                  <div><strong className="text-muted-foreground">52W Range:</strong> {tickerData.fiftyTwoWeekRange}</div>
-                  <div><strong className="text-muted-foreground">Volume:</strong> {tickerData.volume}</div>
-                  <div><strong className="text-muted-foreground">Avg. Volume:</strong> {tickerData.avgVolume}</div>
-                </div>
-              </div>
 
-              {/* Valuation Metrics Section */}
-              <div className="pb-4 border-b border-border/30">
-                <h4 className="text-md font-semibold text-foreground mb-2">Valuation Metrics</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                  <div><strong className="text-muted-foreground">Market Cap:</strong> {tickerData.marketCap}</div>
-                  <div><strong className="text-muted-foreground">P/E Ratio (TTM):</strong> {tickerData.peRatio}</div>
-                  <div><strong className="text-muted-foreground">EPS (TTM):</strong> ${tickerData.epsTTM}</div>
-                  <div><strong className="text-muted-foreground">Div. Yield:</strong> {tickerData.dividendYield}</div>
-                  <div><strong className="text-muted-foreground">Beta:</strong> {tickerData.beta}</div>
+                {/* Valuation Metrics Section */}
+                <div className="pb-4 border-b border-border/30">
+                  <h4 className="text-md font-semibold text-foreground mb-2">Valuation Metrics</h4>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                    <div><strong className="text-muted-foreground">Market Cap:</strong> {tickerData.marketCap}</div>
+                    <div><strong className="text-muted-foreground">P/E Ratio (TTM):</strong> {tickerData.peRatio}</div>
+                    <div><strong className="text-muted-foreground">EPS (TTM):</strong> ${tickerData.epsTTM}</div>
+                    <div><strong className="text-muted-foreground">Div. Yield:</strong> {tickerData.dividendYield}</div>
+                    <div><strong className="text-muted-foreground">Beta:</strong> {tickerData.beta}</div>
+                  </div>
+                </div>
+
+                {/* Key Dates Section */}
+                <div className="pb-4 border-b border-border/30">
+                  <h4 className="text-md font-semibold text-foreground mb-2">Key Dates</h4>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                    <div><strong className="text-muted-foreground">Next Earnings:</strong> {tickerData.nextEarningsDate}</div>
+                    <div><strong className="text-muted-foreground">Dividend Date:</strong> {tickerData.dividendDate}</div>
+                  </div>
+                </div>
+
+                {/* Optional: 1D Price Trend (Placeholder) */}
+                <div className="pb-4 border-b border-border/30">
+                  <h4 className="text-md font-semibold text-foreground mb-2">1D Price Trend</h4>
+                  <div className="h-20 w-full bg-muted/30 rounded-md flex items-center justify-center" data-ai-hint="mini stock chart">
+                    <span className="text-xs text-muted-foreground">Chart Placeholder</span>
+                  </div>
+                </div>
+
+                {/* Optional: Recent News (Placeholder) */}
+                <div>
+                  <h4 className="text-md font-semibold text-foreground mb-2">Recent News</h4>
+                  <ul className="space-y-2 text-xs">
+                    {tickerData.recentNews.map((newsItem: any) => (
+                      <li key={newsItem.id} className="pb-1 border-b border-border/20 last:border-b-0">
+                        <p className="text-foreground hover:text-primary cursor-pointer">{newsItem.headline}</p>
+                        <p className={cn(
+                          "text-xs",
+                          newsItem.sentiment === 'positive' ? 'text-[hsl(var(--confirm-green))]' :
+                          newsItem.sentiment === 'negative' ? 'text-destructive' :
+                          'text-muted-foreground'
+                        )}>
+                          {newsItem.source} - {newsItem.sentiment}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
-
-              {/* Key Dates Section */}
-              <div className="pb-4 border-b border-border/30">
-                <h4 className="text-md font-semibold text-foreground mb-2">Key Dates</h4>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                  <div><strong className="text-muted-foreground">Next Earnings:</strong> {tickerData.nextEarningsDate}</div>
-                  <div><strong className="text-muted-foreground">Dividend Date:</strong> {tickerData.dividendDate}</div>
-                </div>
-              </div>
-
-              {/* Optional: 1D Price Trend (Placeholder) */}
-              <div className="pb-4 border-b border-border/30">
-                <h4 className="text-md font-semibold text-foreground mb-2">1D Price Trend</h4>
-                <div className="h-20 w-full bg-muted/30 rounded-md flex items-center justify-center" data-ai-hint="mini stock chart">
-                  <span className="text-xs text-muted-foreground">Chart Placeholder</span>
-                </div>
-              </div>
-
-              {/* Optional: Recent News (Placeholder) */}
-              <div>
-                <h4 className="text-md font-semibold text-foreground mb-2">Recent News</h4>
-                <ul className="space-y-2 text-xs">
-                  {tickerData.recentNews.map((newsItem: any) => (
-                    <li key={newsItem.id} className="pb-1 border-b border-border/20 last:border-b-0">
-                      <p className="text-foreground hover:text-primary cursor-pointer">{newsItem.headline}</p>
-                      <p className={cn(
-                        "text-xs",
-                        newsItem.sentiment === 'positive' ? 'text-[hsl(var(--confirm-green))]' :
-                        newsItem.sentiment === 'negative' ? 'text-destructive' :
-                        'text-muted-foreground'
-                      )}>
-                        {newsItem.source} - {newsItem.sentiment}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
-        </PlaceholderCard>
+            )}
+          </PlaceholderCard>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
