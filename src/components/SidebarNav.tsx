@@ -38,6 +38,13 @@ import {
   Briefcase,
   File,
   BarChart,
+  PieChart,
+  Package,
+  Repeat,
+  ShieldCheck,
+  GitMerge,
+  Grid3x3,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -66,6 +73,16 @@ const crmNavItems = [
   { href: "/crm/reports", label: "Reports", icon: BarChart },
 ];
 
+const analyticsNavItems = [
+    { href: "/analytics/asset", label: "Asset Analytics", icon: Package },
+    { href: "/analytics/client", label: "Client Analytics", icon: Users },
+    { href: "/analytics/financial", label: "Financial Analytics", icon: TrendingUp },
+    { href: "/analytics/conversion", label: "Conversion Analytics", icon: Repeat },
+    { href: "/analytics/compliance", label: "Compliance Matrix", icon: ShieldCheck },
+    { href: "/analytics/contribution", label: "Contribution Matrix", icon: GitMerge },
+    { href: "/analytics/resource", label: "Resource Matrix", icon: Grid3x3 },
+];
+
 
 // Phosphor cow icon (https://phosphoricons.com/) - open source
 const CowIcon = ({ size = 28, color = "currentColor", ...props }) => {
@@ -91,6 +108,7 @@ export function SidebarNav() {
   const { state, toggleSidebar, isMobile } = useSidebar();
   const [isTradingOpen, setIsTradingOpen] = React.useState(true);
   const [isCrmOpen, setIsCrmOpen] = React.useState(true);
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = React.useState(true);
 
   const tradingSubMenuItems = tradingNavItems.map((item) => {
     const isActive = pathname === item.href;
@@ -107,6 +125,20 @@ export function SidebarNav() {
   });
   
   const crmSubMenuItems = crmNavItems.map((item) => {
+    const isActive = pathname === item.href;
+    return (
+      <SidebarMenuItem key={item.href}>
+        <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
+          <Link href={item.href}>
+            <item.icon className="h-4 w-4" />
+            <span>{item.label}</span>
+          </Link>
+        </SidebarMenuSubButton>
+      </SidebarMenuItem>
+    );
+  });
+
+  const analyticsSubMenuItems = analyticsNavItems.map((item) => {
     const isActive = pathname === item.href;
     return (
       <SidebarMenuItem key={item.href}>
@@ -193,6 +225,27 @@ export function SidebarNav() {
                   {crmSubMenuItems}
                 </SidebarMenuSub>
               </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
+                  className="justify-between w-full"
+                  isActive={analyticsNavItems.some((item) => item.href === pathname)}
+                >
+                  <div className="flex items-center gap-2">
+                    <PieChart className="h-5 w-5" />
+                    <span className="text-base font-semibold tracking-wide">Analytics</span>
+                  </div>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 transition-transform",
+                      isAnalyticsOpen && "rotate-180"
+                    )}
+                  />
+                </SidebarMenuButton>
+                <SidebarMenuSub open={isAnalyticsOpen}>
+                  {analyticsSubMenuItems}
+                </SidebarMenuSub>
+              </SidebarMenuItem>
             </>
           )}
 
@@ -201,6 +254,7 @@ export function SidebarNav() {
             <>
               {tradingSubMenuItems}
               {crmSubMenuItems}
+              {analyticsSubMenuItems}
             </>
           )}
         </SidebarMenu>
