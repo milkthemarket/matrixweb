@@ -10,7 +10,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, GraduationCap, Lightbulb, SlidersHorizontal, Megaphone, Store, ArchiveX, ChevronLeft, ChevronRight } from "lucide-react";
@@ -99,14 +98,6 @@ export function SidebarNav() {
           })}
         </SidebarMenu>
       </SidebarContent>
-
-      {state === 'expanded' && (
-        <SidebarFooter className="p-4 flex flex-col space-y-1 items-start">
-          <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} M.I.L.K.</p>
-          <p className="text-xs text-muted-foreground/70">Main logo based on Phosphor Icons (open source).</p>
-          <p className="text-xs text-muted-foreground/70">Milo Avatar (cow head) icon concept by kerismaker from Flaticon.</p>
-        </SidebarFooter>
-      )}
     </Sidebar>
   );
 }
