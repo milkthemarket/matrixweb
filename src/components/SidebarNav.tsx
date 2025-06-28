@@ -135,12 +135,12 @@ export function SidebarNav() {
                   const isActive = pathname === item.href;
                   return (
                     <SidebarMenuSubItem key={item.href}>
-                      <Link href={item.href} passHref legacyBehavior>
-                        <SidebarMenuSubButton isActive={isActive}>
+                      <SidebarMenuSubButton asChild isActive={isActive}>
+                        <Link href={item.href}>
                             <item.icon className="h-4 w-4" />
                             <span>{item.label}</span>
-                        </SidebarMenuSubButton>
-                      </Link>
+                        </Link>
+                      </SidebarMenuSubButton>
                     </SidebarMenuSubItem>
                   )
                 })}
