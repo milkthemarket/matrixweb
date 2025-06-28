@@ -98,7 +98,7 @@ const initialColumnConfiguration: ColumnConfig<Stock>[] = [
   { key: 'price', label: 'Price', defaultVisible: true, isToggleable: false, isDraggable: true, align: 'right', defaultWidth: 90, format: (val) => `$${formatDecimal(val)}` },
   { key: 'changePercent', label: '% Change', defaultVisible: true, isToggleable: true, isDraggable: true, align: 'right', defaultWidth: 100, format: (val) => {
     const numVal = typeof val === 'number' ? val : 0;
-    return <span className={cn("font-semibold", numVal >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}> {numVal >= 0 ? '+' : ''}{formatDecimal(numVal, 1)}% </span>
+    return <span className={cn("font-semibold", numVal >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}> {numVal >= 0 ? '+' : ''}{formatDecimal(numVal, 1)}% </span> 
   }},
   {
     key: 'sentiment',
@@ -288,9 +288,42 @@ export const initialMockStocks: Stock[] = [
     prevClose: 816.67,
     analystRating: 'Strong Buy',
   },
+  {
+    id: '52',
+    symbol: 'AN',
+    name: 'Autonatio Inc.',
+    price: 112.45,
+    changePercent: -2.13,
+    float: 250,
+    volume: 2.4,
+    newsSnippet: "Analysts worry that robotaxis could take over the market, causing Autonatio’s vehicle sales to fall. Some predict traditional dealerships may soon become a thing of the past.",
+    lastUpdated: MOCK_INITIAL_TIMESTAMP,
+    catalystType: 'fire',
+    sentiment: 'Negative',
+    newsSentimentPercent: 74,
+    topNewsKeyword: 'Robotaxi Disruption',
+    historicalPrices: [115.0, 114.5, 113.0, 112.8, 113.2, 112.5, 112.45],
+    marketCap: 112.45 * 250 * 1e6,
+    avgVolume: 3.1,
+    atr: 3.5,
+    rsi: 35.2,
+    vwap: 112.60,
+    beta: 1.4,
+    high52: 180.0,
+    low52: 110.0,
+    gapPercent: -0.8,
+    shortFloat: 8.5,
+    instOwn: 55.0,
+    premarketChange: -0.5,
+    peRatio: 18.0,
+    dividendYield: 2.1,
+    sector: 'Consumer Discretionary',
+    earningsDate: '2024-08-18T00:00:00.000Z',
+    analystRating: 'Sell',
+  },
 ];
 
-const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM', 'TPL'];
+const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM', 'TPL', 'AN'];
 
 
 function DashboardPageContent() {
@@ -1023,3 +1056,5 @@ export default function DashboardPage() {
 }
 
 
+
+    
