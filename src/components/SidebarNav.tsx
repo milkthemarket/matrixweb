@@ -55,7 +55,7 @@ export function SidebarNav() {
       <SidebarHeader className="p-3">
         <div className={cn(
           "flex w-full items-center",
-          state === "expanded" ? "justify-between" : "justify-center"
+          state === "expanded" ? "justify-between" : "flex-col justify-center gap-2"
         )}>
           <Link href="/milk-market" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
             <CowIcon size={28} className="text-white flex-shrink-0" />
