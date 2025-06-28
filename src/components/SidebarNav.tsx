@@ -87,10 +87,10 @@ export function SidebarNav() {
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="p-3">
+      <SidebarHeader className={cn(state === 'expanded' ? "p-3" : "p-0")}>
         <div className={cn(
           "flex w-full items-center",
-          state === "expanded" ? "justify-between" : "flex-col justify-center gap-2"
+          state === "expanded" ? "justify-between" : "flex-col justify-center gap-4"
         )}>
           <Link href="/milk-market" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
             <CowIcon size={28} className="text-white flex-shrink-0" />

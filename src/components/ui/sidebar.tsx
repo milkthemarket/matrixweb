@@ -245,7 +245,7 @@ const Sidebar = React.forwardRef<
           data-sidebar="sidebar" 
           className={cn(
             "flex h-full w-full flex-col bg-sidebar backdrop-blur-md shadow-none",
-            "group-data-[state=collapsed]:items-center group-data-[state=collapsed]:justify-center",
+            "group-data-[state=collapsed]:items-center group-data-[state=collapsed]:justify-start group-data-[state=collapsed]:gap-4 group-data-[state=collapsed]:pt-4",
             variant === "floating" && "rounded-lg",
             "p-0.5"
           )}
@@ -409,7 +409,7 @@ const SidebarContent = React.forwardRef<
       data-sidebar="content"
       className={cn(
         "flex min-h-0 flex-col overflow-hidden",
-        state === "collapsed" ? "items-center" : "flex-1 gap-0.5",
+        state === "collapsed" ? "items-center" : "gap-0.5",
         className
       )}
       {...props}
@@ -524,7 +524,7 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2.5 overflow-hidden rounded-md text-left outline-none ring-sidebar-ring transition-all hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 active:bg-sidebar-accent/[.05] active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-2 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent/[.05] data-[active=true]:font-medium data-[active=true]:text-foreground data-[active=true]:[&>svg]:text-primary data-[state=open]:hover:bg-sidebar-accent/[.05] data-[state=open]:hover:text-sidebar-accent-foreground group-data-[state=collapsed]:group-data-[collapsible=icon]:!size-10 group-data-[state=collapsed]:group-data-[collapsible=icon]:!p-3 group-data-[state=collapsed]:group-data-[collapsible=icon]:justify-center [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center gap-2.5 overflow-hidden rounded-md text-left outline-none ring-sidebar-ring transition-all hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 active:bg-sidebar-accent/[.05] active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-2 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[state=open]:hover:bg-sidebar-accent/[.05] data-[state=open]:hover:text-sidebar-accent-foreground group-data-[state=collapsed]:group-data-[collapsible=icon]:!size-10 group-data-[state=collapsed]:group-data-[collapsible=icon]:!p-3 group-data-[state=collapsed]:group-data-[collapsible=icon]:justify-center [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -574,7 +574,11 @@ const SidebarMenuButton = React.forwardRef<
         data-sidebar="menu-button"
         data-size={size}
         data-active={isActive}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+        className={cn(
+          sidebarMenuButtonVariants({ variant, size }), 
+          isActive ? "bg-sidebar-accent/[.05] font-medium text-foreground [&>svg]:text-primary" : "",
+          className
+        )}
         {...props}
       />
     )
@@ -756,8 +760,9 @@ const SidebarMenuSubButton = React.forwardRef<
       data-sidebar="menu-sub-button"
       data-active={isActive}
       className={cn(
-        "flex h-10 min-w-0 items-center gap-2.5 overflow-hidden rounded-md px-3 text-sm text-sidebar-foreground outline-none ring-sidebar-ring transition-all hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 active:bg-sidebar-accent/[.05] active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
-        "data-[active=true]:bg-sidebar-accent/[.05] data-[active=true]:text-sidebar-foreground data-[active=true]:[&>svg]:text-primary",
+        "flex h-8 min-w-0 items-center gap-2.5 overflow-hidden rounded-md px-3 text-sm text-sidebar-foreground outline-none ring-sidebar-ring transition-all hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 active:bg-sidebar-accent/[.05] active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate",
+        "[&>svg]:size-4 [&>svg]:shrink-0",
+        isActive ? "bg-sidebar-accent/[.05] text-sidebar-foreground [&>svg]:text-primary" : "",
         state === "collapsed" && "size-10 justify-center p-3",
         className
       )}
