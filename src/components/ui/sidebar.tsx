@@ -400,12 +400,15 @@ const SidebarContent = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div">
 >(({ className, ...props }, ref) => {
+  const { state } = useSidebar()
+
   return (
     <div
       ref={ref}
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-0.5 overflow-hidden",
+        "flex min-h-0 flex-1 flex-col overflow-hidden",
+        state === "collapsed" ? "items-center justify-center" : "gap-0.5",
         className
       )}
       {...props}
@@ -498,7 +501,7 @@ const SidebarMenu = React.forwardRef<
         data-sidebar="menu"
         className={cn(
             "flex w-full min-w-0 flex-col",
-            state === 'collapsed' ? "h-full items-center justify-center gap-4" : "items-stretch gap-y-1",
+            state === 'collapsed' ? "items-center gap-4" : "items-stretch gap-y-1",
             className)}
         {...props}
         />
