@@ -406,7 +406,7 @@ const SidebarContent = React.forwardRef<
       ref={ref}
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-0.5 overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-0.5 overflow-hidden group-data-[state=collapsed]:justify-center",
         className
       )}
       {...props}
@@ -699,9 +699,20 @@ SidebarMenuSkeleton.displayName = "SidebarMenuSkeleton"
 
 const SidebarMenuSub = React.forwardRef<
   HTMLUListElement,
-  React.ComponentProps<"ul">
->(({ className, ...props }, ref) => {
+  React.ComponentProps<"ul"> & { open?: boolean }
+>(({ className, open, ...props }, ref) => {
   const { state } = useSidebar();
+  
+  if (state === 'collapsed') {
+    return (
+      <ul
+        ref={ref}
+        data-sidebar="menu-sub"
+        className={cn("flex min-w-0 flex-col gap-0.5 items-center", className)}
+        {...props}
+      />
+    );
+  }
 
   return (
     <ul
@@ -709,7 +720,8 @@ const SidebarMenuSub = React.forwardRef<
       data-sidebar="menu-sub"
       className={cn(
         "flex min-w-0 flex-col gap-0.5",
-        state === "expanded" ? "ml-4 py-px pl-2 pr-1" : "items-center",
+        "ml-4 py-px pl-2 pr-1",
+        open === false && "hidden",
         className
       )}
       {...props}
