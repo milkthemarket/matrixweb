@@ -63,7 +63,7 @@ export function ManualTradeTicker() {
   }
 
   const leftPaddingClass = !isMobile
-    ? (sidebarState === 'expanded' ? 'pl-[16rem]' : 'pl-[3rem]')
+    ? (sidebarState === 'expanded' ? 'pl-[14rem]' : 'pl-[3rem]')
     : 'pl-4'; 
 
   const tickerAnimationClass = `animate-ticker-${tickerSpeed}`;
@@ -122,4 +122,3 @@ export function ManualTradeTicker() {
     </div>
   );
 }
-

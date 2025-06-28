@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -21,8 +22,8 @@ import {
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "16rem" // Example value: 256px
-const SIDEBAR_WIDTH_MOBILE = "18rem" // Example value: 288px
+const SIDEBAR_WIDTH = "14rem" // 224px
+const SIDEBAR_WIDTH_MOBILE = "16rem" // 256px
 const SIDEBAR_WIDTH_ICON = "3rem" // Example value: 48px, standard for icon-only sidebars
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
