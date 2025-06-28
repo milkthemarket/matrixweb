@@ -163,15 +163,15 @@ export function SidebarNav() {
           {/* Collapsed View */}
           {state === "collapsed" && (
             <>
-              <SidebarMenuItem>
-                <SidebarMenuSub>{tradingSubMenuItems}</SidebarMenuSub>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton tooltip="CRM" size="lg" className="cursor-not-allowed">
-                  <Users className="h-4 w-4" />
-                  <span>CRM</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {tradingSubMenuItems}
+              <SidebarMenuSubItem>
+                <SidebarMenuSubButton tooltip={{ children: "CRM" }} asChild>
+                    <Link href="#" className="cursor-not-allowed">
+                      <Users className="h-4 w-4" />
+                      <span>CRM</span>
+                    </Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
             </>
           )}
         </SidebarMenu>
