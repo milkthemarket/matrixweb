@@ -13,9 +13,9 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, GraduationCap, Lightbulb, SlidersHorizontal, Megaphone, Store, ArchiveX } from "lucide-react"; // Removed ChevronLeft, ChevronRight
+import { LayoutDashboard, Bell, ListFilter, History, Settings as SettingsIcon, GraduationCap, Lightbulb, SlidersHorizontal, Megaphone, Store, ArchiveX, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-// import { Button } from "@/components/ui/button"; // Button is not needed if toggle is removed
+import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/milk-market", label: "Milk Market", icon: Store },
@@ -49,19 +49,30 @@ const CowIcon = ({ size = 28, color = "currentColor", ...props }) => {
 
 export function SidebarNav() {
   const pathname = usePathname();
-  const { open, state } = useSidebar(); // Removed toggleSidebar and isMobile as desktop toggle is gone
+  const { state, toggleSidebar, isMobile } = useSidebar();
 
   return (
-    <Sidebar collapsible="icon"> {/* collapsible="icon" ensures it can be in icon mode */}
+    <Sidebar collapsible="icon">
       <SidebarHeader className="p-3">
         <div className={cn(
-          "flex w-full items-center justify-center" // Always center for icon-only
+          "flex w-full items-center",
+          state === "expanded" ? "justify-between" : "justify-center"
         )}>
-          <Link href="/milk-market" className="group flex items-center gap-2 min-w-0 justify-center hover:opacity-80 transition-opacity duration-150">
+          <Link href="/milk-market" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
             <CowIcon size={28} className="text-white flex-shrink-0" />
-            {/* Text label is removed as sidebar is always icon-only on desktop */}
+            {state === 'expanded' && <span className="font-bold text-lg text-white">MILK</span>}
           </Link>
-          {/* Desktop expand/collapse button removed */}
+          {!isMobile && (
+             <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 shrink-0 text-foreground"
+                onClick={toggleSidebar}
+              >
+                {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}
+                <span className="sr-only">Toggle sidebar</span>
+              </Button>
+          )}
         </div>
       </SidebarHeader>
 
@@ -75,12 +86,10 @@ export function SidebarNav() {
                   <SidebarMenuButton
                     variant="default"
                     isActive={isActive}
-                    tooltip={{ children: item.label }} // Tooltip will show on hover
+                    tooltip={{ children: item.label, hidden: state === 'expanded' }}
                   >
                     <item.icon className={cn("h-5 w-5", isActive ? "text-sidebar-primary" : "text-muted-foreground group-hover:text-sidebar-accent-foreground")} />
-                    {/* Text label below is conditional on 'open && state === "expanded"' */}
-                    {/* Since 'open' will be false and 'state' will be 'collapsed' on desktop from context, this won't render */}
-                    {open && state === 'expanded' && (
+                    {state === 'expanded' && (
                       <span className="text-base font-semibold tracking-wide">{item.label}</span>
                     )}
                   </SidebarMenuButton>
@@ -91,16 +100,13 @@ export function SidebarNav() {
         </SidebarMenu>
       </SidebarContent>
 
-      {/* Footer is also conditional on 'open && state === "expanded"' or a similar check in SidebarFooter component */}
-      {/* If SidebarFooter hides itself when collapsed, this will also not show */}
-      {open && state ==='expanded' && (
-        <SidebarFooter className="p-4 group-data-[collapsible=icon]:hidden flex flex-col space-y-1 items-start">
+      {state === 'expanded' && (
+        <SidebarFooter className="p-4 flex flex-col space-y-1 items-start">
           <p className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} M.I.L.K.</p>
           <p className="text-xs text-muted-foreground/70">Main logo based on Phosphor Icons (open source).</p>
           <p className="text-xs text-muted-foreground/70">Milo Avatar (cow head) icon concept by kerismaker from Flaticon.</p>
         </SidebarFooter>
       )}
-
     </Sidebar>
   );
 }
