@@ -10,7 +10,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import type { TooltipProps } from 'recharts';
 import { AreaChart as AreaIcon, CandlestickChart, Activity, Search, Loader2, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
-// import { getChartData } from '@/ai/flows/get-chart-data-flow'; // Temporarily removed to fix server startup issue
+import { getChartData } from '@/ai/flows/get-chart-data-flow';
 import { sub, formatISO, format } from 'date-fns';
 import { ChartDatePickerModal } from './ChartDatePickerModal';
 import type { DateRange } from 'react-day-picker';
@@ -110,17 +110,38 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
     }
   }, [stock]);
 
-  // Effect to fetch data from Alpaca
+  // Effect to fetch data from mocked flow
   useEffect(() => {
     const fetchAndSetChartData = async () => {
-      // This function is now completely disabled to prevent startup issues.
+      if (!stock?.symbol) {
+        setChartData([]);
+        return;
+      }
+      setIsLoading(true);
+      setError(null);
+      try {
+        const params = getTimeframeParams(timeframe);
+        const data = await getChartData({ symbol: stock.symbol, ...params });
+        
+        const formattedData = data.map(bar => ({
+          date: format(new Date(bar.t), 'MMM dd'),
+          price: bar.c,
+          open: bar.o,
+          high: bar.h,
+          low: bar.l,
+          close: bar.c
+        }));
+        setChartData(formattedData);
+      } catch (err: any) {
+        console.error("Error fetching chart data:", err);
+        setError(err.message || "Failed to fetch chart data.");
+        setChartData([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
     
-    // Temporarily disabled to allow server to start.
-    // fetchAndSetChartData();
-    setError("Chart data is temporarily unavailable while we resolve a connection issue.");
-    setIsLoading(false);
-    setChartData([]);
+    fetchAndSetChartData();
   }, [stock, timeframe]);
 
   const handleDateGo = (date: Date | DateRange) => {

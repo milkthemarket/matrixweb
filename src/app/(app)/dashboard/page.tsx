@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -27,6 +28,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/PageHeader';
+import { initialMockStocks } from '../trading/dashboard/page';
 
 interface MarketData {
   label: string;
@@ -92,61 +94,6 @@ interface MarketStatusInfo {
   shadowClass: string;
 }
 
-// Function to fetch index data
-const fetchIndexData = async (symbol: string): Promise<FetchedIndexData> => {
-  const apiKey = process.env.NEXT_PUBLIC_POLYGON_API_KEY;
-  // CRITICAL LOG: Check if the API key is being read.
-  console.log(`[Polygon API] Attempting to use API key ending with: ...${apiKey ? apiKey.slice(-4) : 'UNDEFINED'} for symbol: ${symbol}`);
-
-  if (!apiKey) {
-    console.error(`[Polygon API Error] NEXT_PUBLIC_POLYGON_API_KEY is UNDEFINED. Please ensure it's set in .env.local and the dev server was restarted.`);
-    return { error: 'API Key Missing. Configure in .env.local & restart server.' };
-  }
-
-  try {
-    const response = await fetch(`https://api.polygon.io/v2/aggs/ticker/${symbol}/prev?adjusted=true&apiKey=${apiKey}`);
-    if (!response.ok) {
-      let errorMessage = `API Error: ${response.status}`; // Default message
-      try {
-        const errorData = await response.json();
-        if (Object.keys(errorData).length === 0 && errorData.constructor === Object) {
-          console.warn(`[Polygon API Warn] Received empty JSON error object from Polygon for ${symbol}. Status: ${response.status}.`);
-          errorMessage = `API Error: ${response.status} - Polygon returned an empty error response.`;
-        } else {
-          console.log(`[Polygon API Info] Full error response object for ${symbol}:`, errorData); // Changed to log for non-empty error objects
-          if (errorData.message) errorMessage = `API Error: ${response.status} - ${errorData.message}`;
-          else if (errorData.error) errorMessage = `API Error: ${response.status} - ${errorData.error}`;
-          else if (errorData.request_id) errorMessage = `API Error: ${response.status} (Request ID: ${errorData.request_id})`;
-          else if (response.statusText && errorMessage === `API Error: ${response.status}`) {
-             errorMessage = `API Error: ${response.status} - ${response.statusText}`;
-          }
-        }
-      } catch (e) {
-        try {
-            const textError = await response.text();
-            console.warn(`[Polygon API Warn] Could not parse JSON error response for ${symbol}. Status: ${response.status}. Response text snippet:`, textError.substring(0, 200) + (textError.length > 200 ? '...' : ''));
-            errorMessage = `API Error: ${response.status} - ${response.statusText || 'Failed to parse error response as JSON or text.'}`;
-        } catch (textE) {
-            console.warn(`[Polygon API Warn] Could not parse JSON or text error response for ${symbol}. Status: ${response.status}.`);
-            errorMessage = `API Error: ${response.status} - ${response.statusText || 'Unknown error structure and failed to read response text.'}`;
-        }
-      }
-      console.error(`Error fetching ${symbol}: ${errorMessage}`);
-      return { error: errorMessage };
-    }
-    const data = await response.json();
-    if (data.results && data.results.length > 0) {
-      const { c, o } = data.results[0];
-      return { c, o };
-    }
-    console.warn(`[Polygon API Warn] No data results found for ${symbol} in Polygon response.`);
-    return { error: 'No data from Polygon' };
-  } catch (error: any) {
-    console.error(`[Polygon API Error] Network/Fetch error for ${symbol}:`, error.message || error);
-    return { error: `Fetch error: ${error.message || 'Unknown network error'}` };
-  }
-};
-
 export default function DashboardPage() {
   const [marketApiData, setMarketApiData] = React.useState<Record<string, FetchedIndexData>>({});
   const [tickerQuery, setTickerQuery] = React.useState('');
@@ -156,40 +103,16 @@ export default function DashboardPage() {
   const [currentTimeEST, setCurrentTimeEST] = React.useState<string>('Loading...');
 
   React.useEffect(() => {
-    const loadMarketData = async () => {
-      if (!process.env.NEXT_PUBLIC_POLYGON_API_KEY) {
-        console.warn("[Polygon API] CRITICAL: NEXT_PUBLIC_POLYGON_API_KEY is not defined in the environment. Market data will not be fetched. Ensure .env.local is set and the dev server was restarted.");
-        const errorState: Record<string, FetchedIndexData> = {};
-        initialMarketOverviewData.forEach(market => {
-          errorState[market.polygonTicker] = { error: 'API Key Missing. Check .env.local & restart server.' };
-        });
-        setMarketApiData(errorState);
-        return;
+    const data: Record<string, FetchedIndexData> = {};
+    initialMarketOverviewData.forEach(market => {
+      const stockData = initialMockStocks.find(s => s.symbol === market.polygonTicker);
+      if (stockData) {
+        data[market.polygonTicker] = { c: stockData.price, o: stockData.open };
+      } else {
+        data[market.polygonTicker] = { error: 'Data not found' };
       }
-
-      const initialApiData: Record<string, FetchedIndexData> = {};
-      initialMarketOverviewData.forEach(market => {
-        initialApiData[market.polygonTicker] = { loading: true };
-      });
-      setMarketApiData(initialApiData);
-
-      const promises = initialMarketOverviewData.map(market =>
-        fetchIndexData(market.polygonTicker).then(data => ({ symbol: market.polygonTicker, data }))
-      );
-
-      const results = await Promise.allSettled(promises);
-
-      const newApiData: Record<string, FetchedIndexData> = {};
-      results.forEach(result => {
-        if (result.status === 'fulfilled') {
-          newApiData[result.value.symbol] = result.value.data;
-        } else {
-          console.error("[Polygon API] Promise rejected unexpectedly in loadMarketData:", result.reason);
-        }
-      });
-      setMarketApiData(prevData => ({ ...prevData, ...newApiData }));
-    };
-    loadMarketData();
+    });
+    setMarketApiData(data);
   }, []);
 
   const calculateChangePercent = (currentPrice?: number, openPrice?: number) => {
