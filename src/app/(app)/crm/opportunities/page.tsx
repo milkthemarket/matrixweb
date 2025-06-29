@@ -282,8 +282,8 @@ export default function ClientPortalOpportunitiesPage() {
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Opportunities</h1>
             <Select value={opportunityPipeline} onValueChange={setOpportunityPipeline}>
-              <SelectTrigger className="w-auto bg-card border-none text-foreground shadow-white-glow-soft hover:shadow-white-glow-hover transition-shadow duration-200 ease-out">
-                <ChevronDown className="mr-2 h-4 w-4 text-muted-foreground" />
+              <SelectTrigger className="w-auto bg-input border border-primary/50 text-foreground rounded-xl transition-all hover:border-primary">
+                <ChevronDown className="mr-2 h-4 w-4 text-primary" />
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -295,17 +295,17 @@ export default function ClientPortalOpportunitiesPage() {
             <span className="text-muted-foreground">({opportunityCount} opportunities)</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-md">
-              <Button variant={activeView === 'board' ? "default" : "ghost"} size="sm" className={`px-3 py-1 h-auto text-xs ${activeView === 'board' ? 'bg-primary/80 text-primary-foreground' : 'hover:bg-muted/80'}`} onClick={() => setActiveView('board')}>
+            <div className="flex items-center gap-1 bg-input p-1 rounded-xl border border-primary/50">
+              <Button variant={activeView === 'board' ? "default" : "ghost"} size="sm" className={cn("rounded-lg px-3 py-1 h-auto text-xs", activeView === 'board' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'hover:bg-primary/20')} onClick={() => setActiveView('board')}>
                 <LayoutGrid className="mr-1.5 h-3.5 w-3.5" /> Board
               </Button>
-              <Button variant={activeView === 'list' ? "default" : "ghost"} size="sm" className={`px-3 py-1 h-auto text-xs ${activeView === 'list' ? 'bg-primary/80 text-primary-foreground' : 'hover:bg-muted/80'}`} onClick={() => setActiveView('list')}>
+              <Button variant={activeView === 'list' ? "default" : "ghost"} size="sm" className={cn("rounded-lg px-3 py-1 h-auto text-xs", activeView === 'list' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'hover:bg-primary/20')} onClick={() => setActiveView('list')}>
                 <List className="mr-1.5 h-3.5 w-3.5" /> List
               </Button>
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-auto py-1.5 px-3">
+                <Button variant="outline" size="sm" className="h-auto py-1.5 px-3 bg-input border-primary/50 text-foreground rounded-xl transition-all hover:border-primary">
                   <MoreHorizontal className="h-4 w-4" /> <span className="sr-only">Options</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -316,7 +316,7 @@ export default function ClientPortalOpportunitiesPage() {
               </DropdownMenuContent>
             </DropdownMenu>
             <Button 
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
               onClick={() => setIsAddOpportunityDialogOpen(true)}
             >
               <PlusCircle className="mr-2 h-4 w-4" /> Add Opportunity
