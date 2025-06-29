@@ -330,7 +330,7 @@ export default function ClientPortalOpportunitiesPage() {
             {pipelineData.map((column) => (
               <div 
                 key={column.id} 
-                className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl p-4 w-80 md:w-96 shrink-0 flex flex-col gap-4"
+                className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-4 w-80 md:w-96 shrink-0 flex flex-col gap-4"
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, column.id)}
               >
@@ -477,3 +477,4 @@ export default function ClientPortalOpportunitiesPage() {
     </>
   );
 }
+
