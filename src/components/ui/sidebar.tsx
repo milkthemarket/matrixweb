@@ -575,8 +575,8 @@ const SidebarMenuButton = React.forwardRef<
         data-size={size}
         data-active={isActive}
         className={cn(
-          sidebarMenuButtonVariants({ variant, size }), 
-          isActive ? "bg-sidebar-accent/[.05] font-medium text-foreground [&>svg]:text-primary" : "",
+          sidebarMenuButtonVariants({ variant, size }),
+          isActive ? "font-medium text-foreground [&>svg]:text-primary" : "",
           className
         )}
         {...props}
@@ -756,7 +756,7 @@ const SidebarMenuSubButton = React.forwardRef<
       className={cn(
         "flex h-8 min-w-0 items-center gap-2.5 overflow-hidden rounded-md px-3 text-sm text-sidebar-foreground outline-none ring-sidebar-ring transition-all hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 active:bg-sidebar-accent/[.05] active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate",
         "[&>svg]:size-4 [&>svg]:shrink-0",
-        isActive ? "bg-sidebar-accent/[.05] text-sidebar-foreground [&>svg]:text-primary" : "",
+        isActive ? "text-foreground [&>svg]:text-primary" : "",
         state === "collapsed" && "size-10 justify-center p-3",
         className
       )}
@@ -805,10 +805,14 @@ export {
   SidebarMenuSkeleton,
   SidebarMenuSub,
   SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
   useSidebar,
 }
+
+// SidebarMenuSubItem is deprecated and will be removed in a future version.
+const SidebarMenuSubItem = SidebarMenuItem
+
+export { SidebarMenuSubItem }
