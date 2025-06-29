@@ -76,8 +76,8 @@ export default function ClientPortalWorkflowsPage() {
         {/* Filters Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-8">
           <Select defaultValue="active">
-            <SelectTrigger className="w-full bg-card border-none text-foreground shadow-white-glow-soft hover:shadow-white-glow-hover transition-shadow duration-200 ease-out">
-              <Filter className="mr-2 h-4 w-4 text-muted-foreground" />
+            <SelectTrigger className="w-full bg-input border-none text-foreground shadow-white-glow-soft hover:shadow-white-glow-hover transition-shadow duration-200 ease-out">
+              <Filter className="mr-2 h-4 w-4 text-primary" />
               <SelectValue placeholder="Filtering by" />
             </SelectTrigger>
             <SelectContent>
@@ -88,8 +88,8 @@ export default function ClientPortalWorkflowsPage() {
           </Select>
 
           <Select defaultValue="all_workflows">
-            <SelectTrigger className="w-full bg-card border-none text-foreground shadow-white-glow-soft hover:shadow-white-glow-hover transition-shadow duration-200 ease-out">
-              <PlayCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+            <SelectTrigger className="w-full bg-input border-none text-foreground shadow-white-glow-soft hover:shadow-white-glow-hover transition-shadow duration-200 ease-out">
+              <PlayCircle className="mr-2 h-4 w-4 text-primary" />
               <SelectValue placeholder="For workflow template" />
             </SelectTrigger>
             <SelectContent>
@@ -101,8 +101,8 @@ export default function ClientPortalWorkflowsPage() {
           </Select>
 
           <Select defaultValue="all_users">
-            <SelectTrigger className="w-full bg-card border-none text-foreground shadow-white-glow-soft hover:shadow-white-glow-hover transition-shadow duration-200 ease-out">
-              <UserCircle className="mr-2 h-4 w-4 text-muted-foreground" />
+            <SelectTrigger className="w-full bg-input border-none text-foreground shadow-white-glow-soft hover:shadow-white-glow-hover transition-shadow duration-200 ease-out">
+              <UserCircle className="mr-2 h-4 w-4 text-primary" />
               <SelectValue placeholder="Assigned to" />
             </SelectTrigger>
             <SelectContent>
@@ -371,5 +371,3 @@ export default function ClientPortalWorkflowsPage() {
     </>
   );
 }
-
-    
