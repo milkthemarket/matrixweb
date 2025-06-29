@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from 'react';
@@ -24,6 +23,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
+import { format, parseISO } from 'date-fns';
 
 interface OpportunityItem {
   id: string;
@@ -92,11 +92,11 @@ const initialPipelineData: PipelineColumn[] = [
 
 const getProbabilityBadgeClass = (probability: number): string => {
   if (probability < 40) {
-    return "bg-red-500/90 text-white font-bold border-red-400/50"; // Low
+    return "bg-red-500/20 border-red-500/50 text-red-400"; // Low
   } else if (probability < 70) {
-    return "bg-yellow-400/90 text-black font-bold border-yellow-300/50"; // Medium
+    return "bg-yellow-500/20 border-yellow-500/50 text-yellow-400"; // Medium
   } else {
-    return "bg-green-500/90 text-white font-bold border-green-300/50"; // High
+    return "bg-green-500/20 border-green-500/50 text-green-400"; // High
   }
 };
 
@@ -282,7 +282,7 @@ export default function ClientPortalOpportunitiesPage() {
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Opportunities</h1>
             <Select value={opportunityPipeline} onValueChange={setOpportunityPipeline}>
-              <SelectTrigger className="w-auto bg-input border-primary/50 text-foreground rounded-xl shadow-[0_0_8px_rgba(134,93,255,0.3)] hover:shadow-[0_0_12px_rgba(134,93,255,0.5)] transition-shadow duration-200 ease-out">
+              <SelectTrigger className="w-auto bg-card border-primary/50 text-foreground rounded-xl shadow-[0_0_8px_rgba(134,93,255,0.3)] hover:shadow-[0_0_12px_rgba(134,93,255,0.5)] transition-shadow duration-200 ease-out">
                 <ChevronDown className="mr-2 h-4 w-4 text-primary" />
                 <SelectValue />
               </SelectTrigger>
@@ -359,7 +359,7 @@ export default function ClientPortalOpportunitiesPage() {
                           <p className="text-xs text-muted-foreground mb-1">Re: {opp.contactName}</p>
                           <div className="flex justify-between items-end">
                             <p className="text-sm font-semibold text-foreground">{opp.amountDisplay}</p>
-                            <p className="text-xs text-muted-foreground">{new Date(opp.targetCloseDate).toLocaleDateString(undefined, { month: 'short', day: '2-digit', year: 'numeric'})}</p>
+                            <p className="text-xs text-muted-foreground">{format(parseISO(opp.targetCloseDate), 'MMM dd, yyyy')}</p>
                           </div>
                         </div>
                       </div>
