@@ -92,11 +92,11 @@ const initialPipelineData: PipelineColumn[] = [
 
 const getProbabilityBadgeClass = (probability: number): string => {
   if (probability < 40) {
-    return "bg-red-500/20 border-red-500/50 text-red-400"; // Low
+    return "bg-red-500/80 text-white"; // Low
   } else if (probability < 70) {
-    return "bg-yellow-500/20 border-yellow-500/50 text-yellow-400"; // Medium
+    return "bg-yellow-400/90 text-black"; // Medium
   } else {
-    return "bg-green-500/20 border-green-500/50 text-green-400"; // High
+    return "bg-green-500/80 text-white"; // High
   }
 };
 
@@ -282,7 +282,7 @@ export default function ClientPortalOpportunitiesPage() {
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Opportunities</h1>
             <Select value={opportunityPipeline} onValueChange={setOpportunityPipeline}>
-              <SelectTrigger className="w-auto bg-card border-primary/50 text-foreground rounded-xl shadow-[0_0_8px_rgba(134,93,255,0.3)] hover:shadow-[0_0_12px_rgba(134,93,255,0.5)] transition-shadow duration-200 ease-out">
+              <SelectTrigger className="w-auto bg-[#17141f] border border-white/10 text-foreground rounded-xl shadow-lg hover:border-primary/50 transition-colors">
                 <ChevronDown className="mr-2 h-4 w-4 text-primary" />
                 <SelectValue />
               </SelectTrigger>
@@ -295,7 +295,7 @@ export default function ClientPortalOpportunitiesPage() {
             <span className="text-muted-foreground">({opportunityCount} opportunities)</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-input p-1 rounded-xl border border-primary/50">
+            <div className="flex items-center gap-1 bg-[#17141f] p-1 rounded-xl border border-white/10">
               <Button variant={activeView === 'board' ? "default" : "ghost"} size="sm" className={cn("rounded-lg px-3 py-1 h-auto text-xs", activeView === 'board' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'hover:bg-primary/20')} onClick={() => setActiveView('board')}>
                 <LayoutGrid className="mr-1.5 h-3.5 w-3.5" /> Board
               </Button>
@@ -305,7 +305,7 @@ export default function ClientPortalOpportunitiesPage() {
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-auto py-1.5 px-3 bg-input border-primary/50 text-foreground rounded-xl transition-all hover:border-primary">
+                <Button variant="outline" size="sm" className="h-auto py-1.5 px-3 bg-[#17141f] border-white/10 text-foreground rounded-xl transition-all hover:border-primary">
                   <MoreHorizontal className="h-4 w-4" /> <span className="sr-only">Options</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -329,16 +329,15 @@ export default function ClientPortalOpportunitiesPage() {
             {pipelineData.map((column) => (
               <div 
                 key={column.id} 
-                className="bg-card/80 backdrop-blur-md rounded-xl p-4 w-80 md:w-96 shrink-0 shadow-xl border border-white/10"
+                className="bg-[#17141f] border border-white/10 rounded-2xl shadow-xl p-4 w-80 md:w-96 shrink-0 flex flex-col gap-4"
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, column.id)}
-                // onDragLeave={handleDragLeave} // Optional: for removing highlight on drag leave
               >
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-center">
                   <h2 className="text-lg font-bold text-white">{column.title}</h2>
                   <span className="text-sm text-muted-foreground">{column.opportunities.length}</span>
                 </div>
-                <div className="space-y-3 h-[calc(100vh-20rem)] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-muted/30 scrollbar-track-transparent">
+                <div className="space-y-3 h-full overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-muted/30 scrollbar-track-transparent">
                   {column.opportunities.length > 0 ? (
                     column.opportunities.map((opp) => (
                       <div 
@@ -346,13 +345,13 @@ export default function ClientPortalOpportunitiesPage() {
                         draggable="true"
                         onDragStart={(e) => handleDragStart(e, opp.id, column.id)}
                         onDragEnd={handleDragEnd}
-                        className="bg-black/50 p-3 rounded-lg shadow-lg border border-border/20 cursor-grab active:cursor-grabbing flex items-start gap-1.5"
+                        className="bg-[#18122B] text-white rounded-xl border border-white/10 shadow-lg px-5 py-4 cursor-grab active:cursor-grabbing flex items-start gap-1.5"
                       >
                         <GripVertical className="h-5 w-5 text-muted-foreground/50 mt-0.5 shrink-0 cursor-grab" />
                         <div className="flex-grow">
                           <div className="flex justify-between items-start mb-1">
                             <h3 className="text-sm font-medium text-foreground">{opp.title}</h3>
-                            <Badge variant="outline" className={cn("text-xs", getProbabilityBadgeClass(opp.probability))}>
+                            <Badge variant="default" className={cn("font-semibold rounded-full px-3 py-1 text-xs border-0", getProbabilityBadgeClass(opp.probability))}>
                               {opp.probability}%
                             </Badge>
                           </div>
@@ -477,8 +476,3 @@ export default function ClientPortalOpportunitiesPage() {
     </>
   );
 }
-
-
-
-
-    
