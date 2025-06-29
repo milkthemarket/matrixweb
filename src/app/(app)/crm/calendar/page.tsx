@@ -363,7 +363,7 @@ export default function ClientPortalCalendarPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 lg:gap-8"> {/* Main layout grid */}
           <div className="flex-1 space-y-6"> 
-            <PlaceholderCard title="" className="p-0 bg-card/80 backdrop-blur-sm border border-white/10">
+            <PlaceholderCard title="" className="p-0 shadow-lg shadow-primary/10">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-b border-white/10">
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="icon" aria-label="Previous period" onClick={handlePrevious}><ChevronLeft className="h-4 w-4" /></Button>
@@ -371,17 +371,17 @@ export default function ClientPortalCalendarPage() {
                   <Button variant="outline" onClick={handleToday}>Today</Button>
                 </div>
                 <div className="text-lg font-semibold text-foreground">{headerDateDisplay}</div>
-                <div className="flex items-center gap-1 bg-black/20 p-1 rounded-md">
+                <div className="flex items-center gap-1 bg-black/30 p-1 rounded-md">
                   {["month", "week", "day"].map((view) => (
                     <Button key={view} variant={activeView === view ? "default" : "ghost"} size="sm"
-                      className={`px-3 py-1 h-auto text-xs capitalize ${activeView === view ? 'bg-primary/80 text-primary-foreground' : 'hover:bg-white/10'}`}
+                      className={`px-3 py-1 h-auto text-xs capitalize ${activeView === view ? 'bg-primary text-primary-foreground' : 'hover:bg-white/10'}`}
                       onClick={() => setActiveView(view)}>{view}</Button>
                   ))}
                 </div>
               </div>
 
               {activeView === 'month' && (
-                <div className="grid grid-cols-7 gap-px border-l border-t border-white/10 bg-white/10">
+                <div className="grid grid-cols-7 gap-px border-l border-t border-white/10">
                   {daysOfWeek.map((day) => (
                     <div key={day} className="py-2 px-1 text-center text-xs font-medium text-muted-foreground bg-transparent border-r border-b border-white/10">{day}</div>
                   ))}
@@ -418,7 +418,7 @@ export default function ClientPortalCalendarPage() {
                     <table className="w-full border-collapse bg-transparent">
                         <thead>
                             <tr>
-                                <th className="w-16 p-2 border-r border-b border-white/10 text-xs text-muted-foreground font-normal sticky left-0 bg-card/80 backdrop-blur-sm z-10"></th>
+                                <th className="w-16 p-2 border-r border-b border-white/10 text-xs text-muted-foreground font-normal sticky left-0 bg-background/80 backdrop-blur-sm z-10"></th>
                                 {weekDates.map(day => (
                                     <th key={day.dateNumber} className="p-2 border-r border-b border-white/10 text-center">
                                         <div className={cn("text-xs font-medium", isToday(day.fullDate) ? "text-primary" : "text-muted-foreground")}>{day.dayName}</div>
@@ -427,7 +427,7 @@ export default function ClientPortalCalendarPage() {
                                 ))}
                             </tr>
                             <tr>
-                                <td className="w-16 p-2 border-r border-b border-white/10 text-xs text-muted-foreground sticky left-0 bg-card/80 backdrop-blur-sm z-10 text-center">all-day</td>
+                                <td className="w-16 p-2 border-r border-b border-white/10 text-xs text-muted-foreground sticky left-0 bg-background/80 backdrop-blur-sm z-10 text-center">all-day</td>
                                 {weekDates.map((day, i) => {
                                   const allDayEvents = getEventsForAllDaySlot(day.fullDate);
                                   return (
@@ -445,7 +445,7 @@ export default function ClientPortalCalendarPage() {
                         <tbody className="relative">
                             {hoursToDisplay.map((hourLabel, hourIndex) => (
                                 <tr key={hourLabel}>
-                                    <td className="w-16 p-2 border-r border-b border-white/10 text-xs text-muted-foreground align-top text-right sticky left-0 bg-card/80 backdrop-blur-sm z-10">
+                                    <td className="w-16 p-2 border-r border-b border-white/10 text-xs text-muted-foreground align-top text-right sticky left-0 bg-background/80 backdrop-blur-sm z-10">
                                         {hourIndex > 0 && hourLabel}
                                     </td>
                                     {weekDates.map((day, dayIndex) => {
@@ -475,7 +475,7 @@ export default function ClientPortalCalendarPage() {
               )}
               {activeView === 'day' && (
                 <div className="flex flex-1 h-[calc(24*4rem+2.5rem)] border-t border-white/10 relative"> 
-                    <div className="w-16 border-r border-white/10 shrink-0 bg-card/80 backdrop-blur-sm">
+                    <div className="w-16 border-r border-white/10 shrink-0 bg-background/80 backdrop-blur-sm">
                         <div className="h-10 flex items-center justify-center text-xs text-muted-foreground border-b border-white/10"> 
                            {format(currentDateForCalendar, 'EEE')}
                         </div>
@@ -524,7 +524,7 @@ export default function ClientPortalCalendarPage() {
           </div>
 
           <aside className="lg:w-72 xl:w-80 space-y-6 shrink-0">
-            <PlaceholderCard title="" className="p-0 bg-card/80 backdrop-blur-sm border border-white/10"> 
+            <PlaceholderCard title="" className="p-0"> 
                 <Tabs defaultValue="calendars" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-black/20">
                     <TabsTrigger value="calendars" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">Calendars</TabsTrigger>
@@ -568,7 +568,7 @@ export default function ClientPortalCalendarPage() {
       </main>
 
       <Dialog open={isQuickAddEventDialogOpen} onOpenChange={setIsQuickAddEventDialogOpen}>
-        <DialogContent className="sm:max-w-md bg-card/95 backdrop-blur-md border-border/50">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-lg font-bold text-foreground">Quick Add Event</DialogTitle>
           </DialogHeader>
@@ -641,7 +641,7 @@ export default function ClientPortalCalendarPage() {
       </Dialog>
 
       <Dialog open={isAddEventDialogOpen} onOpenChange={setIsAddEventDialogOpen}>
-        <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-3xl max-h-[90vh] flex flex-col bg-card/95 backdrop-blur-md border-border/50">
+        <DialogContent className="sm:max-w-xl md:max-w-2xl lg:max-w-3xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-foreground">New Event</DialogTitle>
           </DialogHeader>
