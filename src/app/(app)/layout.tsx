@@ -8,6 +8,7 @@ import { TradeHistoryProvider } from "@/contexts/TradeHistoryContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { OpenPositionsProvider } from "@/contexts/OpenPositionsContext";
 import { ManualTradeTicker } from "@/components/ManualTradeTicker";
+import { AuthProvider } from "@/contexts/auth-context";
 
 
 export default function AppLayout({
@@ -16,22 +17,24 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <AlertProvider>
-      <TradeHistoryProvider>
-        <SettingsProvider>
-          <OpenPositionsProvider>
-            <div className="flex min-h-screen w-full flex-col"> {/* Outer flex-col for ticker, REMOVED pt-7 */}
-              <ManualTradeTicker /> {/* Render ticker at the top, it will stick to top of this box */}
-              <div className="flex flex-1 pt-0.5"> {/* Inner flex for sidebar and content, CHANGED to pt-0.5 */}
-                <SidebarNav />
-                <SidebarInset className="flex flex-col flex-1 overflow-auto">
-                  {children}
-                </SidebarInset>
+    <AuthProvider>
+      <AlertProvider>
+        <TradeHistoryProvider>
+          <SettingsProvider>
+            <OpenPositionsProvider>
+              <div className="flex min-h-screen w-full flex-col"> {/* Outer flex-col for ticker, REMOVED pt-7 */}
+                <ManualTradeTicker /> {/* Render ticker at the top, it will stick to top of this box */}
+                <div className="flex flex-1 pt-0.5"> {/* Inner flex for sidebar and content, CHANGED to pt-0.5 */}
+                  <SidebarNav />
+                  <SidebarInset className="flex flex-col flex-1 overflow-auto">
+                    {children}
+                  </SidebarInset>
+                </div>
               </div>
-            </div>
-          </OpenPositionsProvider>
-        </SettingsProvider>
-      </TradeHistoryProvider>
-    </AlertProvider>
+            </OpenPositionsProvider>
+          </SettingsProvider>
+        </TradeHistoryProvider>
+      </AlertProvider>
+    </AuthProvider>
   );
 }
