@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -282,7 +283,7 @@ export default function ClientPortalOpportunitiesPage() {
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Opportunities</h1>
             <Select value={opportunityPipeline} onValueChange={setOpportunityPipeline}>
-              <SelectTrigger className="w-auto bg-[#17141f] border border-white/10 text-foreground rounded-xl shadow-lg hover:border-primary/50 transition-colors">
+              <SelectTrigger className="w-auto bg-[#141021] border border-[#865DFF]/60 text-foreground rounded-xl shadow-lg hover:border-primary/50 transition-colors">
                 <ChevronDown className="mr-2 h-4 w-4 text-primary" />
                 <SelectValue />
               </SelectTrigger>
@@ -295,7 +296,7 @@ export default function ClientPortalOpportunitiesPage() {
             <span className="text-muted-foreground">({opportunityCount} opportunities)</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-[#17141f] p-1 rounded-xl border border-white/10">
+            <div className="flex items-center gap-1 bg-[#141021] p-1 rounded-xl border border-[#865DFF]/60">
               <Button variant={activeView === 'board' ? "default" : "ghost"} size="sm" className={cn("rounded-lg px-3 py-1 h-auto text-xs", activeView === 'board' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'hover:bg-primary/20')} onClick={() => setActiveView('board')}>
                 <LayoutGrid className="mr-1.5 h-3.5 w-3.5" /> Board
               </Button>
@@ -305,7 +306,7 @@ export default function ClientPortalOpportunitiesPage() {
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-auto py-1.5 px-3 bg-[#17141f] border-white/10 text-foreground rounded-xl transition-all hover:border-primary">
+                <Button variant="outline" size="sm" className="h-auto py-1.5 px-3 bg-[#141021] border-[#865DFF]/60 text-foreground rounded-xl transition-all hover:border-primary">
                   <MoreHorizontal className="h-4 w-4" /> <span className="sr-only">Options</span>
                 </Button>
               </DropdownMenuTrigger>
@@ -329,7 +330,7 @@ export default function ClientPortalOpportunitiesPage() {
             {pipelineData.map((column) => (
               <div 
                 key={column.id} 
-                className="bg-[#17141f] border border-white/10 rounded-2xl shadow-xl p-4 w-80 md:w-96 shrink-0 flex flex-col gap-4"
+                className="bg-black/40 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl p-4 w-80 md:w-96 shrink-0 flex flex-col gap-4"
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, column.id)}
               >
