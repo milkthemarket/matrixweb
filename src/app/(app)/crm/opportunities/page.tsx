@@ -92,11 +92,11 @@ const initialPipelineData: PipelineColumn[] = [
 
 const getProbabilityBadgeClass = (probability: number): string => {
   if (probability < 40) {
-    return "bg-red-500/20 border-red-500/50 text-red-400"; // Low
+    return "bg-red-500/90 text-white font-bold border-red-400/50"; // Low
   } else if (probability < 70) {
-    return "bg-yellow-500/20 border-yellow-500/50 text-yellow-400"; // Medium
+    return "bg-yellow-400/90 text-black font-bold border-yellow-300/50"; // Medium
   } else {
-    return "bg-green-500/20 border-green-500/50 text-green-400"; // High
+    return "bg-green-500/90 text-white font-bold border-green-300/50"; // High
   }
 };
 
@@ -277,12 +277,12 @@ export default function ClientPortalOpportunitiesPage() {
 
   return (
     <>
-      <main className="min-h-screen bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#5b21b6]/10 to-[#000104] flex-1 p-6 space-y-6 md:p-8">
+      <main className="min-h-screen bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#5b21b6]/20 to-[#000104] flex-1 p-8 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Opportunities</h1>
             <Select value={opportunityPipeline} onValueChange={setOpportunityPipeline}>
-              <SelectTrigger className="w-auto bg-input border border-primary/50 text-foreground rounded-xl transition-all hover:border-primary">
+              <SelectTrigger className="w-auto bg-card border-none text-foreground rounded-xl shadow-[0_0_8px_rgba(134,93,255,0.3)] hover:shadow-[0_0_12px_rgba(134,93,255,0.5)] transition-shadow duration-200 ease-out">
                 <ChevronDown className="mr-2 h-4 w-4 text-primary" />
                 <SelectValue />
               </SelectTrigger>
@@ -329,13 +329,13 @@ export default function ClientPortalOpportunitiesPage() {
             {pipelineData.map((column) => (
               <div 
                 key={column.id} 
-                className="bg-card/60 backdrop-blur-md rounded-lg p-4 w-80 md:w-96 shrink-0 shadow-lg border border-white/10"
+                className="bg-card/80 backdrop-blur-md rounded-xl p-4 w-80 md:w-96 shrink-0 shadow-xl border border-white/10"
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, column.id)}
                 // onDragLeave={handleDragLeave} // Optional: for removing highlight on drag leave
               >
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-base font-semibold text-foreground">{column.title}</h2>
+                  <h2 className="text-lg font-bold text-white">{column.title}</h2>
                   <span className="text-sm text-muted-foreground">{column.opportunities.length}</span>
                 </div>
                 <div className="space-y-3 h-[calc(100vh-20rem)] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-muted/30 scrollbar-track-transparent">
@@ -346,7 +346,7 @@ export default function ClientPortalOpportunitiesPage() {
                         draggable="true"
                         onDragStart={(e) => handleDragStart(e, opp.id, column.id)}
                         onDragEnd={handleDragEnd}
-                        className="bg-black/50 p-3 rounded-md shadow-md border border-border/30 cursor-grab active:cursor-grabbing flex items-start gap-1.5"
+                        className="bg-black/50 p-3 rounded-lg shadow-lg border border-border/20 cursor-grab active:cursor-grabbing flex items-start gap-1.5"
                       >
                         <GripVertical className="h-5 w-5 text-muted-foreground/50 mt-0.5 shrink-0 cursor-grab" />
                         <div className="flex-grow">
@@ -477,4 +477,5 @@ export default function ClientPortalOpportunitiesPage() {
     </>
   );
 }
+
 
