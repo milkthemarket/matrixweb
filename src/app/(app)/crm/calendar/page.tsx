@@ -339,7 +339,7 @@ export default function ClientPortalCalendarPage() {
 
   return (
     <>
-      <main className="min-h-screen bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#5b21b6]/10 to-[#000104] flex-1 p-6 space-y-6 md:p-8">
+      <main className="flex flex-col flex-1 h-full overflow-hidden p-6 space-y-6 md:p-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Calendar</h1>
           <div className="flex items-center gap-2">
@@ -363,35 +363,35 @@ export default function ClientPortalCalendarPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6 lg:gap-8"> {/* Main layout grid */}
           <div className="flex-1 space-y-6"> 
-            <PlaceholderCard title="" className="p-0 bg-card/80 backdrop-blur-sm">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-b border-border/30">
+            <PlaceholderCard title="" className="p-0 bg-card/80 backdrop-blur-sm border border-white/10">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-b border-white/10">
                 <div className="flex items-center gap-2">
                   <Button variant="outline" size="icon" aria-label="Previous period" onClick={handlePrevious}><ChevronLeft className="h-4 w-4" /></Button>
                   <Button variant="outline" size="icon" aria-label="Next period" onClick={handleNext}><ChevronRight className="h-4 w-4" /></Button>
                   <Button variant="outline" onClick={handleToday}>Today</Button>
                 </div>
                 <div className="text-lg font-semibold text-foreground">{headerDateDisplay}</div>
-                <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-md">
+                <div className="flex items-center gap-1 bg-black/20 p-1 rounded-md">
                   {["month", "week", "day"].map((view) => (
                     <Button key={view} variant={activeView === view ? "default" : "ghost"} size="sm"
-                      className={`px-3 py-1 h-auto text-xs capitalize ${activeView === view ? 'bg-primary/80 text-primary-foreground' : 'hover:bg-muted/80'}`}
+                      className={`px-3 py-1 h-auto text-xs capitalize ${activeView === view ? 'bg-primary/80 text-primary-foreground' : 'hover:bg-white/10'}`}
                       onClick={() => setActiveView(view)}>{view}</Button>
                   ))}
                 </div>
               </div>
 
               {activeView === 'month' && (
-                <div className="grid grid-cols-7 gap-px border-l border-t border-border/30 bg-border/30">
+                <div className="grid grid-cols-7 gap-px border-l border-t border-white/10 bg-white/10">
                   {daysOfWeek.map((day) => (
-                    <div key={day} className="py-2 px-1 text-center text-xs font-medium text-muted-foreground bg-card border-r border-b border-border/30">{day}</div>
+                    <div key={day} className="py-2 px-1 text-center text-xs font-medium text-muted-foreground bg-transparent border-r border-b border-white/10">{day}</div>
                   ))}
                   {monthDays.map((dayObj, index) => {
                     const dayEvents = getEventsForDay(dayObj.fullDate);
                     return (
                     <div key={index}
-                      className={cn("h-24 sm:h-28 md:h-32 p-1.5 text-xs bg-card border-r border-b border-border/30 overflow-hidden relative cursor-pointer hover:bg-muted/20",
+                      className={cn("h-24 sm:h-28 md:h-32 p-1.5 text-xs bg-transparent border-r border-b border-white/10 overflow-hidden relative cursor-pointer hover:bg-white/5",
                         dayObj.isCurrentMonth ? "text-foreground" : "text-muted-foreground/50",
-                        dayObj.fullDate && isToday(dayObj.fullDate) && dayObj.isCurrentMonth && "bg-primary/10"
+                        dayObj.fullDate && isToday(dayObj.fullDate) && dayObj.isCurrentMonth && "bg-primary/10 ring-1 ring-inset ring-primary/50"
                       )}
                       onClick={() => dayObj.fullDate && dayObj.isCurrentMonth && openQuickAddDialogForDate(dayObj.fullDate)}
                     >
@@ -403,7 +403,7 @@ export default function ClientPortalCalendarPage() {
                       )}
                        <div className="mt-5 space-y-0.5 max-h-[calc(100%-1.75rem)] overflow-y-auto no-scrollbar">
                         {dayEvents.map(event => (
-                          <div key={event.id} className="text-[10px] bg-purple-500/70 text-white p-0.5 rounded truncate">
+                          <div key={event.id} className="text-[10px] bg-primary/80 text-primary-foreground p-0.5 rounded-sm truncate">
                             {event.title}
                           </div>
                         ))}
@@ -415,26 +415,26 @@ export default function ClientPortalCalendarPage() {
               )}
               {activeView === 'week' && (
                  <div className="overflow-x-auto relative">
-                    <table className="w-full border-collapse bg-card">
+                    <table className="w-full border-collapse bg-transparent">
                         <thead>
                             <tr>
-                                <th className="w-16 p-2 border-r border-b border-border/30 text-xs text-muted-foreground font-normal sticky left-0 bg-card z-10"></th>
+                                <th className="w-16 p-2 border-r border-b border-white/10 text-xs text-muted-foreground font-normal sticky left-0 bg-card/80 backdrop-blur-sm z-10"></th>
                                 {weekDates.map(day => (
-                                    <th key={day.dateNumber} className="p-2 border-r border-b border-border/30 text-center">
+                                    <th key={day.dateNumber} className="p-2 border-r border-b border-white/10 text-center">
                                         <div className={cn("text-xs font-medium", isToday(day.fullDate) ? "text-primary" : "text-muted-foreground")}>{day.dayName}</div>
                                         <div className={cn("text-2xl font-semibold mt-1", isToday(day.fullDate) ? "text-primary bg-primary/10 rounded-full w-8 h-8 flex items-center justify-center mx-auto" : "text-foreground")}>{day.dateNumber}</div>
                                     </th>
                                 ))}
                             </tr>
                             <tr>
-                                <td className="w-16 p-2 border-r border-b border-border/30 text-xs text-muted-foreground sticky left-0 bg-card z-10 text-center">all-day</td>
+                                <td className="w-16 p-2 border-r border-b border-white/10 text-xs text-muted-foreground sticky left-0 bg-card/80 backdrop-blur-sm z-10 text-center">all-day</td>
                                 {weekDates.map((day, i) => {
                                   const allDayEvents = getEventsForAllDaySlot(day.fullDate);
                                   return (
-                                    <td key={`all-day-${i}`} className="h-10 border-r border-b border-border/30 hover:bg-muted/20 cursor-pointer p-1 align-top" onClick={() => openQuickAddDialogForDate(weekDates[i].fullDate)}>
+                                    <td key={`all-day-${i}`} className="h-10 border-r border-b border-white/10 hover:bg-white/5 cursor-pointer p-1 align-top" onClick={() => openQuickAddDialogForDate(weekDates[i].fullDate)}>
                                       <div className="space-y-0.5">
                                         {allDayEvents.map(event => (
-                                          <div key={event.id} className="text-[10px] bg-blue-500/70 text-white p-0.5 rounded truncate">{event.title}</div>
+                                          <div key={event.id} className="text-[10px] bg-primary/80 text-primary-foreground p-0.5 rounded-sm truncate">{event.title}</div>
                                         ))}
                                       </div>
                                     </td>
@@ -445,7 +445,7 @@ export default function ClientPortalCalendarPage() {
                         <tbody className="relative">
                             {hoursToDisplay.map((hourLabel, hourIndex) => (
                                 <tr key={hourLabel}>
-                                    <td className="w-16 p-2 border-r border-b border-border/30 text-xs text-muted-foreground align-top text-right sticky left-0 bg-card z-10">
+                                    <td className="w-16 p-2 border-r border-b border-white/10 text-xs text-muted-foreground align-top text-right sticky left-0 bg-card/80 backdrop-blur-sm z-10">
                                         {hourIndex > 0 && hourLabel}
                                     </td>
                                     {weekDates.map((day, dayIndex) => {
@@ -453,10 +453,10 @@ export default function ClientPortalCalendarPage() {
                                       const slotEnd = addHours(slotStart, 1);
                                       const slotEvents = getEventsForSlot(slotStart, slotEnd);
                                       return (
-                                        <td key={`${hourLabel}-${dayIndex}`} className="h-16 border-r border-b border-border/30 hover:bg-muted/20 cursor-pointer p-1 align-top" onClick={() => openQuickAddDialogForDate(weekDates[dayIndex].fullDate, hourIndex)}>
+                                        <td key={`${hourLabel}-${dayIndex}`} className="h-16 border-r border-b border-white/10 hover:bg-white/5 cursor-pointer p-1 align-top" onClick={() => openQuickAddDialogForDate(weekDates[dayIndex].fullDate, hourIndex)}>
                                           <div className="space-y-0.5">
                                             {slotEvents.map(event => (
-                                              <div key={event.id} className="text-[10px] bg-green-500/70 text-white p-0.5 rounded truncate">{event.title}</div>
+                                              <div key={event.id} className="text-[10px] bg-primary/80 text-primary-foreground p-0.5 rounded-sm truncate">{event.title}</div>
                                             ))}
                                           </div>
                                         </td>
@@ -465,8 +465,8 @@ export default function ClientPortalCalendarPage() {
                                 </tr>
                             ))}
                              {currentTimePosition !== null && isSameDay(startOfWeek(currentDateForCalendar, { weekStartsOn: 0 }), startOfWeek(new Date(), { weekStartsOn: 0 })) && (
-                              <div className="absolute w-[calc(100%-4rem)] h-0.5 bg-red-500 z-10 right-0" style={{ top: `${currentTimePosition}%` }}>
-                                <div className="absolute -left-1.5 -top-1.5 w-3.5 h-3.5 bg-red-500 rounded-full"></div>
+                              <div className="absolute w-[calc(100%-4rem)] h-0.5 bg-primary z-10 right-0" style={{ top: `${currentTimePosition}%` }}>
+                                <div className="absolute -left-1.5 -top-1.5 w-3.5 h-3.5 bg-primary rounded-full ring-2 ring-background"></div>
                               </div>
                             )}
                         </tbody>
@@ -474,39 +474,39 @@ export default function ClientPortalCalendarPage() {
                 </div>
               )}
               {activeView === 'day' && (
-                <div className="flex flex-1 h-[calc(24*4rem+2.5rem)] border-t border-border/30 relative"> 
-                    <div className="w-16 border-r border-border/30 shrink-0">
-                        <div className="h-10 flex items-center justify-center text-xs text-muted-foreground border-b border-border/30"> 
+                <div className="flex flex-1 h-[calc(24*4rem+2.5rem)] border-t border-white/10 relative"> 
+                    <div className="w-16 border-r border-white/10 shrink-0 bg-card/80 backdrop-blur-sm">
+                        <div className="h-10 flex items-center justify-center text-xs text-muted-foreground border-b border-white/10"> 
                            {format(currentDateForCalendar, 'EEE')}
                         </div>
-                        <div className="h-10 flex items-center justify-center text-xs text-muted-foreground border-b border-border/30 hover:bg-muted/20 cursor-pointer p-1 align-top" onClick={() => openQuickAddDialogForDate(currentDateForCalendar)}>
+                        <div className="h-10 flex items-center justify-center text-xs text-muted-foreground border-b border-white/10 hover:bg-white/5 cursor-pointer p-1 align-top" onClick={() => openQuickAddDialogForDate(currentDateForCalendar)}>
                            {getEventsForAllDaySlot(currentDateForCalendar).map(event => (
-                              <div key={event.id} className="text-[10px] bg-blue-500/70 text-white p-0.5 rounded truncate w-full">{event.title}</div>
+                              <div key={event.id} className="text-[10px] bg-primary/80 text-primary-foreground p-0.5 rounded-sm truncate w-full">{event.title}</div>
                             ))}
                             {getEventsForAllDaySlot(currentDateForCalendar).length === 0 && <span>all-day</span>}
                         </div>
                         {hoursToDisplay.map((hourLabel, index) => (
-                            <div key={`time-${hourLabel}`} className="h-16 pr-1 text-xs text-muted-foreground text-right border-b border-border/30 flex items-start justify-end pt-1">
+                            <div key={`time-${hourLabel}`} className="h-16 pr-1 text-xs text-muted-foreground text-right border-b border-white/10 flex items-start justify-end pt-1">
                                 {index > 0 && hourLabel}
                             </div>
                         ))}
                     </div>
                     <div className="flex-1">
-                        <div className="h-10 flex flex-col items-center justify-center border-b border-border/30">
+                        <div className="h-10 flex flex-col items-center justify-center border-b border-white/10">
                             <div className={cn("text-2xl font-semibold", isToday(currentDateForCalendar) ? "text-primary bg-primary/10 rounded-full w-10 h-10 flex items-center justify-center" : "text-foreground")}>
                                 {format(currentDateForCalendar, 'd')}
                             </div>
                         </div>
-                         <div className="h-10 border-b border-border/30 hover:bg-muted/20 cursor-pointer" onClick={() => openQuickAddDialogForDate(currentDateForCalendar)}></div> 
+                         <div className="h-10 border-b border-white/10 hover:bg-white/5 cursor-pointer" onClick={() => openQuickAddDialogForDate(currentDateForCalendar)}></div> 
                         {hoursToDisplay.map((_, hourIndex) => {
                             const slotStart = setMinutes(setHours(new Date(currentDateForCalendar), hourIndex), 0);
                             const slotEnd = addHours(slotStart, 1);
                             const slotEvents = getEventsForSlot(slotStart, slotEnd);
                             return (
-                              <div key={`slot-${hourIndex}`} className="h-16 border-b border-border/30 hover:bg-muted/20 cursor-pointer p-1 align-top" onClick={() => openQuickAddDialogForDate(currentDateForCalendar, hourIndex)}>
+                              <div key={`slot-${hourIndex}`} className="h-16 border-b border-white/10 hover:bg-white/5 cursor-pointer p-1 align-top" onClick={() => openQuickAddDialogForDate(currentDateForCalendar, hourIndex)}>
                                 <div className="space-y-0.5">
                                    {slotEvents.map(event => (
-                                    <div key={event.id} className="text-[10px] bg-green-500/70 text-white p-0.5 rounded truncate">{event.title}</div>
+                                    <div key={event.id} className="text-[10px] bg-primary/80 text-primary-foreground p-0.5 rounded-sm truncate">{event.title}</div>
                                   ))}
                                 </div>
                               </div>
@@ -514,8 +514,8 @@ export default function ClientPortalCalendarPage() {
                         })}
                     </div>
                      {currentTimePosition !== null && isSameDay(currentDateForCalendar, new Date()) && (
-                        <div className="absolute w-[calc(100%-4rem)] h-0.5 bg-red-500 z-10 right-0" style={{ top: `calc(${currentTimePosition}% + 2.5rem - 1px)`}}> 
-                           <div className="absolute -left-1.5 -top-1.5 w-3.5 h-3.5 bg-red-500 rounded-full"></div>
+                        <div className="absolute w-[calc(100%-4rem)] h-0.5 bg-primary z-10 right-0" style={{ top: `calc(${currentTimePosition}% + 2.5rem - 1px)`}}> 
+                           <div className="absolute -left-1.5 -top-1.5 w-3.5 h-3.5 bg-primary rounded-full ring-2 ring-background"></div>
                         </div>
                       )}
                 </div>
@@ -524,9 +524,9 @@ export default function ClientPortalCalendarPage() {
           </div>
 
           <aside className="lg:w-72 xl:w-80 space-y-6 shrink-0">
-            <PlaceholderCard title="" className="p-0"> 
+            <PlaceholderCard title="" className="p-0 bg-card/80 backdrop-blur-sm border border-white/10"> 
                 <Tabs defaultValue="calendars" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-muted/50">
+                <TabsList className="grid w-full grid-cols-2 bg-black/20">
                     <TabsTrigger value="calendars" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">Calendars</TabsTrigger>
                     <TabsTrigger value="tasks" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">Tasks</TabsTrigger>
                 </TabsList>
