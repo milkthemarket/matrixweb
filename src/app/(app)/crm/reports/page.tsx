@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from 'react';
-import { PlaceholderCard } from '@/components/dashboard/placeholder-card';
+import { PlaceholderCard } from '@/components/dashboard/PlaceholderCard';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
@@ -459,4 +459,3 @@ export default function ClientPortalReportsPage() {
     </>
   );
 }
-
