@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState } from 'react';
@@ -26,7 +25,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-
 
 const suggestionCategories = [
   "Charting", "AI", "UI/UX", "Order Types", "Notifications", 
@@ -88,21 +86,21 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion; onUpvote: (id: string) 
 
   return (
     <Card className="flex flex-col">
-      <CardHeader className="pb-0.5"> {/* Reduced CardHeader padding */}
+      <CardHeader className="pb-0.5">
         <div className="flex justify-between items-start">
-          <CardTitle className="text-sm font-semibold text-foreground">{suggestion.title}</CardTitle> {/* Reduced from text-base */}
-          <Badge variant="outline" className={cn("text-xs whitespace-nowrap py-0 px-1 h-auto", getStatusBadgeColor(suggestion.status))}> {/* Made badge smaller */}
+          <CardTitle className="text-sm font-semibold text-foreground">{suggestion.title}</CardTitle>
+          <Badge variant="outline" className={cn("text-xs whitespace-nowrap py-0 px-1 h-auto", getStatusBadgeColor(suggestion.status))}>
             {suggestion.status}
           </Badge>
         </div>
         {suggestion.category && <CardDescription className="text-xs text-primary">{suggestion.category}</CardDescription>}
       </CardHeader>
-      <CardContent className="flex-1 pt-1"> {/* Reduced CardContent padding-top */}
-        <p className="text-xs text-muted-foreground mb-1 line-clamp-3">{suggestion.description}</p> {/* Reduced text-sm, mb-3 */}
+      <CardContent className="flex-1 pt-1">
+        <p className="text-xs text-muted-foreground mb-1 line-clamp-3">{suggestion.description}</p>
         {suggestion.status === 'In Progress' && suggestion.progress !== undefined && (
-          <div className="mb-1"> {/* Reduced mb-3 */}
-            <Progress value={suggestion.progress} className="h-1.5" /> {/* Reduced h-2 */}
-            <p className="text-xs text-muted-foreground mt-0.5">{suggestion.progress}% complete</p> {/* Reduced mt-1 */}
+          <div className="mb-1">
+            <Progress value={suggestion.progress} className="h-1.5" />
+            <p className="text-xs text-muted-foreground mt-0.5">{suggestion.progress}% complete</p>
           </div>
         )}
       </CardContent>
@@ -111,9 +109,9 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion; onUpvote: (id: string) 
           variant={suggestion.userHasUpvoted ? "default" : "outline"} 
           size="sm" 
           onClick={() => onUpvote(suggestion.id)}
-          className={cn("text-xs h-7 px-2", suggestion.userHasUpvoted ? "bg-primary text-primary-foreground hover:bg-primary/90" : "text-accent border-accent hover:bg-accent/10 hover:text-accent")} // Reduced size
+          className={cn("text-xs h-7 px-2", suggestion.userHasUpvoted ? "bg-primary text-primary-foreground hover:bg-primary/90" : "text-accent border-accent hover:bg-accent/10 hover:text-accent")}
         >
-          <ThumbsUp className="mr-1 h-3.5 w-3.5" /> {suggestion.upvotes} Upvotes {/* Reduced icon size, mr-1.5 */}
+          <ThumbsUp className="mr-1 h-3.5 w-3.5" /> {suggestion.upvotes} Upvotes
         </Button>
         <p className="text-xs text-muted-foreground">
           {new Date(suggestion.createdAt).toLocaleDateString()}
@@ -122,7 +120,6 @@ const SuggestionCard: React.FC<{ suggestion: Suggestion; onUpvote: (id: string) 
     </Card>
   );
 };
-
 
 export default function SuggestionsPage() {
   const [suggestions, setSuggestions] = useState<Suggestion[]>(mockSuggestions);
@@ -174,180 +171,175 @@ export default function SuggestionsPage() {
   const inProgressSuggestions = suggestions.filter(s => s.status === 'In Progress').slice(0, 3);
   const recentlyReleasedSuggestions = suggestions.filter(s => s.status === 'Completed').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 3);
 
-
   return (
-    <>
-      <main className="flex flex-col flex-1 h-full overflow-hidden">
-        <PageHeader title="Suggestions & Community Upgrades" />
-        <ScrollArea className="flex-1 p-1 md:p-1.5"> {/* Reduced padding */}
-          <div className="space-y-2"> {/* Reduced space-y-8 */}
-            
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
-                  <MessageSquare className="mr-1.5 h-4 w-4 text-primary"/> {/* Reduced icon size */}
-                  Submit Your Idea
-                </CardTitle>
-                <CardDescription>Have a feature request or an improvement idea? Let us know!</CardDescription>
-              </CardHeader>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmitSuggestion)}>
-                  <CardContent className="space-y-1"> {/* Reduced space-y-4 */}
-                    <FormField
-                      control={form.control}
-                      name="title"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">Short Title</FormLabel> {/* Reduced text size */}
-                          <FormControl>
-                            <Input placeholder="e.g., Add Trailing Stop Loss for AI Trades" {...field} disabled={isLoading} className="h-8 text-xs"/> {/* Reduced height and text */}
-                          </FormControl>
-                          <FormMessage className="text-xs"/>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">Detailed Description</FormLabel> {/* Reduced text size */}
-                          <FormControl>
-                            <Textarea placeholder="Explain your suggestion in detail. What problem does it solve? How would it work?" rows={3} {...field} disabled={isLoading} className="text-xs min-h-[60px]"/> {/* Reduced rows and text */}
-                          </FormControl>
-                          <FormMessage className="text-xs"/>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="category"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-xs">Category (Optional)</FormLabel>
-                          <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value || ''} disabled={isLoading}>
-                              <SelectTrigger className="h-8 text-xs">
-                                <SelectValue placeholder="Select a category" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {suggestionCategories.map(cat => (
-                                  <SelectItem key={cat} value={cat} className="text-xs">{cat}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage className="text-xs"/>
-                        </FormItem>
-                      )}
-                    />
-                    {watchedCategory === 'Other' && (
-                      <FormField
-                        control={form.control}
-                        name="customCategory"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs">Custom Category Name</FormLabel> {/* Reduced text size */}
-                            <FormControl>
-                              <Input placeholder="Enter your custom category" {...field} disabled={isLoading} className="h-8 text-xs"/> {/* Reduced height and text */}
-                            </FormControl>
-                            <FormMessage className="text-xs"/>
-                          </FormItem>
-                        )}
-                      />
+    <main className="flex flex-col flex-1 h-full overflow-hidden">
+      <PageHeader title="Suggestions & Community Upgrades" />
+      <ScrollArea className="flex-1 p-1 md:p-1.5">
+        <div className="space-y-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg font-headline flex items-center">
+                <MessageSquare className="mr-1.5 h-4 w-4 text-primary"/>
+                Submit Your Idea
+              </CardTitle>
+              <CardDescription>Have a feature request or an improvement idea? Let us know!</CardDescription>
+            </CardHeader>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmitSuggestion)}>
+                <CardContent className="space-y-1">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Short Title</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Add Trailing Stop Loss for AI Trades" {...field} disabled={isLoading} className="h-8 text-xs"/>
+                        </FormControl>
+                        <FormMessage className="text-xs"/>
+                      </FormItem>
                     )}
-                  </CardContent>
-                  <CardFooter>
-                    <Button type="submit" disabled={isLoading} size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 px-3 text-xs"> {/* Reduced size */}
-                      <Send className="mr-1 h-3.5 w-3.5" /> {/* Reduced icon size */}
-                      {isLoading ? "Submitting..." : "Submit Suggestion"}
-                    </Button>
-                  </CardFooter>
-                </form>
-              </Form>
-            </Card>
-
-            {topSuggestions.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
-                    <Trophy className="mr-1.5 h-4 w-4 text-yellow-400"/> {/* Reduced icon size */}
-                    Top Suggestions
-                  </CardTitle>
-                  <CardDescription>Most upvoted ideas from the community. Some may be prioritized!</CardDescription>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1"> {/* Reduced gap-4 */}
-                  {topSuggestions.map(suggestion => (
-                    <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
-                  ))}
-                </CardContent>
-              </Card>
-            )}
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-1.5"> {/* Reduced gap-6 */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
-                    <Flame className="mr-1.5 h-4 w-4 text-destructive"/> {/* Reduced icon size */}
-                    Trending & New Ideas
-                  </CardTitle>
-                  <CardDescription>Freshly submitted ideas. Upvote your favorites!</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-1"> {/* Reduced space-y-4 */}
-                  {trendingSuggestions.length > 0 ? (
-                    trendingSuggestions.map(suggestion => (
-                      <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground text-xs text-center py-1">No new suggestions right now. Be the first!</p>
+                  />
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Detailed Description</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Explain your suggestion in detail. What problem does it solve? How would it work?" rows={3} {...field} disabled={isLoading} className="text-xs min-h-[60px]"/>
+                        </FormControl>
+                        <FormMessage className="text-xs"/>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs">Category (Optional)</FormLabel>
+                        <FormControl>
+                          <Select onValueChange={field.onChange} value={field.value || ''} disabled={isLoading}>
+                            <SelectTrigger className="h-8 text-xs">
+                              <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {suggestionCategories.map(cat => (
+                                <SelectItem key={cat} value={cat} className="text-xs">{cat}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage className="text-xs"/>
+                      </FormItem>
+                    )}
+                  />
+                  {watchedCategory === 'Other' && (
+                    <FormField
+                      control={form.control}
+                      name="customCategory"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-xs">Custom Category Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Enter your custom category" {...field} disabled={isLoading} className="h-8 text-xs"/>
+                          </FormControl>
+                          <FormMessage className="text-xs"/>
+                        </FormItem>
+                      )}
+                    />
                   )}
                 </CardContent>
-              </Card>
+                <CardFooter>
+                  <Button type="submit" disabled={isLoading} size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 px-3 text-xs">
+                    <Send className="mr-1 h-3.5 w-3.5" />
+                    {isLoading ? "Submitting..." : "Submit Suggestion"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Form>
+          </Card>
 
-              <div className="space-y-1.5"> {/* Reduced space-y-6 */}
-                {inProgressSuggestions.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
-                        <Construction className="mr-1.5 h-4 w-4 text-accent"/> {/* Reduced icon size */}
-                        Currently Being Built
-                      </CardTitle>
-                      <CardDescription>Features the dev team is actively working on.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-1"> {/* Reduced space-y-4 */}
-                      {inProgressSuggestions.map(suggestion => (
-                        <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
-                      ))}
-                    </CardContent>
-                  </Card>
+          {topSuggestions.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-headline flex items-center">
+                  <Trophy className="mr-1.5 h-4 w-4 text-yellow-400"/>
+                  Top Suggestions
+                </CardTitle>
+                <CardDescription>Most upvoted ideas from the community. Some may be prioritized!</CardDescription>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1">
+                {topSuggestions.map(suggestion => (
+                  <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
+                ))}
+              </CardContent>
+            </Card>
+          )}
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-1.5">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-headline flex items-center">
+                  <Flame className="mr-1.5 h-4 w-4 text-destructive"/>
+                  Trending & New Ideas
+                </CardTitle>
+                <CardDescription>Freshly submitted ideas. Upvote your favorites!</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-1">
+                {trendingSuggestions.length > 0 ? (
+                  trendingSuggestions.map(suggestion => (
+                    <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
+                  ))
+                ) : (
+                  <p className="text-muted-foreground text-xs text-center py-1">No new suggestions right now. Be the first!</p>
                 )}
+              </CardContent>
+            </Card>
 
-                {recentlyReleasedSuggestions.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
-                        <CheckCircle className="mr-1.5 h-4 w-4 text-[hsl(var(--confirm-green))]"/> {/* Reduced icon size */}
-                        Recently Released
-                      </CardTitle>
-                      <CardDescription>Check out what's new in MILK!</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-1"> {/* Reduced space-y-4 */}
-                       {recentlyReleasedSuggestions.map(suggestion => (
-                        <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
-                      ))}
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </div>
-            <div className="text-center text-xs text-muted-foreground py-1"> {/* Reduced text-sm, py-4 */}
-              <p>Your feedback helps shape the future of MILK. Thank you for your contributions!</p>
-              <p className="mt-0.5">Tip: Suggestions with more community upvotes are more likely to be prioritized.</p> {/* Reduced mt-1 */}
+            <div className="space-y-1.5">
+              {inProgressSuggestions.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg font-headline flex items-center">
+                      <Construction className="mr-1.5 h-4 w-4 text-accent"/>
+                      Currently Being Built
+                    </CardTitle>
+                    <CardDescription>Features the dev team is actively working on.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-1">
+                    {inProgressSuggestions.map(suggestion => (
+                      <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+
+              {recentlyReleasedSuggestions.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg font-headline flex items-center">
+                      <CheckCircle className="mr-1.5 h-4 w-4 text-[hsl(var(--confirm-green))]"/>
+                      Recently Released
+                    </CardTitle>
+                    <CardDescription>Check out what's new in MILK!</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-1">
+                    {recentlyReleasedSuggestions.map(suggestion => (
+                      <SuggestionCard key={suggestion.id} suggestion={suggestion} onUpvote={handleUpvote} />
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
-        </ScrollArea>
-      </main>
-
+          <div className="text-center text-xs text-muted-foreground py-1">
+            <p>Your feedback helps shape the future of MILK. Thank you for your contributions!</p>
+            <p className="mt-0.5">Tip: Suggestions with more community upvotes are more likely to be prioritized.</p>
+          </div>
+        </div>
+      </ScrollArea>
       <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -361,6 +353,6 @@ export default function SuggestionsPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </main>
   );
 }
