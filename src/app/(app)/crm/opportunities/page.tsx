@@ -282,7 +282,7 @@ export default function ClientPortalOpportunitiesPage() {
           <div className="flex items-center gap-3">
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Opportunities</h1>
             <Select value={opportunityPipeline} onValueChange={setOpportunityPipeline}>
-              <SelectTrigger className="w-auto bg-card border-none text-foreground rounded-xl shadow-[0_0_8px_rgba(134,93,255,0.3)] hover:shadow-[0_0_12px_rgba(134,93,255,0.5)] transition-shadow duration-200 ease-out">
+              <SelectTrigger className="w-auto bg-input border-primary/50 text-foreground rounded-xl shadow-[0_0_8px_rgba(134,93,255,0.3)] hover:shadow-[0_0_12px_rgba(134,93,255,0.5)] transition-shadow duration-200 ease-out">
                 <ChevronDown className="mr-2 h-4 w-4 text-primary" />
                 <SelectValue />
               </SelectTrigger>
@@ -479,3 +479,6 @@ export default function ClientPortalOpportunitiesPage() {
 }
 
 
+
+
+    
