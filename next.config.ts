@@ -1,13 +1,6 @@
 import type { NextConfig } from 'next';
 
-interface ExtendedNextConfig extends NextConfig {
-  experimental?: {
-    appDir?: boolean;
-    serverComponentsExternalPackages?: string[];
-  };
-}
-
-const nextConfig: ExtendedNextConfig = {
+const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -25,10 +18,7 @@ const nextConfig: ExtendedNextConfig = {
     ],
   },
   output: 'standalone',
-  experimental: {
-    appDir: true,
-    serverComponentsExternalPackages: ['@opentelemetry/sdk-node', 'handlebars'],
-  },
+  serverExternalPackages: ['@opentelemetry/sdk-node', 'handlebars'],
 };
 
 export default nextConfig;
