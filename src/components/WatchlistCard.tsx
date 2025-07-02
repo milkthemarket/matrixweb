@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -19,7 +18,7 @@ const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 
 
 interface WatchlistCardProps {
   selectedStockSymbol: string | null;
-  onSelectStock: (stock: Stock) => void;
+  onSelectStock: (symbol: string) => void;
   className?: string;
 }
 
@@ -141,7 +140,7 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
                   "w-full justify-start h-auto py-1 px-2 text-left rounded-sm",
                   selectedStockSymbol === stock.symbol ? "bg-primary/10" : "hover:bg-white/5"
                 )}
-                onClick={() => onSelectStock(stock)}
+                onClick={() => onSelectStock(stock.symbol)}
               >
                 <div className="grid grid-cols-4 w-full items-baseline text-[11px] gap-2">
                   <span className="font-bold text-foreground truncate text-left">{stock.symbol}</span>
