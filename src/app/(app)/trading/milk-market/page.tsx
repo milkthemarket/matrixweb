@@ -20,7 +20,6 @@ import { OrdersTable } from '@/components/market/OrdersTable';
 
 import { initialMockStocks } from '@/app/(app)/trading/dashboard/page';
 import { FundamentalsCard } from '@/components/FundamentalsCard';
-import { OrderBookCard } from '@/components/OrderBookCard';
 
 function MilkMarketPageContent() {
   const { toast } = useToast();
@@ -150,7 +149,7 @@ function MilkMarketPageContent() {
   
   return (
     <main className="flex flex-col h-full overflow-hidden p-1.5 md:p-2.5 gap-1.5">
-        <div className="grid grid-cols-[1fr_350px_300px] gap-1.5 flex-1 overflow-hidden">
+        <div className="grid grid-cols-[1fr_350px] gap-1.5 flex-1 overflow-hidden">
             
             {/* Main/Left Column */}
             <div className="flex flex-col flex-1 min-h-0 gap-1.5">
@@ -166,6 +165,7 @@ function MilkMarketPageContent() {
                             <TabsTrigger value="positions">Positions</TabsTrigger>
                             <TabsTrigger value="orders">Open Orders</TabsTrigger>
                             <TabsTrigger value="history">History</TabsTrigger>
+                            <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
                             <TabsTrigger value="news">News</TabsTrigger>
                         </TabsList>
                         <TabsContent value="positions" className="flex-1 overflow-hidden mt-0 p-0">
@@ -176,6 +176,13 @@ function MilkMarketPageContent() {
                         </TabsContent>
                         <TabsContent value="history" className="flex-1 overflow-hidden mt-0 p-0">
                             <TradeHistoryTable className="h-full border-0 shadow-none rounded-none bg-transparent" syncedTickerSymbol={syncedTickerSymbol} />
+                        </TabsContent>
+                        <TabsContent value="watchlist" className="flex-1 overflow-hidden mt-0 p-0">
+                           <WatchlistCard
+                                className="h-full border-0 shadow-none rounded-none bg-transparent"
+                                selectedStockSymbol={syncedTickerSymbol}
+                                onSelectStock={handleSyncedTickerChange}
+                            />
                         </TabsContent>
                         <TabsContent value="news" className="flex-1 overflow-hidden mt-0 p-0">
                             <NewsCard
@@ -189,7 +196,7 @@ function MilkMarketPageContent() {
               </div>
             </div>
 
-            {/* Center Column (Trade Panel + Fundamentals) */}
+            {/* Right Column (Trade Panel + Fundamentals) */}
             <div className="flex flex-col min-h-0 gap-1.5">
               <OrderCard
                 selectedStock={stockForSyncedComps}
@@ -207,19 +214,6 @@ function MilkMarketPageContent() {
                 stock={stockForSyncedComps}
                 className="h-80 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
               />
-            </div>
-
-             {/* Right Column */}
-             <div className="flex flex-col min-h-0 gap-1.5">
-                <WatchlistCard
-                    selectedStockSymbol={syncedTickerSymbol}
-                    onSelectStock={(stock) => handleSyncedTickerChange(stock.symbol)}
-                    className="flex-1 min-h-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
-                />
-                <OrderBookCard
-                    stock={stockForSyncedComps}
-                    className="h-80 flex-shrink-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
-                />
             </div>
         </div>
     </main>
