@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from 'react';
@@ -9,7 +10,7 @@ import { Search, SlidersHorizontal, Newspaper, Rss } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 export default function NewsPage() {
-  const [activeTab, setActiveTab] = React.useState('news');
+  const [activeTab, setActiveTab] = React.useState('alerts'); // Set Alerts as default active
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
