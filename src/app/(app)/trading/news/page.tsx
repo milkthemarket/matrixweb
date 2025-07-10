@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, SlidersHorizontal, Newspaper, Rss } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 export default function NewsPage() {
-  const [activeTab, setActiveTab] = React.useState('alerts'); // Set Alerts as default active
+  const [activeTab, setActiveTab] = React.useState('news'); 
 
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
@@ -18,15 +18,15 @@ export default function NewsPage() {
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
                 <h1 className="text-2xl font-bold text-foreground">News</h1>
-                 <div className="flex items-center space-x-2">
+                 <div className="flex items-center space-x-1">
                     <Button
                         variant="ghost"
                         onClick={() => setActiveTab('news')}
                         className={cn(
                           "px-4 py-1 h-auto rounded-full text-sm",
                           activeTab === 'news'
-                            ? "font-bold text-white border border-primary bg-black"
-                            : "font-medium text-muted-foreground hover:text-white"
+                            ? "bg-primary text-primary-foreground font-semibold"
+                            : "font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                         )}
                     >
                         News
@@ -37,8 +37,8 @@ export default function NewsPage() {
                         className={cn(
                           "px-4 py-1 h-auto rounded-full text-sm",
                           activeTab === 'alerts'
-                            ? "font-bold text-white border border-primary bg-black"
-                            : "font-medium text-muted-foreground hover:text-white"
+                            ? "font-semibold text-white border border-primary bg-background"
+                            : "font-medium text-muted-foreground hover:bg-muted/50 hover:text-white"
                         )}
                     >
                         Alerts
@@ -51,7 +51,7 @@ export default function NewsPage() {
         <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
                 <Select defaultValue="all_sources">
-                    <SelectTrigger className="w-auto h-9 text-xs bg-transparent">
+                    <SelectTrigger className="w-auto h-9 text-xs bg-transparent border-primary text-primary">
                         <SelectValue placeholder="Source" />
                     </SelectTrigger>
                     <SelectContent>
@@ -62,7 +62,7 @@ export default function NewsPage() {
                     </SelectContent>
                 </Select>
                 <Select defaultValue="us_market">
-                    <SelectTrigger className="w-auto h-9 text-xs bg-transparent">
+                    <SelectTrigger className="w-auto h-9 text-xs bg-transparent border-primary text-primary">
                         <SelectValue placeholder="Market" />
                     </SelectTrigger>
                     <SelectContent>
@@ -75,9 +75,9 @@ export default function NewsPage() {
             <div className="relative w-full max-w-xs">
                 <Input
                     placeholder="Search symbol..."
-                    className="h-9 w-full bg-transparent pl-8"
+                    className="h-9 w-full bg-transparent pl-8 rounded-full border-primary border"
                 />
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
         </div>
 
