@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -19,17 +18,12 @@ import {
   LayoutDashboard,
   ListFilter,
   History,
-  Settings as SettingsIcon,
-  GraduationCap,
-  Lightbulb,
   Megaphone,
   Store,
   ChevronLeft,
   ChevronRight,
   Activity,
   ChevronDown,
-  LifeBuoy,
-  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -40,13 +34,6 @@ const tradingNavItems = [
   { href: "/trading/moo-alerts", label: "Moo Alerts", icon: Megaphone },
   { href: "/trading/rules", label: "Rules", icon: ListFilter },
   { href: "/trading/history", label: "Trade History", icon: History },
-];
-
-const helpDeskNavItems = [
-  { href: "/trading/academy", label: "Milk Academy", icon: GraduationCap },
-  { href: "/trading/suggestions", label: "Suggestions", icon: Lightbulb },
-  { href: "/help-desk/documentation", label: "Documentation", icon: FileText },
-  { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 
@@ -73,7 +60,6 @@ export function SidebarNav() {
   const pathname = usePathname();
   const { state, toggleSidebar, isMobile } = useSidebar();
   const [isTradingOpen, setIsTradingOpen] = React.useState(true);
-  const [isHelpDeskOpen, setIsHelpDeskOpen] = React.useState(true);
 
   const tradingSubMenuItems = tradingNavItems.map((item) => {
     const isActive = pathname === item.href;
@@ -89,21 +75,6 @@ export function SidebarNav() {
     );
   });
   
-  const helpDeskSubMenuItems = helpDeskNavItems.map((item) => {
-    const isActive = pathname === item.href;
-    return (
-      <SidebarMenuItem key={item.href}>
-        <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
-          <Link href={item.href}>
-            <item.icon className="h-4 w-4" />
-            <span>{item.label}</span>
-          </Link>
-        </SidebarMenuSubButton>
-      </SidebarMenuItem>
-    );
-  });
-
-
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className={cn(state === 'expanded' ? "p-3" : "p-0 flex flex-col items-center pt-3 pb-2")}>
@@ -155,27 +126,6 @@ export function SidebarNav() {
                   {tradingSubMenuItems}
                 </SidebarMenuSub>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => setIsHelpDeskOpen(!isHelpDeskOpen)}
-                  className="justify-between w-full"
-                  isActive={helpDeskNavItems.some((item) => item.href === pathname)}
-                >
-                  <div className="flex items-center gap-2">
-                    <LifeBuoy className="h-5 w-5" />
-                    <span className="text-base font-semibold tracking-wide">Help Desk</span>
-                  </div>
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 transition-transform",
-                      isHelpDeskOpen && "rotate-180"
-                    )}
-                  />
-                </SidebarMenuButton>
-                <SidebarMenuSub open={isHelpDeskOpen}>
-                  {helpDeskSubMenuItems}
-                </SidebarMenuSub>
-              </SidebarMenuItem>
             </>
           )}
 
@@ -183,7 +133,6 @@ export function SidebarNav() {
           {state === "collapsed" && (
             <>
               {tradingSubMenuItems}
-              {helpDeskSubMenuItems}
             </>
           )}
         </SidebarMenu>
