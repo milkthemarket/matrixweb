@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from 'react';
@@ -18,18 +17,28 @@ export default function NewsPage() {
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
                 <h1 className="text-2xl font-bold text-foreground">News</h1>
-                <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-md">
+                 <div className="flex items-center space-x-2">
                     <Button
-                        variant={activeTab === 'news' ? 'default' : 'ghost'}
+                        variant="ghost"
                         onClick={() => setActiveTab('news')}
-                        className="h-8 px-4 text-xs"
+                        className={cn(
+                          "px-4 py-1 h-auto rounded-full text-sm",
+                          activeTab === 'news'
+                            ? "font-bold text-white border border-primary bg-black"
+                            : "font-medium text-muted-foreground hover:text-white"
+                        )}
                     >
                         News
                     </Button>
                     <Button
-                        variant={activeTab === 'alerts' ? 'default' : 'ghost'}
+                        variant="ghost"
                         onClick={() => setActiveTab('alerts')}
-                        className="h-8 px-4 text-xs"
+                        className={cn(
+                          "px-4 py-1 h-auto rounded-full text-sm",
+                          activeTab === 'alerts'
+                            ? "font-bold text-white border border-primary bg-black"
+                            : "font-medium text-muted-foreground hover:text-white"
+                        )}
                     >
                         Alerts
                     </Button>
