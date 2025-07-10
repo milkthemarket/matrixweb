@@ -28,23 +28,6 @@ import {
   ChevronRight,
   Activity,
   ChevronDown,
-  Users,
-  Home,
-  Mail,
-  CheckSquare,
-  Workflow,
-  Calendar,
-  DollarSign,
-  Briefcase,
-  File,
-  BarChart,
-  PieChart,
-  Package,
-  Repeat,
-  ShieldCheck,
-  GitMerge,
-  Grid3x3,
-  TrendingUp,
   LifeBuoy,
   FileText,
 } from "lucide-react";
@@ -59,32 +42,9 @@ const tradingNavItems = [
   { href: "/trading/history", label: "Trade History", icon: History },
 ];
 
-const crmNavItems = [
-  { href: "/crm/home", label: "Home", icon: Home },
-  { href: "/crm/email", label: "Email", icon: Mail },
-  { href: "/crm/contacts", label: "Contacts", icon: Users },
-  { href: "/crm/tasks", label: "Tasks", icon: CheckSquare },
-  { href: "/crm/workflows", label: "Workflows", icon: Workflow },
-  { href: "/crm/calendar", label: "Calendar", icon: Calendar },
-  { href: "/crm/opportunities", label: "Opportunities", icon: DollarSign },
-  { href: "/crm/projects", label: "Projects", icon: Briefcase },
-  { href: "/crm/files", label: "Files", icon: File },
-  { href: "/crm/reports", label: "Reports", icon: BarChart },
-];
-
-const analyticsNavItems = [
-    { href: "/analytics/asset", label: "Asset Analytics", icon: Package },
-    { href: "/analytics/client", label: "Client Analytics", icon: Users },
-    { href: "/analytics/financial", label: "Financial Analytics", icon: TrendingUp },
-    { href: "/analytics/conversion", label: "Conversion Analytics", icon: Repeat },
-    { href: "/analytics/compliance", label: "Compliance Matrix", icon: ShieldCheck },
-    { href: "/analytics/contribution", label: "Contribution Matrix", icon: GitMerge },
-];
-
 const helpDeskNavItems = [
   { href: "/trading/academy", label: "Milk Academy", icon: GraduationCap },
   { href: "/trading/suggestions", label: "Suggestions", icon: Lightbulb },
-  { href: "/analytics/resource", label: "Resource Matrix", icon: Grid3x3 },
   { href: "/help-desk/documentation", label: "Documentation", icon: FileText },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
@@ -113,8 +73,6 @@ export function SidebarNav() {
   const pathname = usePathname();
   const { state, toggleSidebar, isMobile } = useSidebar();
   const [isTradingOpen, setIsTradingOpen] = React.useState(true);
-  const [isCrmOpen, setIsCrmOpen] = React.useState(true);
-  const [isAnalyticsOpen, setIsAnalyticsOpen] = React.useState(true);
   const [isHelpDeskOpen, setIsHelpDeskOpen] = React.useState(true);
 
   const tradingSubMenuItems = tradingNavItems.map((item) => {
@@ -131,34 +89,6 @@ export function SidebarNav() {
     );
   });
   
-  const crmSubMenuItems = crmNavItems.map((item) => {
-    const isActive = pathname === item.href;
-    return (
-      <SidebarMenuItem key={item.href}>
-        <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
-          <Link href={item.href}>
-            <item.icon className="h-4 w-4" />
-            <span>{item.label}</span>
-          </Link>
-        </SidebarMenuSubButton>
-      </SidebarMenuItem>
-    );
-  });
-
-  const analyticsSubMenuItems = analyticsNavItems.map((item) => {
-    const isActive = pathname === item.href;
-    return (
-      <SidebarMenuItem key={item.href}>
-        <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
-          <Link href={item.href}>
-            <item.icon className="h-4 w-4" />
-            <span>{item.label}</span>
-          </Link>
-        </SidebarMenuSubButton>
-      </SidebarMenuItem>
-    );
-  });
-
   const helpDeskSubMenuItems = helpDeskNavItems.map((item) => {
     const isActive = pathname === item.href;
     return (
@@ -227,48 +157,6 @@ export function SidebarNav() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton
-                  onClick={() => setIsCrmOpen(!isCrmOpen)}
-                  className="justify-between w-full"
-                  isActive={crmNavItems.some((item) => item.href === pathname)} 
-                >
-                  <div className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    <span className="text-base font-semibold tracking-wide">CRM</span>
-                  </div>
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 transition-transform",
-                      isCrmOpen && "rotate-180"
-                    )}
-                  />
-                </SidebarMenuButton>
-                <SidebarMenuSub open={isCrmOpen}>
-                  {crmSubMenuItems}
-                </SidebarMenuSub>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
-                  className="justify-between w-full"
-                  isActive={analyticsNavItems.some((item) => item.href === pathname)}
-                >
-                  <div className="flex items-center gap-2">
-                    <PieChart className="h-5 w-5" />
-                    <span className="text-base font-semibold tracking-wide">Analytics</span>
-                  </div>
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 transition-transform",
-                      isAnalyticsOpen && "rotate-180"
-                    )}
-                  />
-                </SidebarMenuButton>
-                <SidebarMenuSub open={isAnalyticsOpen}>
-                  {analyticsSubMenuItems}
-                </SidebarMenuSub>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
                   onClick={() => setIsHelpDeskOpen(!isHelpDeskOpen)}
                   className="justify-between w-full"
                   isActive={helpDeskNavItems.some((item) => item.href === pathname)}
@@ -295,8 +183,6 @@ export function SidebarNav() {
           {state === "collapsed" && (
             <>
               {tradingSubMenuItems}
-              {crmSubMenuItems}
-              {analyticsSubMenuItems}
               {helpDeskSubMenuItems}
             </>
           )}
