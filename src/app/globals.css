@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 5%; /* #0D0D0D - Very dark black, near #0e0e0e */
+    --background: 0 0% 0%; /* jet black */
     --foreground: 0 0% 90%; /* text-white/90 */
 
     /* Base white for panels, to be combined with opacity in components */
@@ -68,20 +68,12 @@
   }
   body {
     @apply text-foreground;
-    background: radial-gradient(
-      circle at center,
-      #250865 0%,        /* rich center purple */
-      #0a041d 20%,       /* quick fade */
-      #010105 60%,       /* mostly black */
-      #000000 100%       /* edge to pure black */
-    );
-    background-color: #010105; /* fallback base */
+    background-color: #000000; /* Set background to jet black */
     min-height: 100vh;
     height: 100%;
     background-attachment: fixed;
     font-family: var(--font-inter); /* Ensures Inter font is applied globally */
     overflow-x: hidden; /* Prevents horizontal scroll issues */
-    background-repeat: no-repeat; /* Gradients typically should not repeat */
   }
 
   /* Custom scrollbar styles */
