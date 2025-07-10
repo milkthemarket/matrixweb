@@ -328,13 +328,10 @@ const MooAlertsContent: React.FC = () => {
                 {filterButtons.map(({ id, label }) => (
                   <Button
                     key={id}
-                    variant={selectedSourceType === id ? "default" : "outline"}
+                    variant={selectedSourceType === id ? "secondary" : "outline"}
                     onClick={() => setSelectedSourceType(id)}
                     size="sm"
-                    className={cn(
-                      "flex items-center gap-2",
-                      selectedSourceType === id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
-                    )}
+                    className="flex items-center gap-2"
                   >
                     {label}
                   </Button>
