@@ -1,50 +1,77 @@
+
 "use client";
 
 import * as React from 'react';
-import { PageHeader } from "@/components/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Newspaper, Rss, Search, SlidersHorizontal } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, SlidersHorizontal, Newspaper, Rss } from 'lucide-react';
+import { cn } from "@/lib/utils";
 
 export default function NewsPage() {
   const [activeTab, setActiveTab] = React.useState('news');
 
   return (
-    <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <PageHeader title="News" />
-      <div className="flex-1 p-4 md:p-6 space-y-4 flex flex-col">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-md w-full sm:w-auto">
-                <Button
-                    variant={activeTab === 'news' ? 'default' : 'ghost'}
-                    onClick={() => setActiveTab('news')}
-                    className="flex-1 sm:flex-initial"
-                >
-                    <Newspaper className="mr-2 h-4 w-4" /> News
-                </Button>
-                <Button
-                    variant={activeTab === 'alerts' ? 'default' : 'ghost'}
-                    onClick={() => setActiveTab('alerts')}
-                    className="flex-1 sm:flex-initial"
-                >
-                   <Rss className="mr-2 h-4 w-4" /> Alerts
-                </Button>
+    <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
+        {/* Header Section */}
+        <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+                <h1 className="text-2xl font-bold text-foreground">News</h1>
+                <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-md">
+                    <Button
+                        variant={activeTab === 'news' ? 'default' : 'ghost'}
+                        onClick={() => setActiveTab('news')}
+                        className="h-8 px-4 text-xs"
+                    >
+                        News
+                    </Button>
+                    <Button
+                        variant={activeTab === 'alerts' ? 'default' : 'ghost'}
+                        onClick={() => setActiveTab('alerts')}
+                        className="h-8 px-4 text-xs"
+                    >
+                        Alerts
+                    </Button>
+                </div>
             </div>
+        </div>
+        
+        {/* Filters and Search Section */}
+        <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
+                <Select defaultValue="all_sources">
+                    <SelectTrigger className="w-auto h-9 text-xs bg-transparent">
+                        <SelectValue placeholder="Source" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all_sources">All Sources</SelectItem>
+                        <SelectItem value="reuters">Reuters</SelectItem>
+                        <SelectItem value="bloomberg">Bloomberg</SelectItem>
+                        <SelectItem value="wsj">Wall Street Journal</SelectItem>
+                    </SelectContent>
+                </Select>
+                <Select defaultValue="us_market">
+                    <SelectTrigger className="w-auto h-9 text-xs bg-transparent">
+                        <SelectValue placeholder="Market" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="us_market">US Market</SelectItem>
+                        <SelectItem value="global">Global</SelectItem>
+                        <SelectItem value="crypto">Crypto</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="relative w-full max-w-xs">
                 <Input
-                    placeholder="Search headlines..."
-                    className="h-9 w-full sm:w-64 bg-transparent"
+                    placeholder="Search symbol..."
+                    className="h-9 w-full bg-transparent pl-8"
                 />
-                <Button variant="outline" size="icon" className="h-9 w-9">
-                    <Search className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="icon" className="h-9 w-9">
-                    <SlidersHorizontal className="h-4 w-4" />
-                </Button>
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
         </div>
 
+        {/* Table Section */}
         <div className="rounded-lg overflow-auto flex-1 border border-border/10">
             <Table>
                 <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
@@ -58,11 +85,10 @@ export default function NewsPage() {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                   {/* Rows will be populated later */}
+                   {/* Table body is intentionally left empty for now */}
                 </TableBody>
             </Table>
         </div>
-      </div>
     </main>
   );
 }
