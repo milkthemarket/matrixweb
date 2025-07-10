@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from 'react';
@@ -37,8 +36,8 @@ export default function NewsPage() {
                         className={cn(
                           "px-4 py-1 h-auto rounded-full text-sm",
                           activeTab === 'alerts'
-                            ? "font-semibold text-white border border-primary bg-background"
-                            : "font-medium text-muted-foreground hover:bg-muted/50 hover:text-white"
+                            ? "font-semibold text-primary border border-primary bg-background"
+                            : "font-medium text-muted-foreground hover:bg-muted/50 hover:text-primary"
                         )}
                     >
                         Alerts

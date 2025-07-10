@@ -17,7 +17,7 @@
     --popover: var(--panel-base);
     --popover-foreground: 0 0% 90%; /* text-white/90 */
 
-    --primary: 257 88% 76%;  /* #A78BFA - New Standard Purple */
+    --primary: 252 89% 76%; /* #A78BFA - Deeper Purple */
     --primary-foreground: 0 0% 100%; /* Updated to white from prompt */
 
     --secondary: 0 0% 12%; /* Darker grey for less prominent elements */
@@ -26,7 +26,7 @@
     --muted: 0 0% 15%;
     --muted-foreground: 0 0% 60%; /* text-white/60 Muted text, soft gray */
 
-    --accent: 257 88% 76%;   /* #A78BFA - New Standard Purple */
+    --accent: 252 89% 76%; /* #A78BFA - Deeper Purple */
     --accent-foreground: 0 0% 100%; /* White text for accent elements */
 
     --destructive: 0 100% 65%; /* #FF4C4C Error Red */
@@ -37,7 +37,7 @@
 
     --border: var(--panel-base); /* White base for borders, opacity applied in components */
     --input: 0 0% 12%; /* Darker grey for input field backgrounds */
-    --ring: 257 88% 76%; /* #A78BFA - New Standard Purple for rings (focus rings) */
+    --ring: 252 89% 76%; /* #A78BFA for rings (focus rings) */
 
     /* Chart Colors */
     --chart-1: hsl(var(--primary)); 
