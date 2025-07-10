@@ -93,7 +93,9 @@ function MilkMarketPageContent() {
   }, [syncedTickerSymbol, toast]);
 
   const handleSyncedTickerChange = useCallback((symbol: string) => {
-    setSyncedTickerSymbol(symbol.toUpperCase());
+    if (typeof symbol === 'string') {
+        setSyncedTickerSymbol(symbol.toUpperCase());
+    }
     // Clear any previous trade-specific context when the ticker changes manually
     handleClearOrderCard();
   }, []);
@@ -149,16 +151,18 @@ function MilkMarketPageContent() {
   
   return (
     <main className="flex flex-col h-full overflow-hidden p-1.5 md:p-2.5 gap-1.5">
-        <div className="grid grid-cols-[1fr_350px] gap-1.5 flex-1 overflow-hidden">
+        <div className="grid grid-cols-[1fr_420px] gap-1.5 flex-1 overflow-hidden">
             
             {/* Main/Left Column */}
             <div className="flex flex-col flex-1 min-h-0 gap-1.5">
-              <InteractiveChartCard
-                stock={stockForSyncedComps}
-                onManualTickerSubmit={handleSyncedTickerChange}
-                className="flex-1 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
-              />
-              <div className="h-80 flex-shrink-0">
+              <div className="h-[60%] flex-shrink-0">
+                <InteractiveChartCard
+                  stock={stockForSyncedComps}
+                  onManualTickerSubmit={handleSyncedTickerChange}
+                  className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                />
+              </div>
+              <div className="flex-1 min-h-0">
                 <Card className="h-full flex flex-col overflow-hidden transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
                     <Tabs defaultValue="positions" className="flex flex-col h-full">
                         <TabsList className="shrink-0 px-3 pt-2">
@@ -210,10 +214,12 @@ function MilkMarketPageContent() {
                 initialLimitPrice={orderCardInitialLimitPrice}
                 className="flex-1 min-h-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
               />
-              <FundamentalsCard 
-                stock={stockForSyncedComps}
-                className="h-80 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
-              />
+              <div className="flex-1 min-h-0">
+                <FundamentalsCard 
+                  stock={stockForSyncedComps}
+                  className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                />
+              </div>
             </div>
         </div>
     </main>
