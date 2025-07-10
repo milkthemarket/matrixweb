@@ -151,10 +151,10 @@ function MilkMarketPageContent() {
   
   return (
     <main className="flex flex-col h-full overflow-hidden p-1.5 md:p-2.5 gap-1.5">
-        <div className="grid grid-cols-[1fr_420px] gap-1.5 flex-1 overflow-hidden">
+        <div className="grid grid-cols-[1fr_450px] grid-rows-[60vh_40vh] gap-1.5 flex-1 overflow-hidden">
             
             {/* Main/Left Column */}
-            <div className="flex flex-col flex-1 min-h-0 gap-1.5">
+            <div className="flex flex-col flex-1 min-h-0 gap-1.5 row-span-2">
               <div className="h-[60%] flex-shrink-0">
                 <InteractiveChartCard
                   stock={stockForSyncedComps}
@@ -201,8 +201,8 @@ function MilkMarketPageContent() {
             </div>
 
             {/* Right Column (Trade Panel + Fundamentals) */}
-            <div className="flex flex-col min-h-0 gap-1.5">
-                <div className="h-[65%] flex-shrink-0">
+            <div className="flex flex-col min-h-0 gap-1.5 row-span-2">
+                <div className="h-[60%] flex-shrink-0">
                     <OrderCard
                         selectedStock={stockForSyncedComps}
                         initialActionType={orderCardActionType}
