@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -25,12 +24,14 @@ import {
   ChevronRight,
   Activity,
   ChevronDown,
+  Newspaper,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const tradingNavItems = [
   { href: "/trading/milk-market", label: "Milk Market", icon: Store },
+  { href: "/trading/news", label: "News", icon: Newspaper },
   { href: "/trading/dashboard", label: "Screener", icon: LayoutDashboard },
   { href: "/trading/moo-alerts", label: "Moo Alerts", icon: Megaphone },
   { href: "/trading/rules", label: "Rules", icon: ListFilter },
@@ -110,7 +111,7 @@ export function SidebarNav() {
                 <SidebarMenuButton
                   onClick={() => setIsTradingOpen(!isTradingOpen)}
                   className="justify-between w-full"
-                  isActive={tradingNavItems.some((item) => item.href === pathname)}
+                  isActive={tradingNavItems.some((item) => item.href.startsWith('/trading'))}
                 >
                   <div className="flex items-center gap-2">
                     <Activity className="h-5 w-5" />
