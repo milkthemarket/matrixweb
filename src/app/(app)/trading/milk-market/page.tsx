@@ -179,7 +179,7 @@ function MilkMarketPageContent() {
                             <OrdersTable className="h-full border-0 shadow-none rounded-none bg-transparent" />
                         </TabsContent>
                         <TabsContent value="history" className="flex-1 overflow-hidden mt-0 p-0">
-                            <TradeHistoryTable className="h-full border-0 shadow-none rounded-none bg-transparent" syncedTickerSymbol={syncedTickerSymbol} />
+                           <TradeHistoryTable className="h-full border-0 shadow-none rounded-none bg-transparent" syncedTickerSymbol={syncedTickerSymbol} />
                         </TabsContent>
                         <TabsContent value="watchlist" className="flex-1 overflow-hidden mt-0 p-0">
                            <WatchlistCard
@@ -202,24 +202,26 @@ function MilkMarketPageContent() {
 
             {/* Right Column (Trade Panel + Fundamentals) */}
             <div className="flex flex-col min-h-0 gap-1.5">
-              <OrderCard
-                selectedStock={stockForSyncedComps}
-                initialActionType={orderCardActionType}
-                initialTradeMode={orderCardInitialTradeMode}
-                miloActionContextText={orderCardMiloActionContext}
-                onSubmit={handleTradeSubmit}
-                onClear={handleClearOrderCard}
-                initialQuantity={orderCardInitialQuantity}
-                initialOrderType={orderCardInitialOrderType}
-                initialLimitPrice={orderCardInitialLimitPrice}
-                className="flex-1 min-h-0 transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
-              />
-              <div className="flex-1 min-h-0">
-                <FundamentalsCard 
-                  stock={stockForSyncedComps}
-                  className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
-                />
-              </div>
+                <div className="h-[65%] flex-shrink-0">
+                    <OrderCard
+                        selectedStock={stockForSyncedComps}
+                        initialActionType={orderCardActionType}
+                        initialTradeMode={orderCardInitialTradeMode}
+                        miloActionContextText={orderCardMiloActionContext}
+                        onSubmit={handleTradeSubmit}
+                        onClear={handleClearOrderCard}
+                        initialQuantity={orderCardInitialQuantity}
+                        initialOrderType={orderCardInitialOrderType}
+                        initialLimitPrice={orderCardInitialLimitPrice}
+                        className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    />
+                </div>
+                <div className="flex-1 min-h-0">
+                    <FundamentalsCard 
+                    stock={stockForSyncedComps}
+                    className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    />
+                </div>
             </div>
         </div>
     </main>
