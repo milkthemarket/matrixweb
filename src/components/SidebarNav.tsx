@@ -32,7 +32,7 @@ import { Button } from "@/components/ui/button";
 const tradingNavItems = [
   { href: "/trading/milk-market", label: "Milk Market", icon: Store },
   { href: "/trading/dashboard", label: "Screener", icon: LayoutDashboard },
-  { href: "/trading/moo-alerts", label: "News", icon: Megaphone },
+  { href: "/trading/moo-alerts", label: "Moo Alerts", icon: Megaphone },
   { href: "/trading/rules", label: "Rules", icon: ListFilter },
   { href: "/trading/history", label: "Trade History", icon: History },
 ];
