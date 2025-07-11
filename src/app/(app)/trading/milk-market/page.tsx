@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo, Suspense, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 import type { Stock, TradeRequest, OrderActionType, TradeMode, OrderSystemType, Account } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
@@ -162,25 +162,33 @@ function MilkMarketPageContent() {
                   className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
                 />
               </div>
-              <div className="flex-1 min-h-0">
+              <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-1.5">
+                {/* Left Card: Positions, Orders, History */}
                 <Card className="h-full flex flex-col overflow-hidden transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
                     <Tabs defaultValue="positions" className="flex flex-col h-full">
                         <TabsList className="shrink-0 px-3 pt-2">
                             <TabsTrigger value="positions">Positions</TabsTrigger>
                             <TabsTrigger value="orders">Open Orders</TabsTrigger>
                             <TabsTrigger value="history">History</TabsTrigger>
-                            <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
-                            <TabsTrigger value="news">News</TabsTrigger>
                         </TabsList>
                         <TabsContent value="positions" className="flex-1 overflow-hidden mt-0 p-0">
                             <OpenPositionsCard className="h-full border-0 shadow-none rounded-none bg-transparent" />
                         </TabsContent>
-                         <TabsContent value="orders" className="flex-1 overflow-hidden mt-0 p-0">
+                        <TabsContent value="orders" className="flex-1 overflow-hidden mt-0 p-0">
                             <OrdersTable className="h-full border-0 shadow-none rounded-none bg-transparent" />
                         </TabsContent>
                         <TabsContent value="history" className="flex-1 overflow-hidden mt-0 p-0">
                            <TradeHistoryTable className="h-full border-0 shadow-none rounded-none bg-transparent" syncedTickerSymbol={syncedTickerSymbol} />
                         </TabsContent>
+                    </Tabs>
+                </Card>
+                 {/* Right Card: Watchlist, News */}
+                <Card className="h-full flex flex-col overflow-hidden transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
+                    <Tabs defaultValue="watchlist" className="flex flex-col h-full">
+                        <TabsList className="shrink-0 px-3 pt-2">
+                            <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
+                            <TabsTrigger value="news">News</TabsTrigger>
+                        </TabsList>
                         <TabsContent value="watchlist" className="flex-1 overflow-hidden mt-0 p-0">
                            <WatchlistCard
                                 className="h-full border-0 shadow-none rounded-none bg-transparent"
