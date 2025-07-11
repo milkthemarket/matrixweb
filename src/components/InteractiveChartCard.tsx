@@ -150,7 +150,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
   };
 
   const dynamicStrokeColor = stock && stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))";
-  const neonPurpleColor = "hsl(var(--primary))";
+  const neonPurpleColor = "#A78BFA";
 
   const handleManualSubmit = () => {
     if (manualTickerInput.trim()) {
