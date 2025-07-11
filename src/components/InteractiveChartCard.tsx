@@ -150,7 +150,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
   };
 
   const dynamicStrokeColor = stock && stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))";
-  const neonPurpleColor = "#A78BFA";
+  const neonPurpleColor = "#8A2BE2";
 
   const handleManualSubmit = () => {
     if (manualTickerInput.trim()) {
@@ -188,9 +188,9 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
       );
     }
 
-    return (
-      <ResponsiveContainer width="100%" height="100%">
-        {chartType === 'line' ? (
+    if (chartType === 'line') {
+      return (
+        <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
             <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
@@ -201,7 +201,13 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
             />
             <Line type="monotone" dataKey="price" stroke={dynamicStrokeColor} strokeWidth={1.5} dot={false} />
           </LineChart>
-        ) : chartType === 'area' ? (
+        </ResponsiveContainer>
+      );
+    }
+
+    if (chartType === 'area') {
+      return (
+        <ResponsiveContainer width="100%" height="100%">
              <RechartsAreaChart data={chartData}>
                 <defs>
                     <linearGradient id={`colorPriceAreaPurple-${stock?.id || 'default'}`} x1="0" y1="0" x2="0" y2="1">
@@ -218,7 +224,13 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
                 />
                 <Area type="monotone" dataKey="price" stroke={neonPurpleColor} strokeWidth={1.5} fillOpacity={1} fill={`url(#colorPriceAreaPurple-${stock?.id || 'default'})`} dot={false}/>
             </RechartsAreaChart>
-        ) : chartType === 'candle' ? (
+        </ResponsiveContainer>
+      );
+    }
+    
+    if (chartType === 'candle') {
+      return (
+        <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
             <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
@@ -237,9 +249,11 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
               })}
             </Bar>
           </BarChart>
-        ) : null }
-      </ResponsiveContainer>
-    );
+        </ResponsiveContainer>
+      );
+    }
+
+    return null;
   };
 
 
