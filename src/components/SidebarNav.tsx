@@ -75,7 +75,7 @@ export function SidebarNav() {
   
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className={cn("p-1.5", state === 'collapsed' && "p-0 pt-3 pb-2 flex flex-col items-center")}>
+      <SidebarHeader className={cn("p-1.5 pt-2", state === 'collapsed' && "p-0 pt-3 pb-2 flex flex-col items-center")}>
         <div className={cn(
           "flex w-full items-center",
           state === "expanded" ? "justify-between" : "flex-col justify-center gap-2"
