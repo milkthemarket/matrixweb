@@ -20,6 +20,24 @@ import { Calendar } from "@/components/ui/calendar";
 import { Separator } from '@/components/ui/separator';
 
 
+const ClientSideDateTime = ({ isoString }: { isoString?: string }) => {
+  const [formattedDate, setFormattedDate] = useState<string>('...'); 
+
+  useEffect(() => {
+    if (isoString) {
+      try {
+        setFormattedDate(format(parseISO(isoString), "MM/dd HH:mm"));
+      } catch (e) {
+        setFormattedDate('Invalid Date');
+      }
+    } else {
+      setFormattedDate('N/A');
+    }
+  }, [isoString]);
+
+  return <>{formattedDate}</>;
+};
+
 const getStatusIcon = (status: TradeHistoryEntry['orderStatus']) => {
   switch (status) {
     case 'Filled':
@@ -30,42 +48,6 @@ const getStatusIcon = (status: TradeHistoryEntry['orderStatus']) => {
       return <Clock className="h-3.5 w-3.5 text-yellow-500" />; // Reduced size
     default:
       return null;
-  }
-};
-
-const mockTradeStats: Record<HistoryTradeMode, TradeStatsData> = {
-  manual: {
-    totalTrades: 14,
-    winRate: 71.4,
-    totalPnL: 1203.55,
-    avgReturn: 1.8, // Percentage
-    largestWin: 312.50,
-    largestLoss: -106.00,
-    avgHoldTime: '2h 15m',
-    mostTradedSymbol: 'TSLA',
-    winStreak: 4,
-  },
-  aiAssist: {
-    totalTrades: 9,
-    winRate: 55.6,
-    totalPnL: 637.80,
-    avgReturn: 0.9, // Percentage
-    largestWin: 180.75,
-    largestLoss: -142.00,
-    avgHoldTime: '4h 42m',
-    mostTradedSymbol: 'NVDA',
-    winStreak: 2,
-  },
-  autopilot: { 
-    totalTrades: 4,
-    winRate: 100.0,
-    totalPnL: 448.12,
-    avgReturn: 3.7, // Percentage
-    largestWin: 152.00,
-    largestLoss: 0,
-    avgHoldTime: '15m',
-    mostTradedSymbol: 'AAPL',
-    winStreak: 4, 
   }
 };
 
@@ -99,24 +81,6 @@ const tradeHistoryColumnConfig: ColumnConfig<TradeHistoryEntry>[] = [
   { key: 'filledTime', label: 'Filled Time', format: (val) => format(parseISO(val), "MM/dd/yy HH:mm") }, // Shortened format
   { key: 'orderStatus', label: 'Status' },
 ];
-
-const ClientSideDateTime = ({ isoString }: { isoString?: string }) => {
-  const [formattedDate, setFormattedDate] = useState<string>('...'); 
-
-  useEffect(() => {
-    if (isoString) {
-      try {
-        setFormattedDate(format(parseISO(isoString), "MM/dd HH:mm"));
-      } catch (e) {
-        setFormattedDate('Invalid Date');
-      }
-    } else {
-      setFormattedDate('N/A');
-    }
-  }, [isoString]);
-
-  return <>{formattedDate}</>;
-};
 
 
 export default function HistoryPage() {
@@ -172,46 +136,20 @@ export default function HistoryPage() {
   const formatOptionalNumber = (num?: number) => num?.toString() ?? 'N/A';
   
   const currentStats = useMemo((): TradeStatsData => {
-    const modes: HistoryTradeMode[] = ['manual', 'aiAssist', 'autopilot'];
-    let totalTrades = 0;
-    let totalPnL = 0;
-    let totalWeightedWins = 0;
-    let largestWin = -Infinity;
-    let largestLoss = Infinity;
-    let maxWinStreak = 0;
-    
-    const tradeCountsBySymbol: Record<string, number> = {};
-
-    modes.forEach(mode => {
-      const stats = mockTradeStats[mode];
-      totalTrades += stats.totalTrades;
-      totalPnL += stats.totalPnL;
-      totalWeightedWins += (stats.winRate / 100) * stats.totalTrades;
-      if (stats.largestWin > largestWin) largestWin = stats.largestWin;
-      if (stats.largestLoss < largestLoss) largestLoss = stats.largestLoss;
-      if (stats.winStreak > maxWinStreak) maxWinStreak = stats.winStreak;
-      
-      tradeCountsBySymbol[stats.mostTradedSymbol] = (tradeCountsBySymbol[stats.mostTradedSymbol] || 0) + stats.totalTrades;
-    });
-
-    const overallWinRate = totalTrades > 0 ? (totalWeightedWins / totalTrades) * 100 : 0;
-    const overallAvgPnlPerTrade = totalTrades > 0 ? totalPnL / totalTrades : 0;
-
-    let overallMostTradedSymbol = 'N/A';
-    if (Object.keys(tradeCountsBySymbol).length > 0) {
-        overallMostTradedSymbol = Object.entries(tradeCountsBySymbol).sort((a,b) => b[1] - a[1])[0][0];
-    }
-
+    // This is a placeholder since the detailed stats per mode were removed.
+    // In a real app, this would be a single calculation over the whole tradeHistory.
+    const totalTrades = 27;
+    const totalPnL = 2289.47;
     return {
       totalTrades,
-      winRate: overallWinRate,
+      winRate: 70.37,
       totalPnL,
-      avgReturn: overallAvgPnlPerTrade,
-      largestWin: largestWin === -Infinity ? 0 : largestWin,
-      largestLoss: largestLoss === Infinity ? 0 : largestLoss,
-      avgHoldTime: "Multiple", 
-      mostTradedSymbol: overallMostTradedSymbol,
-      winStreak: maxWinStreak,
+      avgReturn: totalTrades > 0 ? totalPnL / totalTrades : 0,
+      largestWin: 312.50,
+      largestLoss: -142.00,
+      avgHoldTime: "Multiple",
+      mostTradedSymbol: "TSLA",
+      winStreak: 4,
     };
   }, []);
 
@@ -243,19 +181,24 @@ export default function HistoryPage() {
               <BarChartHorizontalBig className="mr-1.5 h-4 w-4 text-primary"/>
               Overall Performance
             </CardTitle>
-            <CardDescription>Summary of all trades across all modes.</CardDescription>
           </CardHeader>
           <CardContent>
-             <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 bg-black/5 p-1 rounded-lg">
-                <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen />} />
-                <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign />} valueClass={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
-                <StatDisplay label="Win Rate" value={currentStats.winRate} unit="%" icon={<TrendingUp />} valueClass={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
-                <StatDisplay label={"Avg P&L / Trade"} value={currentStats.avgReturn} unit={"$"} icon={<Percent />} valueClass={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency={true} />
-                <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp />} valueClass="text-[hsl(var(--confirm-green))]" isCurrency/>
-                <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown />} valueClass={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
-                <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock />} />
-                <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award />} valueClass={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
-                <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat />} />
+             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                <div className="bg-black/5 p-2 rounded-lg space-y-4">
+                  <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen />} />
+                  <StatDisplay label={"Avg P&L / Trade"} value={currentStats.avgReturn} unit={"$"} icon={<Percent />} valueClass={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency={true} />
+                  <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock />} />
+                </div>
+                <div className="bg-black/5 p-2 rounded-lg space-y-4">
+                  <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign />} valueClass={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
+                  <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown />} valueClass={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
+                  <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award />} valueClass={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
+                </div>
+                <div className="bg-black/5 p-2 rounded-lg space-y-4">
+                  <StatDisplay label="Win Rate" value={currentStats.winRate} unit="%" icon={<TrendingUp />} valueClass={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
+                  <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp />} valueClass="text-[hsl(var(--confirm-green))]" isCurrency/>
+                  <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat />} />
+                </div>
             </div>
           </CardContent>
         </Card>
@@ -266,7 +209,6 @@ export default function HistoryPage() {
               <CalendarDays className="mr-1.5 h-4 w-4 text-primary"/>
               Daily P&L Calendar
             </CardTitle>
-            <CardDescription>Visual overview of your daily trading performance. Navigable by month.</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             <Calendar
@@ -308,9 +250,6 @@ export default function HistoryPage() {
                 <HistoryIcon className="mr-1.5 h-5 w-5 text-primary"/>
                 Executed Trades
               </CardTitle>
-              <CardDescription>
-                Review your past trade executions.
-              </CardDescription>
             </div>
             <Button onClick={handleExport} variant="outline" size="sm" className="h-7 px-2 text-xs">
               <Download className="mr-1 h-3.5 w-3.5" />
@@ -381,4 +320,3 @@ export default function HistoryPage() {
     </main>
   );
 }
-
