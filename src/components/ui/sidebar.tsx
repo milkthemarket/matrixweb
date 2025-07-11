@@ -357,8 +357,8 @@ const SidebarHeader = React.forwardRef<
       ref={ref}
       data-sidebar="header"
       className={cn(
-        "flex flex-col gap-2 items-center shrink-0", 
-        state === "collapsed" ? "p-2" : "p-4",
+        "flex flex-col gap-2 shrink-0 w-[var(--sidebar-width-icon)]", 
+        state === "collapsed" ? "items-center" : "items-center",
         className
       )}
       {...props}
