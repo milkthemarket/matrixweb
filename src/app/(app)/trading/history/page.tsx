@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
 import type { TradeHistoryEntry, TradeStatsData } from "@/types";
@@ -155,6 +155,13 @@ export default function HistoryPage() {
       title: "Export Successful",
       description: `All trade history exported to ${filename}.`,
     });
+  };
+  
+  const formatOptionalPrice = (price?: number) => {
+    if (price === undefined || price === null) {
+      return 'N/A';
+    }
+    return `$${price.toFixed(2)}`;
   };
   
   return (
