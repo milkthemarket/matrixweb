@@ -17,6 +17,7 @@ import { cn } from '@/lib/utils';
 import { exportToCSV } from '@/lib/exportCSV';
 import { useToast } from "@/hooks/use-toast";
 import { Calendar } from "@/components/ui/calendar";
+import { Separator } from '@/components/ui/separator';
 
 
 const getStatusIcon = (status: TradeHistoryEntry['orderStatus']) => {
@@ -69,15 +70,15 @@ const mockTradeStats: Record<HistoryTradeMode, TradeStatsData> = {
 };
 
 const StatDisplay: React.FC<{ label: string; value: string | number; unit?: string; valueColor?: string; icon?: React.ReactNode; isCurrency?: boolean }> = ({ label, value, unit, valueColor, icon, isCurrency = false }) => (
-  <div className="bg-transparent backdrop-blur-md p-1 rounded-md flex flex-col items-start"> {/* Reduced p-3 to p-1, rounded-lg to rounded-md */}
-    <div className="flex items-center text-muted-foreground text-xs mb-0.5"> {/* Reduced text-sm to text-xs, mb-1 to mb-0.5 */}
-      {icon && <span className="mr-1">{React.cloneElement(icon as React.ReactElement, { size: 14 })}</span>} {/* Reduced mr-1.5, icon size */}
+  <div className="flex flex-col items-start gap-1"> 
+    <div className="flex items-center text-muted-foreground text-xs font-medium uppercase tracking-wider">
+      {icon && <span className="mr-1.5">{React.cloneElement(icon as React.ReactElement, { size: 14 })}</span>}
       {label}
     </div>
-    <span className={cn("text-lg font-semibold text-foreground", valueColor)}> {/* Reduced text-xl to text-lg */}
+    <span className={cn("text-xl font-bold text-foreground", valueColor)}>
       {isCurrency && unit === '$' && unit}
       {typeof value === 'number' ? value.toLocaleString(undefined, { minimumFractionDigits: value % 1 === 0 && !isCurrency ? 0 : 2, maximumFractionDigits: 2 }) : value}
-      {!isCurrency && unit && unit !== '$' && unit}
+      {!isCurrency && unit && unit !== '$' && ` ${unit}`}
     </span>
   </div>
 );
@@ -99,7 +100,7 @@ const tradeHistoryColumnConfig: ColumnConfig<TradeHistoryEntry>[] = [
 ];
 
 const ClientSideDateTime = ({ isoString }: { isoString?: string }) => {
-  const [formattedDate, setFormattedDate] = useState<string>('...'); // Placeholder to avoid mismatch
+  const [formattedDate, setFormattedDate] = useState<string>('...'); 
 
   useEffect(() => {
     if (isoString) {
@@ -255,23 +256,26 @@ export default function HistoryPage() {
             </CardTitle>
             <CardDescription>Summary of all trades across all modes.</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
-            <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen size={14}/>} />
-            <StatDisplay label="Win Rate" value={currentStats.winRate} unit="%" icon={<TrendingUp size={14}/>} valueColor={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
-            <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign size={14}/>} valueColor={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
-            <StatDisplay 
-                label={"Avg P&L / Trade"}
-                value={currentStats.avgReturn} 
-                unit={"$"} 
-                icon={<Percent size={14}/>} 
-                valueColor={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"}
-                isCurrency={true}
-            />
-            <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp size={14}/>} valueColor="text-[hsl(var(--confirm-green))]" isCurrency/>
-            <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown size={14}/>} valueColor={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
-            <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock size={14}/>} />
-            <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat size={14}/>} />
-            <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award size={14}/>} valueColor={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-2">
+              <div className="space-y-4">
+                  <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen />} />
+                  <StatDisplay label={"Avg P&L / Trade"} value={currentStats.avgReturn} unit={"$"} icon={<Percent />} valueColor={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency={true} />
+                  <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock />} />
+              </div>
+              <Separator orientation="vertical" className="hidden md:block h-auto bg-border/10"/>
+              <div className="space-y-4">
+                  <StatDisplay label="Win Rate" value={`${currentStats.winRate.toFixed(2)}%`} icon={<TrendingUp />} valueColor={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
+                  <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp />} valueColor="text-[hsl(var(--confirm-green))]" isCurrency/>
+                  <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat />} />
+              </div>
+              <Separator orientation="vertical" className="hidden md:block h-auto bg-border/10"/>
+              <div className="space-y-4">
+                  <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign />} valueColor={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
+                  <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown />} valueColor={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
+                  <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award />} valueColor={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
