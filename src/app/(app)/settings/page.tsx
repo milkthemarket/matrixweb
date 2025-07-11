@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -45,9 +44,9 @@ export default function SettingsPage() {
 
   return (
     <>
-    <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <PageHeader title="Settings" />
-      <div className="flex-1 p-1 md:p-1.5 overflow-y-auto space-y-1.5"> {/* Reduced padding and space */}
+    <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
+      <h1 className="text-2xl font-semibold font-headline text-foreground">Settings</h1>
+      <div className="flex-1 overflow-y-auto space-y-1.5"> {/* Reduced padding and space */}
         <Card>
           <CardHeader>
             <CardTitle className="text-xl font-headline flex items-center"> {/* Reduced from 2xl */}

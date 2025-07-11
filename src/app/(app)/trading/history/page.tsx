@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
@@ -131,9 +130,10 @@ export default function HistoryPage() {
   };
   
   return (
-    <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <PageHeader title="Trade History" />
-      <div className="flex-1 p-1 md:p-1.5 space-y-1.5 overflow-y-auto">
+    <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
+      <h1 className="text-2xl font-semibold font-headline text-foreground">Trade History</h1>
+
+      <div className="flex-1 space-y-1.5 overflow-y-auto">
 
         <Card>
           <CardHeader>
@@ -188,10 +188,11 @@ export default function HistoryPage() {
                     row: "flex w-full mt-2",
                     cell: "h-12 w-full text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
                     day: cn(
-                    buttonVariants({ variant: "ghost" }),
-                    "h-12 w-full p-0 font-normal rounded-md"
+                      buttonVariants({ variant: "ghost" }),
+                      "h-12 w-full p-0 font-normal rounded-md"
                     ),
-                    day_selected: "bg-muted text-foreground hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground",
+                    day_selected:
+                      "bg-muted text-foreground hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground",
                     day_today: "bg-accent/50 text-accent-foreground ring-1 ring-accent",
                     day_outside: "text-muted-foreground/40",
                 }}

@@ -27,7 +27,6 @@ import {
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from '@/lib/utils';
-import { PageHeader } from '@/components/PageHeader';
 import { initialMockStocks } from '../trading/dashboard/page';
 
 interface MarketData {
@@ -252,9 +251,9 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="flex flex-col flex-1 h-full overflow-hidden">
-      <PageHeader title="Welcome Josh!" />
-      <div className="flex-1 p-4 md:p-6 space-y-6 overflow-y-auto">
+    <div className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-6">
+      <h1 className="text-2xl font-semibold font-headline text-foreground">Welcome Josh!</h1>
+      <div className="flex-1 overflow-y-auto space-y-6">
         <section>
           <h2 className="text-xl font-semibold text-foreground mb-6">Market Overview</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

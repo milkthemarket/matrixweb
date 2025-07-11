@@ -5,7 +5,6 @@ import React, { useState, useEffect } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -168,9 +167,9 @@ export default function RulesPage() {
   };
 
   return (
-    <main className="flex flex-col flex-1 h-full overflow-hidden">
-      <PageHeader title="Alert Rules Engine" />
-      <div className="flex-1 p-1 md:p-1.5 space-y-1.5 overflow-y-auto">
+    <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
+      <h1 className="text-2xl font-semibold font-headline text-foreground">Alert Rules Engine</h1>
+      <div className="flex-1 overflow-y-auto space-y-1.5">
         <Card> 
           <CardHeader>
             <CardTitle className="text-xl font-headline flex items-center">

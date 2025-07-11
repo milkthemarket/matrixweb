@@ -3,7 +3,6 @@
 
 import React, { useState, useMemo, Suspense, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -305,128 +304,126 @@ const MooAlertsContent: React.FC = () => {
   };
 
   return (
-    <main className="flex flex-col flex-1 h-full overflow-auto">
-      <PageHeader title="Moo Alerts" />
-      <div className="flex-1 p-4 overflow-auto">
-        <div className="flex-1 flex flex-col gap-4 overflow-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Megaphone className="mr-2 h-5 w-5 text-primary"/>
-                Real-Time Trade Signals
-              </CardTitle>
-              <CardDescription>
-                Actionable signals from your rules and screeners. Click an alert to load it into the Milk Market trade panel.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                <p className="text-sm text-muted-foreground mr-2 flex items-center">
-                  <Filter className="h-4 w-4 mr-1.5" />
-                  Filter by source:
-                </p>
-                {filterButtons.map(({ id, label }) => (
-                  <Button
-                    key={id}
-                    variant={selectedSourceType === id ? "secondary" : "outline"}
-                    onClick={() => setSelectedSourceType(id)}
-                    size="sm"
-                    className="flex items-center gap-2"
-                  >
-                    {label}
-                  </Button>
-                ))}
+    <main className="flex flex-col flex-1 h-full overflow-auto p-4 md:p-6 space-y-4">
+      <h1 className="text-2xl font-semibold font-headline text-foreground">Moo Alerts</h1>
+      <div className="flex-1 flex flex-col gap-4 overflow-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <Megaphone className="mr-2 h-5 w-5 text-primary"/>
+              Real-Time Trade Signals
+            </CardTitle>
+            <CardDescription>
+              Actionable signals from your rules and screeners. Click an alert to load it into the Milk Market trade panel.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-wrap items-center gap-2 mb-4">
+              <p className="text-sm text-muted-foreground mr-2 flex items-center">
+                <Filter className="h-4 w-4 mr-1.5" />
+                Filter by source:
+              </p>
+              {filterButtons.map(({ id, label }) => (
+                <Button
+                  key={id}
+                  variant={selectedSourceType === id ? "secondary" : "outline"}
+                  onClick={() => setSelectedSourceType(id)}
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+
+            {alerts.length === 0 && ( 
+               <div className="flex flex-col items-center justify-center text-center py-10 text-muted-foreground">
+                <MiloAvatarIcon size={40} className="mb-2 opacity-70 animate-pulse" />
+                <p className="text-sm font-medium">Moo-ving data into place...</p>
+                <p className="text-xs">Loading initial alerts.</p>
               </div>
+            )}
 
-              {alerts.length === 0 && ( 
-                 <div className="flex flex-col items-center justify-center text-center py-10 text-muted-foreground">
-                  <MiloAvatarIcon size={40} className="mb-2 opacity-70 animate-pulse" />
-                  <p className="text-sm font-medium">Moo-ving data into place...</p>
-                  <p className="text-xs">Loading initial alerts.</p>
-                </div>
-              )}
+            {alerts.length > 0 && filteredAlerts.length === 0 && ( 
+               <div className="flex flex-col items-center justify-center text-center py-10 text-muted-foreground">
+                <MiloAvatarIcon size={40} className="mb-2 opacity-70" />
+                <p className="text-sm font-medium">No alerts match your current filter.</p>
+                <p className="text-xs">Try adjusting the criteria or "Show All".</p>
+              </div>
+            )}
 
-              {alerts.length > 0 && filteredAlerts.length === 0 && ( 
-                 <div className="flex flex-col items-center justify-center text-center py-10 text-muted-foreground">
-                  <MiloAvatarIcon size={40} className="mb-2 opacity-70" />
-                  <p className="text-sm font-medium">No alerts match your current filter.</p>
-                  <p className="text-xs">Try adjusting the criteria or "Show All".</p>
-                </div>
-              )}
-
-              {filteredAlerts.length > 0 && (
-                 <ScrollArea className="h-[calc(100vh-22rem)]"> 
-                  <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
-                    {filteredAlerts.map(alert => (
-                      <Card 
-                        key={alert.id} 
-                        onClick={() => handleAlertClick(alert)} 
-                        className="flex flex-col hover:border-primary/50 transition-all duration-150 ease-in-out cursor-pointer"
-                      >
-                        <CardContent className="p-3 space-y-2 text-sm">
-                           <div className="flex justify-between items-start">
-                               <div className="flex flex-col items-start gap-1">
-                                   <div className="flex items-baseline gap-2">
-                                       <h4 className="text-lg font-bold text-primary">{alert.symbol}</h4>
-                                       <span className="font-mono text-base">${alert.currentPrice.toFixed(2)}</span>
-                                   </div>
-                                   {alert.premarketChangePercent !== undefined && (
-                                       <span className={cn("text-xs font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
-                                          ({alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%)
-                                       </span>
-                                   )}
-                               </div>
-                                <div className="flex flex-col items-end gap-1">
-                                    <Badge variant="outline" className={cn("text-xs", getSentimentBadgeClass(alert.sentiment))}>
-                                        {alert.sentiment}
-                                    </Badge>
-                                    <span className="text-xs font-light text-muted-foreground">{alert.time}</span>
-                                </div>
-                           </div>
-                           
-                           <p className="text-sm text-foreground pt-1">{alert.headline}</p>
-                           
-                           {alert.source && (
-                             <p className="text-xs text-muted-foreground pt-1"><span className="font-semibold text-primary">Source:</span> {alert.source}</p>
-                           )}
-
-                           {alert.suggestedAction && (
-                            <>
-                              <Separator className="my-2 bg-border/20"/>
-                              <div className="space-y-1 text-xs">
-                                  <h5 className="font-semibold text-foreground mb-1">Trade Plan</h5>
-                                  <div className="p-2 rounded-md bg-black/10 border border-white/5 space-y-1">
-                                    <div className="flex justify-between">
-                                      <span className="text-muted-foreground">Action:</span> 
-                                      <span className={cn("font-bold", getActionTextColorClass(alert.suggestedAction))}>
-                                        {alert.suggestedAction} @ {alert.suggestedQuantity}
-                                      </span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span className="text-muted-foreground">Entry:</span> 
-                                      <span className="font-mono">${alert.suggestedEntryPrice?.toFixed(2)} ({alert.suggestedOrderType})</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span className="text-muted-foreground">Target:</span> 
-                                      <span className="font-mono text-green-400">${alert.suggestedTargetPrice?.toFixed(2)}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                      <span className="text-muted-foreground">Stop:</span> 
-                                      <span className="font-mono text-red-400">${alert.suggestedStopLossPrice?.toFixed(2)}</span>
-                                    </div>
-                                  </div>
+            {filteredAlerts.length > 0 && (
+               <ScrollArea className="h-[calc(100vh-22rem)]"> 
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-4">
+                  {filteredAlerts.map(alert => (
+                    <Card 
+                      key={alert.id} 
+                      onClick={() => handleAlertClick(alert)} 
+                      className="flex flex-col hover:border-primary/50 transition-all duration-150 ease-in-out cursor-pointer"
+                    >
+                      <CardContent className="p-3 space-y-2 text-sm">
+                         <div className="flex justify-between items-start">
+                             <div className="flex flex-col items-start gap-1">
+                                 <div className="flex items-baseline gap-2">
+                                     <h4 className="text-lg font-bold text-primary">{alert.symbol}</h4>
+                                     <span className="font-mono text-base">${alert.currentPrice.toFixed(2)}</span>
+                                 </div>
+                                 {alert.premarketChangePercent !== undefined && (
+                                     <span className={cn("text-xs font-semibold", alert.premarketChangePercent >= 0 ? "text-green-400" : "text-red-400")}>
+                                        ({alert.premarketChangePercent >= 0 ? '+' : ''}{alert.premarketChangePercent.toFixed(2)}%)
+                                     </span>
+                                 )}
+                             </div>
+                              <div className="flex flex-col items-end gap-1">
+                                  <Badge variant="outline" className={cn("text-xs", getSentimentBadgeClass(alert.sentiment))}>
+                                      {alert.sentiment}
+                                  </Badge>
+                                  <span className="text-xs font-light text-muted-foreground">{alert.time}</span>
                               </div>
-                            </>
-                           )}
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </ScrollArea>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                         </div>
+                         
+                         <p className="text-sm text-foreground pt-1">{alert.headline}</p>
+                         
+                         {alert.source && (
+                           <p className="text-xs text-muted-foreground pt-1"><span className="font-semibold text-primary">Source:</span> {alert.source}</p>
+                         )}
+
+                         {alert.suggestedAction && (
+                          <>
+                            <Separator className="my-2 bg-border/20"/>
+                            <div className="space-y-1 text-xs">
+                                <h5 className="font-semibold text-foreground mb-1">Trade Plan</h5>
+                                <div className="p-2 rounded-md bg-black/10 border border-white/5 space-y-1">
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Action:</span> 
+                                    <span className={cn("font-bold", getActionTextColorClass(alert.suggestedAction))}>
+                                      {alert.suggestedAction} @ {alert.suggestedQuantity}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Entry:</span> 
+                                    <span className="font-mono">${alert.suggestedEntryPrice?.toFixed(2)} ({alert.suggestedOrderType})</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Target:</span> 
+                                    <span className="font-mono text-green-400">${alert.suggestedTargetPrice?.toFixed(2)}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Stop:</span> 
+                                    <span className="font-mono text-red-400">${alert.suggestedStopLossPrice?.toFixed(2)}</span>
+                                  </div>
+                                </div>
+                            </div>
+                          </>
+                         )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </main>
   );
