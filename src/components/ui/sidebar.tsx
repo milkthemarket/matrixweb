@@ -140,6 +140,13 @@ const SidebarProvider = React.forwardRef<
       [openForContext, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, hasMounted]
     );
 
+    const [sidebarIconWidth, setSidebarIconWidth] = React.useState("4rem"); // Start with a default
+
+    React.useEffect(() => {
+      // This ensures this value is only set on the client, after initial render
+      setSidebarIconWidth(SIDEBAR_WIDTH_ICON);
+    }, []);
+
     return (
       <SidebarContext.Provider value={contextValue}>
         <TooltipProvider delayDuration={0}>
@@ -147,7 +154,7 @@ const SidebarProvider = React.forwardRef<
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH,
-                "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+                "--sidebar-width-icon": sidebarIconWidth, // Use state variable
                 ...style,
               } as React.CSSProperties
             }
@@ -351,14 +358,12 @@ const SidebarHeader = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div">
 >(({ className, ...props }, ref) => {
-  const { state } = useSidebar();
   return (
     <div
       ref={ref}
       data-sidebar="header"
       className={cn(
-        "flex flex-col gap-2 shrink-0 w-[var(--sidebar-width-icon)]", 
-        state === "collapsed" ? "items-center" : "items-center",
+        "flex flex-col gap-2 shrink-0 items-center",
         className
       )}
       {...props}
