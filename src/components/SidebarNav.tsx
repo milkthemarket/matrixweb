@@ -85,10 +85,14 @@ export function SidebarNav() {
           "flex w-full items-center",
           state === "expanded" ? "justify-between" : "flex-col justify-center gap-2"
         )}>
-          <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
-            <CowIcon size={28} className="text-white flex-shrink-0" />
-            {state === 'expanded' && <span className="font-bold text-lg text-white">MILK</span>}
-          </Link>
+          <SidebarMenuItem className="w-full">
+            <SidebarMenuButton asChild className="hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
+                <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
+                    <CowIcon size={28} className="text-white flex-shrink-0" />
+                    {state === 'expanded' && <span className="font-bold text-lg text-white">MILK</span>}
+                </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           {!isMobile && (
              <Button
                 variant="ghost"
