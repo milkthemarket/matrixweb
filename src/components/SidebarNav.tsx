@@ -62,7 +62,6 @@ const CowIcon = ({ size = 28, color = "currentColor", ...props }) => {
 export function SidebarNav() {
   const pathname = usePathname();
   const { state, toggleSidebar, isMobile } = useSidebar();
-  const [isTradingOpen, setIsTradingOpen] = React.useState(true);
 
   const tradingSubMenuItems = tradingNavItems.map((item) => {
     const isActive = pathname === item.href;
@@ -109,37 +108,7 @@ export function SidebarNav() {
 
       <SidebarContent>
         <SidebarMenu>
-          {/* Expanded View */}
-          {state === "expanded" && (
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                onClick={() => setIsTradingOpen(!isTradingOpen)}
-                className="justify-between w-full"
-                isActive={tradingNavItems.some((item) => pathname.startsWith('/trading'))}
-              >
-                <div className="flex items-center gap-2">
-                  <Activity className="h-5 w-5" />
-                  <span className="text-base font-semibold tracking-wide">Trading</span>
-                </div>
-                <ChevronDown
-                  className={cn(
-                    "h-4 w-4 transition-transform",
-                    isTradingOpen && "rotate-180"
-                  )}
-                />
-              </SidebarMenuButton>
-              <SidebarMenuSub open={isTradingOpen}>
-                {tradingSubMenuItems}
-              </SidebarMenuSub>
-            </SidebarMenuItem>
-          )}
-
-          {/* Collapsed View */}
-          {state === "collapsed" && (
-            <>
-              {tradingSubMenuItems}
-            </>
-          )}
+          {tradingSubMenuItems}
         </SidebarMenu>
       </SidebarContent>
     </Sidebar>
