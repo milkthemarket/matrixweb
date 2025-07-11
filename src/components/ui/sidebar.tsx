@@ -351,11 +351,16 @@ const SidebarHeader = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div">
 >(({ className, ...props }, ref) => {
+  const { state } = useSidebar();
   return (
     <div
       ref={ref}
       data-sidebar="header"
-      className={cn("flex flex-col gap-0.5 p-1", className)}
+      className={cn(
+        "flex flex-col gap-0.5 p-1 transition-all duration-200", 
+        state === "collapsed" ? "w-[var(--sidebar-width-icon)]" : "w-[var(--sidebar-width)]",
+        className
+      )}
       {...props}
     />
   )
@@ -816,3 +821,5 @@ export {
 const SidebarMenuSubItem = SidebarMenuItem
 
 export { SidebarMenuSubItem }
+
+    
