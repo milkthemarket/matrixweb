@@ -101,7 +101,6 @@ const tradeHistoryColumnConfig: ColumnConfig<TradeHistoryEntry>[] = [
 
 export default function HistoryPage() {
   const { tradeHistory } = useTradeHistoryContext();
-  const [selectedHistoryFilterMode, setSelectedHistoryFilterMode] = useState<HistoryFilterMode>('all');
   const { toast } = useToast();
 
   const [dailyPnlData, setDailyPnlData] = useState<Record<string, number>>({});
@@ -160,7 +159,7 @@ export default function HistoryPage() {
     }
   };
 
-  const overallStats = useMemo((): TradeStatsData => {
+  const currentStats = useMemo((): TradeStatsData => {
     const modes: HistoryTradeMode[] = ['manual', 'aiAssist', 'autopilot'];
     let totalTrades = 0;
     let totalPnL = 0;
@@ -204,35 +203,20 @@ export default function HistoryPage() {
     };
   }, []);
 
-
-  const currentStats = useMemo(() => {
-    if (selectedHistoryFilterMode === 'all') {
-      return overallStats;
-    }
-    return mockTradeStats[selectedHistoryFilterMode];
-  }, [selectedHistoryFilterMode, overallStats]);
-
-  const displayedTradeHistory = useMemo(() => {
-    if (selectedHistoryFilterMode === 'all') {
-      return tradeHistory;
-    }
-    return tradeHistory.filter(trade => (trade.tradeModeOrigin || 'manual') === selectedHistoryFilterMode);
-  }, [tradeHistory, selectedHistoryFilterMode]);
-
   const handleExport = () => {
-    if (displayedTradeHistory.length === 0) {
+    if (tradeHistory.length === 0) {
       toast({
         title: "Export Failed",
-        description: "No trade data to export for the current filter.",
+        description: "No trade data to export.",
         variant: "destructive",
       });
       return;
     }
-    const filename = `trade_history_${selectedHistoryFilterMode}.csv`;
-    exportToCSV(filename, displayedTradeHistory, tradeHistoryColumnConfig);
+    const filename = `trade_history_all.csv`;
+    exportToCSV(filename, tradeHistory, tradeHistoryColumnConfig);
     toast({
       title: "Export Successful",
-      description: `Trade history for "${selectedHistoryFilterMode}" exported to ${filename}.`,
+      description: `All trade history exported to ${filename}.`,
     });
   };
   
@@ -240,7 +224,7 @@ export default function HistoryPage() {
     { key: 'totalTrades', label: 'Total Trades' },
     { key: 'winRate', label: 'Win Rate', unit: '%', isPercentage: true },
     { key: 'totalPnL', label: 'Total P&L', unit: '$', isCurrency: true },
-    { key: 'avgReturn', label: selectedHistoryFilterMode === 'all' ? 'Avg P&L/Trade' : 'Avg Return', unit: selectedHistoryFilterMode === 'all' ? '$' : '%', isCurrency: selectedHistoryFilterMode === 'all', isPercentage: selectedHistoryFilterMode !== 'all'},
+    { key: 'avgReturn', label: 'Avg P&L/Trade', unit: '$', isCurrency: true },
     { key: 'largestWin', label: 'Largest Win', unit: '$', isCurrency: true },
     { key: 'largestLoss', label: 'Largest Loss', unit: '$', isCurrency: true },
     { key: 'avgHoldTime', label: 'Avg. Hold Time' },
@@ -248,65 +232,30 @@ export default function HistoryPage() {
     { key: 'winStreak', label: 'Win Streak' },
   ];
 
-
-  const buttonBaseClass = "flex-1 flex items-center justify-center h-8 py-1 px-2 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-offset-background disabled:opacity-50"; // Reduced h-9, py-2, px-3, text-sm, ring-2
-  const activeModeClass = "bg-primary text-primary-foreground shadow-sm";
-  const inactiveModeClass = "bg-transparent text-muted-foreground hover:bg-panel/[.05] hover:text-foreground";
-
-
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Trade History" />
-      <div className="flex-1 p-1 md:p-1.5 space-y-1.5 overflow-y-auto"> {/* Reduced p-4/p-6, space-y-6 */}
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 w-full max-w-lg rounded-md overflow-hidden border border-border/[.1] bg-panel/[.05] mx-auto"> {/* Reduced max-w-xl */}
-          <button
-            onClick={() => setSelectedHistoryFilterMode('all')}
-            className={cn(buttonBaseClass, selectedHistoryFilterMode === 'all' ? activeModeClass : inactiveModeClass)}
-          >
-            <Layers className="mr-1 h-3.5 w-3.5" /> All {/* Reduced mr-2, icon size */}
-          </button>
-          <button
-            onClick={() => setSelectedHistoryFilterMode('manual')}
-            className={cn(buttonBaseClass, selectedHistoryFilterMode === 'manual' ? activeModeClass : inactiveModeClass)}
-          >
-            <User className="mr-1 h-3.5 w-3.5" /> Manual {/* Reduced mr-2, icon size */}
-          </button>
-          <button
-            onClick={() => setSelectedHistoryFilterMode('aiAssist')}
-            className={cn(buttonBaseClass, selectedHistoryFilterMode === 'aiAssist' ? activeModeClass : inactiveModeClass)}
-          >
-            <MiloAvatarIcon size={14} className="mr-1" /> AI Assist {/* Reduced size, mr-2 */}
-          </button>
-          <button
-            onClick={() => setSelectedHistoryFilterMode('autopilot')}
-            className={cn(buttonBaseClass, selectedHistoryFilterMode === 'autopilot' ? activeModeClass : inactiveModeClass)}
-          >
-            <Cpu className="mr-1 h-3.5 w-3.5" /> Autopilot {/* Reduced mr-2, icon size */}
-          </button>
-        </div>
+      <div className="flex-1 p-1 md:p-1.5 space-y-1.5 overflow-y-auto">
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
-              <BarChartHorizontalBig className="mr-1.5 h-4 w-4 text-primary"/> {/* Reduced icon size */}
-              {selectedHistoryFilterMode === 'all' ? 'Overall Performance Summary' : 
-               selectedHistoryFilterMode === 'manual' ? 'Manual Trade Performance' : 
-               selectedHistoryFilterMode === 'aiAssist' ? 'AI Assisted Performance' : 'Autopilot Performance'}
+            <CardTitle className="text-lg font-headline flex items-center">
+              <BarChartHorizontalBig className="mr-1.5 h-4 w-4 text-primary"/>
+              Overall Performance Summary
             </CardTitle>
-            <CardDescription>Summary of trades for the selected mode.</CardDescription>
+            <CardDescription>Summary of all trades across all modes.</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1"> {/* Reduced gap-4 */}
-            <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen size={14}/>} /> {/* Reduced icon size */}
+          <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
+            <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen size={14}/>} />
             <StatDisplay label="Win Rate" value={currentStats.winRate} unit="%" icon={<TrendingUp size={14}/>} valueColor={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
             <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign size={14}/>} valueColor={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
             <StatDisplay 
-                label={selectedHistoryFilterMode === 'all' && currentStats.avgReturn !== undefined ? "Avg P&L / Trade" : "Avg Return / Trade"}
+                label={"Avg P&L / Trade"}
                 value={currentStats.avgReturn} 
-                unit={selectedHistoryFilterMode === 'all' && currentStats.avgReturn !== undefined ? "$" : "%"} 
+                unit={"$"} 
                 icon={<Percent size={14}/>} 
                 valueColor={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"}
-                isCurrency={selectedHistoryFilterMode === 'all' && currentStats.avgReturn !== undefined}
+                isCurrency={true}
             />
             <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp size={14}/>} valueColor="text-[hsl(var(--confirm-green))]" isCurrency/>
             <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown size={14}/>} valueColor={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
@@ -318,8 +267,8 @@ export default function HistoryPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
-              <CalendarDays className="mr-1.5 h-4 w-4 text-primary"/> {/* Reduced icon size */}
+            <CardTitle className="text-lg font-headline flex items-center">
+              <CalendarDays className="mr-1.5 h-4 w-4 text-primary"/>
               Daily P&L Calendar
             </CardTitle>
             <CardDescription>Visual overview of your daily trading performance. Navigable by month.</CardDescription>
@@ -331,22 +280,22 @@ export default function HistoryPage() {
               onMonthChange={setCurrentCalendarMonth}
               formatters={{ formatDay: pnlDayFormatter }}
               className="w-full"
-              classNames={{ // Adjusted some calendar internal classes if they imply significant padding/margin by default
-                months: "flex flex-col sm:flex-row space-y-1 sm:space-x-1 sm:space-y-0", // Reduced space
-                month: "space-y-1", // Reduced space
-                caption_label: "text-xs font-medium", // Reduced text size
-                nav_button: cn(buttonVariants({ variant: "outline" }), "h-6 w-6 bg-transparent p-0 opacity-50 hover:opacity-100"), // Reduced size
-                table: "w-full border-collapse space-y-0.5", // Reduced space
-                head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.7rem]", // Reduced size
-                row: "flex w-full mt-0.5", // Reduced margin
-                cell: "h-8 w-8 text-center text-xs p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-sm [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-sm last:[&:has([aria-selected])]:rounded-r-sm focus-within:relative focus-within:z-20", // Reduced size & padding
-                day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 font-normal aria-selected:opacity-100"), // Reduced size
+              classNames={{
+                months: "flex flex-col sm:flex-row space-y-1 sm:space-x-1 sm:space-y-0",
+                month: "space-y-1",
+                caption_label: "text-xs font-medium",
+                nav_button: cn(buttonVariants({ variant: "outline" }), "h-6 w-6 bg-transparent p-0 opacity-50 hover:opacity-100"),
+                table: "w-full border-collapse space-y-0.5",
+                head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.7rem]",
+                row: "flex w-full mt-0.5",
+                cell: "h-8 w-8 text-center text-xs p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-sm [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-sm last:[&:has([aria-selected])]:rounded-r-sm focus-within:relative focus-within:z-20",
+                day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 font-normal aria-selected:opacity-100"),
                 day_today: "bg-accent text-accent-foreground font-bold ring-1 ring-accent",
                 day_outside: "text-muted-foreground/40",
               }}
             />
           </CardContent>
-          <CardFooter className="flex items-center justify-center space-x-1.5 pt-1 text-[10px] text-muted-foreground"> {/* Reduced space, padding, text size */}
+          <CardFooter className="flex items-center justify-center space-x-1.5 pt-1 text-[10px] text-muted-foreground">
             <span>Legend:</span>
             <div className="flex items-center">
                 <span className="font-semibold text-[hsl(var(--confirm-green))] mr-0.5">+100</span> Profit
@@ -357,11 +306,10 @@ export default function HistoryPage() {
           </CardFooter>
         </Card>
 
-        {selectedHistoryFilterMode === 'all' && (
-          <Card>
+        <Card>
             <CardHeader>
-              <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-5 */}
-                <PieChart className="mr-1.5 h-4 w-4 text-primary"/> {/* Reduced icon size */}
+              <CardTitle className="text-lg font-headline flex items-center">
+                <PieChart className="mr-1.5 h-4 w-4 text-primary"/>
                 Performance Comparison by Mode
               </CardTitle>
               <CardDescription>Side-by-side comparison of key metrics across trading modes.</CardDescription>
@@ -389,7 +337,7 @@ export default function HistoryPage() {
                       <TableRow key={metric.key}>
                         <TableCell className="font-medium text-muted-foreground">{metric.label}</TableCell>
                         {(['manual', 'aiAssist', 'autopilot'] as HistoryTradeMode[]).map(mode => {
-                          const value = mockTradeStats[mode][metric.key];
+                          const value = mockTradeStats[mode][metric.key as keyof TradeStatsData];
                           let displayValue = typeof value === 'number' 
                             ? value.toLocaleString(undefined, {minimumFractionDigits: (metric.isCurrency || metric.isPercentage) ? 2:0, maximumFractionDigits: 2}) 
                             : value;
@@ -398,7 +346,7 @@ export default function HistoryPage() {
                           return <TableCell key={`${mode}-${metric.key}`} className="text-center text-foreground">{displayValue}</TableCell>;
                         })}
                         {(() => {
-                            const overallValue = overallStats[metric.key];
+                            const overallValue = currentStats[metric.key as keyof TradeStatsData];
                             let displayOverallValue = typeof overallValue === 'number'
                                 ? overallValue.toLocaleString(undefined, { minimumFractionDigits: (metric.key === 'avgReturn' || metric.isCurrency || metric.isPercentage) ? 2 : 0, maximumFractionDigits: 2 })
                                 : overallValue;
@@ -413,26 +361,25 @@ export default function HistoryPage() {
               </ScrollArea>
             </CardContent>
           </Card>
-        )}
 
-        <Card className="flex-1 flex flex-col min-h-[300px]"> {/* Reduced min-h */}
-          <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-1"> {/* Reduced gap */}
+        <Card className="flex-1 flex flex-col min-h-[300px]">
+          <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-1">
             <div>
-              <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-xl, h-6 */}
-                <HistoryIcon className="mr-1.5 h-5 w-5 text-primary"/> {/* Reduced icon size */}
+              <CardTitle className="text-lg font-headline flex items-center">
+                <HistoryIcon className="mr-1.5 h-5 w-5 text-primary"/>
                 Executed Trades
               </CardTitle>
               <CardDescription>
-                Review your past trade executions for "{selectedHistoryFilterMode}" mode.
+                Review your past trade executions.
               </CardDescription>
             </div>
-            <Button onClick={handleExport} variant="outline" size="sm" className="h-7 px-2 text-xs"> {/* Made button smaller */}
-              <Download className="mr-1 h-3.5 w-3.5" /> {/* Reduced icon size */}
+            <Button onClick={handleExport} variant="outline" size="sm" className="h-7 px-2 text-xs">
+              <Download className="mr-1 h-3.5 w-3.5" />
               Export CSV
             </Button>
           </CardHeader>
           <CardContent className="flex-1 overflow-hidden">
-            {displayedTradeHistory.length > 0 ? (
+            {tradeHistory.length > 0 ? (
               <ScrollArea className="h-[calc(100%-0rem)]"> 
                 <Table><TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                     <TableRow>
@@ -451,13 +398,13 @@ export default function HistoryPage() {
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader><TableBody>
-                    {displayedTradeHistory.map((trade) => (
+                    {tradeHistory.map((trade) => (
                       <TableRow key={trade.id} className="hover:bg-white/5 transition-colors duration-200">
                         <TableCell className="font-medium text-foreground">{trade.symbol}</TableCell>
                         <TableCell>
                           <Badge
                             className={cn(
-                              "border-transparent text-[10px] px-1.5 py-px h-auto", // Reduced font size, padding
+                              "border-transparent text-[10px] px-1.5 py-px h-auto",
                               trade.side === 'Buy' && 'bg-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green-foreground))] hover:bg-[hsl(var(--confirm-green))]/90',
                               trade.side === 'Sell' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
                               trade.side === 'Short' && 'bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90'
@@ -476,7 +423,7 @@ export default function HistoryPage() {
                         <TableCell className="text-foreground">{trade.tradingHours}</TableCell>
                         <TableCell className="text-foreground">{formatDateTime(trade.placedTime)}</TableCell>
                         <TableCell className="text-foreground">{formatDateTime(trade.filledTime)}</TableCell>
-                        <TableCell className="flex items-center space-x-0.5 text-foreground"> {/* Reduced space */}
+                        <TableCell className="flex items-center space-x-0.5 text-foreground">
                           {getStatusIcon(trade.orderStatus)}
                           <span>{trade.orderStatus}</span>
                         </TableCell>
@@ -486,17 +433,9 @@ export default function HistoryPage() {
               </ScrollArea>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                <HistoryIcon className="h-10 w-10 mb-1" /> {/* Reduced icon size and margin */}
-                { selectedHistoryFilterMode === 'aiAssist' || selectedHistoryFilterMode === 'autopilot' ? (
-                  <p className="text-primary text-center text-sm">  {/* Reduced text size */}
-                    Milo’s looking for greener pastures—no trades just yet!
-                  </p>
-                ) : (
-                  <>
-                    <p className="text-md">No trade history for "{selectedHistoryFilterMode}" mode.</p> {/* Reduced text size */}
-                    <p className="text-xs">Executed trades will appear here.</p> {/* Reduced text size */}
-                  </>
-                )}
+                <HistoryIcon className="h-10 w-10 mb-1" />
+                <p className="text-md">No trade history yet.</p>
+                <p className="text-xs">Executed trades will appear here.</p>
               </div>
             )}
           </CardContent>
