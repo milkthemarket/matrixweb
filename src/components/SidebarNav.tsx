@@ -11,8 +11,6 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
   useSidebar,
 } from "@/components/ui/sidebar";
 import {
@@ -23,8 +21,6 @@ import {
   Store,
   ChevronLeft,
   ChevronRight,
-  Activity,
-  ChevronDown,
   Newspaper,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -67,19 +63,19 @@ export function SidebarNav() {
     const isActive = pathname === item.href;
     return (
       <SidebarMenuItem key={item.href}>
-        <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
+        <SidebarMenuButton asChild isActive={isActive} tooltip={{ children: item.label }}>
           <Link href={item.href}>
             <item.icon className="h-4 w-4" />
             <span className={cn(isActive ? "font-bold text-white" : "")}>{item.label}</span>
           </Link>
-        </SidebarMenuSubButton>
+        </SidebarMenuButton>
       </SidebarMenuItem>
     );
   });
   
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className={cn(state === 'expanded' ? "p-3" : "p-0 flex flex-col items-center pt-3 pb-2")}>
+      <SidebarHeader className={cn(state === 'expanded' ? "p-1.5" : "p-0 flex flex-col items-center pt-3 pb-2")}>
         <div className={cn(
           "flex w-full items-center",
           state === "expanded" ? "justify-between" : "flex-col justify-center gap-2"
