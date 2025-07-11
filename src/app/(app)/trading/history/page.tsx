@@ -231,18 +231,6 @@ export default function HistoryPage() {
     });
   };
   
-  const comparisonTableMetrics: Array<{key: keyof TradeStatsData, label: string, unit?: string, isCurrency?: boolean, isPercentage?: boolean}> = [
-    { key: 'totalTrades', label: 'Total Trades' },
-    { key: 'winRate', label: 'Win Rate', unit: '%', isPercentage: true },
-    { key: 'totalPnL', label: 'Total P&L', unit: '$', isCurrency: true },
-    { key: 'avgReturn', label: 'Avg P&L/Trade', unit: '$', isCurrency: true },
-    { key: 'largestWin', label: 'Largest Win', unit: '$', isCurrency: true },
-    { key: 'largestLoss', label: 'Largest Loss', unit: '$', isCurrency: true },
-    { key: 'avgHoldTime', label: 'Avg. Hold Time' },
-    { key: 'mostTradedSymbol', label: 'Most Traded' },
-    { key: 'winStreak', label: 'Win Streak' },
-  ];
-
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Trade History" />
@@ -319,62 +307,6 @@ export default function HistoryPage() {
             </div>
           </CardFooter>
         </Card>
-
-        <Card>
-            <CardHeader>
-              <CardTitle className="text-lg font-headline flex items-center">
-                <PieChart className="mr-1.5 h-4 w-4 text-primary"/>
-                Performance Comparison by Mode
-              </CardTitle>
-              <CardDescription>Side-by-side comparison of key metrics across trading modes.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="max-w-full">
-                <Table className="min-w-[600px]"><TableHeader>
-                    <TableRow>
-                      <TableHead className="w-[150px]">Metric</TableHead>
-                      <TableHead className="text-center w-[120px]">
-                        <div className="flex items-center justify-center"><User className="mr-1 h-3.5 w-3.5" /> Manual</div>
-                      </TableHead>
-                      <TableHead className="text-center w-[120px]">
-                        <div className="flex items-center justify-center"><MiloAvatarIcon size={14} className="mr-1" /> AI Assist</div>
-                      </TableHead>
-                      <TableHead className="text-center w-[120px]">
-                        <div className="flex items-center justify-center"><Cpu className="mr-1 h-3.5 w-3.5" /> Autopilot</div>
-                      </TableHead>
-                       <TableHead className="text-center w-[120px] font-semibold">
-                        <div className="flex items-center justify-center"><Layers className="mr-1 h-3.5 w-3.5" /> Overall</div>
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader><TableBody>
-                    {comparisonTableMetrics.map(metric => (
-                      <TableRow key={metric.key}>
-                        <TableCell className="font-medium text-muted-foreground">{metric.label}</TableCell>
-                        {(['manual', 'aiAssist', 'autopilot'] as HistoryTradeMode[]).map(mode => {
-                          const value = mockTradeStats[mode][metric.key as keyof TradeStatsData];
-                          let displayValue = typeof value === 'number' 
-                            ? value.toLocaleString(undefined, {minimumFractionDigits: (metric.isCurrency || metric.isPercentage) ? 2:0, maximumFractionDigits: 2}) 
-                            : value;
-                          if (metric.isCurrency) displayValue = `$${displayValue}`;
-                          if (metric.isPercentage && typeof value === 'number') displayValue = `${displayValue}%`;
-                          return <TableCell key={`${mode}-${metric.key}`} className="text-center text-foreground">{displayValue}</TableCell>;
-                        })}
-                        {(() => {
-                            const overallValue = currentStats[metric.key as keyof TradeStatsData];
-                            let displayOverallValue = typeof overallValue === 'number'
-                                ? overallValue.toLocaleString(undefined, { minimumFractionDigits: (metric.key === 'avgReturn' || metric.isCurrency || metric.isPercentage) ? 2 : 0, maximumFractionDigits: 2 })
-                                : overallValue;
-                            if ((metric.key === 'avgReturn' || metric.isCurrency)) displayOverallValue = `$${displayOverallValue}`;
-                            if (metric.isPercentage && typeof overallValue === 'number') displayOverallValue = `${displayOverallValue}%`;
-                             if (metric.key === 'avgReturn' && !metric.isCurrency && !metric.isPercentage) displayOverallValue = `$${Number(overallValue).toFixed(2)}`;
-                            return <TableCell className="text-center text-foreground font-semibold">{displayOverallValue}</TableCell>;
-                        })()}
-                      </TableRow>
-                    ))}
-                  </TableBody></Table>
-              </ScrollArea>
-            </CardContent>
-          </Card>
 
         <Card className="flex-1 flex flex-col min-h-[300px]">
           <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-1">
