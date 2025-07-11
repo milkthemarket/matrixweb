@@ -6,9 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
 import type { TradeHistoryEntry, TradeStatsData } from "@/types";
-import { format, parseISO } from 'date-fns';
-import { History as HistoryIcon, TrendingUp, TrendingDown, DollarSign, Percent, Clock, Repeat, Award, PackageOpen, Download, CheckCircle, XCircle } from "lucide-react";
-import { CalendarNav } from '@/components/CalendarNav';
+import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval, getDay, isToday, isSameMonth, getDate, subMonths, addMonths } from 'date-fns';
+import { History as HistoryIcon, TrendingUp, TrendingDown, DollarSign, Percent, Clock, Repeat, Award, PackageOpen, Download, CheckCircle, XCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { exportToCSV } from '@/lib/exportCSV';
@@ -87,14 +86,48 @@ const formatOptionalPrice = (price?: number) => {
     return `$${price.toFixed(2)}`;
 };
 
+const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+const getMonthDays = (year: number, month: number) => {
+    const firstDayOfMonth = startOfMonth(new Date(year, month));
+    const lastDayOfMonth = endOfMonth(new Date(year, month));
+    
+    const daysInCurrentMonth = eachDayOfInterval({
+        start: firstDayOfMonth,
+        end: lastDayOfMonth,
+    });
+
+    const startDayOfWeek = getDay(firstDayOfMonth);
+
+    const daysFromPrevMonth = Array.from({ length: startDayOfWeek }).map((_, i) => {
+        const day = new Date(year, month, i - startDayOfWeek + 1);
+        return { day: getDate(day), isCurrentMonth: false, fullDate: day };
+    });
+
+    const currentMonthDays = daysInCurrentMonth.map(day => ({
+        day: getDate(day),
+        isCurrentMonth: true,
+        fullDate: day,
+    }));
+
+    const daysArray = [...daysFromPrevMonth, ...currentMonthDays];
+    
+    const remainingCells = 42 - daysArray.length; // 6 weeks * 7 days
+    const daysFromNextMonth = Array.from({ length: remainingCells }).map((_, i) => {
+        const day = new Date(year, month + 1, i + 1);
+        return { day: getDate(day), isCurrentMonth: false, fullDate: day };
+    });
+
+    return [...daysArray, ...daysFromNextMonth];
+};
+
+
 export default function HistoryPage() {
   const { tradeHistory } = useTradeHistoryContext();
   const { toast } = useToast();
 
-  const [currentCalendarMonth, setCurrentCalendarMonth] = useState<Date>(new Date());
-  const [calendarSelectedDay, setCalendarSelectedDay] = useState<Date | undefined>(new Date());
-  const [calendarView, setCalendarView] = useState('month');
-
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [activeView, setActiveView] = useState('month');
 
   const currentStats = useMemo((): TradeStatsData => {
     const totalTrades = 27;
@@ -128,6 +161,12 @@ export default function HistoryPage() {
       description: `All trade history exported to ${filename}.`,
     });
   };
+
+  const handlePreviousMonth = () => setCurrentDate(subMonths(currentDate, 1));
+  const handleNextMonth = () => setCurrentDate(addMonths(currentDate, 1));
+  const handleToday = () => setCurrentDate(new Date());
+
+  const monthDays = getMonthDays(currentDate.getFullYear(), currentDate.getMonth());
   
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
@@ -158,45 +197,53 @@ export default function HistoryPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-2xl">
             <CardHeader>
                 <CardTitle className="text-xl font-headline flex items-center">
                 Calendar
                 </CardTitle>
             </CardHeader>
             <CardContent className="p-2">
-                <CalendarNav
-                currentMonth={currentCalendarMonth}
-                onMonthChange={setCurrentCalendarMonth}
-                onTodayClick={() => setCurrentCalendarMonth(new Date())}
-                activeView={calendarView}
-                onActiveViewChange={setCalendarView}
-                />
-                <Calendar
-                mode="single"
-                selected={calendarSelectedDay}
-                onSelect={setCalendarSelectedDay}
-                month={currentCalendarMonth}
-                onMonthChange={setCurrentCalendarMonth}
-                className="w-full"
-                classNames={{
-                    months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                    month: "space-y-4 p-3",
-                    caption: "hidden", // Use custom nav
-                    table: "w-full border-collapse space-y-1",
-                    head_cell: "text-muted-foreground rounded-md w-full font-normal text-sm",
-                    row: "flex w-full mt-2",
-                    cell: "h-12 w-full text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
-                    day: cn(
-                      buttonVariants({ variant: "ghost" }),
-                      "h-12 w-full p-0 font-normal rounded-md"
-                    ),
-                    day_selected:
-                      "bg-muted text-foreground hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground",
-                    day_today: "bg-accent/50 text-accent-foreground ring-1 ring-accent",
-                    day_outside: "text-muted-foreground/40",
-                }}
-                />
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-b border-white/10">
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" size="icon" aria-label="Previous month" onClick={handlePreviousMonth}><ChevronLeft className="h-4 w-4" /></Button>
+                        <Button variant="outline" size="icon" aria-label="Next month" onClick={handleNextMonth}><ChevronRight className="h-4 w-4" /></Button>
+                        <Button variant="outline" onClick={handleToday}>Today</Button>
+                    </div>
+                    <div className="text-lg font-semibold text-foreground">{format(currentDate, "MMMM yyyy")}</div>
+                    <div className="flex items-center gap-1 bg-black/30 p-1 rounded-md">
+                        {["month", "week", "day"].map((view) => (
+                        <Button key={view} variant={activeView === view ? "default" : "ghost"} size="sm"
+                            className={cn(
+                                "px-3 py-1 h-auto text-xs capitalize", 
+                                activeView === view ? 'bg-primary text-primary-foreground' : 'hover:bg-white/10'
+                            )}
+                            onClick={() => setActiveView(view)}>{view}
+                        </Button>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-7">
+                    {daysOfWeek.map((day) => (
+                        <div key={day} className="py-2 text-center text-xs font-medium text-muted-foreground">{day}</div>
+                    ))}
+                </div>
+                <div className="grid grid-cols-7 gap-px border-l border-t border-border/10">
+                    {monthDays.map((dayObj, index) => (
+                        <div key={index}
+                            className={cn("h-24 sm:h-28 md:h-32 p-1.5 text-xs bg-transparent border-r border-b border-white/10 overflow-hidden relative cursor-pointer hover:bg-white/5",
+                                dayObj.isCurrentMonth ? "text-foreground" : "text-muted-foreground/50",
+                                dayObj.fullDate && isToday(dayObj.fullDate) && dayObj.isCurrentMonth && "bg-primary/10 ring-1 ring-inset ring-primary/50"
+                            )}
+                        >
+                            <span className={cn("absolute top-1.5 right-1.5 flex items-center justify-center w-5 h-5 rounded-full text-xs",
+                                dayObj.fullDate && isToday(dayObj.fullDate) && dayObj.isCurrentMonth ? "bg-primary text-primary-foreground font-semibold" : "")}>
+                                {dayObj.day}
+                            </span>
+                        </div>
+                    ))}
+                </div>
             </CardContent>
         </Card>
         
