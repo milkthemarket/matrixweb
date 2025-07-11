@@ -2,6 +2,5 @@
 import { redirect } from 'next/navigation';
 
 export default function AppRootPage() {
-  redirect('/trading/dashboard');
-  // return null; // This line is unreachable and can be removed for clarity if desired, but it doesn't harm functionality.
+  redirect('/trading/milk-market');
 }

@@ -77,7 +77,7 @@ export function SidebarNav() {
     <Sidebar collapsible="icon">
       <SidebarHeader className={cn("p-1", state === 'collapsed' && "p-0 pt-2 pb-2 flex flex-col items-center")}>
         <SidebarMenuButton asChild className="w-full hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
-            <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
+            <Link href="/trading/milk-market" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
                 <CowIcon size={28} className="text-white flex-shrink-0" />
             </Link>
         </SidebarMenuButton>
