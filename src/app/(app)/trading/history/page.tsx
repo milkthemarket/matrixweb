@@ -4,24 +4,23 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { PageHeader } from "@/components/PageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
-import type { TradeHistoryEntry, HistoryTradeMode, TradeStatsData, ColumnConfig, HistoryFilterMode } from "@/types";
+import type { TradeHistoryEntry, TradeStatsData } from "@/types";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
-import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, User, BarChartHorizontalBig, PackageOpen, Repeat, Award, Layers, Download, PieChart, CalendarDays } from "lucide-react";
+import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, User, BarChartHorizontalBig, PackageOpen, Repeat, Award, Layers, Download, PieChart, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
 import { cn } from '@/lib/utils';
 import { exportToCSV } from '@/lib/exportCSV';
 import { useToast } from "@/hooks/use-toast";
 import { Calendar } from "@/components/ui/calendar";
 import { Separator } from '@/components/ui/separator';
-
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
 
 const ClientSideDateTime = ({ isoString }: { isoString?: string }) => {
-  const [formattedDate, setFormattedDate] = useState<string>('...'); 
+  const [formattedDate, setFormattedDate] = useState<string>('...');
 
   useEffect(() => {
     if (isoString) {
@@ -41,11 +40,11 @@ const ClientSideDateTime = ({ isoString }: { isoString?: string }) => {
 const getStatusIcon = (status: TradeHistoryEntry['orderStatus']) => {
   switch (status) {
     case 'Filled':
-      return <CheckCircle className="h-3.5 w-3.5 text-[hsl(var(--confirm-green))]" />; // Reduced size
+      return <CheckCircle className="h-3.5 w-3.5 text-[hsl(var(--confirm-green))]" />;
     case 'Canceled':
-      return <XCircle className="h-3.5 w-3.5 text-destructive" />; // Reduced size
+      return <XCircle className="h-3.5 w-3.5 text-destructive" />;
     case 'Pending':
-      return <Clock className="h-3.5 w-3.5 text-yellow-500" />; // Reduced size
+      return <Clock className="h-3.5 w-3.5 text-yellow-500" />;
     default:
       return null;
   }
@@ -67,6 +66,39 @@ const StatDisplay: React.FC<{ label: string; value: string | number; unit?: stri
   </div>
 );
 
+const CalendarNav = ({ currentMonth, onMonthChange, onTodayClick, activeView, onActiveViewChange }: any) => (
+  <div className="flex flex-col sm:flex-row items-center justify-between gap-2 mb-4 px-2">
+    <div className="flex items-center gap-1">
+      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => onMonthChange(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))}>
+        <ChevronLeft className="h-4 w-4" />
+      </Button>
+      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => onMonthChange(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))}>
+        <ChevronRight className="h-4 w-4" />
+      </Button>
+      <Button variant="outline" size="sm" className="h-8 text-xs rounded-md" onClick={onTodayClick}>
+        Today
+      </Button>
+    </div>
+    <div className="text-lg font-semibold text-foreground">
+      {format(currentMonth, 'MMMM yyyy')}
+    </div>
+    <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-md">
+      {['Month', 'Week', 'Day'].map((view) => (
+        <Button
+          key={view}
+          variant={activeView === view.toLowerCase() ? "default" : "ghost"}
+          size="sm"
+          className={cn("px-3 py-1 h-auto text-xs capitalize rounded-sm", activeView === view.toLowerCase() ? 'bg-primary/80 text-primary-foreground' : 'hover:bg-muted/50')}
+          onClick={() => onActiveViewChange(view.toLowerCase())}
+        >
+          {view}
+        </Button>
+      ))}
+    </div>
+  </div>
+);
+
+
 const tradeHistoryColumnConfig: ColumnConfig<TradeHistoryEntry>[] = [
   { key: 'symbol', label: 'Symbol' },
   { key: 'side', label: 'Side' },
@@ -77,8 +109,8 @@ const tradeHistoryColumnConfig: ColumnConfig<TradeHistoryEntry>[] = [
   { key: 'stopPrice', label: 'Stop Price', align: 'right', format: (val) => val ? `$${val.toFixed(2)}` : 'N/A' },
   { key: 'TIF', label: 'TIF' },
   { key: 'tradingHours', label: 'Trading Hours' },
-  { key: 'placedTime', label: 'Placed Time', format: (val) => format(parseISO(val), "MM/dd/yy HH:mm") }, // Shortened format
-  { key: 'filledTime', label: 'Filled Time', format: (val) => format(parseISO(val), "MM/dd/yy HH:mm") }, // Shortened format
+  { key: 'placedTime', label: 'Placed Time', format: (val) => format(parseISO(val), "MM/dd/yy HH:mm") },
+  { key: 'filledTime', label: 'Filled Time', format: (val) => format(parseISO(val), "MM/dd/yy HH:mm") },
   { key: 'orderStatus', label: 'Status' },
 ];
 
@@ -87,57 +119,12 @@ export default function HistoryPage() {
   const { tradeHistory } = useTradeHistoryContext();
   const { toast } = useToast();
 
-  const [dailyPnlData, setDailyPnlData] = useState<Record<string, number>>({});
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState<Date>(new Date());
+  const [calendarSelectedDay, setCalendarSelectedDay] = useState<Date | undefined>(new Date());
+  const [calendarView, setCalendarView] = useState('month');
 
-  useEffect(() => {
-    const generatePnlForMonth = (date: Date) => {
-        const pnlMap: Record<string, number> = {};
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        const daysInMonthValue = new Date(year, month + 1, 0).getDate();
 
-        for (let i = 1; i <= daysInMonthValue; i++) {
-            const currentDate = new Date(year, month, i);
-            if (currentDate.getDay() !== 0 && currentDate.getDay() !== 6) { // Skip Sunday and Saturday
-                if (Math.random() > 0.3) { 
-                    const pnl = (Math.random() - 0.45) * 300; 
-                    pnlMap[format(currentDate, 'yyyy-MM-dd')] = parseFloat(pnl.toFixed(2));
-                }
-            }
-        }
-        return pnlMap;
-    };
-    setDailyPnlData(generatePnlForMonth(currentCalendarMonth));
-  }, [currentCalendarMonth]);
-
-  const pnlDayFormatter = (day: Date): React.ReactNode => {
-      const dateKey = format(day, 'yyyy-MM-dd');
-      const pnl = dailyPnlData[dateKey];
-      const dayOfMonth = format(day, 'd');
-  
-      if (pnl !== undefined && day.getMonth() === currentCalendarMonth.getMonth()) {
-          return (
-              <div className="flex flex-col items-center justify-center text-center leading-tight h-full w-full">
-                  <span>{dayOfMonth}</span>
-                  <span className={cn(
-                      "text-xs font-bold leading-none mt-px", // Reduced text size
-                      pnl > 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"
-                  )}>
-                      {pnl > 0 ? '+' : ''}{pnl.toFixed(0)}
-                  </span>
-              </div>
-          );
-      }
-      return dayOfMonth;
-  };
-
-  const formatOptionalPrice = (price?: number) => price?.toFixed(2) ?? 'N/A';
-  const formatOptionalNumber = (num?: number) => num?.toString() ?? 'N/A';
-  
   const currentStats = useMemo((): TradeStatsData => {
-    // This is a placeholder since the detailed stats per mode were removed.
-    // In a real app, this would be a single calculation over the whole tradeHistory.
     const totalTrades = 27;
     const totalPnL = 2289.47;
     return {
@@ -207,50 +194,50 @@ export default function HistoryPage() {
           <CardHeader>
             <CardTitle className="text-lg font-headline flex items-center">
               <CalendarDays className="mr-1.5 h-4 w-4 text-primary"/>
-              Daily P&L Calendar
+              Calendar
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="p-2">
+            <CalendarNav
+              currentMonth={currentCalendarMonth}
+              onMonthChange={setCurrentCalendarMonth}
+              onTodayClick={() => setCurrentCalendarMonth(new Date())}
+              activeView={calendarView}
+              onActiveViewChange={setCalendarView}
+            />
             <Calendar
               mode="single"
+              selected={calendarSelectedDay}
+              onSelect={setCalendarSelectedDay}
               month={currentCalendarMonth}
               onMonthChange={setCurrentCalendarMonth}
-              formatters={{ formatDay: pnlDayFormatter }}
               className="w-full"
               classNames={{
-                months: "flex flex-col sm:flex-row space-y-1 sm:space-x-1 sm:space-y-0",
-                month: "space-y-1",
-                caption_label: "text-sm font-medium",
-                nav_button: cn(buttonVariants({ variant: "outline" }), "h-6 w-6 bg-transparent p-0 opacity-50 hover:opacity-100"),
-                table: "w-full border-collapse space-y-0.5",
-                head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
-                row: "flex w-full mt-0.5",
-                cell: "h-8 w-8 text-center text-base p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-sm [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-sm last:[&:has([aria-selected])]:rounded-r-sm focus-within:relative focus-within:z-20",
-                day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 font-normal aria-selected:opacity-100"),
-                day_today: "bg-accent text-accent-foreground font-bold ring-1 ring-accent",
+                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                month: "space-y-4 p-3",
+                caption: "hidden", // Use custom nav
+                table: "w-full border-collapse space-y-1",
+                head_cell: "text-muted-foreground rounded-md w-full font-normal text-sm",
+                row: "flex w-full mt-2",
+                cell: "h-12 w-full text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
+                day: cn(
+                  buttonVariants({ variant: "ghost" }),
+                  "h-12 w-full p-0 font-normal rounded-md"
+                ),
+                day_selected: "bg-muted text-foreground hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground",
+                day_today: "bg-accent/50 text-accent-foreground ring-1 ring-accent",
                 day_outside: "text-muted-foreground/40",
               }}
             />
           </CardContent>
-          <CardFooter className="flex items-center justify-center space-x-1.5 pt-1 text-xs text-muted-foreground">
-            <span>Legend:</span>
-            <div className="flex items-center">
-                <span className="font-semibold text-[hsl(var(--confirm-green))] mr-0.5">+100</span> Profit
-            </div>
-            <div className="flex items-center">
-                <span className="font-semibold text-destructive mr-0.5">-50</span> Loss
-            </div>
-          </CardFooter>
         </Card>
-
+        
         <Card className="flex-1 flex flex-col min-h-[300px]">
           <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-1">
-            <div>
-              <CardTitle className="text-lg font-headline flex items-center">
-                <HistoryIcon className="mr-1.5 h-5 w-5 text-primary"/>
-                Executed Trades
-              </CardTitle>
-            </div>
+            <CardTitle className="text-lg font-headline flex items-center">
+              <HistoryIcon className="mr-1.5 h-5 w-5 text-primary"/>
+              Executed Trades
+            </CardTitle>
             <Button onClick={handleExport} variant="outline" size="sm" className="h-7 px-2 text-sm">
               <Download className="mr-1 h-3.5 w-3.5" />
               Export CSV
@@ -259,7 +246,8 @@ export default function HistoryPage() {
           <CardContent className="flex-1 overflow-hidden">
             {tradeHistory.length > 0 ? (
               <ScrollArea className="h-[calc(100%-0rem)]"> 
-                <Table><TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
+                <Table>
+                  <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-10">
                     <TableRow>
                       <TableHead>Symbol</TableHead>
                       <TableHead>Side</TableHead>
@@ -274,7 +262,8 @@ export default function HistoryPage() {
                       <TableHead>Filled Time</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
-                  </TableHeader><TableBody>
+                  </TableHeader>
+                  <TableBody>
                     {tradeHistory.map((trade) => (
                       <TableRow key={trade.id} className="hover:bg-white/5 transition-colors duration-200">
                         <TableCell className="font-medium text-foreground">{trade.symbol}</TableCell>
@@ -305,7 +294,8 @@ export default function HistoryPage() {
                         </TableCell>
                       </TableRow>
                     ))}
-                  </TableBody></Table>
+                  </TableBody>
+                </Table>
               </ScrollArea>
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
