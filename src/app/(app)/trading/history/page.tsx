@@ -98,6 +98,24 @@ const tradeHistoryColumnConfig: ColumnConfig<TradeHistoryEntry>[] = [
   { key: 'orderStatus', label: 'Status' },
 ];
 
+const ClientSideDateTime = ({ isoString }: { isoString?: string }) => {
+  const [formattedDate, setFormattedDate] = useState<string>('...'); // Placeholder to avoid mismatch
+
+  useEffect(() => {
+    if (isoString) {
+      try {
+        setFormattedDate(format(parseISO(isoString), "MM/dd HH:mm"));
+      } catch (e) {
+        setFormattedDate('Invalid Date');
+      }
+    } else {
+      setFormattedDate('N/A');
+    }
+  }, [isoString]);
+
+  return <>{formattedDate}</>;
+};
+
 
 export default function HistoryPage() {
   const { tradeHistory } = useTradeHistoryContext();
@@ -150,15 +168,7 @@ export default function HistoryPage() {
 
   const formatOptionalPrice = (price?: number) => price?.toFixed(2) ?? 'N/A';
   const formatOptionalNumber = (num?: number) => num?.toString() ?? 'N/A';
-  const formatDateTime = (isoString?: string) => {
-    if (!isoString) return 'N/A';
-    try {
-      return format(parseISO(isoString), "MM/dd HH:mm"); // Shortened format
-    } catch (e) {
-      return 'Invalid Date';
-    }
-  };
-
+  
   const currentStats = useMemo((): TradeStatsData => {
     const modes: HistoryTradeMode[] = ['manual', 'aiAssist', 'autopilot'];
     let totalTrades = 0;
@@ -421,8 +431,8 @@ export default function HistoryPage() {
                         <TableCell className="text-right text-foreground">{formatOptionalNumber(trade.trailAmount)}</TableCell>
                         <TableCell className="text-foreground">{trade.TIF}</TableCell>
                         <TableCell className="text-foreground">{trade.tradingHours}</TableCell>
-                        <TableCell className="text-foreground">{formatDateTime(trade.placedTime)}</TableCell>
-                        <TableCell className="text-foreground">{formatDateTime(trade.filledTime)}</TableCell>
+                        <TableCell className="text-foreground"><ClientSideDateTime isoString={trade.placedTime} /></TableCell>
+                        <TableCell className="text-foreground"><ClientSideDateTime isoString={trade.filledTime} /></TableCell>
                         <TableCell className="flex items-center space-x-0.5 text-foreground">
                           {getStatusIcon(trade.orderStatus)}
                           <span>{trade.orderStatus}</span>
