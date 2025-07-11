@@ -10,17 +10,15 @@ export default function LandingPage() {
       {/* Header */}
       <header className="flex justify-between items-center p-6">
         {/* Logo */}
-        <Link href="/trading/dashboard" legacyBehavior>
-          <a className="flex items-center gap-2 group">
-            <MiloAvatarIcon size={32} className="text-gray-800" />
-            <span className="font-bold text-xl text-gray-800">MILK</span>
-          </a>
+        <Link href="/trading/dashboard" className="flex items-center gap-2 group">
+          <MiloAvatarIcon size={32} className="text-gray-800" />
+          <span className="font-bold text-xl text-gray-800">MILK</span>
         </Link>
         {/* Navigation */}
         <nav className="flex gap-8 items-center text-gray-700 text-lg">
-          <Link href="/trading/dashboard" legacyBehavior><a className="hover:text-black transition-colors">Login</a></Link>
-          <Link href="/trading/dashboard" legacyBehavior><a className="hover:text-black transition-colors">Sign up</a></Link>
-          <Link href="/trading/suggestions" legacyBehavior><a className="hover:text-black transition-colors">Review</a></Link>
+          <Link href="/trading/dashboard" className="hover:text-black transition-colors">Login</Link>
+          <Link href="/trading/dashboard" className="hover:text-black transition-colors">Sign up</Link>
+          <Link href="/trading/suggestions" className="hover:text-black transition-colors">Review</Link>
           <button title="Toggle theme (placeholder)">
             <Sun className="h-6 w-6 text-gray-700 hover:text-black transition-colors" />
           </button>
