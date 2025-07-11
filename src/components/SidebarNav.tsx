@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -82,7 +83,7 @@ export function SidebarNav() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 shrink-0 text-foreground rounded-full hover:bg-white/10"
+            className="h-8 w-8 shrink-0 text-foreground rounded-full hover:bg-white/10 hover:text-white"
             onClick={toggleSidebar}
           >
             {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}

@@ -3,18 +3,17 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { PageHeader } from "@/components/PageHeader";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
 import type { TradeHistoryEntry, TradeStatsData } from "@/types";
-import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
-import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, User, BarChartHorizontalBig, PackageOpen, Repeat, Award, Layers, Download, PieChart, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
-import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
+import { format, parseISO } from 'date-fns';
+import { History as HistoryIcon, TrendingUp, TrendingDown, DollarSign, Percent, Clock, Repeat, Award, PackageOpen, Download } from "lucide-react";
+import { CalendarNav } from '@/components/CalendarNav';
+import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { exportToCSV } from '@/lib/exportCSV';
 import { useToast } from "@/hooks/use-toast";
-import { Calendar } from "@/components/ui/calendar";
-import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -51,51 +50,19 @@ const getStatusIcon = (status: TradeHistoryEntry['orderStatus']) => {
 };
 
 const StatDisplay: React.FC<{ label: string; value: string | number; unit?: string; valueClass?: string; icon?: React.ReactNode; isCurrency?: boolean }> = ({ label, value, unit, valueClass, icon, isCurrency = false }) => (
-  <div className="flex flex-col items-center justify-center p-3 text-center">
-    <div className="text-muted-foreground mb-1.5">
-      {icon && React.cloneElement(icon as React.ReactElement, { size: 20 })}
+    <div className="flex flex-col items-center justify-center p-3 text-center">
+        <div className="text-muted-foreground mb-1.5">
+            {icon && React.cloneElement(icon as React.ReactElement, { size: 24, className: "text-muted-foreground/80" })}
+        </div>
+        <span className={cn("text-2xl font-bold text-foreground", valueClass)}>
+            {isCurrency && unit === '$' && unit}
+            {typeof value === 'number' ? value.toLocaleString(undefined, { minimumFractionDigits: value % 1 === 0 && !isCurrency ? 0 : 2, maximumFractionDigits: 2 }) : value}
+            {!isCurrency && unit && unit !== '$' && `${unit}`}
+        </span>
+        <div className="text-sm font-medium text-muted-foreground uppercase tracking-wider mt-1">
+            {label}
+        </div>
     </div>
-    <span className={cn("text-xl font-bold text-foreground", valueClass)}>
-      {isCurrency && unit === '$' && unit}
-      {typeof value === 'number' ? value.toLocaleString(undefined, { minimumFractionDigits: value % 1 === 0 && !isCurrency ? 0 : 2, maximumFractionDigits: 2 }) : value}
-      {!isCurrency && unit && unit !== '$' && `${unit}`}
-    </span>
-    <div className="text-sm font-medium text-muted-foreground uppercase tracking-wider mt-1">
-      {label}
-    </div>
-  </div>
-);
-
-const CalendarNav = ({ currentMonth, onMonthChange, onTodayClick, activeView, onActiveViewChange }: any) => (
-  <div className="flex flex-col sm:flex-row items-center justify-between gap-2 mb-4 px-2">
-    <div className="flex items-center gap-1">
-      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => onMonthChange(new Date(currentMonth.setMonth(currentMonth.getMonth() - 1)))}>
-        <ChevronLeft className="h-4 w-4" />
-      </Button>
-      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => onMonthChange(new Date(currentMonth.setMonth(currentMonth.getMonth() + 1)))}>
-        <ChevronRight className="h-4 w-4" />
-      </Button>
-      <Button variant="outline" size="sm" className="h-8 text-xs rounded-md" onClick={onTodayClick}>
-        Today
-      </Button>
-    </div>
-    <div className="text-lg font-semibold text-foreground">
-      {format(currentMonth, 'MMMM yyyy')}
-    </div>
-    <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-md">
-      {['Month', 'Week', 'Day'].map((view) => (
-        <Button
-          key={view}
-          variant={activeView === view.toLowerCase() ? "default" : "ghost"}
-          size="sm"
-          className={cn("px-3 py-1 h-auto text-xs capitalize rounded-sm", activeView === view.toLowerCase() ? 'bg-primary/80 text-primary-foreground' : 'hover:bg-muted/50')}
-          onClick={() => onActiveViewChange(view.toLowerCase())}
-        >
-          {view}
-        </Button>
-      ))}
-    </div>
-  </div>
 );
 
 
@@ -171,21 +138,18 @@ export default function HistoryPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg font-headline flex items-center">
-              <BarChartHorizontalBig className="mr-1.5 h-4 w-4 text-primary"/>
               Overall Performance
             </CardTitle>
           </CardHeader>
           <CardContent>
-             <div className="w-full lg:w-3/5">
+            <div className="w-full lg:w-3/5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-1">
                     <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen />} />
                     <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign />} valueClass={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
                     <StatDisplay label="Win Rate" value={currentStats.winRate} unit="%" icon={<TrendingUp />} valueClass={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
-                    
                     <StatDisplay label={"Avg P&L / Trade"} value={currentStats.avgReturn} unit={"$"} icon={<Percent />} valueClass={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency={true} />
                     <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown />} valueClass={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
                     <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp />} valueClass="text-[hsl(var(--confirm-green))]" isCurrency/>
-
                     <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock />} />
                     <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award />} valueClass={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
                     <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat />} />
@@ -195,51 +159,49 @@ export default function HistoryPage() {
         </Card>
 
         <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-headline flex items-center">
-              <CalendarDays className="mr-1.5 h-4 w-4 text-primary"/>
-              Calendar
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-2">
-            <CalendarNav
-              currentMonth={currentCalendarMonth}
-              onMonthChange={setCurrentCalendarMonth}
-              onTodayClick={() => setCurrentCalendarMonth(new Date())}
-              activeView={calendarView}
-              onActiveViewChange={setCalendarView}
-            />
-            <Calendar
-              mode="single"
-              selected={calendarSelectedDay}
-              onSelect={setCalendarSelectedDay}
-              month={currentCalendarMonth}
-              onMonthChange={setCurrentCalendarMonth}
-              className="w-full"
-              classNames={{
-                months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
-                month: "space-y-4 p-3",
-                caption: "hidden", // Use custom nav
-                table: "w-full border-collapse space-y-1",
-                head_cell: "text-muted-foreground rounded-md w-full font-normal text-sm",
-                row: "flex w-full mt-2",
-                cell: "h-12 w-full text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
-                day: cn(
-                  buttonVariants({ variant: "ghost" }),
-                  "h-12 w-full p-0 font-normal rounded-md"
-                ),
-                day_selected: "bg-muted text-foreground hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground",
-                day_today: "bg-accent/50 text-accent-foreground ring-1 ring-accent",
-                day_outside: "text-muted-foreground/40",
-              }}
-            />
-          </CardContent>
+            <CardHeader>
+                <CardTitle className="text-lg font-headline flex items-center">
+                Calendar
+                </CardTitle>
+            </CardHeader>
+            <CardContent className="p-2">
+                <CalendarNav
+                currentMonth={currentCalendarMonth}
+                onMonthChange={setCurrentCalendarMonth}
+                onTodayClick={() => setCurrentCalendarMonth(new Date())}
+                activeView={calendarView}
+                onActiveViewChange={setCalendarView}
+                />
+                <Calendar
+                mode="single"
+                selected={calendarSelectedDay}
+                onSelect={setCalendarSelectedDay}
+                month={currentCalendarMonth}
+                onMonthChange={setCurrentCalendarMonth}
+                className="w-full"
+                classNames={{
+                    months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                    month: "space-y-4 p-3",
+                    caption: "hidden", // Use custom nav
+                    table: "w-full border-collapse space-y-1",
+                    head_cell: "text-muted-foreground rounded-md w-full font-normal text-sm",
+                    row: "flex w-full mt-2",
+                    cell: "h-12 w-full text-center text-sm p-0 relative focus-within:relative focus-within:z-20",
+                    day: cn(
+                    buttonVariants({ variant: "ghost" }),
+                    "h-12 w-full p-0 font-normal rounded-md"
+                    ),
+                    day_selected: "bg-muted text-foreground hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground",
+                    day_today: "bg-accent/50 text-accent-foreground ring-1 ring-accent",
+                    day_outside: "text-muted-foreground/40",
+                }}
+                />
+            </CardContent>
         </Card>
         
         <Card className="flex-1 flex flex-col min-h-[300px]">
           <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-1">
             <CardTitle className="text-lg font-headline flex items-center">
-              <HistoryIcon className="mr-1.5 h-5 w-5 text-primary"/>
               Executed Trades
             </CardTitle>
             <Button onClick={handleExport} variant="outline" size="sm" className="h-7 px-2 text-sm">
