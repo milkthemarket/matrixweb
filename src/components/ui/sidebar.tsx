@@ -140,7 +140,7 @@ const SidebarProvider = React.forwardRef<
       [openForContext, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, hasMounted]
     );
 
-    const [sidebarIconWidth, setSidebarIconWidth] = React.useState("4rem"); // Start with a default
+    const [sidebarIconWidth, setSidebarIconWidth] = React.useState("0px"); // Start with 0 server-side
 
     React.useEffect(() => {
       // This ensures this value is only set on the client, after initial render
@@ -240,6 +240,7 @@ const Sidebar = React.forwardRef<
           "duration-200 transition-[width] ease-linear",
           state === 'expanded' ? "w-[var(--sidebar-width)]" : "w-[var(--sidebar-width-icon)]",
           variant === "floating" && "p-0.5",
+          "border-r border-white/5", // Add the subtle white divider line here
           className
         )}
         data-state={state}
@@ -358,12 +359,14 @@ const SidebarHeader = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div">
 >(({ className, ...props }, ref) => {
+  const { state } = useSidebar();
   return (
     <div
       ref={ref}
       data-sidebar="header"
       className={cn(
-        "flex flex-col gap-2 shrink-0 items-center",
+        "flex flex-col shrink-0 items-center justify-center",
+        state === 'expanded' ? 'h-24' : 'h-16', // Adjust height based on state
         className
       )}
       {...props}
@@ -827,4 +830,3 @@ const SidebarMenuSubItem = SidebarMenuItem
 
 export { SidebarMenuSubItem }
 
-    
