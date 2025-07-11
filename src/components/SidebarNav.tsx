@@ -75,7 +75,7 @@ export function SidebarNav() {
   
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className={cn("p-1.5 pt-2", state === 'collapsed' && "p-0 pt-3 pb-2 flex flex-col items-center")}>
+      <SidebarHeader className={cn("p-1 pt-2", state === 'collapsed' && "p-0 pt-3 pb-2 flex flex-col items-center")}>
         <div className={cn(
           "flex w-full items-center",
           state === "expanded" ? "justify-between" : "flex-col justify-center gap-2"
@@ -98,15 +98,6 @@ export function SidebarNav() {
               </Button>
           )}
         </div>
-      </SidebarHeader>
-
-      <SidebarContent>
-        <SidebarMenu>
-          {tradingNavItemsList}
-        </SidebarMenu>
-      </SidebarContent>
-
-      <div className="mt-auto p-1.5 sticky bottom-0 bg-sidebar/[.05] backdrop-blur-sm">
         {!isMobile && state === 'collapsed' && (
             <Button
                 variant="ghost"
@@ -118,7 +109,14 @@ export function SidebarNav() {
                 <span className="sr-only">Toggle sidebar</span>
             </Button>
         )}
-      </div>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarMenu>
+          {tradingNavItemsList}
+        </SidebarMenu>
+      </SidebarContent>
+
     </Sidebar>
   );
 }
