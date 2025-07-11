@@ -150,7 +150,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
   };
 
   const dynamicStrokeColor = stock && stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))";
-  const neonPurpleColor = "#8A2BE2";
+  const neonPurpleColor = "hsl(var(--chart-3))";
 
   const handleManualSubmit = () => {
     if (manualTickerInput.trim()) {
@@ -196,7 +196,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
             <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
             <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
             <Tooltip
-              cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '3 3' }}
+              cursor={{ stroke: 'hsl(var(--foreground))', strokeWidth: 1, strokeDasharray: '3 3' }}
               content={<CustomTooltip />}
             />
             <Line type="monotone" dataKey="price" stroke={dynamicStrokeColor} strokeWidth={1.5} dot={false} />
@@ -219,7 +219,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
                 <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
                 <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
                 <Tooltip
-                    cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '3 3' }}
+                    cursor={{ stroke: 'hsl(var(--foreground))', strokeWidth: 1, strokeDasharray: '3 3' }}
                     content={<CustomTooltip />}
                 />
                 <Area type="monotone" dataKey="price" stroke={neonPurpleColor} strokeWidth={1.5} fillOpacity={1} fill={`url(#colorPriceAreaPurple-${stock?.id || 'default'})`} dot={false}/>
@@ -297,7 +297,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
               onKeyDown={(e) => e.key === 'Enter' && handleManualSubmit()}
               className="h-7 text-xs flex-1 sm:flex-initial sm:w-28 bg-transparent"
             />
-            <Button variant="ghost" size="icon" onClick={handleManualSubmit} className="h-7 w-7 text-primary hover:bg-primary/10">
+            <Button variant="ghost" size="icon" onClick={handleManualSubmit} className="h-7 w-7 text-foreground hover:bg-white/10">
               <Search className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -317,14 +317,14 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
             className={cn(
               "h-6 text-[10px] px-2 font-medium",
               timeframe === tf
-                ? "text-primary bg-primary/10 font-bold"
+                ? "text-primary-foreground bg-white/10 font-bold"
                 : "text-muted-foreground hover:text-foreground hover:bg-white/5"
             )}
           >
             {tf}
           </Button>
         ))}
-        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-primary" onClick={() => setIsDatePickerOpen(true)}>
+        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-white/5" onClick={() => setIsDatePickerOpen(true)}>
           <Calendar className="h-3.5 w-3.5" />
         </Button>
         
@@ -340,7 +340,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
             className={cn(
               "h-6 text-[10px] px-2 font-medium",
               interval === iv
-                ? "text-primary bg-primary/10 font-bold"
+                ? "text-primary-foreground bg-white/10 font-bold"
                 : "text-muted-foreground hover:text-foreground hover:bg-white/5"
             )}
           >
@@ -364,7 +364,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
             className={cn(
               "h-6 text-[10px] px-2 font-medium",
               chartType === type
-                ? "text-primary bg-primary/10 font-bold"
+                ? "text-primary-foreground bg-white/10 font-bold"
                 : "text-muted-foreground hover:text-foreground hover:bg-white/5"
             )}
           >
