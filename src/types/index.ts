@@ -57,6 +57,33 @@ export interface Stock {
   afterHoursChange?: number;
   afterHoursChangePercent?: number;
   analystRating?: 'Strong Buy' | 'Buy' | 'Hold' | 'Sell' | 'Strong Sell';
+  
+  // New fields for expanded filters
+  ebitdaMargin?: number;
+  revenueGrowth?: number;
+  grossMargin?: number;
+  operatingMargin?: number;
+  returnOnEquity?: number;
+  returnOnAssets?: number;
+  netProfitMargin?: number;
+  currentRatio?: number;
+  debtToEquity?: number;
+  high52fromCurrent?: number;
+  low52fromCurrent?: number;
+  sharpeRatio?: number;
+  volatility30d?: number;
+  insiderTransactions3m?: number;
+  daysToCover?: number;
+  dividendGrowth1y?: number;
+  payoutRatio?: number;
+  analystPriceTarget?: number;
+  sentimentScore?: number;
+  earningsSurprise?: number;
+  relativeVolume?: number;
+  momentum?: number;
+  stochasticOscillator?: number;
+  williamsR?: number;
+  bollingerBandWidth?: number;
 }
 
 export type RuleOperator = '>' | '<' | '>=' | '<=' | '==' | '!=' | 'between' | 'contains';

@@ -24,28 +24,64 @@ interface ScreenerFilterModalProps {
 }
 
 const filterConfig: Record<string, Array<{ key: keyof Stock; label: string; unit?: string; }>> = {
-  'Market': [
-    { key: 'marketCap', label: 'Market Cap', unit: 'B' },
-    { key: 'float', label: 'Float', unit: 'M' },
-  ],
-  'Quotes Indicator': [
+  'Market & Quote': [
     { key: 'price', label: 'Price', unit: '$' },
     { key: 'changePercent', label: '% Change', unit: '%' },
     { key: 'volume', label: 'Volume', unit: 'M' },
     { key: 'avgVolume', label: 'Avg Vol', unit: 'M' },
+    { key: 'marketCap', label: 'Market Cap', unit: 'B' },
+    { key: 'float', label: 'Float', unit: 'M' },
   ],
-  'Financial Indicator': [
+  'Valuation & Financials': [
     { key: 'peRatio', label: 'P/E Ratio' },
-    { key: 'dividendYield', label: 'Div Yield', unit: '%' },
-    { key: 'shortFloat', label: 'Short Float', unit: '%' },
-    { key: 'instOwn', label: 'Inst. Own', unit: '%' },
+    { key: 'priceToBook', label: 'P/B Ratio'},
+    { key: 'priceToSales', label: 'P/S Ratio'},
+    { key: 'bookValuePerShare', label: 'Book Value/Share'},
+    { key: 'currentRatio', label: 'Current Ratio'},
+    { key: 'debtToEquity', label: 'Debt/Equity'},
   ],
-  'Technical Indicators and Signals': [
-    { key: 'rsi', label: 'RSI' },
+  'Profitability & Margins': [
+    { key: 'revenueGrowth', label: 'Rev Growth', unit: '%' },
+    { key: 'grossMargin', label: 'Gross Margin', unit: '%' },
+    { key: 'operatingMargin', label: 'Op. Margin', unit: '%' },
+    { key: 'netProfitMargin', label: 'Net P. Margin', unit: '%' },
+    { key: 'earningsSurprise', label: 'Earnings Surprise', unit: '%' },
+    { key: 'ebitdaMargin', label: 'EBITDA Margin', unit: '%' },
+    { key: 'returnOnEquity', label: 'ROE', unit: '%' },
+    { key: 'returnOnAssets', label: 'ROA', unit: '%' },
+  ],
+  'Price Action & Volatility': [
     { key: 'atr', label: 'ATR' },
     { key: 'beta', label: 'Beta' },
+    { key: 'volatility30d', label: 'Volatility (30D)', unit: '%'},
+    { key: 'high52fromCurrent', label: '52W High From %', unit: '%'},
+    { key: 'low52fromCurrent', label: '52W Low From %', unit: '%'},
+  ],
+  'Ownership & Flow': [
+    { key: 'instOwn', label: 'Inst. Own', unit: '%' },
+    { key: 'shortFloat', label: 'Short Float', unit: '%' },
+    { key: 'insiderTransactions3m', label: 'Insider Trans (3M)'},
+    { key: 'daysToCover', label: 'Days to Cover'},
+  ],
+  'Dividend & Payout': [
+    { key: 'dividendYield', label: 'Div Yield', unit: '%' },
+    { key: 'payoutRatio', label: 'Payout Ratio', unit: '%' },
+    { key: 'dividendGrowth1y', label: 'Div Growth (1Y)', unit: '%' },
+  ],
+  'Analyst & Sentiment': [
+    { key: 'analystPriceTarget', label: 'Analyst Target', unit: '$' },
+    { key: 'sentimentScore', label: 'Sentiment Score', unit: '%' },
+  ],
+  'Technicals': [
+    { key: 'rsi', label: 'RSI' },
+    { key: 'relativeVolume', label: 'RVOL' },
+    { key: 'momentum', label: 'Momentum', unit: '%' },
+    { key: 'stochasticOscillator', label: 'Stoch Osc', unit: '%' },
+    { key: 'williamsR', label: 'Williams %R' },
+    { key: 'bollingerBandWidth', label: 'BB Width' },
   ],
 };
+
 
 const RULES_STORAGE_KEY = 'tradeflow-alert-rules';
 
