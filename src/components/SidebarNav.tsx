@@ -111,29 +111,27 @@ export function SidebarNav() {
         <SidebarMenu>
           {/* Expanded View */}
           {state === "expanded" && (
-            <>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => setIsTradingOpen(!isTradingOpen)}
-                  className="justify-between w-full"
-                  isActive={tradingNavItems.some((item) => item.href.startsWith('/trading'))}
-                >
-                  <div className="flex items-center gap-2">
-                    <Activity className="h-5 w-5" />
-                    <span className="text-base font-semibold tracking-wide">Trading</span>
-                  </div>
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 transition-transform",
-                      isTradingOpen && "rotate-180"
-                    )}
-                  />
-                </SidebarMenuButton>
-                <SidebarMenuSub open={isTradingOpen}>
-                  {tradingSubMenuItems}
-                </SidebarMenuSub>
-              </SidebarMenuItem>
-            </>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={() => setIsTradingOpen(!isTradingOpen)}
+                className="justify-between w-full"
+                isActive={tradingNavItems.some((item) => pathname.startsWith('/trading'))}
+              >
+                <div className="flex items-center gap-2">
+                  <Activity className="h-5 w-5" />
+                  <span className="text-base font-semibold tracking-wide">Trading</span>
+                </div>
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 transition-transform",
+                    isTradingOpen && "rotate-180"
+                  )}
+                />
+              </SidebarMenuButton>
+              <SidebarMenuSub open={isTradingOpen}>
+                {tradingSubMenuItems}
+              </SidebarMenuSub>
+            </SidebarMenuItem>
           )}
 
           {/* Collapsed View */}
