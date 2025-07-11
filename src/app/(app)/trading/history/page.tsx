@@ -91,7 +91,6 @@ const tradeHistoryColumnConfig: ColumnConfig<TradeHistoryEntry>[] = [
   { key: 'orderType', label: 'Order Type' },
   { key: 'limitPrice', label: 'Limit Price', align: 'right', format: (val) => val ? `$${val.toFixed(2)}` : 'N/A' },
   { key: 'stopPrice', label: 'Stop Price', align: 'right', format: (val) => val ? `$${val.toFixed(2)}` : 'N/A' },
-  { key: 'trailAmount', label: 'Trail Amount', align: 'right', format: (val) => val ? String(val) : 'N/A' },
   { key: 'TIF', label: 'TIF' },
   { key: 'tradingHours', label: 'Trading Hours' },
   { key: 'placedTime', label: 'Placed Time', format: (val) => format(parseISO(val), "MM/dd/yy HH:mm") }, // Shortened format
@@ -336,7 +335,6 @@ export default function HistoryPage() {
                       <TableHead>Order Type</TableHead>
                       <TableHead className="text-right">Limit Price</TableHead>
                       <TableHead className="text-right">Stop Price</TableHead>
-                      <TableHead className="text-right">Trail Amount</TableHead>
                       <TableHead>TIF</TableHead>
                       <TableHead>Trading Hours</TableHead>
                       <TableHead>Placed Time</TableHead>
@@ -364,7 +362,6 @@ export default function HistoryPage() {
                         <TableCell className="text-foreground">{trade.orderType}</TableCell>
                         <TableCell className="text-right text-foreground">{formatOptionalPrice(trade.limitPrice)}</TableCell>
                         <TableCell className="text-right text-foreground">{formatOptionalPrice(trade.stopPrice)}</TableCell>
-                        <TableCell className="text-right text-foreground">{formatOptionalNumber(trade.trailAmount)}</TableCell>
                         <TableCell className="text-foreground">{trade.TIF}</TableCell>
                         <TableCell className="text-foreground">{trade.tradingHours}</TableCell>
                         <TableCell className="text-foreground"><ClientSideDateTime isoString={trade.placedTime} /></TableCell>
