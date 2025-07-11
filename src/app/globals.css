@@ -63,6 +63,10 @@
     --dialog-background: transparent; 
   }
 
+  html {
+    font-size: 17px;
+  }
+
   * {
     @apply border-border; 
   }
