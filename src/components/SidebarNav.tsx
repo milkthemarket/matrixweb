@@ -75,39 +75,25 @@ export function SidebarNav() {
   
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className={cn("p-1 pt-2", state === 'collapsed' && "p-0 pt-3 pb-2 flex flex-col items-center")}>
-        <div className={cn(
-          "flex w-full items-center",
-          state === "expanded" ? "justify-between" : "flex-col justify-center gap-2"
-        )}>
-          <SidebarMenuButton asChild className="w-full hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
-              <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
-                  <CowIcon size={28} className="text-white flex-shrink-0" />
-                  {state === 'expanded' && <span className="font-bold text-lg text-white">MILK</span>}
-              </Link>
-          </SidebarMenuButton>
-          {!isMobile && state === 'expanded' && (
+      <SidebarHeader className={cn("p-1", state === 'collapsed' && "p-0 pt-2 pb-2 flex flex-col items-center")}>
+        <SidebarMenuButton asChild className="w-full hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
+            <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
+                <CowIcon size={28} className="text-white flex-shrink-0" />
+                {state === 'expanded' && <span className="font-bold text-lg text-white">MILK</span>}
+            </Link>
+        </SidebarMenuButton>
+        {!isMobile && (
+          <div className={cn("flex w-full", state === 'expanded' ? 'justify-end' : 'justify-center')}>
              <Button
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 shrink-0 text-foreground"
                 onClick={toggleSidebar}
               >
-                <ChevronLeft />
+                {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}
                 <span className="sr-only">Toggle sidebar</span>
               </Button>
-          )}
-        </div>
-        {!isMobile && state === 'collapsed' && (
-            <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 shrink-0 text-foreground mx-auto"
-                onClick={toggleSidebar}
-            >
-                <ChevronRight />
-                <span className="sr-only">Toggle sidebar</span>
-            </Button>
+          </div>
         )}
       </SidebarHeader>
 
