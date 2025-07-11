@@ -576,7 +576,7 @@ const SidebarMenuButton = React.forwardRef<
         data-active={isActive}
         className={cn(
           sidebarMenuButtonVariants({ variant, size }),
-          isActive ? "font-medium text-foreground [&>svg]:text-primary" : "",
+          isActive ? "font-bold text-white [&>svg]:text-white" : "",
           className
         )}
         {...props}
@@ -624,7 +624,7 @@ const SidebarMenuAction = React.forwardRef<
       ref={ref}
       data-sidebar="menu-action"
       className={cn(
-        "absolute right-0.5 top-0.5 flex aspect-square w-4 items-center justify-center rounded-sm p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground [&>svg]:size-3.5 [&>svg]:shrink-0",
+        "absolute right-0.5 top-0.5 flex aspect-square w-4 items-center justify-center rounded-sm p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 [&>svg]:size-3.5 [&>svg]:shrink-0",
         "after:absolute after:-inset-1 after:md:hidden",
         "peer-data-[size=sm]/menu-button:top-0.5",
         "peer-data-[size=default]/menu-button:top-0.5",
@@ -756,7 +756,7 @@ const SidebarMenuSubButton = React.forwardRef<
       className={cn(
         "flex h-8 min-w-0 items-center gap-2.5 overflow-hidden rounded-md px-3 text-sm text-sidebar-foreground outline-none ring-sidebar-ring transition-all hover:bg-sidebar-accent/[.05] hover:text-sidebar-accent-foreground focus-visible:ring-1 active:bg-sidebar-accent/[.05] active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate",
         "[&>svg]:size-4 [&>svg]:shrink-0",
-        isActive ? "text-foreground [&>svg]:text-primary" : "",
+        isActive ? "text-white [&>svg]:text-white" : "",
         state === "collapsed" && "size-10 justify-center p-3",
         className
       )}

@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -70,7 +71,7 @@ export function SidebarNav() {
         <SidebarMenuSubButton asChild isActive={isActive} tooltip={{ children: item.label }}>
           <Link href={item.href}>
             <item.icon className="h-4 w-4" />
-            <span>{item.label}</span>
+            <span className={cn(isActive ? "font-bold text-white" : "")}>{item.label}</span>
           </Link>
         </SidebarMenuSubButton>
       </SidebarMenuItem>
