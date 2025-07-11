@@ -8,7 +8,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { useTradeHistoryContext } from "@/contexts/TradeHistoryContext";
 import type { TradeHistoryEntry, TradeStatsData } from "@/types";
 import { format, parseISO } from 'date-fns';
-import { History as HistoryIcon, TrendingUp, TrendingDown, DollarSign, Percent, Clock, Repeat, Award, PackageOpen, Download } from "lucide-react";
+import { History as HistoryIcon, TrendingUp, TrendingDown, DollarSign, Percent, Clock, Repeat, Award, PackageOpen, Download, CheckCircle, XCircle } from "lucide-react";
 import { CalendarNav } from '@/components/CalendarNav';
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
@@ -137,7 +137,7 @@ export default function HistoryPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg font-headline flex items-center">
+            <CardTitle className="text-xl font-headline flex items-center">
               Overall Performance
             </CardTitle>
           </CardHeader>
@@ -160,7 +160,7 @@ export default function HistoryPage() {
 
         <Card>
             <CardHeader>
-                <CardTitle className="text-lg font-headline flex items-center">
+                <CardTitle className="text-xl font-headline flex items-center">
                 Calendar
                 </CardTitle>
             </CardHeader>
@@ -201,7 +201,7 @@ export default function HistoryPage() {
         
         <Card className="flex-1 flex flex-col min-h-[300px]">
           <CardHeader className="flex flex-row items-start sm:items-center justify-between gap-1">
-            <CardTitle className="text-lg font-headline flex items-center">
+            <CardTitle className="text-xl font-headline flex items-center">
               Executed Trades
             </CardTitle>
             <Button onClick={handleExport} variant="outline" size="sm" className="h-7 px-2 text-sm">
