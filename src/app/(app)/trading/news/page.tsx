@@ -22,15 +22,15 @@ export default function NewsPage() {
                     <button 
                         onClick={() => setActiveTab('news')}
                         className={cn("px-4 py-1 rounded-full text-sm", 
-                            activeTab === 'news' ? "bg-muted-foreground/30 text-white font-semibold" : "text-muted-foreground font-medium"
+                            activeTab === 'news' ? "bg-muted text-foreground font-semibold" : "text-muted-foreground font-medium"
                         )}
                     >
                         News
                     </button>
                     <button 
                         onClick={() => setActiveTab('alerts')}
-                        className={cn("px-4 py-1 rounded-full text-sm border",
-                           activeTab === 'alerts' ? "border-primary text-primary font-semibold" : "border-transparent text-muted-foreground font-medium"
+                        className={cn("px-4 py-1 rounded-full text-sm",
+                           activeTab === 'alerts' ? "bg-muted text-foreground font-semibold" : "text-muted-foreground font-medium"
                         )}
                     >
                         Alerts
@@ -43,7 +43,7 @@ export default function NewsPage() {
         <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
                 <Select defaultValue="all_sources">
-                    <SelectTrigger className="w-auto h-9 text-xs border-primary text-primary">
+                    <SelectTrigger className="w-auto h-9 text-xs">
                         <SelectValue placeholder="Source" />
                     </SelectTrigger>
                     <SelectContent>
@@ -54,7 +54,7 @@ export default function NewsPage() {
                     </SelectContent>
                 </Select>
                 <Select defaultValue="us_market">
-                    <SelectTrigger className="w-auto h-9 text-xs border-primary text-primary">
+                    <SelectTrigger className="w-auto h-9 text-xs">
                         <SelectValue placeholder="Market" />
                     </SelectTrigger>
                     <SelectContent>
@@ -67,7 +67,7 @@ export default function NewsPage() {
             <div className="relative w-full max-w-xs">
                 <Input
                     placeholder="Search symbol..."
-                    className="h-9 w-full pl-8 rounded-full border-primary"
+                    className="h-9 w-full pl-8 rounded-full"
                 />
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
