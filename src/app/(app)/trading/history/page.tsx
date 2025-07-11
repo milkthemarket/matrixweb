@@ -69,17 +69,17 @@ const mockTradeStats: Record<HistoryTradeMode, TradeStatsData> = {
   }
 };
 
-const StatDisplay: React.FC<{ label: string; value: string | number; unit?: string; valueColor?: string; icon?: React.ReactNode; isCurrency?: boolean }> = ({ label, value, unit, valueColor, icon, isCurrency = false }) => (
-  <div className="flex flex-col items-center gap-1.5 p-3 rounded-lg bg-black/5 border border-white/5"> 
-    <div className="text-muted-foreground">
+const StatDisplay: React.FC<{ label: string; value: string | number; unit?: string; valueClass?: string; icon?: React.ReactNode; isCurrency?: boolean }> = ({ label, value, unit, valueClass, icon, isCurrency = false }) => (
+  <div className="flex flex-col items-center justify-center p-3 text-center">
+    <div className="text-muted-foreground mb-1.5">
       {icon && React.cloneElement(icon as React.ReactElement, { size: 20 })}
     </div>
-    <span className={cn("text-2xl font-bold text-foreground", valueColor)}>
+    <span className={cn("text-xl font-bold text-foreground", valueClass)}>
       {isCurrency && unit === '$' && unit}
       {typeof value === 'number' ? value.toLocaleString(undefined, { minimumFractionDigits: value % 1 === 0 && !isCurrency ? 0 : 2, maximumFractionDigits: 2 }) : value}
       {!isCurrency && unit && unit !== '$' && `${unit}`}
     </span>
-    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mt-1">
       {label}
     </div>
   </div>
@@ -241,30 +241,21 @@ export default function HistoryPage() {
           <CardHeader>
             <CardTitle className="text-lg font-headline flex items-center">
               <BarChartHorizontalBig className="mr-1.5 h-4 w-4 text-primary"/>
-              Overall Performance Summary
+              Overall Performance
             </CardTitle>
             <CardDescription>Summary of all trades across all modes.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                {/* Column 1 */}
-                <div className="space-y-2">
-                  <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen />} />
-                  <StatDisplay label={"Avg P&L / Trade"} value={currentStats.avgReturn} unit={"$"} icon={<Percent />} valueColor={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency={true} />
-                  <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock />} />
-                </div>
-                {/* Column 2 */}
-                <div className="space-y-2">
-                  <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign />} valueColor={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
-                  <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown />} valueColor={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
-                  <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award />} valueColor={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
-                </div>
-                {/* Column 3 */}
-                <div className="space-y-2">
-                    <StatDisplay label="Win Rate" value={currentStats.winRate} unit="%" icon={<TrendingUp />} valueColor={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
-                    <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp />} valueColor="text-[hsl(var(--confirm-green))]" isCurrency/>
-                    <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat />} />
-                </div>
+             <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 bg-black/5 p-1 rounded-lg">
+                <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen />} />
+                <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign />} valueClass={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
+                <StatDisplay label="Win Rate" value={currentStats.winRate} unit="%" icon={<TrendingUp />} valueClass={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
+                <StatDisplay label={"Avg P&L / Trade"} value={currentStats.avgReturn} unit={"$"} icon={<Percent />} valueClass={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency={true} />
+                <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp />} valueClass="text-[hsl(var(--confirm-green))]" isCurrency/>
+                <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown />} valueClass={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
+                <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock />} />
+                <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award />} valueClass={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
+                <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat />} />
             </div>
           </CardContent>
         </Card>
@@ -390,3 +381,4 @@ export default function HistoryPage() {
     </main>
   );
 }
+
