@@ -59,7 +59,7 @@ export function SidebarNav() {
   const pathname = usePathname();
   const { state, toggleSidebar, isMobile } = useSidebar();
 
-  const tradingSubMenuItems = tradingNavItems.map((item) => {
+  const tradingNavItemsList = tradingNavItems.map((item) => {
     const isActive = pathname === item.href;
     return (
       <SidebarMenuItem key={item.href}>
@@ -75,27 +75,25 @@ export function SidebarNav() {
   
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className={cn(state === 'expanded' ? "p-1.5" : "p-0 flex flex-col items-center pt-3 pb-2")}>
+      <SidebarHeader className={cn("p-1.5", state === 'collapsed' && "p-0 pt-3 pb-2 flex flex-col items-center")}>
         <div className={cn(
           "flex w-full items-center",
           state === "expanded" ? "justify-between" : "flex-col justify-center gap-2"
         )}>
-          <SidebarMenuItem className="w-full">
-            <SidebarMenuButton asChild className="hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
-                <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
-                    <CowIcon size={28} className="text-white flex-shrink-0" />
-                    {state === 'expanded' && <span className="font-bold text-lg text-white">MILK</span>}
-                </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          {!isMobile && (
+          <SidebarMenuButton asChild className="w-full hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
+              <Link href="/dashboard" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
+                  <CowIcon size={28} className="text-white flex-shrink-0" />
+                  {state === 'expanded' && <span className="font-bold text-lg text-white">MILK</span>}
+              </Link>
+          </SidebarMenuButton>
+          {!isMobile && state === 'expanded' && (
              <Button
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6 shrink-0 text-foreground"
                 onClick={toggleSidebar}
               >
-                {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}
+                <ChevronLeft />
                 <span className="sr-only">Toggle sidebar</span>
               </Button>
           )}
@@ -104,9 +102,23 @@ export function SidebarNav() {
 
       <SidebarContent>
         <SidebarMenu>
-          {tradingSubMenuItems}
+          {tradingNavItemsList}
         </SidebarMenu>
       </SidebarContent>
+
+      <div className="mt-auto p-1.5 sticky bottom-0 bg-sidebar/[.05] backdrop-blur-sm">
+        {!isMobile && state === 'collapsed' && (
+            <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 shrink-0 text-foreground mx-auto"
+                onClick={toggleSidebar}
+            >
+                <ChevronRight />
+                <span className="sr-only">Toggle sidebar</span>
+            </Button>
+        )}
+      </div>
     </Sidebar>
   );
 }
