@@ -10,7 +10,7 @@ import type { TradeHistoryEntry, TradeStatsData } from "@/types";
 import { format, parseISO, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { History as HistoryIcon, CheckCircle, XCircle, Clock, TrendingUp, TrendingDown, DollarSign, Percent, Cpu, User, BarChartHorizontalBig, PackageOpen, Repeat, Award, Layers, Download, PieChart, CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { MiloAvatarIcon } from '@/components/icons/MiloAvatarIcon';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 import { exportToCSV } from '@/lib/exportCSV';
 import { useToast } from "@/hooks/use-toast";
 import { Calendar } from "@/components/ui/calendar";
@@ -114,6 +114,12 @@ const tradeHistoryColumnConfig: ColumnConfig<TradeHistoryEntry>[] = [
   { key: 'orderStatus', label: 'Status' },
 ];
 
+const formatOptionalPrice = (price?: number) => {
+    if (price === undefined || price === null) {
+      return 'N/A';
+    }
+    return `$${price.toFixed(2)}`;
+};
 
 export default function HistoryPage() {
   const { tradeHistory } = useTradeHistoryContext();
@@ -157,13 +163,6 @@ export default function HistoryPage() {
     });
   };
   
-  const formatOptionalPrice = (price?: number) => {
-    if (price === undefined || price === null) {
-      return 'N/A';
-    }
-    return `$${price.toFixed(2)}`;
-  };
-  
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden">
       <PageHeader title="Trade History" />
@@ -177,21 +176,19 @@ export default function HistoryPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                <div className="bg-black/5 p-2 rounded-lg space-y-4">
-                  <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen />} />
-                  <StatDisplay label={"Avg P&L / Trade"} value={currentStats.avgReturn} unit={"$"} icon={<Percent />} valueClass={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency={true} />
-                  <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock />} />
-                </div>
-                <div className="bg-black/5 p-2 rounded-lg space-y-4">
-                  <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign />} valueClass={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
-                  <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown />} valueClass={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
-                  <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award />} valueClass={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
-                </div>
-                <div className="bg-black/5 p-2 rounded-lg space-y-4">
-                  <StatDisplay label="Win Rate" value={currentStats.winRate} unit="%" icon={<TrendingUp />} valueClass={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
-                  <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp />} valueClass="text-[hsl(var(--confirm-green))]" isCurrency/>
-                  <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat />} />
+             <div className="w-full lg:w-3/5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-1">
+                    <StatDisplay label="Total Trades" value={currentStats.totalTrades} icon={<PackageOpen />} />
+                    <StatDisplay label="Total P&L" value={currentStats.totalPnL} unit="$" icon={<DollarSign />} valueClass={currentStats.totalPnL >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency/>
+                    <StatDisplay label="Win Rate" value={currentStats.winRate} unit="%" icon={<TrendingUp />} valueClass={currentStats.winRate >= 50 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} />
+                    
+                    <StatDisplay label={"Avg P&L / Trade"} value={currentStats.avgReturn} unit={"$"} icon={<Percent />} valueClass={currentStats.avgReturn >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"} isCurrency={true} />
+                    <StatDisplay label="Largest Loss" value={currentStats.largestLoss !== 0 ? currentStats.largestLoss : 0} unit="$" icon={<TrendingDown />} valueClass={currentStats.largestLoss < 0 ? "text-destructive" : "text-foreground"} isCurrency/>
+                    <StatDisplay label="Largest Win" value={currentStats.largestWin} unit="$" icon={<TrendingUp />} valueClass="text-[hsl(var(--confirm-green))]" isCurrency/>
+
+                    <StatDisplay label="Avg. Hold Time" value={currentStats.avgHoldTime} icon={<Clock />} />
+                    <StatDisplay label="Win Streak" value={currentStats.winStreak} icon={<Award />} valueClass={currentStats.winStreak > 2 ? "text-[hsl(var(--confirm-green))]" : "text-foreground"}/>
+                    <StatDisplay label="Most Traded" value={currentStats.mostTradedSymbol} icon={<Repeat />} />
                 </div>
             </div>
           </CardContent>
