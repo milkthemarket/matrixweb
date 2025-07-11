@@ -61,7 +61,7 @@ const StatDisplay: React.FC<{ label: string; value: string | number; unit?: stri
       {typeof value === 'number' ? value.toLocaleString(undefined, { minimumFractionDigits: value % 1 === 0 && !isCurrency ? 0 : 2, maximumFractionDigits: 2 }) : value}
       {!isCurrency && unit && unit !== '$' && `${unit}`}
     </span>
-    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mt-1">
+    <div className="text-sm font-medium text-muted-foreground uppercase tracking-wider mt-1">
       {label}
     </div>
   </div>
@@ -121,7 +121,7 @@ export default function HistoryPage() {
               <div className="flex flex-col items-center justify-center text-center leading-tight h-full w-full">
                   <span>{dayOfMonth}</span>
                   <span className={cn(
-                      "text-[9px] font-bold leading-none mt-px", // Reduced text size
+                      "text-xs font-bold leading-none mt-px", // Reduced text size
                       pnl > 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive"
                   )}>
                       {pnl > 0 ? '+' : ''}{pnl.toFixed(0)}
@@ -220,19 +220,19 @@ export default function HistoryPage() {
               classNames={{
                 months: "flex flex-col sm:flex-row space-y-1 sm:space-x-1 sm:space-y-0",
                 month: "space-y-1",
-                caption_label: "text-xs font-medium",
+                caption_label: "text-sm font-medium",
                 nav_button: cn(buttonVariants({ variant: "outline" }), "h-6 w-6 bg-transparent p-0 opacity-50 hover:opacity-100"),
                 table: "w-full border-collapse space-y-0.5",
-                head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.7rem]",
+                head_cell: "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
                 row: "flex w-full mt-0.5",
-                cell: "h-8 w-8 text-center text-xs p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-sm [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-sm last:[&:has([aria-selected])]:rounded-r-sm focus-within:relative focus-within:z-20",
+                cell: "h-8 w-8 text-center text-base p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-sm [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-sm last:[&:has([aria-selected])]:rounded-r-sm focus-within:relative focus-within:z-20",
                 day: cn(buttonVariants({ variant: "ghost" }), "h-8 w-8 p-0 font-normal aria-selected:opacity-100"),
                 day_today: "bg-accent text-accent-foreground font-bold ring-1 ring-accent",
                 day_outside: "text-muted-foreground/40",
               }}
             />
           </CardContent>
-          <CardFooter className="flex items-center justify-center space-x-1.5 pt-1 text-[10px] text-muted-foreground">
+          <CardFooter className="flex items-center justify-center space-x-1.5 pt-1 text-xs text-muted-foreground">
             <span>Legend:</span>
             <div className="flex items-center">
                 <span className="font-semibold text-[hsl(var(--confirm-green))] mr-0.5">+100</span> Profit
@@ -251,7 +251,7 @@ export default function HistoryPage() {
                 Executed Trades
               </CardTitle>
             </div>
-            <Button onClick={handleExport} variant="outline" size="sm" className="h-7 px-2 text-xs">
+            <Button onClick={handleExport} variant="outline" size="sm" className="h-7 px-2 text-sm">
               <Download className="mr-1 h-3.5 w-3.5" />
               Export CSV
             </Button>
@@ -281,7 +281,7 @@ export default function HistoryPage() {
                         <TableCell>
                           <Badge
                             className={cn(
-                              "border-transparent text-[10px] px-1.5 py-px h-auto",
+                              "border-transparent text-xs px-1.5 py-px h-auto",
                               trade.side === 'Buy' && 'bg-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green-foreground))] hover:bg-[hsl(var(--confirm-green))]/90',
                               trade.side === 'Sell' && 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
                               trade.side === 'Short' && 'bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90'
@@ -310,8 +310,8 @@ export default function HistoryPage() {
             ) : (
               <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                 <HistoryIcon className="h-10 w-10 mb-1" />
-                <p className="text-md">No trade history yet.</p>
-                <p className="text-xs">Executed trades will appear here.</p>
+                <p className="text-lg">No trade history yet.</p>
+                <p className="text-sm">Executed trades will appear here.</p>
               </div>
             )}
           </CardContent>

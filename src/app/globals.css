@@ -64,7 +64,7 @@
   }
 
   html {
-    font-size: 17px;
+    font-size: 19px;
   }
 
   * {
@@ -117,3 +117,4 @@
 .animate-ticker-fast {
   animation: ticker 15s linear infinite;
 }
+

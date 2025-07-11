@@ -187,15 +187,15 @@ export default function RulesPage() {
                   id="ruleName" 
                   placeholder="e.g., Premarket Spike Low Float" 
                   {...form.register("name")} 
-                  className="bg-transparent text-sm h-9"
+                  className="bg-transparent text-base h-9"
                 />
-                {form.formState.errors.name && <p className="text-xs text-destructive mt-0.5">{form.formState.errors.name.message}</p>}
+                {form.formState.errors.name && <p className="text-sm text-destructive mt-0.5">{form.formState.errors.name.message}</p>}
               </div>
               
               <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-1 shadow-sm bg-black/10">
                 <div className="space-y-0.5">
                     <Label htmlFor="isActiveSwitch" className="font-medium text-foreground cursor-pointer">Activate Rule</Label>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                         Enable or disable this rule from triggering alerts and appearing in dashboard.
                     </p>
                 </div>
@@ -237,11 +237,11 @@ export default function RulesPage() {
                   >
                     <div className="flex-1 mb-1 md:mb-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="font-semibold text-foreground text-sm">{rule.name} </p>
+                        <p className="font-semibold text-foreground text-base">{rule.name} </p>
                         <Badge
                           variant="outline"
                           className={cn(
-                            "text-xs h-5 px-1.5 py-0.5 border",
+                            "text-sm h-5 px-1.5 py-0.5 border",
                             rule.isActive 
                               ? "border-[hsl(var(--confirm-green))] text-[hsl(var(--confirm-green))] bg-transparent shadow-[0_0_8px_hsl(var(--confirm-green)/0.5)]" 
                               : "border-muted/50 text-muted-foreground bg-muted/20"
@@ -251,7 +251,7 @@ export default function RulesPage() {
                         </Badge>
                       </div>
                       {rule.criteria.length > 0 ? (
-                        <div className="text-xs text-muted-foreground space-y-px">
+                        <div className="text-sm text-muted-foreground space-y-px">
                           {rule.criteria.map((crit, index) => (
                             <div key={index} className="flex items-center">
                               <Terminal className="h-3 w-3 mr-1 text-accent flex-shrink-0"/>
@@ -260,7 +260,7 @@ export default function RulesPage() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-xs text-muted-foreground italic">No criteria defined for this rule.</p>
+                        <p className="text-sm text-muted-foreground italic">No criteria defined for this rule.</p>
                       )}
                     </div>
                     <div className="flex items-center space-x-0.5 flex-shrink-0">
@@ -281,7 +281,7 @@ export default function RulesPage() {
                 ))}
               </ul>
             ) : (
-              <p className="text-muted-foreground text-sm">No rules defined yet. Create one above or use the predefined ones.</p>
+              <p className="text-base text-muted-foreground">No rules defined yet. Create one above or use the predefined ones.</p>
             )}
           </CardContent>
         </Card>

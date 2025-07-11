@@ -60,7 +60,7 @@ export default function SettingsPage() {
             
             <Card>
               <CardHeader className="pb-0.5"> {/* Reduced pb-2 */}
-                <CardTitle className="text-md font-headline flex items-center"> {/* Reduced text-lg, h-5 */}
+                <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-lg, h-5 */}
                   <MailOpen className="mr-1.5 h-4 w-4 text-accent" /> {/* Reduced icon size */}
                   Alert Delivery Settings
                 </CardTitle>
@@ -75,10 +75,10 @@ export default function SettingsPage() {
                     className="mt-0.5" // Align checkbox
                   />
                   <div className="grid gap-0.5 leading-none"> {/* Reduced gap-1.5 */}
-                    <Label htmlFor="inAppAlerts" className="font-medium text-foreground cursor-pointer text-sm"> {/* Added text-sm */}
+                    <Label htmlFor="inAppAlerts" className="font-medium text-foreground cursor-pointer text-base">
                       Receive alerts within MILK
                     </Label>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       Notifications will appear in the Alerts Panel on the Alerts page.
                     </p>
                   </div>
@@ -92,10 +92,10 @@ export default function SettingsPage() {
                     className="mt-0.5"
                   />
                   <div className="grid gap-0.5 leading-none"> {/* Reduced gap-1.5 */}
-                    <Label htmlFor="smsAlerts" className="font-medium text-foreground cursor-pointer text-sm">
+                    <Label htmlFor="smsAlerts" className="font-medium text-foreground cursor-pointer text-base">
                       Send alerts via text message
                     </Label>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       Requires a verified phone number. Standard messaging rates may apply.
                     </p>
                   </div>
@@ -109,10 +109,10 @@ export default function SettingsPage() {
                     className="mt-0.5"
                   />
                   <div className="grid gap-0.5 leading-none"> {/* Reduced gap-1.5 */}
-                    <Label htmlFor="emailAlerts" className="font-medium text-foreground cursor-pointer text-sm">
+                    <Label htmlFor="emailAlerts" className="font-medium text-foreground cursor-pointer text-base">
                       Send alerts via email
                     </Label>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       Requires a verified email address. Alerts sent to your primary email.
                     </p>
                   </div>
@@ -122,7 +122,7 @@ export default function SettingsPage() {
                 <Button
                   variant="outline"
                   size="sm" /* Made button smaller */
-                  className="text-accent border-accent hover:bg-accent/10 hover:text-accent h-8 px-2 text-xs"
+                  className="text-accent border-accent hover:bg-accent/10 hover:text-accent h-8 px-2 text-sm"
                   onClick={() => setIsAlertMethodsModalOpen(true)}
                 >
                   <SettingsIcon className="mr-1 h-3.5 w-3.5" /> {/* Reduced icon size */}
@@ -133,7 +133,7 @@ export default function SettingsPage() {
 
              <Card>
               <CardHeader className="pb-0.5"> {/* Reduced pb-2 */}
-                <CardTitle className="text-md font-headline flex items-center"> {/* Reduced text-lg, h-5 */}
+                <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-lg, h-5 */}
                   <TvMinimalPlay className="mr-1.5 h-4 w-4 text-accent" /> {/* Reduced icon size */}
                   Ticker Display Settings
                 </CardTitle>
@@ -141,17 +141,17 @@ export default function SettingsPage() {
               </CardHeader>
               <CardContent className="space-y-1.5"> {/* Reduced space-y-6 */}
                 <div>
-                  <Label className="text-sm font-medium text-foreground mb-1 block flex items-center"> {/* Reduced text-base, mb-3 */}
+                  <Label className="text-base font-medium text-foreground mb-1 block flex items-center"> {/* Reduced text-base, mb-3 */}
                     <ListFilter className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" /> {/* Reduced icon size */}
                     Select Trade Types to Display in Ticker
                   </Label>
                   <div className="space-y-1"> {/* Reduced space-y-3 */}
                     <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-1 shadow-sm bg-black/10"> {/* Reduced p-4 */}
                       <div className="space-y-0.5">
-                          <Label htmlFor="manualTradeTickerSwitch" className="font-medium text-foreground cursor-pointer text-sm">
+                          <Label htmlFor="manualTradeTickerSwitch" className="font-medium text-foreground cursor-pointer text-base">
                               Show Manual Trades
                           </Label>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm text-muted-foreground">
                               Display your manually placed trades in the ticker.
                           </p>
                       </div>
@@ -165,10 +165,10 @@ export default function SettingsPage() {
                     </div>
                      <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-1 shadow-sm bg-black/10"> {/* Reduced p-4 */}
                       <div className="space-y-0.5">
-                          <Label htmlFor="aiAssistedTickerSwitch" className="font-medium text-foreground cursor-pointer text-sm">
+                          <Label htmlFor="aiAssistedTickerSwitch" className="font-medium text-foreground cursor-pointer text-base">
                               Show AI-Assisted Trades
                           </Label>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm text-muted-foreground">
                               Display trades placed with AI assistance in the ticker.
                           </p>
                       </div>
@@ -182,10 +182,10 @@ export default function SettingsPage() {
                     </div>
                      <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-1 shadow-sm bg-black/10"> {/* Reduced p-4 */}
                       <div className="space-y-0.5">
-                          <Label htmlFor="autopilotTickerSwitch" className="font-medium text-foreground cursor-pointer text-sm">
+                          <Label htmlFor="autopilotTickerSwitch" className="font-medium text-foreground cursor-pointer text-base">
                               Show Autopilot Trades
                           </Label>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="text-sm text-muted-foreground">
                               Display trades automatically placed by AI in the ticker.
                           </p>
                       </div>
@@ -201,21 +201,21 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="pt-1"> {/* Reduced pt-4 */}
-                  <Label htmlFor="tickerSpeedSelect" className="text-sm font-medium text-foreground mb-1 block flex items-center"> {/* Reduced text-base, mb-3 */}
+                  <Label htmlFor="tickerSpeedSelect" className="text-base font-medium text-foreground mb-1 block flex items-center"> {/* Reduced text-base, mb-3 */}
                     <FastForward className="mr-1.5 h-3.5 w-3.5 text-muted-foreground" /> {/* Reduced icon size */}
                     Ticker Speed
                   </Label>
                   <Select value={tickerSpeed} onValueChange={(value) => setTickerSpeed(value as TickerSpeed)}>
-                    <SelectTrigger id="tickerSpeedSelect" className="w-full md:w-[280px] h-8 text-xs"> {/* Reduced h-9 */}
+                    <SelectTrigger id="tickerSpeedSelect" className="w-full md:w-[280px] h-8 text-sm"> {/* Reduced h-9 */}
                         <SelectValue placeholder="Select ticker speed..." />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="slow" className="text-xs">Slow (40s loop)</SelectItem>
-                        <SelectItem value="medium" className="text-xs">Medium (30s loop)</SelectItem>
-                        <SelectItem value="fast" className="text-xs">Fast (15s loop)</SelectItem>
+                        <SelectItem value="slow" className="text-sm">Slow (40s loop)</SelectItem>
+                        <SelectItem value="medium" className="text-sm">Medium (30s loop)</SelectItem>
+                        <SelectItem value="fast" className="text-sm">Fast (15s loop)</SelectItem>
                     </SelectContent>
                   </Select>
-                   <p className="text-xs text-muted-foreground mt-0.5"> {/* Reduced mt-2 */}
+                   <p className="text-sm text-muted-foreground mt-0.5"> {/* Reduced mt-2 */}
                       Adjust the scrolling speed of the trade ticker.
                   </p>
                 </div>
@@ -224,7 +224,7 @@ export default function SettingsPage() {
 
             <Card>
               <CardHeader className="pb-0.5"> {/* Reduced pb-2 */}
-                <CardTitle className="text-md font-headline flex items-center"> {/* Reduced text-lg, h-5 */}
+                <CardTitle className="text-lg font-headline flex items-center"> {/* Reduced text-lg, h-5 */}
                   <Volume2 className="mr-1.5 h-4 w-4 text-accent" /> {/* Reduced icon size */}
                   Sound & Notification Preferences
                 </CardTitle>
@@ -233,7 +233,7 @@ export default function SettingsPage() {
               <CardContent className="space-y-1.5"> {/* Reduced space-y-6 */}
                 {notificationEvents.map(({ event, label }) => (
                   <div key={event} className="space-y-0.5 p-1 rounded-lg border border-white/5 bg-black/10"> {/* Reduced space-y-2, p-4 */}
-                    <Label htmlFor={`${event}-sound-select`} className="text-sm font-medium text-foreground block"> {/* Reduced text-base */}
+                    <Label htmlFor={`${event}-sound-select`} className="text-base font-medium text-foreground block"> {/* Reduced text-base */}
                       {label}
                     </Label>
                     <div className="flex items-center space-x-1"> {/* Reduced space-x-3 */}
@@ -241,12 +241,12 @@ export default function SettingsPage() {
                         value={notificationSounds[event]}
                         onValueChange={(value) => setNotificationSound(event, value as SoundOption)}
                       >
-                        <SelectTrigger id={`${event}-sound-select`} className="flex-1 h-8 text-xs"> {/* Reduced h-9 */}
+                        <SelectTrigger id={`${event}-sound-select`} className="flex-1 h-8 text-sm"> {/* Reduced h-9 */}
                           <SelectValue placeholder="Select sound..." />
                         </SelectTrigger>
                         <SelectContent>
                           {soundOptions.map(opt => (
-                            <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>
+                            <SelectItem key={opt.value} value={opt.value} className="text-sm">{opt.label}</SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
@@ -275,12 +275,12 @@ export default function SettingsPage() {
                                 }, index * 700); 
                             });
                         }}
-                        className="text-xs h-7 px-2"
+                        className="text-sm h-7 px-2"
                     >
                         Test All Sounds
                     </Button>
                 </div>
-                <p className="text-xs text-muted-foreground text-center">
+                <p className="text-sm text-muted-foreground text-center">
                   Note: Sound playback is simulated in this environment. Actual sounds require audio files.
                 </p>
               </CardContent>
