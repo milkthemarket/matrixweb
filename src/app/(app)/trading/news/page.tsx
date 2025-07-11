@@ -1,11 +1,12 @@
+
 "use client";
 
-import * as React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 export default function NewsPage() {
@@ -17,31 +18,23 @@ export default function NewsPage() {
         <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
                 <h1 className="text-2xl font-bold text-foreground">News</h1>
-                 <div className="flex items-center space-x-1">
-                    <Button
-                        variant="ghost"
+                <div className="flex items-center space-x-2">
+                    <button 
                         onClick={() => setActiveTab('news')}
-                        className={cn(
-                          "px-4 py-1 h-auto rounded-full text-sm",
-                          activeTab === 'news'
-                            ? "bg-primary text-primary-foreground font-semibold"
-                            : "font-medium text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                        className={cn("px-4 py-1 rounded-full text-sm", 
+                            activeTab === 'news' ? "bg-muted-foreground/30 text-white font-semibold" : "text-muted-foreground font-medium"
                         )}
                     >
                         News
-                    </Button>
-                    <Button
-                        variant="ghost"
+                    </button>
+                    <button 
                         onClick={() => setActiveTab('alerts')}
-                        className={cn(
-                          "px-4 py-1 h-auto rounded-full text-sm",
-                          activeTab === 'alerts'
-                            ? "font-semibold text-primary border border-primary bg-background"
-                            : "font-medium text-muted-foreground hover:bg-muted/50 hover:text-primary"
+                        className={cn("px-4 py-1 rounded-full text-sm border",
+                           activeTab === 'alerts' ? "border-primary text-primary font-semibold" : "border-transparent text-muted-foreground font-medium"
                         )}
                     >
                         Alerts
-                    </Button>
+                    </button>
                 </div>
             </div>
         </div>
@@ -50,7 +43,7 @@ export default function NewsPage() {
         <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-2">
                 <Select defaultValue="all_sources">
-                    <SelectTrigger className="w-auto h-9 text-xs bg-transparent border-primary text-primary">
+                    <SelectTrigger className="w-auto h-9 text-xs border-primary text-primary">
                         <SelectValue placeholder="Source" />
                     </SelectTrigger>
                     <SelectContent>
@@ -61,7 +54,7 @@ export default function NewsPage() {
                     </SelectContent>
                 </Select>
                 <Select defaultValue="us_market">
-                    <SelectTrigger className="w-auto h-9 text-xs bg-transparent border-primary text-primary">
+                    <SelectTrigger className="w-auto h-9 text-xs border-primary text-primary">
                         <SelectValue placeholder="Market" />
                     </SelectTrigger>
                     <SelectContent>
@@ -74,7 +67,7 @@ export default function NewsPage() {
             <div className="relative w-full max-w-xs">
                 <Input
                     placeholder="Search symbol..."
-                    className="h-9 w-full bg-transparent pl-8 rounded-full border-primary border"
+                    className="h-9 w-full pl-8 rounded-full border-primary"
                 />
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             </div>
