@@ -24,7 +24,7 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "14rem" // 224px
 const SIDEBAR_WIDTH_MOBILE = "16rem" // 256px
-const SIDEBAR_WIDTH_ICON = "3rem" // Example value: 48px, standard for icon-only sidebars
+const SIDEBAR_WIDTH_ICON = "4rem" // 64px
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
@@ -229,7 +229,7 @@ const Sidebar = React.forwardRef<
         ref={ref}
         className={cn(
           "group hidden md:flex flex-col text-sidebar-foreground sticky self-start z-10",
-          "top-1.5 h-[calc(100vh-0.75rem)]",
+          "top-0 h-screen", // Flush to top, full height
           "duration-200 transition-[width] ease-linear",
           state === 'expanded' ? "w-[var(--sidebar-width)]" : "w-[var(--sidebar-width-icon)]",
           variant === "floating" && "p-0.5",
@@ -247,7 +247,7 @@ const Sidebar = React.forwardRef<
             "flex h-full w-full flex-col bg-sidebar backdrop-blur-md shadow-none",
             "group-data-[state=collapsed]:items-center group-data-[state=collapsed]:justify-start group-data-[state=collapsed]:gap-2 group-data-[state=collapsed]:py-6",
             variant === "floating" && "rounded-lg",
-            "p-0.5"
+            "p-0.5" // Removed padding
           )}
         >
           {children}
@@ -357,8 +357,8 @@ const SidebarHeader = React.forwardRef<
       ref={ref}
       data-sidebar="header"
       className={cn(
-        "flex flex-col gap-0.5 p-1 transition-all duration-200", 
-        state === "collapsed" ? "w-[var(--sidebar-width-icon)]" : "w-[var(--sidebar-width)]",
+        "flex flex-col gap-2 items-center shrink-0", 
+        state === "collapsed" ? "p-2" : "p-4",
         className
       )}
       {...props}
@@ -413,8 +413,8 @@ const SidebarContent = React.forwardRef<
       ref={ref}
       data-sidebar="content"
       className={cn(
-        "flex min-h-0 flex-col overflow-hidden",
-        state === "collapsed" ? "items-center" : "gap-0.5",
+        "flex min-h-0 w-full flex-col overflow-y-auto",
+        state === "collapsed" ? "items-center" : "items-stretch",
         className
       )}
       {...props}

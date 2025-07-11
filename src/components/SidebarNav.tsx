@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -74,29 +73,25 @@ export function SidebarNav() {
   });
   
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className={cn("p-1", state === 'collapsed' && "p-0 pt-2 pb-2 flex flex-col items-center")}>
-        <SidebarMenuButton asChild className="w-full hover:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0">
-            <Link href="/trading/milk-market" className="group flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity duration-150">
-                <CowIcon size={28} className="text-white flex-shrink-0" />
-            </Link>
-        </SidebarMenuButton>
+    <Sidebar collapsible="icon" className="bg-black">
+      <SidebarHeader className={cn("p-4 pb-2 items-center", state === 'collapsed' && "p-2")}>
+        <Link href="/trading/milk-market" className="group flex items-center justify-center min-w-0 hover:opacity-80 transition-opacity duration-150">
+          <CowIcon size={28} className="text-white flex-shrink-0" />
+        </Link>
         {!isMobile && (
-          <div className={cn("flex w-full", state === 'expanded' ? 'justify-end' : 'justify-center')}>
-             <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 shrink-0 text-foreground"
-                onClick={toggleSidebar}
-              >
-                {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}
-                <span className="sr-only">Toggle sidebar</span>
-              </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 shrink-0 text-foreground rounded-full hover:bg-white/10"
+            onClick={toggleSidebar}
+          >
+            {state === 'expanded' ? <ChevronLeft /> : <ChevronRight />}
+            <span className="sr-only">Toggle sidebar</span>
+          </Button>
         )}
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="items-center">
         <SidebarMenu>
           {tradingNavItemsList}
         </SidebarMenu>
