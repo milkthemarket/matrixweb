@@ -90,7 +90,7 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
 
     if (!stock) {
         return (
-            <Card className={cn("flex flex-col justify-center items-center", className)}>
+            <Card className={cn("flex flex-col justify-center items-center border border-white/5", className)}>
                 <CardContent className="p-4 text-center">
                     <div className="space-y-3">
                         <Skeleton className="h-6 w-32" />
@@ -109,7 +109,7 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
     const afterHoursChangeColor = stock.afterHoursChange && stock.afterHoursChange >= 0 ? 'text-green-400' : 'text-red-500';
 
     return (
-        <Card className={cn("flex flex-col", className)}>
+        <Card className={cn("flex flex-col border border-white/5", className)}>
             <CardHeader className="py-2.5 px-3.5">
                 <div className="flex justify-between items-center">
                     <div>

@@ -88,7 +88,7 @@ const getTimeframeParams = (timeframe: '1D' | '5D' | '1M' | '3M' | '6M' | 'YTD' 
 
 
 export function InteractiveChartCard({ stock, onManualTickerSubmit, className }: InteractiveChartCardProps) {
-  const [chartType, setChartType] = useState<'line' | 'area' | 'candle'>('line');
+  const [chartType, setChartType] = useState<'line' | 'area' | 'candle'>('area');
   const [timeframe, setTimeframe] = useState<'1D' | '5D' | '1M' | '3M' | '6M' | 'YTD' | '1Y' | '5Y' | 'All'>('1M');
   const [interval, setInterval] = useState<'1m' | '5m' | '30m' | '1h' | 'D' | 'W' | 'M'>('D');
   const [manualTickerInput, setManualTickerInput] = useState('');
@@ -148,7 +148,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
   };
 
   const dynamicStrokeColor = "#7c3aed"; // Deep neon purple for the line
-  const milkPurpleColor = "hsl(var(--primary))";
+  const milkPurpleColor = "#5B21B6";
 
   const handleManualSubmit = () => {
     if (manualTickerInput.trim()) {
@@ -215,7 +215,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
                       <stop offset="100%" stopColor={milkPurpleColor} stopOpacity={0}/>
                     </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#18181b" />
                 <XAxis dataKey="date" hide />
                 <YAxis hide domain={['auto', 'auto']} />
                 <Tooltip

@@ -440,7 +440,7 @@ export function OrderCard({
 
   return (
     <>
-      <Card className={cn("shadow-none flex flex-col h-full", className)}>
+      <Card className={cn("shadow-none flex flex-col h-full border border-white/5", className)}>
         <CardHeader className="pb-0.5 pt-3 px-3 space-y-0.5">
           <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
             <SelectTrigger id="accountSelectOrderCard" className="w-full h-8 text-[11px] truncate">

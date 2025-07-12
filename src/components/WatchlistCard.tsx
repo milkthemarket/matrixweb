@@ -99,7 +99,7 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
   }, [selectedFilterId, activeRules]);
 
   return (
-    <Card className={cn("shadow-none flex flex-col h-full", className)}>
+    <Card className={cn("shadow-none flex flex-col h-full border border-white/5", className)}>
         <CardHeader className="flex flex-row items-center justify-start p-3 pb-2 gap-2">
             <Select value={selectedFilterId} onValueChange={(value) => { setSelectedFilterId(value); setActiveContent('watchlist'); }}>
               <SelectTrigger className="w-auto h-9 text-xs">

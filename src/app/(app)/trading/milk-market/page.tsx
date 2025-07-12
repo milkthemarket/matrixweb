@@ -159,7 +159,7 @@ function MilkMarketPageContent() {
                 <InteractiveChartCard
                   stock={stockForSyncedComps}
                   onManualTickerSubmit={handleSyncedTickerChange}
-                  className="h-full border border-white/5"
+                  className="h-full"
                 />
               </div>
               <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-1.5">
@@ -184,7 +184,7 @@ function MilkMarketPageContent() {
                 </Card>
                  {/* Right Card: Watchlist, News */}
                 <WatchlistCard
-                    className="h-full border border-white/5"
+                    className="h-full"
                     selectedStockSymbol={syncedTickerSymbol}
                     onSelectStock={handleSyncedTickerChange}
                 />
@@ -204,13 +204,13 @@ function MilkMarketPageContent() {
                         initialQuantity={orderCardInitialQuantity}
                         initialOrderType={orderCardInitialOrderType}
                         initialLimitPrice={orderCardInitialLimitPrice}
-                        className="h-full border border-white/5"
+                        className="h-full"
                     />
                 </div>
                 <div className="flex-1 min-h-0">
                     <FundamentalsCard 
                     stock={stockForSyncedComps}
-                    className="h-full border border-white/5"
+                    className="h-full"
                     />
                 </div>
             </div>
