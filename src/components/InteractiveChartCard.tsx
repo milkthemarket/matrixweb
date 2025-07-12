@@ -42,10 +42,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
       );
     }
     // Default tooltip for line/area
-    const valueColor = payload[0].stroke === "hsl(var(--chart-2))"
-        ? 'text-[hsl(var(--confirm-green))]'
-        : payload[0].stroke === "hsl(var(--chart-5))"
-        ? 'text-destructive'
+    const valueColor = payload[0].stroke === "#E946FD"
+        ? 'text-[#E946FD]'
         : 'text-primary';
     
     return (
@@ -149,8 +147,9 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
     // Future logic to refetch chart data will go here.
   };
 
-  const dynamicStrokeColor = stock && stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))";
+  const dynamicStrokeColor = "#E946FD"; // Neon pink-purple for the line
   const neonPurpleColor = "#7C2CF6";
+  const darkPurpleEnd = "#1C0736"; // Deep purple for gradient end
 
   const handleManualSubmit = () => {
     if (manualTickerInput.trim()) {
@@ -188,17 +187,29 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
       );
     }
 
+    const uniqueId = `chart-gradient-${stock?.id || 'default'}`;
+    const filterId = `glow-${stock?.id || 'default'}`;
+
     if (chartType === 'line') {
       return (
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
+             <defs>
+              <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
             <XAxis dataKey="date" hide />
             <YAxis hide domain={['auto', 'auto']} />
             <Tooltip
               cursor={{ stroke: 'hsl(var(--foreground))', strokeWidth: 1, strokeDasharray: '3 3' }}
               content={<CustomTooltip />}
             />
-            <Line type="monotone" dataKey="price" stroke={dynamicStrokeColor} strokeWidth={1.5} dot={false} />
+            <Line type="linear" dataKey="price" stroke={dynamicStrokeColor} strokeWidth={2.5} dot={false} filter={`url(#${filterId})`} />
           </LineChart>
         </ResponsiveContainer>
       );
@@ -209,10 +220,17 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
         <ResponsiveContainer width="100%" height="100%">
              <RechartsAreaChart data={chartData}>
                 <defs>
-                    <linearGradient id={`colorPriceAreaPurple-${stock?.id || 'default'}`} x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id={uniqueId} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor={neonPurpleColor} stopOpacity={0.95}/>
-                      <stop offset="95%" stopColor="#1C0736" stopOpacity={0.85}/>
+                      <stop offset="95%" stopColor={darkPurpleEnd} stopOpacity={0.85}/>
                     </linearGradient>
+                    <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
+                      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
+                    </filter>
                 </defs>
                 <XAxis dataKey="date" hide />
                 <YAxis hide domain={['auto', 'auto']} />
@@ -220,7 +238,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
                     cursor={{ stroke: 'hsl(var(--foreground))', strokeWidth: 1, strokeDasharray: '3 3' }}
                     content={<CustomTooltip />}
                 />
-                <Area type="monotone" dataKey="price" stroke={neonPurpleColor} strokeWidth={2} fillOpacity={1} fill={`url(#colorPriceAreaPurple-${stock?.id || 'default'})`} dot={false}/>
+                <Area type="linear" dataKey="price" stroke={dynamicStrokeColor} strokeWidth={2.5} fillOpacity={1} fill={`url(#${uniqueId})`} dot={false} filter={`url(#${filterId})`}/>
             </RechartsAreaChart>
         </ResponsiveContainer>
       );
