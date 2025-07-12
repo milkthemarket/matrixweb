@@ -127,7 +127,6 @@ export default function HistoryPage() {
   const { toast } = useToast();
 
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [activeView, setActiveView] = useState('month');
 
   const currentStats = useMemo((): TradeStatsData => {
     const totalTrades = 27;
@@ -211,17 +210,6 @@ export default function HistoryPage() {
                         <Button variant="outline" onClick={handleToday}>Today</Button>
                     </div>
                     <div className="text-lg font-semibold text-foreground">{format(currentDate, "MMMM yyyy")}</div>
-                    <div className="flex items-center gap-1 bg-black/30 p-1 rounded-md">
-                        {["month", "week", "day"].map((view) => (
-                        <Button key={view} variant={activeView === view ? "default" : "ghost"} size="sm"
-                            className={cn(
-                                "px-3 py-1 h-auto text-xs capitalize", 
-                                activeView === view ? 'bg-primary text-primary-foreground' : 'hover:bg-white/10'
-                            )}
-                            onClick={() => setActiveView(view)}>{view}
-                        </Button>
-                        ))}
-                    </div>
                 </div>
 
                 <div className="grid grid-cols-7">
