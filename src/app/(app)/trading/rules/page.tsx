@@ -179,30 +179,7 @@ export default function RulesPage() {
           </CardHeader>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent className="space-y-1.5">
-              <div>
-                <Label htmlFor="ruleName">Rule Name</Label>
-                <Input 
-                  id="ruleName" 
-                  placeholder="e.g., Premarket Spike Low Float" 
-                  {...form.register("name")} 
-                  className="bg-transparent text-base h-9"
-                />
-                {form.formState.errors.name && <p className="text-sm text-destructive mt-0.5">{form.formState.errors.name.message}</p>}
-              </div>
               
-              <div className="flex flex-row items-center justify-between rounded-lg border border-white/5 p-1 shadow-sm bg-black/10">
-                <div className="space-y-0.5">
-                    <Label htmlFor="isActiveSwitch" className="font-medium text-foreground cursor-pointer">Activate Rule</Label>
-                    <p className="text-sm text-muted-foreground">
-                        Enable or disable this rule from triggering alerts and appearing in dashboard.
-                    </p>
-                </div>
-                <Switch
-                    id="isActiveSwitch"
-                    checked={form.watch("isActive")}
-                    onCheckedChange={(checked) => form.setValue("isActive", checked)}
-                />
-              </div>
             </CardContent>
             <CardFooter className="flex justify-end gap-0.5">
               {editingRule && <Button type="button" variant="outline" size="sm" onClick={() => { setEditingRule(null); form.reset({name: '', isActive: true }); }}>Cancel Edit</Button>}
