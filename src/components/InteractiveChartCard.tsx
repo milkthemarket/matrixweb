@@ -42,8 +42,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
       );
     }
     // Default tooltip for line/area
-    const valueColor = payload[0].stroke === "#5B21B6"
-        ? 'text-[#5B21B6]'
+    const valueColor = payload[0].stroke === "#7c3aed"
+        ? 'text-[#7c3aed]'
         : 'text-primary';
     
     return (
@@ -148,7 +148,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
   };
 
   const dynamicStrokeColor = "#7c3aed"; // Deep neon purple for the line
-  const milkPurpleColor = "#5B21B6"; // The requested subtle purple
+  const milkPurpleColor = "hsl(var(--primary))";
 
   const handleManualSubmit = () => {
     if (manualTickerInput.trim()) {
@@ -210,7 +210,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
              <RechartsAreaChart data={chartData}>
                 <defs>
                     <linearGradient id={uniqueId} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={milkPurpleColor} stopOpacity={0.8}/>
+                      <stop offset="0%" stopColor={milkPurpleColor} stopOpacity={0.2}/>
                       <stop offset="100%" stopColor={milkPurpleColor} stopOpacity={0}/>
                     </linearGradient>
                 </defs>
