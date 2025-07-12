@@ -75,7 +75,7 @@ const initialColumnConfiguration: ColumnConfig<Stock>[] = [
     isToggleable: true,
     isDraggable: true,
     align: 'left',
-    defaultWidth: 180,
+    defaultWidth: 120,
     description: "Company Name",
     format: (nameValue: string | undefined, stock) => {
       const name = nameValue || stock.name || 'N/A'; // Use stock.name as fallback
