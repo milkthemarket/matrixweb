@@ -8,11 +8,10 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Stock, AlertRule } from '@/types';
 import { cn } from '@/lib/utils';
-import { List, Star, TrendingUp, TrendingDown, Activity, CalendarCheck2, Filter as FilterIcon } from 'lucide-react';
+import { List, Star, TrendingUp, TrendingDown, Activity, CalendarCheck2, Filter as FilterIcon, Newspaper, Rss } from 'lucide-react';
 import { initialMockStocks } from '@/app/(app)/trading/dashboard/page';
 import { mockRules } from '@/app/(app)/trading/rules/page';
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { NewsCard } from './NewsCard';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
@@ -37,7 +36,7 @@ const formatVolumeDisplay = (volumeInMillions?: number): string => {
 
 export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }: WatchlistCardProps) {
   const [selectedFilterId, setSelectedFilterId] = useState<string>('my-watchlist');
-  const [activeTab, setActiveTab] = useState('watchlist');
+  const [activeContent, setActiveContent] = useState<'watchlist' | 'news'>('watchlist');
 
   const activeRules = useMemo(() => mockRules.filter(rule => rule.isActive), []);
 
@@ -101,15 +100,9 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
 
   return (
     <Card className={cn("shadow-none flex flex-col h-full", className)}>
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
-        <CardHeader className="flex flex-row items-center justify-between p-3 pb-2">
-          <TabsList className="p-0 bg-transparent border-none">
-            <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
-            <TabsTrigger value="news">News</TabsTrigger>
-          </TabsList>
-          {activeTab === 'watchlist' && (
-            <Select value={selectedFilterId} onValueChange={setSelectedFilterId}>
-              <SelectTrigger className="w-auto h-8 text-xs">
+        <CardHeader className="flex flex-row items-center justify-start p-3 pb-2 gap-2">
+            <Select value={selectedFilterId} onValueChange={(value) => { setSelectedFilterId(value); setActiveContent('watchlist'); }}>
+              <SelectTrigger className="w-auto h-9 text-xs">
                 <SelectValue placeholder="Select a view..." />
               </SelectTrigger>
               <SelectContent>
@@ -117,8 +110,8 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
                   const IconComponent = opt.icon;
                   return (
                     <SelectItem key={opt.id} value={opt.id} className="text-xs">
-                      <div className="flex items-center gap-1">
-                        <IconComponent className={cn("h-3 w-3", opt.iconColor)} />
+                      <div className="flex items-center gap-1.5">
+                        <IconComponent className={cn("h-3.5 w-3.5", opt.iconColor)} />
                         <span>{opt.label}</span>
                       </div>
                     </SelectItem>
@@ -126,57 +119,71 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
                 })}
               </SelectContent>
             </Select>
-          )}
+
+            <Select defaultValue="all-news" onValueChange={() => setActiveContent('news')}>
+              <SelectTrigger className="w-auto h-9 text-xs">
+                <SelectValue placeholder="News Source" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all-news" className="text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <Rss className="h-3.5 w-3.5 text-primary"/>
+                    <span>All News</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="reuters" className="text-xs">Reuters</SelectItem>
+                <SelectItem value="tipranks" className="text-xs">TipRanks</SelectItem>
+              </SelectContent>
+            </Select>
         </CardHeader>
         <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
-          <TabsContent value="watchlist" className="flex-1 overflow-hidden m-0">
-             <ScrollArea className="h-full">
-                <Table>
-                    <TableHeader>
-                        <TableRow className="h-7">
-                            <TableHead className="px-2 text-left">Symbol</TableHead>
-                            <TableHead className="px-2 text-right">Price</TableHead>
-                            <TableHead className="px-2 text-right">Change</TableHead>
-                            <TableHead className="px-2 text-right">Vol</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                         {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
-                          <TableRow
-                            key={stock.id}
-                            className={cn(
-                              "cursor-pointer h-auto text-[11px] hover:bg-white/5 border-b border-border/5 last:border-b-0",
-                              selectedStockSymbol === stock.symbol && "bg-primary/10"
+            {activeContent === 'watchlist' && (
+                <ScrollArea className="h-full">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="h-7">
+                                <TableHead className="px-2 text-left">Symbol</TableHead>
+                                <TableHead className="px-2 text-right">Price</TableHead>
+                                <TableHead className="px-2 text-right">Change</TableHead>
+                                <TableHead className="px-2 text-right">Vol</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
+                                <TableRow
+                                    key={stock.id}
+                                    className={cn(
+                                        "cursor-pointer h-auto text-[11px] hover:bg-white/5 border-b border-border/5 last:border-b-0",
+                                        selectedStockSymbol === stock.symbol && "bg-primary/10"
+                                    )}
+                                    onClick={() => onSelectStock(stock.symbol)}
+                                >
+                                    <TableCell className="px-2 py-1.5 font-bold text-foreground truncate text-left">{stock.symbol}</TableCell>
+                                    <TableCell className="px-2 py-1.5 font-bold text-foreground text-right">${stock.price.toFixed(2)}</TableCell>
+                                    <TableCell className={cn("px-2 py-1.5 font-bold text-right", stock.changePercent >= 0 ? "text-green-500" : "text-red-500")}>
+                                        {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                                    </TableCell>
+                                    <TableCell className="px-2 py-1.5 font-medium text-neutral-400 text-right truncate">{formatVolumeDisplay(stock.volume)}</TableCell>
+                                </TableRow>
+                            )) : (
+                                <TableRow>
+                                    <TableCell colSpan={4} className="h-24 text-center text-[10px] text-muted-foreground">
+                                        No stocks match the selected filter.
+                                    </TableCell>
+                                </TableRow>
                             )}
-                            onClick={() => onSelectStock(stock.symbol)}
-                          >
-                                <TableCell className="px-2 py-1.5 font-bold text-foreground truncate text-left">{stock.symbol}</TableCell>
-                                <TableCell className="px-2 py-1.5 font-bold text-foreground text-right">${stock.price.toFixed(2)}</TableCell>
-                                <TableCell className={cn("px-2 py-1.5 font-bold text-right", stock.changePercent >= 0 ? "text-green-500" : "text-red-500")}>
-                                    {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                                </TableCell>
-                                <TableCell className="px-2 py-1.5 font-medium text-neutral-400 text-right truncate">{formatVolumeDisplay(stock.volume)}</TableCell>
-                          </TableRow>
-                        )) : (
-                           <TableRow>
-                            <TableCell colSpan={4} className="h-24 text-center text-[10px] text-muted-foreground">
-                                No stocks match the selected filter.
-                            </TableCell>
-                           </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
-              </ScrollArea>
-          </TabsContent>
-          <TabsContent value="news" className="m-0 h-full">
-            <NewsCard
-              className="h-full border-0 shadow-none rounded-none bg-transparent"
-              selectedTickerSymbol={selectedStockSymbol}
-              onTickerSelect={onSelectStock}
-            />
-          </TabsContent>
+                        </TableBody>
+                    </Table>
+                </ScrollArea>
+            )}
+            {activeContent === 'news' && (
+                <NewsCard
+                    className="h-full border-0 shadow-none rounded-none bg-transparent"
+                    selectedTickerSymbol={selectedStockSymbol}
+                    onTickerSelect={onSelectStock}
+                />
+            )}
         </CardContent>
-      </Tabs>
     </Card>
   );
 }
