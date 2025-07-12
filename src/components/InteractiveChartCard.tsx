@@ -42,8 +42,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
       );
     }
     // Default tooltip for line/area
-    const valueColor = payload[0].stroke === "#7C2CF6"
-        ? 'text-[#7C2CF6]'
+    const valueColor = payload[0].stroke === "#7c3aed"
+        ? 'text-[#7c3aed]'
         : 'text-primary';
     
     return (
@@ -149,7 +149,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
 
   const dynamicStrokeColor = "#7c3aed"; // Deep neon purple for the line
   const neonPurpleColor = "#7C2CF6";
-  const darkPurpleEnd = "#1C0736"; // Deep purple for gradient end
+  const darkPurpleEnd = "rgba(0,0,0,0)"; // Fade to transparent
 
   const handleManualSubmit = () => {
     if (manualTickerInput.trim()) {
@@ -221,8 +221,9 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
              <RechartsAreaChart data={chartData}>
                 <defs>
                     <linearGradient id={uniqueId} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={neonPurpleColor} stopOpacity={0.95}/>
-                      <stop offset="95%" stopColor={darkPurpleEnd} stopOpacity={0.85}/>
+                      <stop offset="0%" stopColor={neonPurpleColor} stopOpacity={0.9}/>
+                      <stop offset="40%" stopColor={neonPurpleColor} stopOpacity={0.1}/>
+                      <stop offset="55%" stopColor={darkPurpleEnd} stopOpacity={0}/>
                     </linearGradient>
                     <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
                       <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
@@ -273,7 +274,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
 
 
   return (
-    <Card className={cn("shadow-none flex flex-col", className)}>
+    <Card className={cn("shadow-none flex flex-col border border-white/5", className)}>
       <CardHeader className="pb-2 pt-3 px-3">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-2">
           {stock && stock.price > 0 ? (
