@@ -159,12 +159,12 @@ function MilkMarketPageContent() {
                 <InteractiveChartCard
                   stock={stockForSyncedComps}
                   onManualTickerSubmit={handleSyncedTickerChange}
-                  className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                  className="h-full border border-white/5"
                 />
               </div>
               <div className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-1.5">
                 {/* Left Card: Positions, Orders, History */}
-                <Card className="h-full flex flex-col overflow-hidden transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
+                <Card className="h-full flex flex-col overflow-hidden border border-white/5">
                     <Tabs defaultValue="positions" className="flex flex-col h-full">
                         <TabsList className="shrink-0 px-3 pt-2">
                             <TabsTrigger value="positions">Positions</TabsTrigger>
@@ -184,7 +184,7 @@ function MilkMarketPageContent() {
                 </Card>
                  {/* Right Card: Watchlist, News */}
                 <WatchlistCard
-                    className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    className="h-full border border-white/5"
                     selectedStockSymbol={syncedTickerSymbol}
                     onSelectStock={handleSyncedTickerChange}
                 />
@@ -204,13 +204,13 @@ function MilkMarketPageContent() {
                         initialQuantity={orderCardInitialQuantity}
                         initialOrderType={orderCardInitialOrderType}
                         initialLimitPrice={orderCardInitialLimitPrice}
-                        className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                        className="h-full border border-white/5"
                     />
                 </div>
                 <div className="flex-1 min-h-0">
                     <FundamentalsCard 
                     stock={stockForSyncedComps}
-                    className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    className="h-full border border-white/5"
                     />
                 </div>
             </div>
