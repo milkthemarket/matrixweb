@@ -141,11 +141,11 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
                 <ScrollArea className="h-full">
                     <Table>
                         <TableHeader className="sticky top-0 bg-[#0d0d0d] z-[1]">
-                            <TableRow className="h-7 border-b-0">
-                                <TableHead className="px-2 text-left text-neutral-100 font-semibold">Symbol</TableHead>
-                                <TableHead className="px-2 text-right text-neutral-100 font-semibold">Price</TableHead>
-                                <TableHead className="px-2 text-right text-neutral-100 font-semibold">Change</TableHead>
-                                <TableHead className="px-2 text-right text-neutral-100 font-semibold">Vol</TableHead>
+                            <TableRow className="border-b-0">
+                                <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Symbol</TableHead>
+                                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Price</TableHead>
+                                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Change</TableHead>
+                                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Vol</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -153,21 +153,21 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
                                 <TableRow
                                     key={stock.id}
                                     className={cn(
-                                        "cursor-pointer h-auto text-[11px] hover:bg-white/5 border-b border-border/5 last:border-b-0",
+                                        "cursor-pointer text-sm hover:bg-white/5 border-b border-border/5 last:border-b-0 h-10",
                                         selectedStockSymbol === stock.symbol && "bg-primary/10"
                                     )}
                                     onClick={() => onSelectStock(stock.symbol)}
                                 >
-                                    <TableCell className="px-2 py-1.5 font-bold text-foreground truncate text-left">{stock.symbol}</TableCell>
-                                    <TableCell className="px-2 py-1.5 font-bold text-foreground text-right">${stock.price.toFixed(2)}</TableCell>
-                                    <TableCell className={cn("px-2 py-1.5 font-bold text-right", stock.changePercent >= 0 ? "text-green-500" : "text-red-500")}>
+                                    <TableCell className="px-4 py-2 font-bold text-foreground truncate text-left">{stock.symbol}</TableCell>
+                                    <TableCell className="px-4 py-2 font-bold text-foreground text-right">${stock.price.toFixed(2)}</TableCell>
+                                    <TableCell className={cn("px-4 py-2 font-bold text-right", stock.changePercent >= 0 ? "text-green-500" : "text-red-500")}>
                                         {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
                                     </TableCell>
-                                    <TableCell className="px-2 py-1.5 font-medium text-neutral-400 text-right truncate">{formatVolumeDisplay(stock.volume)}</TableCell>
+                                    <TableCell className="px-4 py-2 font-medium text-neutral-400 text-right truncate">{formatVolumeDisplay(stock.volume)}</TableCell>
                                 </TableRow>
                             )) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="h-24 text-center text-[10px] text-muted-foreground">
+                                    <TableCell colSpan={4} className="h-24 text-center text-xs text-muted-foreground">
                                         No stocks match the selected filter.
                                     </TableCell>
                                 </TableRow>

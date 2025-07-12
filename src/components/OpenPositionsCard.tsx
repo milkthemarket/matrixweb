@@ -50,15 +50,15 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
         {filteredPositions.length > 0 ? (
           <ScrollArea className="h-full">
             <Table>
-                <TableHeader>
-                    <TableRow className="h-7">
-                        <TableHead className="px-2 text-left">Actions</TableHead>
-                        <TableHead className="px-2 text-left">Symbol</TableHead>
-                        <TableHead className="px-2 text-center">Open P&L %</TableHead>
-                        <TableHead className="px-2 text-center">Open P&L</TableHead>
-                        <TableHead className="px-2 text-center">Avg Price</TableHead>
-                        <TableHead className="px-2 text-center">Last Price</TableHead>
-                        <TableHead className="px-2 text-center">Quantity</TableHead>
+                <TableHeader className="sticky top-0 bg-[#0d0d0d] z-[1]">
+                    <TableRow className="border-b border-white/10">
+                        <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Actions</TableHead>
+                        <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Symbol</TableHead>
+                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Open P&L %</TableHead>
+                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Open P&L</TableHead>
+                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Avg Price</TableHead>
+                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Last Price</TableHead>
+                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Quantity</TableHead>
                     </TableRow>
                 </TableHeader>
                  <TableBody>
@@ -68,27 +68,27 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
                         const pnlColorClass = pnl >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive";
 
                         return (
-                            <TableRow key={pos.id} className="text-[11px] hover:bg-white/5 h-auto py-1.5 border-b border-border/5 last:border-b-0">
-                                <TableCell className="px-2 text-left">
+                            <TableRow key={pos.id} className="text-sm hover:bg-white/5 h-10 border-b border-border/5 last:border-b-0">
+                                <TableCell className="px-4 py-2 text-left">
                                     <Button
-                                        variant="outline"
+                                        variant="ghost"
                                         size="sm"
-                                        className="h-6 px-1.5 border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive-foreground text-[10px]"
+                                        className="h-auto p-0 text-destructive/80 hover:text-destructive hover:bg-transparent"
                                         onClick={() => handleClose(pos)}
                                     >
-                                        <XSquare className="mr-0.5 h-3 w-3" /> Close
+                                        Close
                                     </Button>
                                 </TableCell>
-                                <TableCell className="px-2 font-bold text-foreground text-left">{pos.symbol}</TableCell>
-                                <TableCell className={cn("px-2 text-center font-bold", pnlColorClass)}>
+                                <TableCell className="px-4 py-2 font-bold text-foreground text-left">{pos.symbol}</TableCell>
+                                <TableCell className={cn("px-4 py-2 text-right font-bold", pnlColorClass)}>
                                     {pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
                                 </TableCell>
-                                <TableCell className={cn("px-2 text-center font-bold", pnlColorClass)}>
+                                <TableCell className={cn("px-4 py-2 text-right font-bold", pnlColorClass)}>
                                     {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
                                 </TableCell>
-                                <TableCell className="px-2 text-center font-medium text-foreground">${pos.entryPrice.toFixed(2)}</TableCell>
-                                <TableCell className="px-2 text-center font-bold text-foreground">${pos.currentPrice.toFixed(2)}</TableCell>
-                                <TableCell className="px-2 text-center font-medium text-foreground">{pos.shares}</TableCell>
+                                <TableCell className="px-4 py-2 text-right font-medium text-foreground">${pos.entryPrice.toFixed(2)}</TableCell>
+                                <TableCell className="px-4 py-2 text-right font-bold text-foreground">${pos.currentPrice.toFixed(2)}</TableCell>
+                                <TableCell className="px-4 py-2 text-right font-medium text-foreground">{pos.shares}</TableCell>
                             </TableRow>
                         );
                     })}

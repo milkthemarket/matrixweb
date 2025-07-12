@@ -33,27 +33,27 @@ export function TradeHistoryTable({ className, syncedTickerSymbol }: TradeHistor
         <ScrollArea className="h-full">
           {filteredHistory.length > 0 ? (
             <Table className="table-fixed">
-              <TableHeader className="sticky top-0 bg-card/[.05] backdrop-blur-md z-[1]">
-                <TableRow>
-                  <TableHead className="text-xs h-7 px-2 text-left text-muted-foreground font-medium">Symbol</TableHead>
-                  <TableHead className="text-xs h-7 px-2 text-left text-muted-foreground font-medium">Side</TableHead>
-                  <TableHead className="text-xs h-7 px-2 text-right text-muted-foreground font-medium">Qty</TableHead>
-                  <TableHead className="text-xs h-7 px-2 text-right text-muted-foreground font-medium">Avg Price</TableHead>
-                  <TableHead className="text-xs h-7 px-2 text-left text-muted-foreground font-medium">Type</TableHead>
-                  <TableHead className="text-xs h-7 px-2 text-left text-muted-foreground font-medium">Time</TableHead>
-                  <TableHead className="text-xs h-7 px-2 text-left text-muted-foreground font-medium">Status</TableHead>
+              <TableHeader className="sticky top-0 bg-[#0d0d0d] z-[1]">
+                <TableRow className="border-b border-white/10">
+                  <TableHead className="h-10 px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Symbol</TableHead>
+                  <TableHead className="h-10 px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Side</TableHead>
+                  <TableHead className="h-10 px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Qty</TableHead>
+                  <TableHead className="h-10 px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Avg Price</TableHead>
+                  <TableHead className="h-10 px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Type</TableHead>
+                  <TableHead className="h-10 px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Time</TableHead>
+                  <TableHead className="h-10 px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredHistory.map((trade) => (
-                  <TableRow key={trade.id} className="text-xs hover:bg-white/5">
-                    <TableCell className="px-2 py-1.5 font-bold text-left">{trade.symbol}</TableCell>
-                    <TableCell className="px-2 py-1.5 font-bold text-left">{trade.side}</TableCell>
-                    <TableCell className="px-2 py-1.5 text-right font-bold">{trade.totalQty}</TableCell>
-                    <TableCell className="px-2 py-1.5 text-right font-bold">${trade.averagePrice.toFixed(2)}</TableCell>
-                    <TableCell className="px-2 py-1.5 font-bold text-left">{trade.orderType}</TableCell>
-                    <TableCell className="px-2 py-1.5 font-bold text-left">{format(parseISO(trade.filledTime), "HH:mm:ss")}</TableCell>
-                    <TableCell className="px-2 py-1.5 font-bold text-left">{trade.orderStatus}</TableCell>
+                  <TableRow key={trade.id} className="text-sm hover:bg-white/5 h-10 border-b border-border/5 last:border-b-0">
+                    <TableCell className="px-4 py-2 font-bold text-left">{trade.symbol}</TableCell>
+                    <TableCell className="px-4 py-2 font-bold text-left">{trade.side}</TableCell>
+                    <TableCell className="px-4 py-2 text-right font-bold">{trade.totalQty}</TableCell>
+                    <TableCell className="px-4 py-2 text-right font-bold">${trade.averagePrice.toFixed(2)}</TableCell>
+                    <TableCell className="px-4 py-2 font-bold text-left">{trade.orderType}</TableCell>
+                    <TableCell className="px-4 py-2 font-bold text-left">{format(parseISO(trade.filledTime), "HH:mm:ss")}</TableCell>
+                    <TableCell className="px-4 py-2 font-bold text-left">{trade.orderStatus}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
