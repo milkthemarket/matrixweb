@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
 import { useToast } from "@/hooks/use-toast";
-import { Tooltip, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { mockRules } from '@/app/(app)/trading/rules/page';
 import { format } from 'date-fns';
 import { ScreenerFilterModal } from '@/components/ScreenerFilterModal';
@@ -54,8 +54,6 @@ const allColumnsConfig: ColumnConfig<Stock>[] = [
     { key: 'low52', label: '52W Low', defaultVisible: false, isDraggable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: 'The lowest price in the last 52 weeks.' },
     { key: 'shortFloat', label: 'Short Float', defaultVisible: false, isDraggable: true, align: 'right', format: (val) => `${formatDecimal(val, 1)}%`, description: 'The percentage of a company\'s float that is shorted.' },
 ];
-
-const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM', 'TPL', 'AN'];
 
 function DashboardPageContent() {
   const searchParams = useSearchParams();
@@ -384,4 +382,5 @@ export default function DashboardPage() {
     </Suspense>
   );
 }
+
 
