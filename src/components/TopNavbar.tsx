@@ -37,88 +37,87 @@ export function TopNavbar() {
     setHasMounted(true);
   }, []);
 
-  if (!hasMounted) {
-    // Render a placeholder or null on the server and initial client render
+  const renderNavLinks = (isMobile = false) => {
+    if (!hasMounted) {
+      // On the server or initial client render, return a placeholder or null
+      return isMobile ? null : (
+        <div className="hidden md:flex items-center gap-x-6 text-sm font-semibold h-5">
+           {/* Placeholder for links to maintain layout integrity */}
+        </div>
+      );
+    }
+
+    if (isMobile) {
+      return (
+        <div className="flex flex-col space-y-4 pt-6">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={`mobile-${item.href}`}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-2 rounded-md p-2 text-base font-medium transition-colors hover:bg-muted",
+                  isActive ? "bg-muted text-foreground" : "text-muted-foreground"
+                )}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
+      );
+    }
+
     return (
-        <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container flex h-14 max-w-screen-2xl items-center">
-                {/* Simplified placeholder matching the layout structure */}
-                <div className="flex-1 flex justify-start">
-                    <div className="flex items-center space-x-2">
-                        <MiloAvatarIcon size={32} />
-                        <span className="sr-only">MILK</span>
-                    </div>
-                </div>
-                <div className="flex-1 flex justify-center">
-                    <div className="relative w-full max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          type="search"
-                          placeholder="Search..."
-                          className="w-full rounded-full pl-9 h-9"
-                          disabled
-                        />
-                    </div>
-                </div>
-                <div className="flex-1 flex justify-end">
-                    <div className="hidden md:flex items-center gap-x-6 text-sm font-semibold h-5">
-                       {/* Placeholder for links to maintain layout */}
-                    </div>
-                    <div className="flex items-center justify-end md:hidden">
-                        <Button variant="ghost" size="icon" disabled>
-                            <Menu className="h-5 w-5" />
-                            <span className="sr-only">Toggle Menu</span>
-                        </Button>
-                    </div>
-                </div>
-            </div>
-        </header>
+      <nav className="hidden md:flex items-center gap-x-6 text-sm font-semibold">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "transition-colors hover:text-white uppercase",
+                isActive ? "text-white font-bold" : "text-foreground/60"
+              )}
+            >
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
     );
-  }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center">
+      <div className="container flex h-14 max-w-screen-2xl items-center justify-between">
         {/* Left Section */}
-        <div className="flex-1 flex justify-start">
-          <Link href="/trading/milk-market" className="flex items-center space-x-2">
-            <MiloAvatarIcon size={32} />
-            <span className="sr-only">MILK</span>
-          </Link>
+        <div className="flex items-center">
+            <Link href="/trading/milk-market">
+                <MiloAvatarIcon size={32} />
+                <span className="sr-only">MILK</span>
+            </Link>
         </div>
 
         {/* Center Section */}
-        <div className="flex-1 flex justify-center">
-          <div className="relative w-full max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-full rounded-full pl-9 h-9"
-            />
-          </div>
+        <div className="flex-1 flex justify-center px-4">
+            <div className="relative w-full max-w-md">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                    type="search"
+                    placeholder="Search..."
+                    className="w-full rounded-full pl-9 h-9"
+                />
+            </div>
         </div>
 
         {/* Right Section */}
-        <div className="flex-1 flex justify-end">
+        <div className="flex items-center gap-x-6">
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-x-6 text-sm font-semibold">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "transition-colors hover:text-white uppercase",
-                    isActive ? "text-white font-bold" : "text-foreground/60"
-                  )}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
+          {renderNavLinks(false)}
 
           {/* Mobile Menu */}
           <div className="flex items-center justify-end md:hidden">
@@ -130,24 +129,7 @@ export function TopNavbar() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[240px]">
-                <div className="flex flex-col space-y-4 pt-6">
-                  {navItems.map((item) => {
-                    const isActive = pathname === item.href;
-                    return (
-                      <Link
-                        key={`mobile-${item.href}`}
-                        href={item.href}
-                        className={cn(
-                          "flex items-center gap-2 rounded-md p-2 text-base font-medium transition-colors hover:bg-muted",
-                          isActive ? "bg-muted text-foreground" : "text-muted-foreground"
-                        )}
-                      >
-                        <item.icon className="h-5 w-5" />
-                        {item.label}
-                      </Link>
-                    );
-                  })}
-                </div>
+                {renderNavLinks(true)}
               </SheetContent>
             </Sheet>
           </div>
