@@ -42,8 +42,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
       );
     }
     // Default tooltip for line/area
-    const valueColor = payload[0].stroke === "#E946FD"
-        ? 'text-[#E946FD]'
+    const valueColor = payload[0].stroke === "#7C2CF6"
+        ? 'text-[#7C2CF6]'
         : 'text-primary';
     
     return (
@@ -147,7 +147,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
     // Future logic to refetch chart data will go here.
   };
 
-  const dynamicStrokeColor = "#E946FD"; // Neon pink-purple for the line
+  const dynamicStrokeColor = "#7c3aed"; // Deep neon purple for the line
   const neonPurpleColor = "#7C2CF6";
   const darkPurpleEnd = "#1C0736"; // Deep purple for gradient end
 
