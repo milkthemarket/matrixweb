@@ -183,32 +183,11 @@ function MilkMarketPageContent() {
                     </Tabs>
                 </Card>
                  {/* Right Card: Watchlist, News */}
-                <Card className="h-full flex flex-col overflow-hidden transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
-                  <Tabs defaultValue="watchlist" className="flex flex-col h-full">
-                      <CardHeader className="flex flex-row items-center justify-between p-3">
-                          <TabsList className="p-0 bg-transparent border-none">
-                              <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
-                              <TabsTrigger value="news">News</TabsTrigger>
-                          </TabsList>
-                      </CardHeader>
-                      <CardContent className="p-0 flex-1 overflow-auto">
-                        <TabsContent value="watchlist" className="m-0 h-full">
-                           <WatchlistCard
-                                className="h-full border-0 shadow-none rounded-none bg-transparent"
-                                selectedStockSymbol={syncedTickerSymbol}
-                                onSelectStock={handleSyncedTickerChange}
-                            />
-                        </TabsContent>
-                        <TabsContent value="news" className="m-0 h-full">
-                            <NewsCard
-                                className="h-full border-0 shadow-none rounded-none bg-transparent"
-                                selectedTickerSymbol={syncedTickerSymbol}
-                                onTickerSelect={handleSyncedTickerChange}
-                            />
-                        </TabsContent>
-                      </CardContent>
-                  </Tabs>
-                </Card>
+                <WatchlistCard
+                    className="h-full transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]"
+                    selectedStockSymbol={syncedTickerSymbol}
+                    onSelectStock={handleSyncedTickerChange}
+                />
               </div>
             </div>
 
