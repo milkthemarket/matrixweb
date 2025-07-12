@@ -40,9 +40,9 @@ export function TopNavbar() {
             <MiloAvatarIcon size={32} />
         </div>
 
-        {/* Search Bar - Centered */}
-        <div className="flex-1 flex justify-center">
-            <div className="relative w-full max-w-xl">
+        {/* Search Bar */}
+        <div className="flex flex-1 items-center gap-x-6">
+            <div className="relative w-full max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                     type="search"
@@ -50,26 +50,26 @@ export function TopNavbar() {
                     className="w-full rounded-full pl-9 h-9"
                 />
             </div>
-        </div>
         
-        {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-x-6 text-lg font-semibold ml-8">
-            {navItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                    "transition-colors hover:text-white",
-                    isActive ? "text-white font-bold" : "text-foreground/60"
-                    )}
-                >
-                    {item.label}
-                </Link>
-                );
-            })}
-        </nav>
+            {/* Desktop Navigation Links */}
+            <nav className="hidden md:flex items-center gap-x-6 text-lg font-semibold">
+                {navItems.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                    <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                        "transition-colors hover:text-white",
+                        isActive ? "text-white font-bold" : "text-foreground/60"
+                        )}
+                    >
+                        {item.label}
+                    </Link>
+                    );
+                })}
+            </nav>
+        </div>
         
         {/* Mobile Menu */}
         <div className="flex items-center justify-end md:hidden">
