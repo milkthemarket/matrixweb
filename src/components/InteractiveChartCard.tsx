@@ -192,9 +192,8 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
       return (
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
-            <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
-            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
+            <XAxis dataKey="date" hide />
+            <YAxis hide domain={['auto', 'auto']} />
             <Tooltip
               cursor={{ stroke: 'hsl(var(--foreground))', strokeWidth: 1, strokeDasharray: '3 3' }}
               content={<CustomTooltip />}
@@ -215,9 +214,8 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
                       <stop offset="95%" stopColor={neonPurpleColor} stopOpacity={0.05}/>
                     </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
-                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['auto', 'auto']} />
+                <XAxis dataKey="date" hide />
+                <YAxis hide domain={['auto', 'auto']} />
                 <Tooltip
                     cursor={{ stroke: 'hsl(var(--foreground))', strokeWidth: 1, strokeDasharray: '3 3' }}
                     content={<CustomTooltip />}
@@ -232,9 +230,8 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
       return (
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsla(var(--border), 0.1)" />
-            <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} />
-            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={10} tickLine={false} axisLine={{ stroke: "hsla(var(--border), 0.1)" }} domain={['dataMin - 1', 'dataMax + 1']} />
+            <XAxis dataKey="date" hide />
+            <YAxis hide domain={['dataMin - 1', 'dataMax + 1']} />
             <Tooltip
               cursor={{ fill: 'hsla(var(--primary), 0.05)' }}
               content={<CustomTooltip />}
