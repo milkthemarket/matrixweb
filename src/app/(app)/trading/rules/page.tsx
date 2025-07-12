@@ -176,7 +176,6 @@ export default function RulesPage() {
               <ListFilter className="mr-1.5 h-5 w-5 text-primary"/>
               {editingRule ? 'Edit Rule Info' : 'Create New Rule'}
             </CardTitle>
-            <CardDescription>Create, manage, and toggle your custom alert rules. Active rules will generate Moo Alerts.</CardDescription>
           </CardHeader>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardContent className="space-y-1.5">
