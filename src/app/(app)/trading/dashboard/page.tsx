@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
 import { useToast } from "@/hooks/use-toast";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipProvider } from '@/components/ui/tooltip';
 import { mockRules } from '@/app/(app)/trading/rules/page';
 import { format } from 'date-fns';
 import { ScreenerFilterModal } from '@/components/ScreenerFilterModal';
@@ -218,7 +218,7 @@ function DashboardPageContent() {
   return (
     <>
       <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
-        <Card className="flex-1 flex flex-col overflow-hidden bg-card/90 backdrop-blur-sm border border-white/10">
+        <Card className="flex-1 flex flex-col overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between p-3 border-b border-border/10">
             <div className="flex items-center gap-4">
               <CardTitle className="text-lg font-bold text-foreground">Screener</CardTitle>
@@ -333,7 +333,7 @@ function DashboardPageContent() {
                             return (
                                 <TableCell key={col.key} className={cn("px-4 py-2 font-bold text-foreground", `text-${col.align || 'left'}`)}>
                                     {col.key === 'changePercent' ? (
-                                        <span className={cn(value >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
+                                        <span className={cn(Number(value) >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
                                             {col.format ? col.format(value, stock) : value}
                                         </span>
                                     ) : col.format ? (
@@ -382,5 +382,3 @@ export default function DashboardPage() {
     </Suspense>
   );
 }
-
-
