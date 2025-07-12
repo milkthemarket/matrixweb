@@ -210,7 +210,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
              <RechartsAreaChart data={chartData}>
                 <defs>
                     <linearGradient id={`colorPriceAreaPurple-${stock?.id || 'default'}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#7C2CF6" stopOpacity={0.95}/>
+                      <stop offset="5%" stopColor={neonPurpleColor} stopOpacity={0.95}/>
                       <stop offset="95%" stopColor="#1C0736" stopOpacity={0.85}/>
                     </linearGradient>
                 </defs>
@@ -314,14 +314,14 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
             className={cn(
               "h-6 text-[10px] px-2 font-medium",
               timeframe === tf
-                ? "text-primary-foreground bg-white/10 font-bold"
-                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                ? "text-foreground font-bold"
+                : "text-muted-foreground hover:text-foreground hover:bg-transparent"
             )}
           >
             {tf}
           </Button>
         ))}
-        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-white/5" onClick={() => setIsDatePickerOpen(true)}>
+        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-transparent" onClick={() => setIsDatePickerOpen(true)}>
           <Calendar className="h-3.5 w-3.5" />
         </Button>
         
@@ -337,8 +337,8 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
             className={cn(
               "h-6 text-[10px] px-2 font-medium",
               interval === iv
-                ? "text-primary-foreground bg-white/10 font-bold"
-                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                ? "text-foreground font-bold"
+                : "text-muted-foreground hover:text-foreground hover:bg-transparent"
             )}
           >
             {iv}
@@ -361,8 +361,8 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
             className={cn(
               "h-6 text-[10px] px-2 font-medium",
               chartType === type
-                ? "text-primary-foreground bg-white/10 font-bold"
-                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+                ? "text-foreground font-bold"
+                : "text-muted-foreground hover:text-foreground hover:bg-transparent"
             )}
           >
             <Icon className="h-3 w-3 mr-0.5" />
