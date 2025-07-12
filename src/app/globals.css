@@ -102,6 +102,12 @@
     scrollbar-width: thin; /* "thin" or "auto" */
     scrollbar-color: rgba(255, 255, 255, 0.1) transparent; /* thumb and track color */
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sora), sans-serif;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
 }
 
 @keyframes ticker {
@@ -117,4 +123,3 @@
 .animate-ticker-fast {
   animation: ticker 15s linear infinite;
 }
-

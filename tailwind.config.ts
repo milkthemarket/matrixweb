@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -15,8 +16,8 @@ export default {
         'market-closed': '0 0 15px 1px hsl(var(--destructive) / 0.5)',
       },
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        body: ['var(--font-inter)', 'sans-serif'],
+        headline: ['var(--font-sora)', 'sans-serif'],
         code: ['monospace'],
       },
       backgroundImage: {
