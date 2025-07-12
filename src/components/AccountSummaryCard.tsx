@@ -24,15 +24,6 @@ const DetailItem: React.FC<{ label: string; value: string | number; icon?: React
   </div>
 );
 
-const getAccountIcon = (type?: Account['type']) => {
-    if (!type) return <Wallet className="h-4 w-4 text-primary" />; 
-    if (type === 'margin') return <Briefcase className="h-4 w-4 text-primary" />;
-    if (type === 'ira') return <Landmark className="h-4 w-4 text-primary" />;
-    if (type === 'paper') return <NotebookText className="h-4 w-4 text-primary" />;
-    return <Wallet className="h-4 w-4 text-primary" />;
-};
-
-
 export function AccountSummaryCard({ className }: AccountSummaryCardProps) {
   const { selectedAccountId, setSelectedAccountId, accounts } = useOpenPositionsContext();
   const selectedAccount = accounts.find(acc => acc.id === selectedAccountId);
@@ -46,15 +37,18 @@ export function AccountSummaryCard({ className }: AccountSummaryCardProps) {
             </Label>
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
             <SelectTrigger id="accountSelectGlobal" className="flex-1 h-9 text-sm" aria-label="Select active account">
-                <SelectValue placeholder="Select account..." />
+                <SelectValue placeholder="Select account...">
+                  {selectedAccount ? (
+                    <span>{selectedAccount.label} ({selectedAccount.number})</span>
+                  ) : (
+                    "Select account..."
+                  )}
+                </SelectValue>
             </SelectTrigger>
             <SelectContent>
                 {accounts.map(acc => (
                 <SelectItem key={acc.id} value={acc.id} className="text-sm">
-                    <div className="flex items-center gap-2">
-                    {getAccountIcon(acc.type)}
                     <span>{acc.label} ({acc.number})</span>
-                    </div>
                 </SelectItem>
                 ))}
             </SelectContent>

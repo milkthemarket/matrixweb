@@ -37,15 +37,6 @@ const dummyAutoRules = [
   { id: 'ar2', name: 'Low Float Breakout', description: 'Enter on breakout above key resistance for low float stocks.' },
 ];
 
-const getAccountIcon = (type?: Account['type']) => {
-    if (!type) return <Wallet className="h-3.5 w-3.5 text-primary mr-1.5 flex-shrink-0" />;
-    if (type === 'margin') return <Briefcase className="h-3.5 w-3.5 text-primary mr-1.5 flex-shrink-0" />;
-    if (type === 'ira') return <Landmark className="h-3.5 w-3.5 text-primary mr-1.5 flex-shrink-0" />;
-    if (type === 'paper') return <NotebookText className="h-3.5 w-3.5 text-primary mr-1.5 flex-shrink-0" />;
-    return <Wallet className="h-3.5 w-3.5 text-primary mr-1.5 flex-shrink-0" />;
-};
-
-
 export function OrderCard({
   selectedStock,
   initialActionType,
@@ -453,16 +444,16 @@ export function OrderCard({
         <CardHeader className="pb-0.5 pt-3 px-3 space-y-0.5">
           <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
             <SelectTrigger id="accountSelectOrderCard" className="w-full h-8 text-[11px] truncate">
-              <div className="flex items-center gap-1.5 truncate">
-                {getAccountIcon(selectedAccount?.type)}
-                <span className="truncate">{selectedAccount?.label} ({selectedAccount?.number})</span>
-              </div>
+              <SelectValue placeholder="Select account...">
+                <div className="flex items-center gap-1.5 truncate">
+                  <span className="truncate">{selectedAccount?.label} ({selectedAccount?.number})</span>
+                </div>
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               {accounts.map(acc => (
                 <SelectItem key={acc.id} value={acc.id} className="text-xs">
                   <div className="flex items-center gap-1.5">
-                    {getAccountIcon(acc.type)}
                     <span>{acc.label} ({acc.number})</span>
                   </div>
                 </SelectItem>
@@ -811,5 +802,3 @@ export function OrderCard({
     </>
   );
 }
-
-    
