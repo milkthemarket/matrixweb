@@ -25,6 +25,7 @@ import { dummyNewsData } from '@/components/NewsCard';
 import { NewsArticleModal } from '@/components/NewsArticleModal';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 
 const MOCK_INITIAL_TIMESTAMP = '2024-07-01T10:00:00.000Z';
 const RULES_STORAGE_KEY = 'tradeflow-alert-rules';
@@ -37,7 +38,21 @@ export const initialMockStocks: Stock[] = [
   { id: '3', symbol: 'TSLA', name: 'Tesla, Inc.', price: 180.01, changePercent: 5.8, float: 800, volume: 120.1, newsSnippet: 'Cybertruck deliveries ramp up.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'fire', sentiment: 'Positive', newsSentimentPercent: 75, topNewsKeyword: 'Deliveries', historicalPrices: [170, 172, 175, 173, 178, 181, 180.01], marketCap: 180.01 * 800 * 1e6, avgVolume: 110.5, atr: 5.5, rsi: 75.2, vwap: 179.90, beta: 1.8, high52: 180.01, low52: 150.0, gapPercent: 1.2, shortFloat: 15.3, instOwn: 45.0, premarketChange: 0.8, peRatio: 60.1, dividendYield: 0.0, sector: 'Consumer Discretionary', earningsDate: '2024-07-19T00:00:00.000Z', analystRating: 'Hold' },
   { id: '4', symbol: 'NVDA', name: 'NVIDIA Corporation', price: 900.50, changePercent: 0.5, float: 2500, volume: 75.3, newsSnippet: 'New GPU unveiled.', lastUpdated: MOCK_INITIAL_TIMESTAMP, sentiment: 'Positive', newsSentimentPercent: 85, topNewsKeyword: 'GPU Launch', historicalPrices: [890, 895, 900, 905, 902, 903, 900.50], marketCap: 900.50 * 2500 * 1e6, avgVolume: 70.1, atr: 20.0, rsi: 65.0, vwap: 900.60, beta: 1.5, high52: 950.0, low52: 400.0, gapPercent: 0.1, shortFloat: 2.1, instOwn: 60.5, premarketChange: 0.2, peRatio: 75.0, dividendYield: 0.02, sector: 'Technology', earningsDate: '2024-08-15T00:00:00.000Z', analystRating: 'Strong Buy' },
   { id: '5', symbol: 'GOOGL', name: 'Alphabet Inc. (Class A)', price: 140.22, changePercent: 1.1, float: 6000, volume: 40.8, newsSnippet: 'Search algorithm update.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', sentiment: 'Neutral', newsSentimentPercent: 55, topNewsKeyword: 'Algorithm', historicalPrices: [138, 139, 140, 139.5, 141, 140.5, 140.22], marketCap: 140.22 * 6000 * 1e6, avgVolume: 38.0, atr: 2.5, rsi: 55.8, vwap: 140.15, beta: 1.0, high52: 160.0, low52: 120.0, gapPercent: 0.3, shortFloat: 1.0, instOwn: 75.3, premarketChange: 0.1, peRatio: 25.8, dividendYield: 0.0, sector: 'Communication Services', earningsDate: '2024-07-25T00:00:00.000Z', analystRating: 'Buy' },
-  // ... more stocks from initial list
+];
+
+const allColumnsConfig: ColumnConfig<Stock>[] = [
+    { key: 'symbol', label: 'Symbol', defaultVisible: true, isDraggable: true, align: 'left', description: 'The stock ticker symbol.' },
+    { key: 'price', label: 'Price', defaultVisible: true, isDraggable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: 'The last traded price.' },
+    { key: 'changePercent', label: '% Change', defaultVisible: true, isDraggable: true, align: 'right', format: (val) => `${val >= 0 ? '+' : ''}${formatDecimal(val)}%`, description: 'The percentage change in price for the current day.' },
+    { key: 'float', label: 'Float', defaultVisible: true, isDraggable: true, align: 'left', format: (val) => `${formatDecimal(val)}M`, description: 'The number of shares available for public trading, in millions.' },
+    { key: 'volume', label: 'Volume', defaultVisible: true, isDraggable: true, align: 'left', format: (val) => `${formatDecimal(val, 1)}M`, description: 'The number of shares traded today, in millions.' },
+    { key: 'marketCap', label: 'Market Cap', defaultVisible: false, isDraggable: true, align: 'right', format: (val) => `${formatDecimal(val / 1e9, 2)}B`, description: 'The total market value of a company\'s outstanding shares.' },
+    { key: 'avgVolume', label: 'Avg Volume', defaultVisible: false, isDraggable: true, align: 'right', format: (val) => `${formatDecimal(val, 1)}M`, description: 'The average daily trading volume over a period (e.g., 3 months).' },
+    { key: 'peRatio', label: 'P/E Ratio', defaultVisible: false, isDraggable: true, align: 'right', format: (val) => formatDecimal(val, 1), description: 'Price-to-Earnings ratio, a measure of valuation.' },
+    { key: 'sector', label: 'Sector', defaultVisible: false, isDraggable: true, align: 'left', description: 'The industry sector the company belongs to.' },
+    { key: 'high52', label: '52W High', defaultVisible: false, isDraggable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: 'The highest price in the last 52 weeks.' },
+    { key: 'low52', label: '52W Low', defaultVisible: false, isDraggable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: 'The lowest price in the last 52 weeks.' },
+    { key: 'shortFloat', label: 'Short Float', defaultVisible: false, isDraggable: true, align: 'right', format: (val) => `${formatDecimal(val, 1)}%`, description: 'The percentage of a company\'s float that is shorted.' },
 ];
 
 const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM', 'TPL', 'AN'];
@@ -53,6 +68,35 @@ function DashboardPageContent() {
   const [activeFilters, setActiveFilters] = useState<Partial<ActiveScreenerFilters>>({});
   const [isNewsModalOpen, setIsNewsModalOpen] = useState(false);
   const [newsModalContent, setNewsModalContent] = useState<{ articles: NewsArticle[]; title: string } | null>(null);
+
+  const [visibleColumns, setVisibleColumns] = useState<Record<string, boolean>>(() => {
+    const initialVisibility: Record<string, boolean> = {};
+    allColumnsConfig.forEach(col => {
+      initialVisibility[col.key] = col.defaultVisible || false;
+    });
+    return initialVisibility;
+  });
+
+  const columnsToDisplay = useMemo(() => {
+    return allColumnsConfig.filter(col => visibleColumns[col.key]);
+  }, [visibleColumns]);
+
+  const handleColumnVisibilityChange = (key: string, checked: boolean) => {
+    setVisibleColumns(prev => ({
+      ...prev,
+      [key]: checked,
+    }));
+  };
+
+  const resetColumnsToDefault = () => {
+    const defaultVisibility: Record<string, boolean> = {};
+    allColumnsConfig.forEach(col => {
+      defaultVisibility[col.key] = col.defaultVisible || false;
+    });
+    setVisibleColumns(defaultVisibility);
+    toast({ title: "Columns reset to default." });
+  };
+
 
   useEffect(() => {
     const loadRules = () => {
@@ -176,10 +220,10 @@ function DashboardPageContent() {
   return (
     <>
       <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
-        <Card className="flex-1 flex flex-col overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between">
+        <Card className="flex-1 flex flex-col overflow-hidden bg-card/90 backdrop-blur-sm border border-white/10">
+          <CardHeader className="flex flex-row items-center justify-between p-3 border-b border-border/10">
             <div className="flex items-center gap-4">
-              <CardTitle className="text-2xl font-bold text-foreground">Screener</CardTitle>
+              <CardTitle className="text-lg font-bold text-foreground">Screener</CardTitle>
               <div className="flex items-center gap-2">
                   <Button variant="outline" size="sm" onClick={() => setIsFilterModalOpen(true)} className="h-9 text-xs">
                       <SlidersHorizontal className="mr-2 h-4 w-4" /> Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
@@ -217,24 +261,65 @@ function DashboardPageContent() {
               </div>
             </div>
              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="h-9 text-xs">
-                    <Columns className="mr-2 h-4 w-4" /> Columns
-                </Button>
-                 <Button variant="outline" size="sm" onClick={() => exportToCSV('screener_export.csv', filteredStocks, [])} className="h-9 text-xs">
+                <Popover>
+                    <PopoverTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-9 text-xs">
+                            <Columns className="mr-2 h-4 w-4" /> Columns
+                        </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-64 p-3" align="end">
+                        <div className="space-y-2">
+                            <h4 className="font-medium text-sm leading-none">Customize Columns</h4>
+                            <p className="text-xs text-muted-foreground">Select columns to display.</p>
+                        </div>
+                        <ScrollArea className="h-64 mt-3">
+                            <div className="space-y-2 p-1">
+                                {allColumnsConfig.map(col => (
+                                <div key={col.key} className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id={`col-${col.key}`}
+                                        checked={visibleColumns[col.key]}
+                                        onCheckedChange={(checked) => handleColumnVisibilityChange(col.key, !!checked)}
+                                    />
+                                    <Label htmlFor={`col-${col.key}`} className="text-xs font-normal flex-1">{col.label}</Label>
+                                    <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p className="text-xs">{col.description}</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                    </TooltipProvider>
+                                </div>
+                                ))}
+                            </div>
+                        </ScrollArea>
+                         <Button
+                            variant="link"
+                            className="text-xs text-primary p-0 h-auto mt-2"
+                            onClick={resetColumnsToDefault}
+                        >
+                            Reset to Default
+                        </Button>
+                    </PopoverContent>
+                </Popover>
+                 <Button variant="outline" size="sm" onClick={() => exportToCSV('screener_export.csv', filteredStocks, allColumnsConfig)} className="h-9 text-xs">
                     <UploadCloud className="mr-2 h-4 w-4" /> Export
                 </Button>
             </div>
           </CardHeader>
-          <CardContent className="flex-1 overflow-hidden p-0">
+          <CardContent className="flex-1 overflow-auto p-0">
             <div className="rounded-lg overflow-auto h-full">
               <Table>
                 <TableHeader className="sticky top-0 bg-[#0d0d0d] z-10">
                   <TableRow className="h-10">
-                    <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Symbol</TableHead>
-                    <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Price</TableHead>
-                    <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">% Change</TableHead>
-                    <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Float</TableHead>
-                    <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Volume</TableHead>
+                    {columnsToDisplay.map(col => (
+                         <TableHead key={col.key} className={cn("px-4 py-2 font-headline uppercase text-[15px] font-bold text-neutral-100", `text-${col.align || 'left'}`)}>
+                            {col.label}
+                        </TableHead>
+                    ))}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -245,18 +330,27 @@ function DashboardPageContent() {
                         className="cursor-pointer h-10 border-b border-border/5 last:border-b-0 hover:bg-white/5"
                         onClick={() => handleShowNewsForStock(stock)}
                       >
-                        <TableCell className="px-4 py-2 font-bold text-foreground text-left">{stock.symbol}</TableCell>
-                        <TableCell className="px-4 py-2 font-bold text-foreground text-right">${stock.price.toFixed(2)}</TableCell>
-                        <TableCell className={cn("px-4 py-2 font-bold text-right", stock.changePercent >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
-                            {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                        </TableCell>
-                        <TableCell className="px-4 py-2 text-left">{stock.float}M</TableCell>
-                        <TableCell className="px-4 py-2 text-left">{stock.volume.toFixed(1)}M</TableCell>
+                        {columnsToDisplay.map(col => {
+                            const value = stock[col.key as keyof Stock];
+                            return (
+                                <TableCell key={col.key} className={cn("px-4 py-2 font-bold text-foreground", `text-${col.align || 'left'}`)}>
+                                    {col.key === 'changePercent' ? (
+                                        <span className={cn(value >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
+                                            {col.format ? col.format(value, stock) : value}
+                                        </span>
+                                    ) : col.format ? (
+                                        col.format(value, stock)
+                                    ) : (
+                                        value
+                                    )}
+                                </TableCell>
+                            )
+                        })}
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={5} className="h-24 text-center text-xs text-muted-foreground">
+                      <TableCell colSpan={columnsToDisplay.length} className="h-24 text-center text-xs text-muted-foreground">
                         No stocks match the selected filters.
                       </TableCell>
                     </TableRow>
@@ -291,4 +385,3 @@ export default function DashboardPage() {
   );
 }
 
-    
