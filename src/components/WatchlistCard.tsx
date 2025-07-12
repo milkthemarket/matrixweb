@@ -140,12 +140,12 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
             {activeContent === 'watchlist' && (
                 <ScrollArea className="h-full">
                     <Table>
-                        <TableHeader>
-                            <TableRow className="h-7">
-                                <TableHead className="px-2 text-left">Symbol</TableHead>
-                                <TableHead className="px-2 text-right">Price</TableHead>
-                                <TableHead className="px-2 text-right">Change</TableHead>
-                                <TableHead className="px-2 text-right">Vol</TableHead>
+                        <TableHeader className="sticky top-0 bg-[#181818] z-[1]">
+                            <TableRow className="h-7 border-b-0">
+                                <TableHead className="px-2 text-left text-neutral-100 font-semibold">Symbol</TableHead>
+                                <TableHead className="px-2 text-right text-neutral-100 font-semibold">Price</TableHead>
+                                <TableHead className="px-2 text-right text-neutral-100 font-semibold">Change</TableHead>
+                                <TableHead className="px-2 text-right text-neutral-100 font-semibold">Vol</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
