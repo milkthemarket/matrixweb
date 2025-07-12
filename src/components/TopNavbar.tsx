@@ -34,9 +34,9 @@ export function TopNavbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center justify-between">
-        {/* Left Section */}
-        <div className="flex flex-1 justify-start">
+      <div className="container flex h-14 max-w-screen-2xl items-center">
+        {/* Left Section: Logo */}
+        <div className="flex-1 flex justify-start">
           <Link href="/trading/milk-market" className="flex items-center space-x-2">
             <MiloAvatarIcon size={32} />
             <span className="sr-only">MILK</span>
@@ -44,7 +44,7 @@ export function TopNavbar() {
         </div>
 
         {/* Center Section: Search Bar */}
-        <div className="flex-1 flex justify-center px-4">
+        <div className="flex-1 flex justify-center">
           <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -58,7 +58,7 @@ export function TopNavbar() {
         {/* Right Section: Navigation */}
         <div className="flex-1 flex justify-end">
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-x-6 text-lg font-semibold">
+          <nav className="hidden md:flex items-center gap-x-6 text-sm font-semibold">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               return (
@@ -66,7 +66,7 @@ export function TopNavbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "transition-colors hover:text-white",
+                    "transition-colors hover:text-white uppercase",
                     isActive ? "text-white font-bold" : "text-foreground/60"
                   )}
                 >
