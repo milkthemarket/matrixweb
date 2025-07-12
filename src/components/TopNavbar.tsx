@@ -9,11 +9,6 @@ import { MiloAvatarIcon } from "./icons/MiloAvatarIcon";
 import { TopNavLinks } from "./TopNavLinks";
 
 export function TopNavbar() {
-  const [hasMounted, setHasMounted] = React.useState(false);
-  React.useEffect(() => {
-    setHasMounted(true);
-  }, []);
-
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
@@ -38,9 +33,7 @@ export function TopNavbar() {
         </div>
 
         {/* Right Section */}
-        <div className="flex-1 flex justify-end">
-          {hasMounted && <TopNavLinks />}
-        </div>
+        <TopNavLinks />
       </div>
     </header>
   );

@@ -28,6 +28,15 @@ const navItems = [
 
 export function TopNavLinks() {
   const pathname = usePathname();
+  const [hasMounted, setHasMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) {
+    return null; // Don't render anything on the server or during the initial client render
+  }
 
   const renderNavLinks = (isMobile = false) => {
     if (isMobile) {
@@ -75,7 +84,7 @@ export function TopNavLinks() {
   };
 
   return (
-    <>
+    <div className="flex-1 flex justify-end">
       {/* Desktop Navigation Links */}
       {renderNavLinks(false)}
 
@@ -93,6 +102,6 @@ export function TopNavLinks() {
           </SheetContent>
         </Sheet>
       </div>
-    </>
+    </div>
   );
 }
