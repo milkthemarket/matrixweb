@@ -55,6 +55,8 @@ const allColumnsConfig: ColumnConfig<Stock>[] = [
     { key: 'shortFloat', label: 'Short Float', defaultVisible: false, isDraggable: true, align: 'right', format: (val) => `${formatDecimal(val, 1)}%`, description: 'The percentage of a company\'s float that is shorted.' },
 ];
 
+const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM', 'TPL'];
+
 function DashboardPageContent() {
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -218,147 +220,145 @@ function DashboardPageContent() {
   return (
     <>
       <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
-        {/* Table Section */}
-        <Card className="flex-1 flex flex-col overflow-hidden">
-          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 border-b border-border/10">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">Screener</h1>
-              <div className="flex items-center gap-2 mt-2">
-                  <Button variant="outline" size="sm" onClick={() => setIsFilterModalOpen(true)} className="h-9 text-xs">
-                      <SlidersHorizontal className="mr-2 h-4 w-4" /> Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
-                  </Button>
-                  <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
-                      <SelectTrigger id="ruleSelect" className="w-auto h-9 text-xs min-w-[200px]">
-                          <SelectValue placeholder="Select a screener or rule..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                          <SelectItem value="all" className="text-xs">
-                              <span className="flex items-center"><List className="mr-2 h-4 w-4" /> Show All Stocks</span>
-                          </SelectItem>
-                          <SelectItem value="my-watchlist" className="text-xs">
-                              <span className="flex items-center"><Star className="mr-2 h-4 w-4" /> My Watchlist</span>
-                          </SelectItem>
-                          <SelectItem value="top-gainers" className="text-xs">
-                              <span className="flex items-center text-[hsl(var(--confirm-green))]"><TrendingUp className="mr-2 h-4 w-4" /> Top Gainers</span>
-                          </SelectItem>
-                          <SelectItem value="top-losers" className="text-xs">
-                              <span className="flex items-center text-destructive"><TrendingDown className="mr-2 h-4 w-4" /> Top Losers</span>
-                          </SelectItem>
-                          <SelectItem value="active" className="text-xs">
-                              <span className="flex items-center text-primary"><Activity className="mr-2 h-4 w-4" /> Most Active</span>
-                          </SelectItem>
-                          <SelectItem value="52-week" className="text-xs">
-                              <span className="flex items-center text-accent"><CalendarCheck2 className="mr-2 h-4 w-4" /> 52 Week Highs/Lows</span>
-                          </SelectItem>
-                          {activeRules.map(rule => (
-                              <SelectItem key={rule.id} value={rule.id} className="text-xs">
-                              <span className="flex items-center"><Filter className="mr-2 h-4 w-4" /> {rule.name}</span>
-                              </SelectItem>
-                          ))}
-                      </SelectContent>
-                  </Select>
-              </div>
-            </div>
-             <div className="flex items-center gap-2 self-start sm:self-center">
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-9 text-xs">
-                            <Columns className="mr-2 h-4 w-4" /> Columns
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-64 p-3" align="end">
-                        <div className="space-y-2">
-                            <h4 className="font-medium text-sm leading-none">Customize Columns</h4>
-                            <p className="text-xs text-muted-foreground">Select columns to display.</p>
-                        </div>
-                        <ScrollArea className="h-64 mt-3">
-                            <div className="space-y-2 p-1">
-                                {allColumnsConfig.map(col => (
-                                <div key={col.key} className="flex items-center space-x-2">
-                                    <Checkbox
-                                        id={`col-${col.key}`}
-                                        checked={visibleColumns[col.key]}
-                                        onCheckedChange={(checked) => handleColumnVisibilityChange(col.key, !!checked)}
-                                    />
-                                    <Label htmlFor={`col-${col.key}`} className="text-xs font-normal flex-1">{col.label}</Label>
-                                    <TooltipProvider>
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
-                                            <Info className="h-3.5 w-3.5 text-muted-foreground" />
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p className="text-xs">{col.description}</p>
-                                        </TooltipContent>
-                                    </Tooltip>
-                                    </TooltipProvider>
-                                </div>
-                                ))}
-                            </div>
-                        </ScrollArea>
-                         <Button
-                            variant="link"
-                            className="text-xs text-primary p-0 h-auto mt-2"
-                            onClick={resetColumnsToDefault}
-                        >
-                            Reset to Default
-                        </Button>
-                    </PopoverContent>
-                </Popover>
-                 <Button variant="outline" size="sm" onClick={() => exportToCSV('screener_export.csv', filteredStocks, allColumnsConfig)} className="h-9 text-xs">
-                    <UploadCloud className="mr-2 h-4 w-4" /> Export
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <h1 className="text-2xl font-bold text-foreground">Screener</h1>
+            <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setIsFilterModalOpen(true)} className="h-9 text-xs">
+                    <SlidersHorizontal className="mr-2 h-4 w-4" /> Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
                 </Button>
+                <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
+                    <SelectTrigger id="ruleSelect" className="w-auto h-9 text-xs min-w-[200px]">
+                        <SelectValue placeholder="Select a screener or rule..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all" className="text-xs">
+                            <span className="flex items-center"><List className="mr-2 h-4 w-4" /> Show All Stocks</span>
+                        </SelectItem>
+                        <SelectItem value="my-watchlist" className="text-xs">
+                            <span className="flex items-center"><Star className="mr-2 h-4 w-4" /> My Watchlist</span>
+                        </SelectItem>
+                        <SelectItem value="top-gainers" className="text-xs">
+                            <span className="flex items-center text-[hsl(var(--confirm-green))]"><TrendingUp className="mr-2 h-4 w-4" /> Top Gainers</span>
+                        </SelectItem>
+                        <SelectItem value="top-losers" className="text-xs">
+                            <span className="flex items-center text-destructive"><TrendingDown className="mr-2 h-4 w-4" /> Top Losers</span>
+                        </SelectItem>
+                        <SelectItem value="active" className="text-xs">
+                            <span className="flex items-center text-primary"><Activity className="mr-2 h-4 w-4" /> Most Active</span>
+                        </SelectItem>
+                        <SelectItem value="52-week" className="text-xs">
+                            <span className="flex items-center text-accent"><CalendarCheck2 className="mr-2 h-4 w-4" /> 52 Week Highs/Lows</span>
+                        </SelectItem>
+                        {activeRules.map(rule => (
+                            <SelectItem key={rule.id} value={rule.id} className="text-xs">
+                            <span className="flex items-center"><Filter className="mr-2 h-4 w-4" /> {rule.name}</span>
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
-          </CardHeader>
-          <CardContent className="flex-1 overflow-auto p-0">
-            <div className="rounded-lg overflow-auto h-full">
-              <Table>
-                <TableHeader className="sticky top-0 bg-[#0d0d0d] z-10">
-                  <TableRow className="h-10">
-                    {columnsToDisplay.map(col => (
-                         <TableHead key={col.key} className={cn("px-4 py-2 font-headline uppercase text-[15px] font-bold text-neutral-100", `text-${col.align || 'left'}`)}>
-                            {col.label}
-                        </TableHead>
-                    ))}
+        </div>
+        <div className="flex-1 overflow-auto rounded-lg border border-border/10">
+          <Table>
+            <TableHeader className="sticky top-0 bg-[#0d0d0d] z-10">
+              <TableRow className="h-10">
+                {columnsToDisplay.map(col => (
+                     <TableHead key={col.key} className={cn("px-4 py-2 font-headline uppercase text-[15px] font-bold text-neutral-100", `text-${col.align || 'left'}`)}>
+                        {col.label}
+                    </TableHead>
+                ))}
+                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-6 text-xs text-neutral-100 hover:bg-white/10">
+                                <Columns className="mr-2 h-4 w-4" /> Columns
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-64 p-3" align="end">
+                            <div className="space-y-2">
+                                <h4 className="font-medium text-sm leading-none">Customize Columns</h4>
+                                <p className="text-xs text-muted-foreground">Select columns to display.</p>
+                            </div>
+                            <ScrollArea className="h-64 mt-3">
+                                <div className="space-y-2 p-1">
+                                    {allColumnsConfig.map(col => (
+                                    <div key={col.key} className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`col-${col.key}`}
+                                            checked={visibleColumns[col.key]}
+                                            onCheckedChange={(checked) => handleColumnVisibilityChange(col.key, !!checked)}
+                                        />
+                                        <Label htmlFor={`col-${col.key}`} className="text-xs font-normal flex-1">{col.label}</Label>
+                                        <TooltipProvider>
+                                        <Tooltip>
+                                            <TooltipTrigger asChild>
+                                                <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                                            </TooltipTrigger>
+                                            <TooltipContent>
+                                                <p className="text-xs">{col.description}</p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                        </TooltipProvider>
+                                    </div>
+                                    ))}
+                                </div>
+                            </ScrollArea>
+                            <div className="flex justify-between items-center mt-3">
+                                <Button
+                                    variant="link"
+                                    className="text-xs text-primary p-0 h-auto"
+                                    onClick={resetColumnsToDefault}
+                                >
+                                    Reset to Default
+                                </Button>
+                                 <Button variant="outline" size="sm" onClick={() => exportToCSV('screener_export.csv', filteredStocks, allColumnsConfig)} className="h-7 text-xs">
+                                    <UploadCloud className="mr-2 h-3.5 w-3.5" /> Export
+                                </Button>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredStocks.length > 0 ? (
+                filteredStocks.map((stock) => (
+                  <TableRow
+                    key={stock.id}
+                    className="cursor-pointer h-10 border-b border-border/5 last:border-b-0 hover:bg-white/5"
+                    onClick={() => handleShowNewsForStock(stock)}
+                  >
+                    {columnsToDisplay.map(col => {
+                        const value = stock[col.key as keyof Stock];
+                        return (
+                            <TableCell key={col.key} className={cn("px-4 py-2 font-bold text-foreground", `text-${col.align || 'left'}`)}>
+                                {col.key === 'changePercent' ? (
+                                    <span className={cn(Number(value) >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
+                                        {col.format ? col.format(value, stock) : value}
+                                    </span>
+                                ) : col.format ? (
+                                    col.format(value, stock)
+                                ) : (
+                                    value
+                                )}
+                            </TableCell>
+                        )
+                    })}
+                    <TableCell className="px-4 py-2 text-right">
+                        <Button variant="ghost" size="icon" className="h-7 w-7"><Newspaper className="h-4 w-4"/></Button>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredStocks.length > 0 ? (
-                    filteredStocks.map((stock) => (
-                      <TableRow
-                        key={stock.id}
-                        className="cursor-pointer h-10 border-b border-border/5 last:border-b-0 hover:bg-white/5"
-                        onClick={() => handleShowNewsForStock(stock)}
-                      >
-                        {columnsToDisplay.map(col => {
-                            const value = stock[col.key as keyof Stock];
-                            return (
-                                <TableCell key={col.key} className={cn("px-4 py-2 font-bold text-foreground", `text-${col.align || 'left'}`)}>
-                                    {col.key === 'changePercent' ? (
-                                        <span className={cn(Number(value) >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
-                                            {col.format ? col.format(value, stock) : value}
-                                        </span>
-                                    ) : col.format ? (
-                                        col.format(value, stock)
-                                    ) : (
-                                        value
-                                    )}
-                                </TableCell>
-                            )
-                        })}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={columnsToDisplay.length} className="h-24 text-center text-xs text-muted-foreground">
-                        No stocks match the selected filters.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={columnsToDisplay.length + 1} className="h-24 text-center text-xs text-muted-foreground">
+                    No stocks match the selected filters.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </main>
       <ScreenerFilterModal 
         isOpen={isFilterModalOpen}
