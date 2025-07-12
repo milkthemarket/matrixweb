@@ -63,7 +63,7 @@ export function TopNavLinks() {
     }
 
     return (
-      <nav className="hidden md:flex items-center gap-x-8 text-sm font-semibold">
+      <nav className="hidden md:flex items-center gap-x-8 text-sm font-semibold flex-nowrap">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -71,7 +71,7 @@ export function TopNavLinks() {
               key={item.href}
               href={item.href}
               className={cn(
-                "transition-colors hover:text-white uppercase",
+                "transition-colors hover:text-white uppercase whitespace-nowrap",
                 isActive ? "text-white font-bold" : "text-foreground/60"
               )}
             >
@@ -84,7 +84,7 @@ export function TopNavLinks() {
   };
 
   return (
-    <div className="flex-1 flex justify-end">
+    <>
       {/* Desktop Navigation Links */}
       {renderNavLinks(false)}
 
@@ -102,6 +102,6 @@ export function TopNavLinks() {
           </SheetContent>
         </Sheet>
       </div>
-    </div>
+    </>
   );
 }
