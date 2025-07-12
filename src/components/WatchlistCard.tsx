@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useMemo } from 'react';
@@ -98,12 +99,7 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
 
   return (
     <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardHeader className="pb-0.5 pt-3 px-3 space-y-0.5">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-md font-headline text-foreground flex items-center">
-            
-          </CardTitle>
-        </div>
+      <CardHeader className="flex-1 pb-0.5 pt-3 px-3">
         <Select value={selectedFilterId} onValueChange={setSelectedFilterId}>
           <SelectTrigger className="w-full h-7 text-xs">
             <SelectValue placeholder="Select a view..." />

@@ -9,7 +9,7 @@ import { useTradeHistoryContext } from '@/contexts/TradeHistoryContext';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 
 import { OrderCard } from '@/components/OrderCard';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { InteractiveChartCard } from '@/components/InteractiveChartCard';
 import { WatchlistCard } from '@/components/WatchlistCard';
 import { NewsCard } from '@/components/NewsCard';
@@ -184,26 +184,30 @@ function MilkMarketPageContent() {
                 </Card>
                  {/* Right Card: Watchlist, News */}
                 <Card className="h-full flex flex-col overflow-hidden transition-all duration-200 ease-in-out hover:-translate-y-1 hover:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
-                    <Tabs defaultValue="watchlist" className="flex flex-col h-full">
-                        <TabsList className="shrink-0 px-3 pt-2">
-                            <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
-                            <TabsTrigger value="news">News</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="watchlist" className="flex-1 overflow-hidden mt-0 p-0">
+                  <Tabs defaultValue="watchlist" className="flex flex-col h-full">
+                      <CardHeader className="flex flex-row items-center justify-between p-3">
+                          <TabsList className="p-0 bg-transparent border-none">
+                              <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
+                              <TabsTrigger value="news">News</TabsTrigger>
+                          </TabsList>
+                      </CardHeader>
+                      <CardContent className="p-0 flex-1 overflow-auto">
+                        <TabsContent value="watchlist" className="m-0 h-full">
                            <WatchlistCard
                                 className="h-full border-0 shadow-none rounded-none bg-transparent"
                                 selectedStockSymbol={syncedTickerSymbol}
                                 onSelectStock={handleSyncedTickerChange}
                             />
                         </TabsContent>
-                        <TabsContent value="news" className="flex-1 overflow-hidden mt-0 p-0">
+                        <TabsContent value="news" className="m-0 h-full">
                             <NewsCard
                                 className="h-full border-0 shadow-none rounded-none bg-transparent"
                                 selectedTickerSymbol={syncedTickerSymbol}
                                 onTickerSelect={handleSyncedTickerChange}
                             />
                         </TabsContent>
-                    </Tabs>
+                      </CardContent>
+                  </Tabs>
                 </Card>
               </div>
             </div>
