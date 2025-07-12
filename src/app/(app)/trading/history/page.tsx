@@ -203,13 +203,20 @@ export default function HistoryPage() {
                 </CardTitle>
             </CardHeader>
             <CardContent className="p-2">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-b border-white/10">
+                <div className="relative flex items-center justify-between p-4 border-b border-white/10">
                     <div className="flex items-center gap-2">
                         <Button variant="outline" size="icon" aria-label="Previous month" onClick={handlePreviousMonth}><ChevronLeft className="h-4 w-4" /></Button>
-                        <Button variant="outline" size="icon" aria-label="Next month" onClick={handleNextMonth}><ChevronRight className="h-4 w-4" /></Button>
                         <Button variant="outline" onClick={handleToday}>Today</Button>
+                        <Button variant="outline" size="icon" aria-label="Next month" onClick={handleNextMonth}><ChevronRight className="h-4 w-4" /></Button>
                     </div>
-                    <div className="text-lg font-semibold text-foreground">{format(currentDate, "MMMM yyyy")}</div>
+                    
+                    <div className="absolute left-1/2 -translate-x-1/2 pointer-events-none">
+                        <h2 className="text-2xl font-bold font-headline uppercase text-foreground">
+                            {format(currentDate, "MMMM yyyy")}
+                        </h2>
+                    </div>
+
+                    <div />
                 </div>
 
                 <div className="grid grid-cols-7">
