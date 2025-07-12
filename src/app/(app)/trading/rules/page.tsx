@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -178,9 +177,7 @@ export default function RulesPage() {
             </CardTitle>
           </CardHeader>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardContent className="space-y-1.5">
-              
-            </CardContent>
+            
             <CardFooter className="flex justify-end gap-0.5">
               {editingRule && <Button type="button" variant="outline" size="sm" onClick={() => { setEditingRule(null); form.reset({name: '', isActive: true }); }}>Cancel Edit</Button>}
               <Button type="submit" size="sm" className="text-primary-foreground bg-primary hover:bg-primary/90">
@@ -196,7 +193,6 @@ export default function RulesPage() {
         <Card> 
           <CardHeader>
             <CardTitle className="text-lg font-headline">Defined Rules</CardTitle>
-            <CardDescription>Manage your existing alert rules. Dashboard filters based on these.</CardDescription>
           </CardHeader>
           <CardContent>
             {rules.length > 0 ? (
