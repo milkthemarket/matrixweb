@@ -733,7 +733,7 @@ function DashboardPageContent() {
       <main className="flex flex-col flex-1 h-full overflow-auto">
         <div className="flex flex-1 p-4 md:p-6 overflow-auto">
           <div className="flex-1 flex flex-col overflow-auto space-y-6">
-            <Card className="flex-1 flex flex-col overflow-hidden min-h-[400px]">
+            <Card className="flex-1 flex flex-col overflow-hidden min-h-[400px] border border-white/5">
               <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <CardTitle>Screener</CardTitle>
@@ -803,9 +803,6 @@ function DashboardPageContent() {
                     {activeFilterCount > 0 && (
                       <Badge variant="secondary">{activeFilterCount} Active</Badge>
                     )}
-                    <Label htmlFor="ruleSelect" className="text-sm font-medium flex items-center shrink-0">
-                      <ListFilter className="mr-2 h-4 w-4 text-primary" />
-                    </Label>
                     <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
                       <SelectTrigger id="ruleSelect" className="w-auto min-w-[200px]">
                           <SelectValue placeholder="Select a screener or rule..." />
@@ -870,16 +867,12 @@ function DashboardPageContent() {
                             onDragLeave={(e) => col.isDraggable && handleDragLeave(e)}
                             onDrop={(e) => col.isDraggable && handleDrop(e, col.key as keyof Stock)}
                             className={cn(
-                              "relative group transition-colors duration-150",
-                              col.align === 'right' && "text-right",
-                              col.align === 'center' && "text-center",
-                              col.isDraggable && "cursor-grab",
-                              draggingOverKey === col.key && "bg-primary/20",
+                              "relative group transition-colors duration-150 text-center",
+                              col.isDraggable && "cursor-grab"
                             )}
                           >
-                            <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center justify-center w-full">
                               <div className="flex items-center gap-1 overflow-hidden">
-                                  {col.isDraggable ? <GripHorizontal className="h-4 w-4 text-muted-foreground/50 flex-shrink-0" /> : <Lock className="h-3 w-3 text-muted-foreground/50 flex-shrink-0" />}
                                   <span className="truncate">{col.label}</span>
                               </div>
                             </div>
@@ -915,9 +908,7 @@ function DashboardPageContent() {
                               <TableCell
                                 key={`${stock.id}-${col.key as string}`}
                                 className={cn(
-                                  "truncate",
-                                  col.align === 'right' && "text-right",
-                                  col.align === 'center' && "text-center",
+                                  "truncate text-center",
                                   (col.key === 'symbol' || col.key === 'price') && "font-semibold"
                                 )}
                               >
