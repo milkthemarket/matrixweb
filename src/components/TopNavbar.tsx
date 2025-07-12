@@ -34,12 +34,14 @@ export function TopNavbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center gap-x-4">
+      <div className="container flex h-14 max-w-screen-2xl items-center">
         {/* Cow Icon */}
-        <MiloAvatarIcon size={32} />
+        <div className="mr-4 flex items-center">
+            <MiloAvatarIcon size={32} />
+        </div>
 
-        {/* Search Bar */}
-        <div className="flex-1 flex justify-start">
+        {/* Search Bar - Centered */}
+        <div className="flex-1 flex justify-center">
             <div className="relative w-full max-w-xl">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -51,7 +53,7 @@ export function TopNavbar() {
         </div>
         
         {/* Desktop Navigation Links */}
-        <nav className="hidden md:flex items-center gap-x-6 text-base font-semibold">
+        <nav className="hidden md:flex items-center gap-x-6 text-lg font-semibold ml-8">
             {navItems.map((item) => {
                 const isActive = pathname === item.href;
                 return (
@@ -59,8 +61,8 @@ export function TopNavbar() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                    "transition-colors hover:text-foreground/80",
-                    isActive ? "text-foreground font-bold" : "text-foreground/60"
+                    "transition-colors hover:text-white",
+                    isActive ? "text-white font-bold" : "text-foreground/60"
                     )}
                 >
                     {item.label}
