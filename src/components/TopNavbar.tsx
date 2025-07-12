@@ -31,11 +31,55 @@ const navItems = [
 
 export function TopNavbar() {
   const pathname = usePathname();
+  const [hasMounted, setHasMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (!hasMounted) {
+    // Render a placeholder or null on the server and initial client render
+    return (
+        <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="container flex h-14 max-w-screen-2xl items-center">
+                {/* Simplified placeholder matching the layout structure */}
+                <div className="flex-1 flex justify-start">
+                    <div className="flex items-center space-x-2">
+                        <MiloAvatarIcon size={32} />
+                        <span className="sr-only">MILK</span>
+                    </div>
+                </div>
+                <div className="flex-1 flex justify-center">
+                    <div className="relative w-full max-w-md">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="search"
+                          placeholder="Search..."
+                          className="w-full rounded-full pl-9 h-9"
+                          disabled
+                        />
+                    </div>
+                </div>
+                <div className="flex-1 flex justify-end">
+                    <div className="hidden md:flex items-center gap-x-6 text-sm font-semibold h-5">
+                       {/* Placeholder for links to maintain layout */}
+                    </div>
+                    <div className="flex items-center justify-end md:hidden">
+                        <Button variant="ghost" size="icon" disabled>
+                            <Menu className="h-5 w-5" />
+                            <span className="sr-only">Toggle Menu</span>
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </header>
+    );
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
-        {/* Left Section: Logo */}
+        {/* Left Section */}
         <div className="flex-1 flex justify-start">
           <Link href="/trading/milk-market" className="flex items-center space-x-2">
             <MiloAvatarIcon size={32} />
@@ -43,7 +87,7 @@ export function TopNavbar() {
           </Link>
         </div>
 
-        {/* Center Section: Search Bar */}
+        {/* Center Section */}
         <div className="flex-1 flex justify-center">
           <div className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -55,7 +99,7 @@ export function TopNavbar() {
           </div>
         </div>
 
-        {/* Right Section: Navigation */}
+        {/* Right Section */}
         <div className="flex-1 flex justify-end">
           {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-x-6 text-sm font-semibold">
