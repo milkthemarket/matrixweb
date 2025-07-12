@@ -150,7 +150,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
   };
 
   const dynamicStrokeColor = stock && stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))";
-  const neonPurpleColor = "hsl(var(--chart-3))";
+  const neonPurpleColor = "#A259F7";
 
   const handleManualSubmit = () => {
     if (manualTickerInput.trim()) {
@@ -210,8 +210,8 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
              <RechartsAreaChart data={chartData}>
                 <defs>
                     <linearGradient id={`colorPriceAreaPurple-${stock?.id || 'default'}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={neonPurpleColor} stopOpacity={0.5}/>
-                      <stop offset="95%" stopColor={neonPurpleColor} stopOpacity={0.05}/>
+                      <stop offset="5%" stopColor={neonPurpleColor} stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor={neonPurpleColor} stopOpacity={0}/>
                     </linearGradient>
                 </defs>
                 <XAxis dataKey="date" hide />
@@ -220,7 +220,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
                     cursor={{ stroke: 'hsl(var(--foreground))', strokeWidth: 1, strokeDasharray: '3 3' }}
                     content={<CustomTooltip />}
                 />
-                <Area type="monotone" dataKey="price" stroke={neonPurpleColor} strokeWidth={1.5} fillOpacity={1} fill={`url(#colorPriceAreaPurple-${stock?.id || 'default'})`} dot={false}/>
+                <Area type="monotone" dataKey="price" stroke={neonPurpleColor} strokeWidth={2} fillOpacity={1} fill={`url(#colorPriceAreaPurple-${stock?.id || 'default'})`} dot={false}/>
             </RechartsAreaChart>
         </ResponsiveContainer>
       );
