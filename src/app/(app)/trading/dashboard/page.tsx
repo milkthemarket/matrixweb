@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 import { ChartPreview } from '@/components/ChartPreview';
 import { exportToCSV } from '@/lib/exportCSV';
 import { useToast } from "@/hooks/use-toast";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'; // TooltipTrigger was missing
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { mockRules } from '@/app/(app)/trading/rules/page';
 import { format } from 'date-fns';
 import { ScreenerFilterModal } from '@/components/ScreenerFilterModal';
@@ -218,59 +218,48 @@ function DashboardPageContent() {
   return (
     <>
       <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
-        {/* Header Section */}
-        <div className="flex-shrink-0">
-            <h1 className="text-2xl font-bold text-foreground">Screener</h1>
-            <div className="flex items-center gap-2 mt-2">
-                <Button variant="outline" size="sm" onClick={() => setIsFilterModalOpen(true)} className="h-9 text-xs">
-                    <SlidersHorizontal className="mr-2 h-4 w-4" /> Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
-                </Button>
-                <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
-                    <SelectTrigger id="ruleSelect" className="w-auto h-9 text-xs min-w-[200px]">
-                        <SelectValue placeholder="Select a screener or rule..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all" className="text-xs">
-                            <span className="flex items-center"><List className="mr-2 h-4 w-4" /> Show All Stocks</span>
-                        </SelectItem>
-                        <SelectItem value="my-watchlist" className="text-xs">
-                            <span className="flex items-center"><Star className="mr-2 h-4 w-4" /> My Watchlist</span>
-                        </SelectItem>
-                        <SelectItem value="top-gainers" className="text-xs">
-                            <span className="flex items-center text-[hsl(var(--confirm-green))]"><TrendingUp className="mr-2 h-4 w-4" /> Top Gainers</span>
-                        </SelectItem>
-                        <SelectItem value="top-losers" className="text-xs">
-                            <span className="flex items-center text-destructive"><TrendingDown className="mr-2 h-4 w-4" /> Top Losers</span>
-                        </SelectItem>
-                        <SelectItem value="active" className="text-xs">
-                            <span className="flex items-center text-primary"><Activity className="mr-2 h-4 w-4" /> Most Active</span>
-                        </SelectItem>
-                        <SelectItem value="52-week" className="text-xs">
-                            <span className="flex items-center text-accent"><CalendarCheck2 className="mr-2 h-4 w-4" /> 52 Week Highs/Lows</span>
-                        </SelectItem>
-                        {activeRules.map(rule => (
-                            <SelectItem key={rule.id} value={rule.id} className="text-xs">
-                            <span className="flex items-center"><Filter className="mr-2 h-4 w-4" /> {rule.name}</span>
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-        </div>
-
         {/* Table Section */}
         <Card className="flex-1 flex flex-col overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between p-3 border-b border-border/10">
-            {/* Title for the card content */}
-            <div className="flex items-center gap-4">
-              <CardTitle className="text-lg font-bold text-foreground">
-                {activeRules.find(r => r.id === selectedRuleId)?.name ||
-                 (selectedRuleId === 'all' ? '' : 
-                 selectedRuleId.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()))
-                }
-              </CardTitle>
+          <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 p-3 border-b border-border/10">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground">Screener</h1>
+              <div className="flex items-center gap-2 mt-2">
+                  <Button variant="outline" size="sm" onClick={() => setIsFilterModalOpen(true)} className="h-9 text-xs">
+                      <SlidersHorizontal className="mr-2 h-4 w-4" /> Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+                  </Button>
+                  <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
+                      <SelectTrigger id="ruleSelect" className="w-auto h-9 text-xs min-w-[200px]">
+                          <SelectValue placeholder="Select a screener or rule..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all" className="text-xs">
+                              <span className="flex items-center"><List className="mr-2 h-4 w-4" /> Show All Stocks</span>
+                          </SelectItem>
+                          <SelectItem value="my-watchlist" className="text-xs">
+                              <span className="flex items-center"><Star className="mr-2 h-4 w-4" /> My Watchlist</span>
+                          </SelectItem>
+                          <SelectItem value="top-gainers" className="text-xs">
+                              <span className="flex items-center text-[hsl(var(--confirm-green))]"><TrendingUp className="mr-2 h-4 w-4" /> Top Gainers</span>
+                          </SelectItem>
+                          <SelectItem value="top-losers" className="text-xs">
+                              <span className="flex items-center text-destructive"><TrendingDown className="mr-2 h-4 w-4" /> Top Losers</span>
+                          </SelectItem>
+                          <SelectItem value="active" className="text-xs">
+                              <span className="flex items-center text-primary"><Activity className="mr-2 h-4 w-4" /> Most Active</span>
+                          </SelectItem>
+                          <SelectItem value="52-week" className="text-xs">
+                              <span className="flex items-center text-accent"><CalendarCheck2 className="mr-2 h-4 w-4" /> 52 Week Highs/Lows</span>
+                          </SelectItem>
+                          {activeRules.map(rule => (
+                              <SelectItem key={rule.id} value={rule.id} className="text-xs">
+                              <span className="flex items-center"><Filter className="mr-2 h-4 w-4" /> {rule.name}</span>
+                              </SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
+              </div>
             </div>
-             <div className="flex items-center gap-2">
+             <div className="flex items-center gap-2 self-start sm:self-center">
                 <Popover>
                     <PopoverTrigger asChild>
                         <Button variant="outline" size="sm" className="h-9 text-xs">
