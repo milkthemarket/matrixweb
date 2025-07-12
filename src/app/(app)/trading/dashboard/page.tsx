@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { dummyNewsData } from '@/components/NewsCard';
 import { NewsArticleModal } from '@/components/NewsArticleModal';
 import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const MOCK_INITIAL_TIMESTAMP = '2024-07-01T10:00:00.000Z';
 const RULES_STORAGE_KEY = 'tradeflow-alert-rules';
@@ -175,93 +176,96 @@ function DashboardPageContent() {
   return (
     <>
       <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-foreground">Screener</h1>
-        </div>
-        
-        <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setIsFilterModalOpen(true)} className="h-9 text-xs">
-                    <SlidersHorizontal className="mr-2 h-4 w-4" /> Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+        <Card className="flex-1 flex flex-col overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-4">
+              <CardTitle className="text-2xl font-bold text-foreground">Screener</CardTitle>
+              <div className="flex items-center gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setIsFilterModalOpen(true)} className="h-9 text-xs">
+                      <SlidersHorizontal className="mr-2 h-4 w-4" /> Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+                  </Button>
+                  <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
+                      <SelectTrigger id="ruleSelect" className="w-auto h-9 text-xs min-w-[200px]">
+                          <SelectValue placeholder="Select a screener or rule..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                          <SelectItem value="all" className="text-xs">
+                              <span className="flex items-center"><List className="mr-2 h-4 w-4" /> Show All Stocks</span>
+                          </SelectItem>
+                          <SelectItem value="my-watchlist" className="text-xs">
+                              <span className="flex items-center"><Star className="mr-2 h-4 w-4" /> My Watchlist</span>
+                          </SelectItem>
+                          <SelectItem value="top-gainers" className="text-xs">
+                              <span className="flex items-center text-[hsl(var(--confirm-green))]"><TrendingUp className="mr-2 h-4 w-4" /> Top Gainers</span>
+                          </SelectItem>
+                          <SelectItem value="top-losers" className="text-xs">
+                              <span className="flex items-center text-destructive"><TrendingDown className="mr-2 h-4 w-4" /> Top Losers</span>
+                          </SelectItem>
+                          <SelectItem value="active" className="text-xs">
+                              <span className="flex items-center text-primary"><Activity className="mr-2 h-4 w-4" /> Most Active</span>
+                          </SelectItem>
+                          <SelectItem value="52-week" className="text-xs">
+                              <span className="flex items-center text-accent"><CalendarCheck2 className="mr-2 h-4 w-4" /> 52 Week Highs/Lows</span>
+                          </SelectItem>
+                          {activeRules.map(rule => (
+                              <SelectItem key={rule.id} value={rule.id} className="text-xs">
+                              <span className="flex items-center"><Filter className="mr-2 h-4 w-4" /> {rule.name}</span>
+                              </SelectItem>
+                          ))}
+                      </SelectContent>
+                  </Select>
+              </div>
+            </div>
+             <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" className="h-9 text-xs">
+                    <Columns className="mr-2 h-4 w-4" /> Columns
                 </Button>
-                <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
-                    <SelectTrigger id="ruleSelect" className="w-auto h-9 text-xs min-w-[200px]">
-                        <SelectValue placeholder="Select a screener or rule..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all" className="text-xs">
-                            <span className="flex items-center"><List className="mr-2 h-4 w-4" /> Show All Stocks</span>
-                        </SelectItem>
-                        <SelectItem value="my-watchlist" className="text-xs">
-                            <span className="flex items-center"><Star className="mr-2 h-4 w-4" /> My Watchlist</span>
-                        </SelectItem>
-                        <SelectItem value="top-gainers" className="text-xs">
-                            <span className="flex items-center text-[hsl(var(--confirm-green))]"><TrendingUp className="mr-2 h-4 w-4" /> Top Gainers</span>
-                        </SelectItem>
-                        <SelectItem value="top-losers" className="text-xs">
-                            <span className="flex items-center text-destructive"><TrendingDown className="mr-2 h-4 w-4" /> Top Losers</span>
-                        </SelectItem>
-                        <SelectItem value="active" className="text-xs">
-                            <span className="flex items-center text-primary"><Activity className="mr-2 h-4 w-4" /> Most Active</span>
-                        </SelectItem>
-                        <SelectItem value="52-week" className="text-xs">
-                            <span className="flex items-center text-accent"><CalendarCheck2 className="mr-2 h-4 w-4" /> 52 Week Highs/Lows</span>
-                        </SelectItem>
-                        {activeRules.map(rule => (
-                            <SelectItem key={rule.id} value={rule.id} className="text-xs">
-                            <span className="flex items-center"><Filter className="mr-2 h-4 w-4" /> {rule.name}</span>
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                 <Button variant="outline" size="sm" onClick={() => exportToCSV('screener_export.csv', filteredStocks, [])} className="h-9 text-xs">
+                    <UploadCloud className="mr-2 h-4 w-4" /> Export
+                </Button>
             </div>
-             <div className="relative w-full max-w-xs">
-                <Input
-                    placeholder="Search symbol..."
-                    className="h-9 w-full pl-8 rounded-full"
-                />
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            </div>
-        </div>
-
-        <div className="rounded-lg overflow-auto flex-1 border border-border/10">
-          <Table>
-            <TableHeader className="sticky top-0 bg-[#0d0d0d] z-10">
-              <TableRow className="h-10">
-                <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Symbol</TableHead>
-                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Price</TableHead>
-                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">% Change</TableHead>
-                <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Float</TableHead>
-                <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Volume</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredStocks.length > 0 ? (
-                filteredStocks.map((stock) => (
-                  <TableRow
-                    key={stock.id}
-                    className="cursor-pointer h-10 border-b border-border/5 last:border-b-0 hover:bg-white/5"
-                    onClick={() => handleShowNewsForStock(stock)}
-                  >
-                    <TableCell className="px-4 py-2 font-bold text-foreground text-left">{stock.symbol}</TableCell>
-                    <TableCell className="px-4 py-2 font-bold text-foreground text-right">${stock.price.toFixed(2)}</TableCell>
-                    <TableCell className={cn("px-4 py-2 font-bold text-right", stock.changePercent >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
-                        {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                    </TableCell>
-                    <TableCell className="px-4 py-2 text-left">{stock.float}M</TableCell>
-                    <TableCell className="px-4 py-2 text-left">{stock.volume.toFixed(1)}M</TableCell>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-hidden p-0">
+            <div className="rounded-lg overflow-auto h-full">
+              <Table>
+                <TableHeader className="sticky top-0 bg-[#0d0d0d] z-10">
+                  <TableRow className="h-10">
+                    <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Symbol</TableHead>
+                    <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Price</TableHead>
+                    <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">% Change</TableHead>
+                    <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Float</TableHead>
+                    <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Volume</TableHead>
                   </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center text-xs text-muted-foreground">
-                    No stocks match the selected filters.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                </TableHeader>
+                <TableBody>
+                  {filteredStocks.length > 0 ? (
+                    filteredStocks.map((stock) => (
+                      <TableRow
+                        key={stock.id}
+                        className="cursor-pointer h-10 border-b border-border/5 last:border-b-0 hover:bg-white/5"
+                        onClick={() => handleShowNewsForStock(stock)}
+                      >
+                        <TableCell className="px-4 py-2 font-bold text-foreground text-left">{stock.symbol}</TableCell>
+                        <TableCell className="px-4 py-2 font-bold text-foreground text-right">${stock.price.toFixed(2)}</TableCell>
+                        <TableCell className={cn("px-4 py-2 font-bold text-right", stock.changePercent >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive")}>
+                            {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                        </TableCell>
+                        <TableCell className="px-4 py-2 text-left">{stock.float}M</TableCell>
+                        <TableCell className="px-4 py-2 text-left">{stock.volume.toFixed(1)}M</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-24 text-center text-xs text-muted-foreground">
+                        No stocks match the selected filters.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       </main>
       <ScreenerFilterModal 
         isOpen={isFilterModalOpen}
@@ -286,3 +290,5 @@ export default function DashboardPage() {
     </Suspense>
   );
 }
+
+    
