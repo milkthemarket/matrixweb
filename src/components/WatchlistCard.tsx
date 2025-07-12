@@ -13,9 +13,9 @@ import { initialMockStocks } from '@/app/(app)/trading/dashboard/page';
 import { mockRules } from '@/app/(app)/trading/rules/page';
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { NewsCard } from './NewsCard';
 
 // Define dummyWatchlistSymbols directly in this file
-// Added 5 new tickers as requested
 const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM', 'TPL'];
 
 interface WatchlistCardProps {
@@ -36,6 +36,7 @@ const formatVolumeDisplay = (volumeInMillions?: number): string => {
 
 export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }: WatchlistCardProps) {
   const [selectedFilterId, setSelectedFilterId] = useState<string>('my-watchlist');
+  const [activeTab, setActiveTab] = useState('watchlist');
 
   const activeRules = useMemo(() => mockRules.filter(rule => rule.isActive), []);
 
@@ -100,14 +101,13 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
   return (
     <Card className={cn("shadow-none flex flex-col", className)}>
       <CardHeader className="flex flex-row items-center justify-between p-3 pb-2">
-         {/* The Tabs and Select are now siblings in a flex container */}
-        <div className="flex justify-between items-center w-full">
-            <Tabs defaultValue="watchlist" className="w-auto">
-                <TabsList className="p-0 bg-transparent border-none">
-                    <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
-                    <TabsTrigger value="news">News</TabsTrigger>
-                </TabsList>
-            </Tabs>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-auto">
+              <TabsList className="p-0 bg-transparent border-none">
+                  <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
+                  <TabsTrigger value="news">News</TabsTrigger>
+              </TabsList>
+          </Tabs>
+          {activeTab === 'watchlist' && (
             <Select value={selectedFilterId} onValueChange={setSelectedFilterId}>
                 <SelectTrigger className="w-auto h-8 text-xs">
                     <SelectValue placeholder="Select a view..." />
@@ -126,51 +126,62 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
                     })}
                 </SelectContent>
             </Select>
-        </div>
+          )}
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
-        <div className="grid grid-cols-4 w-full items-baseline text-[10px] gap-2 px-3 py-1 text-muted-foreground border-b border-border/10">
-          <span className="text-left">Symbol</span>
-          <span className="text-right">Price</span>
-          <span className="text-right">Change</span>
-          <span className="text-right">Vol</span>
-        </div>
-        <ScrollArea className="h-full">
-          <div className="space-y-px p-1">
-            {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
-              <Button
-                key={stock.id}
-                variant="ghost"
-                className={cn(
-                  "w-full justify-start h-auto py-1 px-2 text-left rounded-sm",
-                  selectedStockSymbol === stock.symbol ? "bg-primary/10" : "hover:bg-white/5"
-                )}
-                onClick={() => onSelectStock(stock.symbol)}
-              >
-                <div className="grid grid-cols-4 w-full items-baseline text-[11px] gap-2">
-                  <span className="font-bold text-foreground truncate text-left">{stock.symbol}</span>
-                  
-                  <span className="font-bold text-foreground text-right">
-                    ${stock.price.toFixed(2)}
-                  </span>
+          <Tabs value={activeTab} className="h-full flex flex-col">
+              <TabsContent value="watchlist" className="flex-1 overflow-hidden m-0">
+                  <div className="grid grid-cols-4 w-full items-baseline text-[10px] gap-2 px-3 py-1 text-muted-foreground border-b border-border/10">
+                    <span className="text-left">Symbol</span>
+                    <span className="text-right">Price</span>
+                    <span className="text-right">Change</span>
+                    <span className="text-right">Vol</span>
+                  </div>
+                  <ScrollArea className="h-full">
+                    <div className="space-y-px p-1">
+                      {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
+                        <Button
+                          key={stock.id}
+                          variant="ghost"
+                          className={cn(
+                            "w-full justify-start h-auto py-1 px-2 text-left rounded-sm",
+                            selectedStockSymbol === stock.symbol ? "bg-primary/10" : "hover:bg-white/5"
+                          )}
+                          onClick={() => onSelectStock(stock.symbol)}
+                        >
+                          <div className="grid grid-cols-4 w-full items-baseline text-[11px] gap-2">
+                            <span className="font-bold text-foreground truncate text-left">{stock.symbol}</span>
+                            
+                            <span className="font-bold text-foreground text-right">
+                              ${stock.price.toFixed(2)}
+                            </span>
 
-                  <span className={cn(
-                      "font-bold text-right",
-                      stock.changePercent >= 0 ? "text-green-500" : "text-red-500"
-                  )}>
-                    {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                  </span>
+                            <span className={cn(
+                                "font-bold text-right",
+                                stock.changePercent >= 0 ? "text-green-500" : "text-red-500"
+                            )}>
+                              {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                            </span>
 
-                  <span className="font-medium text-neutral-400 text-right truncate">
-                    {formatVolumeDisplay(stock.volume)}
-                  </span>
-                </div>
-              </Button>
-            )) : (
-              <p className="text-[10px] text-muted-foreground text-center py-1.5">No stocks match filter.</p>
-            )}
-          </div>
-        </ScrollArea>
+                            <span className="font-medium text-neutral-400 text-right truncate">
+                              {formatVolumeDisplay(stock.volume)}
+                            </span>
+                          </div>
+                        </Button>
+                      )) : (
+                        <p className="text-[10px] text-muted-foreground text-center py-1.5">No stocks match filter.</p>
+                      )}
+                    </div>
+                  </ScrollArea>
+              </TabsContent>
+              <TabsContent value="news" className="m-0 h-full">
+                  <NewsCard
+                      className="h-full border-0 shadow-none rounded-none bg-transparent"
+                      selectedTickerSymbol={selectedStockSymbol}
+                      onTickerSelect={onSelectStock}
+                  />
+              </TabsContent>
+          </Tabs>
       </CardContent>
     </Card>
   );
