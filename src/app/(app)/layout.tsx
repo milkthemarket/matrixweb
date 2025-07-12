@@ -22,7 +22,7 @@ export default function AppLayout({
             <OpenPositionsProvider>
               <div className="flex flex-col min-h-screen w-full bg-background">
                 <TopNavbar />
-                <main className="flex-1 overflow-auto">
+                <main className="flex-1 overflow-auto px-6">
                   {children}
                 </main>
               </div>
