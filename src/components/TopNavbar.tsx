@@ -37,9 +37,11 @@ export function TopNavbar() {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         {/* Left Section */}
         <div className="flex-1 flex justify-start">
-          <Link href="/trading/milk-market" className="flex items-center space-x-2">
-            <MiloAvatarIcon size={32} />
-            <span className="sr-only">MILK</span>
+          <Link href="/trading/milk-market" passHref legacyBehavior>
+            <a className="flex items-center space-x-2">
+              <MiloAvatarIcon size={32} />
+              <span className="sr-only">MILK</span>
+            </a>
           </Link>
         </div>
 
