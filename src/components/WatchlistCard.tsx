@@ -12,6 +12,7 @@ import { List, Star, TrendingUp, TrendingDown, Activity, CalendarCheck2, Filter 
 import { initialMockStocks } from '@/app/(app)/trading/dashboard/page';
 import { mockRules } from '@/app/(app)/trading/rules/page';
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 // Define dummyWatchlistSymbols directly in this file
 // Added 5 new tickers as requested
@@ -96,28 +97,36 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
     }
   }, [selectedFilterId, activeRules]);
 
-
   return (
     <Card className={cn("shadow-none flex flex-col", className)}>
-      <CardHeader className="flex-1 pb-0.5 pt-3 px-3">
-        <Select value={selectedFilterId} onValueChange={setSelectedFilterId}>
-          <SelectTrigger className="w-full h-7 text-xs">
-            <SelectValue placeholder="Select a view..." />
-          </SelectTrigger>
-          <SelectContent>
-            {filterOptions.map(opt => {
-              const IconComponent = opt.icon;
-              return (
-                <SelectItem key={opt.id} value={opt.id} className="text-xs">
-                  <div className="flex items-center gap-1">
-                    <IconComponent className={cn("h-3 w-3", opt.iconColor)} />
-                    <span>{opt.label}</span>
-                  </div>
-                </SelectItem>
-              );
-            })}
-          </SelectContent>
-        </Select>
+      <CardHeader className="flex flex-row items-center justify-between p-3 pb-2">
+         {/* The Tabs and Select are now siblings in a flex container */}
+        <div className="flex justify-between items-center w-full">
+            <Tabs defaultValue="watchlist" className="w-auto">
+                <TabsList className="p-0 bg-transparent border-none">
+                    <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
+                    <TabsTrigger value="news">News</TabsTrigger>
+                </TabsList>
+            </Tabs>
+            <Select value={selectedFilterId} onValueChange={setSelectedFilterId}>
+                <SelectTrigger className="w-auto h-8 text-xs">
+                    <SelectValue placeholder="Select a view..." />
+                </SelectTrigger>
+                <SelectContent>
+                    {filterOptions.map(opt => {
+                        const IconComponent = opt.icon;
+                        return (
+                            <SelectItem key={opt.id} value={opt.id} className="text-xs">
+                                <div className="flex items-center gap-1">
+                                    <IconComponent className={cn("h-3 w-3", opt.iconColor)} />
+                                    <span>{opt.label}</span>
+                                </div>
+                            </SelectItem>
+                        );
+                    })}
+                </SelectContent>
+            </Select>
+        </div>
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
         <div className="grid grid-cols-4 w-full items-baseline text-[10px] gap-2 px-3 py-1 text-muted-foreground border-b border-border/10">
