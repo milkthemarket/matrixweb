@@ -51,14 +51,14 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
           <ScrollArea className="h-full">
             <Table>
                 <TableHeader className="sticky top-0 bg-[#0d0d0d] z-[1]">
-                    <TableRow className="border-b border-white/10">
-                        <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Actions</TableHead>
-                        <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Symbol</TableHead>
-                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Open P&L %</TableHead>
-                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Open P&L</TableHead>
-                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Avg Price</TableHead>
-                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Last Price</TableHead>
-                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Quantity</TableHead>
+                    <TableRow className="border-b-0 h-10">
+                        <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Actions</TableHead>
+                        <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Symbol</TableHead>
+                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Open P&L %</TableHead>
+                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Open P&L</TableHead>
+                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Avg Price</TableHead>
+                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Last Price</TableHead>
+                        <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Quantity</TableHead>
                     </TableRow>
                 </TableHeader>
                  <TableBody>

@@ -34,14 +34,14 @@ export function TradeHistoryTable({ className, syncedTickerSymbol }: TradeHistor
           {filteredHistory.length > 0 ? (
             <Table className="table-fixed">
               <TableHeader className="sticky top-0 bg-[#0d0d0d] z-[1]">
-                <TableRow className="border-b border-white/10">
-                  <TableHead className="h-10 px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Symbol</TableHead>
-                  <TableHead className="h-10 px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Side</TableHead>
-                  <TableHead className="h-10 px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Qty</TableHead>
-                  <TableHead className="h-10 px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Avg Price</TableHead>
-                  <TableHead className="h-10 px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Type</TableHead>
-                  <TableHead className="h-10 px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Time</TableHead>
-                  <TableHead className="h-10 px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Status</TableHead>
+                <TableRow className="border-b-0 h-10">
+                  <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Symbol</TableHead>
+                  <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Side</TableHead>
+                  <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Qty</TableHead>
+                  <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Avg Price</TableHead>
+                  <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Type</TableHead>
+                  <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Time</TableHead>
+                  <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Status</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

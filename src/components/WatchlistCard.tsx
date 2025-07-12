@@ -141,11 +141,11 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
                 <ScrollArea className="h-full">
                     <Table>
                         <TableHeader className="sticky top-0 bg-[#0d0d0d] z-[1]">
-                            <TableRow className="border-b-0">
-                                <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Symbol</TableHead>
-                                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Price</TableHead>
-                                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Change</TableHead>
-                                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100 h-10">Vol</TableHead>
+                            <TableRow className="border-b-0 h-10">
+                                <TableHead className="px-4 py-2 text-left font-headline uppercase text-[15px] font-bold text-neutral-100">Symbol</TableHead>
+                                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Price</TableHead>
+                                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Change</TableHead>
+                                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">Vol</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
