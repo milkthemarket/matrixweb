@@ -40,6 +40,8 @@ export const initialMockStocks: Stock[] = [
   { id: '5', symbol: 'GOOGL', name: 'Alphabet Inc. (Class A)', price: 140.22, changePercent: 1.1, float: 6000, volume: 40.8, newsSnippet: 'Search algorithm update.', lastUpdated: MOCK_INITIAL_TIMESTAMP, catalystType: 'news', sentiment: 'Neutral', newsSentimentPercent: 55, topNewsKeyword: 'Algorithm', historicalPrices: [138, 139, 140, 139.5, 141, 140.5, 140.22], marketCap: 140.22 * 6000 * 1e6, avgVolume: 38.0, atr: 2.5, rsi: 55.8, vwap: 140.15, beta: 1.0, high52: 160.0, low52: 120.0, gapPercent: 0.3, shortFloat: 1.0, instOwn: 75.3, premarketChange: 0.1, peRatio: 25.8, dividendYield: 0.0, sector: 'Communication Services', earningsDate: '2024-07-25T00:00:00.000Z', analystRating: 'Buy' },
 ];
 
+const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM', 'TPL'];
+
 const allColumnsConfig: ColumnConfig<Stock>[] = [
     { key: 'symbol', label: 'Symbol', defaultVisible: true, isDraggable: true, align: 'left', description: 'The stock ticker symbol.' },
     { key: 'price', label: 'Price', defaultVisible: true, isDraggable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: 'The last traded price.' },
@@ -54,8 +56,6 @@ const allColumnsConfig: ColumnConfig<Stock>[] = [
     { key: 'low52', label: '52W Low', defaultVisible: false, isDraggable: true, align: 'right', format: (val) => `$${formatDecimal(val)}`, description: 'The lowest price in the last 52 weeks.' },
     { key: 'shortFloat', label: 'Short Float', defaultVisible: false, isDraggable: true, align: 'right', format: (val) => `${formatDecimal(val, 1)}%`, description: 'The percentage of a company\'s float that is shorted.' },
 ];
-
-const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM', 'TPL'];
 
 function DashboardPageContent() {
   const searchParams = useSearchParams();
@@ -220,57 +220,13 @@ function DashboardPageContent() {
   return (
     <>
       <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <h1 className="text-2xl font-bold text-foreground">Screener</h1>
-            <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setIsFilterModalOpen(true)} className="h-9 text-xs">
-                    <SlidersHorizontal className="mr-2 h-4 w-4" /> Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
-                </Button>
-                <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
-                    <SelectTrigger id="ruleSelect" className="w-auto h-9 text-xs min-w-[200px]">
-                        <SelectValue placeholder="Select a screener or rule..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all" className="text-xs">
-                            <span className="flex items-center"><List className="mr-2 h-4 w-4" /> Show All Stocks</span>
-                        </SelectItem>
-                        <SelectItem value="my-watchlist" className="text-xs">
-                            <span className="flex items-center"><Star className="mr-2 h-4 w-4" /> My Watchlist</span>
-                        </SelectItem>
-                        <SelectItem value="top-gainers" className="text-xs">
-                            <span className="flex items-center text-[hsl(var(--confirm-green))]"><TrendingUp className="mr-2 h-4 w-4" /> Top Gainers</span>
-                        </SelectItem>
-                        <SelectItem value="top-losers" className="text-xs">
-                            <span className="flex items-center text-destructive"><TrendingDown className="mr-2 h-4 w-4" /> Top Losers</span>
-                        </SelectItem>
-                        <SelectItem value="active" className="text-xs">
-                            <span className="flex items-center text-primary"><Activity className="mr-2 h-4 w-4" /> Most Active</span>
-                        </SelectItem>
-                        <SelectItem value="52-week" className="text-xs">
-                            <span className="flex items-center text-accent"><CalendarCheck2 className="mr-2 h-4 w-4" /> 52 Week Highs/Lows</span>
-                        </SelectItem>
-                        {activeRules.map(rule => (
-                            <SelectItem key={rule.id} value={rule.id} className="text-xs">
-                            <span className="flex items-center"><Filter className="mr-2 h-4 w-4" /> {rule.name}</span>
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </div>
-        </div>
-        <div className="flex-1 overflow-auto rounded-lg border border-border/10">
-          <Table>
-            <TableHeader className="sticky top-0 bg-[#0d0d0d] z-10">
-              <TableRow className="h-10">
-                {columnsToDisplay.map(col => (
-                     <TableHead key={col.key} className={cn("px-4 py-2 font-headline uppercase text-[15px] font-bold text-neutral-100", `text-${col.align || 'left'}`)}>
-                        {col.label}
-                    </TableHead>
-                ))}
-                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">
+        <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+                <h1 className="text-2xl font-bold text-foreground">Screener</h1>
+                <div className="flex items-center gap-2">
                     <Popover>
                         <PopoverTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-6 text-xs text-neutral-100 hover:bg-white/10">
+                            <Button variant="outline" size="sm" className="h-9 text-xs">
                                 <Columns className="mr-2 h-4 w-4" /> Columns
                             </Button>
                         </PopoverTrigger>
@@ -317,6 +273,59 @@ function DashboardPageContent() {
                             </div>
                         </PopoverContent>
                     </Popover>
+                    <Button variant="outline" size="sm" onClick={() => exportToCSV('screener_export.csv', filteredStocks, allColumnsConfig)} className="h-9 text-xs">
+                        <UploadCloud className="mr-2 h-4 w-4" /> Export
+                    </Button>
+                </div>
+            </div>
+            <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={() => setIsFilterModalOpen(true)} className="h-9 text-xs">
+                    <SlidersHorizontal className="mr-2 h-4 w-4" /> Filters {activeFilterCount > 0 && `(${activeFilterCount})`}
+                </Button>
+                <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
+                    <SelectTrigger id="ruleSelect" className="w-auto h-9 text-xs min-w-[200px]">
+                        <SelectValue placeholder="Select a screener or rule..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all" className="text-xs">
+                            <span className="flex items-center"><List className="mr-2 h-4 w-4" /> Show All Stocks</span>
+                        </SelectItem>
+                        <SelectItem value="my-watchlist" className="text-xs">
+                            <span className="flex items-center"><Star className="mr-2 h-4 w-4" /> My Watchlist</span>
+                        </SelectItem>
+                        <SelectItem value="top-gainers" className="text-xs">
+                            <span className="flex items-center text-[hsl(var(--confirm-green))]"><TrendingUp className="mr-2 h-4 w-4" /> Top Gainers</span>
+                        </SelectItem>
+                        <SelectItem value="top-losers" className="text-xs">
+                            <span className="flex items-center text-destructive"><TrendingDown className="mr-2 h-4 w-4" /> Top Losers</span>
+                        </SelectItem>
+                        <SelectItem value="active" className="text-xs">
+                            <span className="flex items-center text-primary"><Activity className="mr-2 h-4 w-4" /> Most Active</span>
+                        </SelectItem>
+                        <SelectItem value="52-week" className="text-xs">
+                            <span className="flex items-center text-accent"><CalendarCheck2 className="mr-2 h-4 w-4" /> 52 Week Highs/Lows</span>
+                        </SelectItem>
+                        {activeRules.map(rule => (
+                            <SelectItem key={rule.id} value={rule.id} className="text-xs">
+                            <span className="flex items-center"><Filter className="mr-2 h-4 w-4" /> {rule.name}</span>
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+        </div>
+
+        <div className="flex-1 overflow-auto rounded-lg border border-border/10">
+          <Table>
+            <TableHeader className="sticky top-0 bg-[#0d0d0d] z-10">
+              <TableRow className="h-10">
+                {columnsToDisplay.map(col => (
+                     <TableHead key={col.key} className={cn("px-4 py-2 font-headline uppercase text-[15px] font-bold text-neutral-100", `text-${col.align || 'left'}`)}>
+                        {col.label}
+                    </TableHead>
+                ))}
+                <TableHead className="px-4 py-2 text-right font-headline uppercase text-[15px] font-bold text-neutral-100">
+                    News
                 </TableHead>
               </TableRow>
             </TableHeader>
