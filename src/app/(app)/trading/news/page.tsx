@@ -10,33 +10,11 @@ import { Search, Loader2 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
 export default function NewsPage() {
-  const [activeTab, setActiveTab] = React.useState('news'); 
-
   return (
     <main className="flex flex-col flex-1 h-full overflow-hidden p-4 md:p-6 space-y-4">
         {/* Header Section */}
         <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-                <h1 className="text-2xl font-bold text-foreground">News</h1>
-                <div className="flex items-center space-x-2">
-                    <button 
-                        onClick={() => setActiveTab('news')}
-                        className={cn("px-4 py-1 rounded-full text-sm", 
-                            activeTab === 'news' ? "bg-muted text-foreground font-semibold" : "text-muted-foreground font-medium"
-                        )}
-                    >
-                        News
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('alerts')}
-                        className={cn("px-4 py-1 rounded-full text-sm",
-                           activeTab === 'alerts' ? "bg-muted text-foreground font-semibold" : "text-muted-foreground font-medium"
-                        )}
-                    >
-                        Alerts
-                    </button>
-                </div>
-            </div>
+            <h1 className="text-2xl font-bold text-foreground">News</h1>
         </div>
         
         {/* Filters and Search Section */}
