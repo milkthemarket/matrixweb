@@ -339,11 +339,6 @@ function DashboardPageContent() {
 
   const [selectedStockForOrderCard, setSelectedStockForOrderCard] = useState<Stock | null>(null);
 
-  // State for News Search
-  const [newsSearchKeyword, setNewsSearchKeyword] = useState('');
-  const [isSearchingNews, setIsSearchingNews] = useState(false);
-  const [foundNewsSymbols, setFoundNewsSymbols] = useState<Set<string> | null>(null);
-
   // State for News Modal
   const [isNewsModalOpen, setIsNewsModalOpen] = useState(false);
   const [newsModalContent, setNewsModalContent] = useState<{ articles: NewsArticle[]; title: string } | null>(null);
@@ -526,59 +521,26 @@ function DashboardPageContent() {
 
   const activeRules = useMemo(() => rules.filter(rule => rule.isActive), [rules]);
   const activeFilterCount = Object.values(activeFilters).filter(f => f.active).length;
-
-  const handleNewsSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const keyword = newsSearchKeyword.trim();
-    
-    if (!keyword) {
-      setFoundNewsSymbols(null);
-      return;
-    }
-    
-    setIsSearchingNews(true);
-    // Simulate API call
-    setTimeout(() => {
-      const lowerKeyword = keyword.toLowerCase();
-      const relevantSymbols = new Set<string>();
-
-      initialMockStocks.forEach(stock => {
-        const stockName = stock.name?.toLowerCase() || '';
-        const stockSymbol = stock.symbol.toLowerCase();
-
-        const hasMatchingNews = dummyNewsData.some(news => {
-          const headline = news.headline.toLowerCase();
-          const preview = news.preview.toLowerCase();
-          return (headline.includes(lowerKeyword) || preview.includes(lowerKeyword)) && 
-                 (headline.includes(stockName) || headline.includes(stockSymbol) || preview.includes(stockName) || preview.includes(stockSymbol));
-        });
-
-        if (hasMatchingNews) {
-          relevantSymbols.add(stock.symbol);
-        }
-      });
-      setFoundNewsSymbols(relevantSymbols);
-      setIsSearchingNews(false);
-      toast({
-        title: "News Search Complete",
-        description: `Found news for ${relevantSymbols.size} stock(s) related to "${keyword}".`,
-      });
-    }, 500);
-  };
   
-  const clearNewsSearch = () => {
-    setNewsSearchKeyword('');
-    setFoundNewsSymbols(null);
+  const handleShowNewsForStock = (stock: Stock) => {
+    const matchingNews = dummyNewsData.filter(news => {
+      const stockName = stock.name?.toLowerCase() || '';
+      const stockSymbol = stock.symbol.toLowerCase();
+      const headline = news.headline.toLowerCase();
+      const preview = news.preview.toLowerCase();
+      return (headline.includes(stockSymbol) || headline.includes(stockName) || preview.includes(stockSymbol) || preview.includes(stockName));
+    });
+
+    setNewsModalContent({
+      articles: matchingNews,
+      title: `News for ${stock.symbol}`
+    });
+    setIsNewsModalOpen(true);
   };
 
   const filteredStocks = useMemo(() => {
     let processedStocks = [...stocks];
     
-    // Apply news keyword filter first if active
-    if (foundNewsSymbols) {
-      processedStocks = processedStocks.filter(stock => foundNewsSymbols.has(stock.symbol));
-    }
-
     if (selectedRuleId !== 'all') {
       switch (selectedRuleId) {
         case 'my-watchlist':
@@ -656,29 +618,8 @@ function DashboardPageContent() {
     }
 
     return processedStocks;
-  }, [stocks, selectedRuleId, activeRules, activeFilters, foundNewsSymbols]);
+  }, [stocks, selectedRuleId, activeRules, activeFilters]);
 
-  const handleShowNewsForStock = (stock: Stock) => {
-    if (!newsSearchKeyword.trim()) return;
-
-    const lowerKeyword = newsSearchKeyword.toLowerCase();
-    const matchingNews = dummyNewsData.filter(news => {
-      const headline = news.headline.toLowerCase();
-      const preview = news.preview.toLowerCase();
-      const stockName = stock.name?.toLowerCase() || '';
-      const stockSymbol = stock.symbol.toLowerCase();
-
-      return (headline.includes(stockSymbol) || headline.includes(stockName) || preview.includes(stockSymbol) || preview.includes(stockName)) &&
-             (headline.includes(lowerKeyword) || preview.includes(lowerKeyword));
-    });
-
-    setNewsModalContent({
-      articles: matchingNews,
-      title: `News for ${stock.symbol} matching "${newsSearchKeyword}"`
-    });
-    setIsNewsModalOpen(true);
-  };
-  
   const handleSelectStockForOrder = (stock: Stock) => {
     console.log("Stock selected for details/preview (no trade panel):", stock.symbol);
     setSelectedStockForOrderCard(stock);
@@ -701,9 +642,6 @@ function DashboardPageContent() {
   };
 
   const getRowHighlightClass = (stock: Stock): string => {
-    if (foundNewsSymbols && foundNewsSymbols.has(stock.symbol)) {
-      return 'border-l-4 border-primary bg-primary/10';
-    }
     if (stock.changePercent >= 10) return 'border-l-4 border-[hsl(var(--chart-2))] bg-[hsla(var(--chart-2),0.05)]';
     if (stock.changePercent <= -8) return 'border-l-4 border-[hsl(var(--chart-5))] bg-[hsla(var(--chart-5),0.05)]';
     if (stock.float <= 500 && stock.volume >= 50) return 'border-l-4 border-accent bg-accent/5';
@@ -865,8 +803,8 @@ function DashboardPageContent() {
                     {activeFilterCount > 0 && (
                       <Badge variant="secondary">{activeFilterCount} Active</Badge>
                     )}
-                    <Label htmlFor="ruleSelect" className="text-sm font-medium flex items-center">
-                      <ListFilter className="mr-2 h-4 w-4 text-primary" /> Apply Screener / Rule:
+                    <Label htmlFor="ruleSelect" className="text-sm font-medium flex items-center shrink-0">
+                      <ListFilter className="mr-2 h-4 w-4 text-primary" />
                     </Label>
                     <Select value={selectedRuleId} onValueChange={(value) => setSelectedRuleId(value)}>
                       <SelectTrigger id="ruleSelect" className="w-auto min-w-[200px]">
@@ -970,11 +908,7 @@ function DashboardPageContent() {
                                   selectedStockForOrderCard?.id === stock.id && "bg-primary/20"
                               )}
                               onClick={() => {
-                                if (foundNewsSymbols?.has(stock.symbol)) {
-                                  handleShowNewsForStock(stock);
-                                } else {
-                                  handleSelectStockForOrder(stock);
-                                }
+                                handleShowNewsForStock(stock);
                               }}
                           >
                             {displayedColumns.map((col) => (
@@ -987,7 +921,7 @@ function DashboardPageContent() {
                                   (col.key === 'symbol' || col.key === 'price') && "font-semibold"
                                 )}
                               >
-                                {col.format ? col.format(stock[col.key as keyof Stock], stock, { foundNewsSymbols }) : String(stock[col.key as keyof Stock] ?? 'N/A')}
+                                {col.format ? col.format(stock[col.key as keyof Stock], stock, { }) : String(stock[col.key as keyof Stock] ?? 'N/A')}
                               </TableCell>
                             ))}
                           </TableRow>
@@ -995,7 +929,7 @@ function DashboardPageContent() {
                       ) : (
                         <TableRow>
                           <TableCell colSpan={displayedColumns.length} className="h-24 text-center">
-                            {isSearchingNews ? "Searching for news..." : "No stocks match the selected filters."}
+                            No stocks match the selected filters.
                           </TableCell>
                         </TableRow>
                       )}
