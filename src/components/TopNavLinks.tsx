@@ -54,7 +54,7 @@ export function TopNavLinks() {
     }
 
     return (
-      <nav className="hidden md:flex items-center gap-x-6 text-sm font-semibold">
+      <nav className="hidden md:flex items-center gap-x-8 text-sm font-semibold">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
