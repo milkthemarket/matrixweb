@@ -154,7 +154,7 @@ export default function ClientPortalCalendarPage() {
 
   const [events, setEvents] = React.useState<CalendarEvent[]>([]);
 
-  const [activeView, setActiveView] = React.useState("month"); 
+  const [activeView, setActiveView] = React.useState("week"); 
   const [currentDateForCalendar, setCurrentDateForCalendar] = React.useState(new Date());
   const [currentTimePosition, setCurrentTimePosition] = React.useState<number | null>(null);
 
@@ -372,7 +372,7 @@ export default function ClientPortalCalendarPage() {
                 </div>
                 <div className="text-lg font-semibold text-foreground">{headerDateDisplay}</div>
                 <div className="flex items-center gap-1 bg-black/30 p-1 rounded-md">
-                  {["month", "week", "day"].map((view) => (
+                  {["week", "day"].map((view) => (
                     <Button key={view} variant={activeView === view ? "default" : "ghost"} size="sm"
                       className={`px-3 py-1 h-auto text-xs capitalize ${activeView === view ? 'bg-primary text-primary-foreground' : 'hover:bg-white/10'}`}
                       onClick={() => setActiveView(view)}>{view}</Button>
