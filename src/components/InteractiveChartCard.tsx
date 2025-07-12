@@ -150,7 +150,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
   };
 
   const dynamicStrokeColor = stock && stock.changePercent >= 0 ? "hsl(var(--chart-2))" : "hsl(var(--chart-5))";
-  const neonPurpleColor = "#A259F7";
+  const neonPurpleColor = "#7C2CF6";
 
   const handleManualSubmit = () => {
     if (manualTickerInput.trim()) {
@@ -210,8 +210,8 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
              <RechartsAreaChart data={chartData}>
                 <defs>
                     <linearGradient id={`colorPriceAreaPurple-${stock?.id || 'default'}`} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={neonPurpleColor} stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor={neonPurpleColor} stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#7C2CF6" stopOpacity={0.95}/>
+                      <stop offset="95%" stopColor="#1C0736" stopOpacity={0.85}/>
                     </linearGradient>
                 </defs>
                 <XAxis dataKey="date" hide />
