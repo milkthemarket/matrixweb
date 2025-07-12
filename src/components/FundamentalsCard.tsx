@@ -20,10 +20,10 @@ const DetailItem: React.FC<{ label: string; value?: string | number | null; unit
         <Tooltip>
             <TooltipTrigger asChild>
                 <div className="flex justify-between items-baseline py-0.5">
-                    <span className="text-[10px] uppercase tracking-wider text-neutral-400 whitespace-nowrap pr-2">
+                    <span className="text-[11px] uppercase tracking-wider text-neutral-400 whitespace-nowrap pr-2">
                         {label}
                     </span>
-                    <span className={cn("text-[11px] font-bold text-neutral-50 text-right", valueClass)}>
+                    <span className={cn("text-xs font-bold text-neutral-50 text-right", valueClass)}>
                         {value !== undefined && value !== null ? `${value}${unit || ''}` : <span className="text-neutral-500">-</span>}
                     </span>
                 </div>
@@ -113,18 +113,18 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
             <CardHeader className="py-2.5 px-3.5">
                 <div className="flex justify-between items-center">
                     <div>
-                        <h3 className="text-base font-bold text-neutral-50">{stock.symbol}</h3>
-                        <p className="text-[11px] text-neutral-400 truncate max-w-[180px]">{stock.name}</p>
+                        <h3 className="text-lg font-bold text-neutral-50">{stock.symbol}</h3>
+                        <p className="text-xs text-neutral-400 truncate max-w-[180px]">{stock.name}</p>
                     </div>
                     <div className="text-right">
-                        <p className={cn("text-lg font-bold", changeColor)}>{formatNumber(stock.price)}</p>
-                        <p className={cn("text-[11px] font-medium", changeColor)}>
+                        <p className={cn("text-xl font-bold", changeColor)}>{formatNumber(stock.price)}</p>
+                        <p className={cn("text-xs font-medium", changeColor)}>
                             {netChange >= 0 ? '+' : ''}{formatNumber(netChange)} ({netChange >= 0 ? '+' : ''}{formatNumber(netChangePercent)}%)
                         </p>
                     </div>
                 </div>
                 {stock.afterHoursPrice && (
-                    <div className="text-right text-[10px] text-neutral-400 flex justify-end items-center gap-1.5 mt-1">
+                    <div className="text-right text-[11px] text-neutral-400 flex justify-end items-center gap-1.5 mt-1">
                         <span>After-Hours: {formatNumber(stock.afterHoursPrice)}</span>
                         <span className={afterHoursChangeColor}>
                              ({stock.afterHoursChange && stock.afterHoursChange >= 0 ? '+' : ''}{formatNumber(stock.afterHoursChange)})
@@ -172,7 +172,7 @@ export function FundamentalsCard({ stock, className }: FundamentalsCardProps) {
 
                 <Separator className="my-2 bg-white/10" />
                 
-                <h4 className="text-xs font-semibold text-neutral-300 mb-1.5">Technical Indicators</h4>
+                <h4 className="text-sm font-semibold text-neutral-300 mb-1.5">Technical Indicators</h4>
                 <div className="grid grid-cols-2 gap-x-4">
                     <div className="space-y-0">
                         <DetailItem label="RSI" value={technicalData.rsi} description="Relative Strength Index (14)" />

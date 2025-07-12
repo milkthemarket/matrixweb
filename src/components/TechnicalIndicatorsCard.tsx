@@ -20,10 +20,10 @@ const DetailItem: React.FC<{ label: string; value?: string | number | null; valu
         <Tooltip>
             <TooltipTrigger asChild>
                 <div className="flex justify-between items-baseline py-0.5">
-                    <span className="text-[10px] uppercase tracking-wider text-neutral-400 whitespace-nowrap pr-2">
+                    <span className="text-[11px] uppercase tracking-wider text-neutral-400 whitespace-nowrap pr-2">
                         {label}
                     </span>
-                    <span className={cn("text-[11px] font-bold text-neutral-50 text-right", valueClass)}>
+                    <span className={cn("text-xs font-bold text-neutral-50 text-right", valueClass)}>
                         {value !== undefined && value !== null ? `${value}` : <span className="text-neutral-500">-</span>}
                     </span>
                 </div>
@@ -106,7 +106,7 @@ export function TechnicalIndicatorsCard({ stock, className }: TechnicalIndicator
     return (
         <Card className={cn("flex flex-col", className)}>
             <CardHeader className="py-2.5 px-3.5">
-                <h3 className="text-base font-bold text-neutral-50 flex items-center">
+                <h3 className="text-lg font-bold text-neutral-50 flex items-center">
                    <SlidersHorizontal className="h-4 w-4 mr-2" /> Technical Indicators
                 </h3>
             </CardHeader>
