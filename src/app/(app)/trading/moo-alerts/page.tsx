@@ -313,9 +313,6 @@ const MooAlertsContent: React.FC = () => {
               <Megaphone className="mr-2 h-5 w-5 text-primary"/>
               Real-Time Trade Signals
             </CardTitle>
-            <CardDescription>
-              Actionable signals from your rules and screeners. Click an alert to load it into the Milk Market trade panel.
-            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap items-center gap-2 mb-4">
