@@ -42,8 +42,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<number, string>)
       );
     }
     // Default tooltip for line/area
-    const valueColor = payload[0].stroke === "#7c3aed"
-        ? 'text-[#7c3aed]'
+    const valueColor = payload[0].stroke === "#5B21B6"
+        ? 'text-[#5B21B6]'
         : 'text-primary';
     
     return (
@@ -148,8 +148,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
   };
 
   const dynamicStrokeColor = "#7c3aed"; // Deep neon purple for the line
-  const neonPurpleColor = "#7C2CF6";
-  const darkPurpleEnd = "rgba(0,0,0,0)"; // Fade to transparent
+  const milkPurpleColor = "#5B21B6"; // The requested subtle purple
 
   const handleManualSubmit = () => {
     if (manualTickerInput.trim()) {
@@ -188,28 +187,18 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
     }
 
     const uniqueId = `chart-gradient-${stock?.id || 'default'}`;
-    const filterId = `glow-${stock?.id || 'default'}`;
 
     if (chartType === 'line') {
       return (
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
-             <defs>
-              <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
             <XAxis dataKey="date" hide />
             <YAxis hide domain={['auto', 'auto']} />
             <Tooltip
               cursor={{ stroke: 'hsl(var(--foreground))', strokeWidth: 1, strokeDasharray: '3 3' }}
               content={<CustomTooltip />}
             />
-            <Line type="linear" dataKey="price" stroke={dynamicStrokeColor} strokeWidth={2.5} dot={false} filter={`url(#${filterId})`} />
+            <Line type="monotone" dataKey="price" stroke={dynamicStrokeColor} strokeWidth={2} dot={false} />
           </LineChart>
         </ResponsiveContainer>
       );
@@ -221,17 +210,9 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
              <RechartsAreaChart data={chartData}>
                 <defs>
                     <linearGradient id={uniqueId} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={neonPurpleColor} stopOpacity={0.9}/>
-                      <stop offset="40%" stopColor={neonPurpleColor} stopOpacity={0.1}/>
-                      <stop offset="55%" stopColor={darkPurpleEnd} stopOpacity={0}/>
+                      <stop offset="0%" stopColor={milkPurpleColor} stopOpacity={0.8}/>
+                      <stop offset="100%" stopColor={milkPurpleColor} stopOpacity={0}/>
                     </linearGradient>
-                    <filter id={filterId} x="-50%" y="-50%" width="200%" height="200%">
-                      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur" />
-                      <feMerge>
-                        <feMergeNode in="blur" />
-                        <feMergeNode in="SourceGraphic" />
-                      </feMerge>
-                    </filter>
                 </defs>
                 <XAxis dataKey="date" hide />
                 <YAxis hide domain={['auto', 'auto']} />
@@ -239,7 +220,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
                     cursor={{ stroke: 'hsl(var(--foreground))', strokeWidth: 1, strokeDasharray: '3 3' }}
                     content={<CustomTooltip />}
                 />
-                <Area type="linear" dataKey="price" stroke={dynamicStrokeColor} strokeWidth={2.5} fillOpacity={1} fill={`url(#${uniqueId})`} dot={false} filter={`url(#${filterId})`}/>
+                <Area type="monotone" dataKey="price" stroke={milkPurpleColor} strokeWidth={2} fillOpacity={1} fill={`url(#${uniqueId})`} dot={false} />
             </RechartsAreaChart>
         </ResponsiveContainer>
       );
