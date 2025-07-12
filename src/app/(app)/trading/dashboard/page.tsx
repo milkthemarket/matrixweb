@@ -83,7 +83,7 @@ const initialColumnConfiguration: ColumnConfig<Stock>[] = [
         <TooltipProvider delayDuration={300}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="truncate w-full">
+              <div className="truncate w-full text-left">
                 {name}
               </div>
             </TooltipTrigger>
@@ -128,19 +128,14 @@ const initialColumnConfiguration: ColumnConfig<Stock>[] = [
         ? `${sentiment} (${stock.newsSentimentPercent}%)` 
         : sentiment;
       
-      const keywordText = stock.topNewsKeyword || "General";
-
       return (
         <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center gap-1.5 flex-nowrap">
+              <div className="flex items-center justify-center gap-1.5 flex-nowrap">
                 <Badge variant="outline" className={cn("text-xs whitespace-nowrap shrink-0", getSentimentClasses(sentiment))}>
                   {sentimentText}
                 </Badge>
-                <span className="text-xs text-muted-foreground truncate" title={keywordText}>
-                  "{keywordText}"
-                </span>
               </div>
             </TooltipTrigger>
             {stock.newsSnippet && (
@@ -184,7 +179,7 @@ const initialColumnConfiguration: ColumnConfig<Stock>[] = [
         <TooltipProvider delayDuration={300}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="truncate w-full">
+              <div className="truncate w-full text-left">
                 {sector}
               </div>
             </TooltipTrigger>
@@ -849,7 +844,7 @@ function DashboardPageContent() {
                     </Select>
                 </div>
 
-                <div className="rounded-lg overflow-auto flex-1">
+                <div className="rounded-lg overflow-auto flex-1 border border-white/5">
                   <Table className="table-layout-fixed">
                     <colgroup>
                       {displayedColumns.map(col => (
