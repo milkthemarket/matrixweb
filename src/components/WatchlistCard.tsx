@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -99,86 +99,76 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
   }, [selectedFilterId, activeRules]);
 
   return (
-    <Card className={cn("shadow-none flex flex-col", className)}>
-       <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
+    <Card className={cn("shadow-none flex flex-col h-full", className)}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col h-full">
         <CardHeader className="flex flex-row items-center justify-between p-3 pb-2">
-            <TabsList className="p-0 bg-transparent border-none">
-                <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
-                <TabsTrigger value="news">News</TabsTrigger>
-            </TabsList>
-            {activeTab === 'watchlist' && (
-              <Select value={selectedFilterId} onValueChange={setSelectedFilterId}>
-                  <SelectTrigger className="w-auto h-8 text-xs">
-                      <SelectValue placeholder="Select a view..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                      {filterOptions.map(opt => {
-                          const IconComponent = opt.icon;
-                          return (
-                              <SelectItem key={opt.id} value={opt.id} className="text-xs">
-                                  <div className="flex items-center gap-1">
-                                      <IconComponent className={cn("h-3 w-3", opt.iconColor)} />
-                                      <span>{opt.label}</span>
-                                  </div>
-                              </SelectItem>
-                          );
-                      })}
-                  </SelectContent>
-              </Select>
-            )}
+          <TabsList className="p-0 bg-transparent border-none">
+            <TabsTrigger value="watchlist">Watchlist</TabsTrigger>
+            <TabsTrigger value="news">News</TabsTrigger>
+          </TabsList>
+          {activeTab === 'watchlist' && (
+            <Select value={selectedFilterId} onValueChange={setSelectedFilterId}>
+              <SelectTrigger className="w-auto h-8 text-xs">
+                <SelectValue placeholder="Select a view..." />
+              </SelectTrigger>
+              <SelectContent>
+                {filterOptions.map(opt => {
+                  const IconComponent = opt.icon;
+                  return (
+                    <SelectItem key={opt.id} value={opt.id} className="text-xs">
+                      <div className="flex items-center gap-1">
+                        <IconComponent className={cn("h-3 w-3", opt.iconColor)} />
+                        <span>{opt.label}</span>
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          )}
         </CardHeader>
         <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
-            <TabsContent value="watchlist" className="flex-1 overflow-hidden m-0">
-                <div className="grid grid-cols-4 w-full items-baseline text-[10px] gap-2 px-3 py-1 text-muted-foreground border-b border-border/10">
-                  <span className="text-left">Symbol</span>
-                  <span className="text-right">Price</span>
-                  <span className="text-right">Change</span>
-                  <span className="text-right">Vol</span>
-                </div>
-                <ScrollArea className="h-full">
-                  <div className="space-y-px p-1">
-                    {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
-                      <Button
-                        key={stock.id}
-                        variant="ghost"
-                        className={cn(
-                          "w-full justify-start h-auto py-1 px-2 text-left rounded-sm",
-                          selectedStockSymbol === stock.symbol ? "bg-primary/10" : "hover:bg-white/5"
-                        )}
-                        onClick={() => onSelectStock(stock.symbol)}
-                      >
-                        <div className="grid grid-cols-4 w-full items-baseline text-[11px] gap-2">
-                          <span className="font-bold text-foreground truncate text-left">{stock.symbol}</span>
-                          
-                          <span className="font-bold text-foreground text-right">
-                            ${stock.price.toFixed(2)}
-                          </span>
-
-                          <span className={cn(
-                              "font-bold text-right",
-                              stock.changePercent >= 0 ? "text-green-500" : "text-red-500"
-                          )}>
-                            {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                          </span>
-
-                          <span className="font-medium text-neutral-400 text-right truncate">
-                            {formatVolumeDisplay(stock.volume)}
-                          </span>
-                        </div>
-                      </Button>
-                    )) : (
-                      <p className="text-[10px] text-muted-foreground text-center py-1.5">No stocks match filter.</p>
+          <TabsContent value="watchlist" className="flex-1 overflow-hidden m-0">
+            <div className="grid grid-cols-4 w-full items-baseline text-[10px] gap-2 px-3 py-1 text-muted-foreground border-b border-border/10">
+              <span className="text-left">Symbol</span>
+              <span className="text-right">Price</span>
+              <span className="text-right">Change</span>
+              <span className="text-right">Vol</span>
+            </div>
+            <ScrollArea className="h-full">
+              <div className="space-y-px p-1">
+                {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
+                  <Button
+                    key={stock.id}
+                    variant="ghost"
+                    className={cn(
+                      "w-full justify-start h-auto py-1 px-2 text-left rounded-sm",
+                      selectedStockSymbol === stock.symbol ? "bg-primary/10" : "hover:bg-white/5"
                     )}
-                  </div>
-                </ScrollArea>
-            </TabsContent>
-            <TabsContent value="news" className="m-0 h-full">
-                <NewsCard
-                    className="h-full border-0 shadow-none rounded-none bg-transparent"
-                    selectedTickerSymbol={selectedStockSymbol}
-                    onTickerSelect={onSelectStock}
-                />
-            </TabsContent>
+                    onClick={() => onSelectStock(stock.symbol)}
+                  >
+                    <div className="grid grid-cols-4 w-full items-baseline text-[11px] gap-2">
+                      <span className="font-bold text-foreground truncate text-left">{stock.symbol}</span>
+                      <span className="font-bold text-foreground text-right">${stock.price.toFixed(2)}</span>
+                      <span className={cn("font-bold text-right", stock.changePercent >= 0 ? "text-green-500" : "text-red-500")}>
+                        {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                      </span>
+                      <span className="font-medium text-neutral-400 text-right truncate">{formatVolumeDisplay(stock.volume)}</span>
+                    </div>
+                  </Button>
+                )) : (
+                  <p className="text-[10px] text-muted-foreground text-center py-1.5">No stocks match filter.</p>
+                )}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+          <TabsContent value="news" className="m-0 h-full">
+            <NewsCard
+              className="h-full border-0 shadow-none rounded-none bg-transparent"
+              selectedTickerSymbol={selectedStockSymbol}
+              onTickerSelect={onSelectStock}
+            />
+          </TabsContent>
         </CardContent>
       </Tabs>
     </Card>
