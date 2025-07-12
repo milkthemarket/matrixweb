@@ -12,6 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { useOpenPositionsContext } from '@/contexts/OpenPositionsContext';
 import { useSettingsContext } from '@/contexts/SettingsContext';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface OpenPositionsCardProps {
   className?: string;
@@ -48,49 +49,51 @@ export function OpenPositionsCard({ className }: OpenPositionsCardProps) {
       <div className="p-0 flex-1 overflow-hidden">
         {filteredPositions.length > 0 ? (
           <ScrollArea className="h-full">
-            {/* Header */}
-            <div className="grid grid-cols-7 gap-2 sticky top-0 bg-card/[.05] backdrop-blur-md z-[1] h-7 px-2 items-center text-[10px] text-muted-foreground font-medium border-b border-border/10">
-                <div className="text-left">Actions</div>
-                <div className="text-left">Symbol</div>
-                <div className="text-center">Open P&L %</div>
-                <div className="text-center">Open P&L</div>
-                <div className="text-center">Avg Price</div>
-                <div className="text-center">Last Price</div>
-                <div className="text-center">Quantity</div>
-            </div>
-             {/* Body */}
-            <div className="px-1">
-                {filteredPositions.map((pos) => {
-                    const pnl = calculatePnl(pos);
-                    const pnlPercent = calculatePnlPercent(pos);
-                    const pnlColorClass = pnl >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive";
+            <Table>
+                <TableHeader>
+                    <TableRow className="h-7">
+                        <TableHead className="px-2 text-left">Actions</TableHead>
+                        <TableHead className="px-2 text-left">Symbol</TableHead>
+                        <TableHead className="px-2 text-center">Open P&L %</TableHead>
+                        <TableHead className="px-2 text-center">Open P&L</TableHead>
+                        <TableHead className="px-2 text-center">Avg Price</TableHead>
+                        <TableHead className="px-2 text-center">Last Price</TableHead>
+                        <TableHead className="px-2 text-center">Quantity</TableHead>
+                    </TableRow>
+                </TableHeader>
+                 <TableBody>
+                    {filteredPositions.map((pos) => {
+                        const pnl = calculatePnl(pos);
+                        const pnlPercent = calculatePnlPercent(pos);
+                        const pnlColorClass = pnl >= 0 ? "text-[hsl(var(--confirm-green))]" : "text-destructive";
 
-                    return (
-                        <div key={pos.id} className="grid grid-cols-7 gap-2 items-center text-[11px] hover:bg-white/5 px-1 py-1.5 border-b border-border/5 last:border-b-0">
-                            <div className="text-left">
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-6 px-1.5 border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive-foreground text-[10px]"
-                                    onClick={() => handleClose(pos)}
-                                >
-                                    <XSquare className="mr-0.5 h-3 w-3" /> Close
-                                </Button>
-                            </div>
-                            <div className="font-bold text-foreground text-left">{pos.symbol}</div>
-                            <div className={cn("text-center font-bold", pnlColorClass)}>
-                                {pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
-                            </div>
-                            <div className={cn("text-center font-bold", pnlColorClass)}>
-                                {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
-                            </div>
-                            <div className="text-center font-medium text-foreground">${pos.entryPrice.toFixed(2)}</div>
-                            <div className="text-center font-bold text-foreground">${pos.currentPrice.toFixed(2)}</div>
-                            <div className="text-center font-medium text-foreground">{pos.shares}</div>
-                        </div>
-                    );
-                })}
-            </div>
+                        return (
+                            <TableRow key={pos.id} className="text-[11px] hover:bg-white/5 h-auto py-1.5 border-b border-border/5 last:border-b-0">
+                                <TableCell className="px-2 text-left">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-6 px-1.5 border-destructive text-destructive hover:bg-destructive/10 hover:text-destructive-foreground text-[10px]"
+                                        onClick={() => handleClose(pos)}
+                                    >
+                                        <XSquare className="mr-0.5 h-3 w-3" /> Close
+                                    </Button>
+                                </TableCell>
+                                <TableCell className="px-2 font-bold text-foreground text-left">{pos.symbol}</TableCell>
+                                <TableCell className={cn("px-2 text-center font-bold", pnlColorClass)}>
+                                    {pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(2)}%
+                                </TableCell>
+                                <TableCell className={cn("px-2 text-center font-bold", pnlColorClass)}>
+                                    {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
+                                </TableCell>
+                                <TableCell className="px-2 text-center font-medium text-foreground">${pos.entryPrice.toFixed(2)}</TableCell>
+                                <TableCell className="px-2 text-center font-bold text-foreground">${pos.currentPrice.toFixed(2)}</TableCell>
+                                <TableCell className="px-2 text-center font-medium text-foreground">{pos.shares}</TableCell>
+                            </TableRow>
+                        );
+                    })}
+                </TableBody>
+            </Table>
           </ScrollArea>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-xs py-8 px-3">

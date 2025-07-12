@@ -14,6 +14,7 @@ import { mockRules } from '@/app/(app)/trading/rules/page';
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { NewsCard } from './NewsCard';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Define dummyWatchlistSymbols directly in this file
 const dummyWatchlistSymbols = ['AAPL', 'MSFT', 'TSLA', 'GOOGL', 'NVDA', 'BCTX', 'SPY', 'AMD', 'AMZN', 'META', 'NFLX', 'JPM', 'TPL'];
@@ -129,38 +130,43 @@ export function WatchlistCard({ selectedStockSymbol, onSelectStock, className }:
         </CardHeader>
         <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
           <TabsContent value="watchlist" className="flex-1 overflow-hidden m-0">
-            <div className="grid grid-cols-4 w-full items-baseline text-[10px] gap-2 px-3 py-1 text-muted-foreground border-b border-border/10">
-              <span className="text-left">Symbol</span>
-              <span className="text-right">Price</span>
-              <span className="text-right">Change</span>
-              <span className="text-right">Vol</span>
-            </div>
-            <ScrollArea className="h-full">
-              <div className="space-y-px p-1">
-                {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
-                  <Button
-                    key={stock.id}
-                    variant="ghost"
-                    className={cn(
-                      "w-full justify-start h-auto py-1 px-2 text-left rounded-sm",
-                      selectedStockSymbol === stock.symbol ? "bg-primary/10" : "hover:bg-white/5"
-                    )}
-                    onClick={() => onSelectStock(stock.symbol)}
-                  >
-                    <div className="grid grid-cols-4 w-full items-baseline text-[11px] gap-2">
-                      <span className="font-bold text-foreground truncate text-left">{stock.symbol}</span>
-                      <span className="font-bold text-foreground text-right">${stock.price.toFixed(2)}</span>
-                      <span className={cn("font-bold text-right", stock.changePercent >= 0 ? "text-green-500" : "text-red-500")}>
-                        {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
-                      </span>
-                      <span className="font-medium text-neutral-400 text-right truncate">{formatVolumeDisplay(stock.volume)}</span>
-                    </div>
-                  </Button>
-                )) : (
-                  <p className="text-[10px] text-muted-foreground text-center py-1.5">No stocks match filter.</p>
-                )}
-              </div>
-            </ScrollArea>
+             <ScrollArea className="h-full">
+                <Table>
+                    <TableHeader>
+                        <TableRow className="h-7">
+                            <TableHead className="px-2 text-left">Symbol</TableHead>
+                            <TableHead className="px-2 text-right">Price</TableHead>
+                            <TableHead className="px-2 text-right">Change</TableHead>
+                            <TableHead className="px-2 text-right">Vol</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                         {filteredStocks.length > 0 ? filteredStocks.map((stock) => (
+                          <TableRow
+                            key={stock.id}
+                            className={cn(
+                              "cursor-pointer h-auto text-[11px] hover:bg-white/5 border-b border-border/5 last:border-b-0",
+                              selectedStockSymbol === stock.symbol && "bg-primary/10"
+                            )}
+                            onClick={() => onSelectStock(stock.symbol)}
+                          >
+                                <TableCell className="px-2 py-1.5 font-bold text-foreground truncate text-left">{stock.symbol}</TableCell>
+                                <TableCell className="px-2 py-1.5 font-bold text-foreground text-right">${stock.price.toFixed(2)}</TableCell>
+                                <TableCell className={cn("px-2 py-1.5 font-bold text-right", stock.changePercent >= 0 ? "text-green-500" : "text-red-500")}>
+                                    {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent.toFixed(2)}%
+                                </TableCell>
+                                <TableCell className="px-2 py-1.5 font-medium text-neutral-400 text-right truncate">{formatVolumeDisplay(stock.volume)}</TableCell>
+                          </TableRow>
+                        )) : (
+                           <TableRow>
+                            <TableCell colSpan={4} className="h-24 text-center text-[10px] text-muted-foreground">
+                                No stocks match the selected filter.
+                            </TableCell>
+                           </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+              </ScrollArea>
           </TabsContent>
           <TabsContent value="news" className="m-0 h-full">
             <NewsCard
