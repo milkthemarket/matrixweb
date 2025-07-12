@@ -192,6 +192,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
       return (
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" />
             <XAxis dataKey="date" hide />
             <YAxis hide domain={['auto', 'auto']} />
             <Tooltip
@@ -214,6 +215,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
                       <stop offset="100%" stopColor={milkPurpleColor} stopOpacity={0}/>
                     </linearGradient>
                 </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" />
                 <XAxis dataKey="date" hide />
                 <YAxis hide domain={['auto', 'auto']} />
                 <Tooltip
@@ -230,6 +232,7 @@ export function InteractiveChartCard({ stock, onManualTickerSubmit, className }:
       return (
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.05)" />
             <XAxis dataKey="date" hide />
             <YAxis hide domain={['dataMin - 1', 'dataMax + 1']} />
             <Tooltip
