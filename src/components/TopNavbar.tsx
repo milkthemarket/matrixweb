@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { MiloAvatarIcon } from "./icons/MiloAvatarIcon";
 
 const navItems = [
   { href: "/trading/milk-market", label: "Milk Market", icon: Store },
@@ -33,8 +34,11 @@ export function TopNavbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center">
-        {/* Search Bar - Moved to the left */}
+      <div className="container flex h-14 max-w-screen-2xl items-center gap-x-4">
+        {/* Cow Icon */}
+        <MiloAvatarIcon size={32} />
+
+        {/* Search Bar */}
         <div className="flex-1 flex justify-start">
             <div className="relative w-full max-w-xl">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
